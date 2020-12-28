@@ -82,8 +82,9 @@ export default {
     this.$eventBus.$on("login", (e) => {
       this.setUserInfo(e);
     });
-    this.$axios.post("User/getUserInfo").then((e) => {
+    this.$axios.post("User/getUserInfo",{},{noDefaultAction:true}).then((e) => {
       this.setUserInfo(e.data.data);
+      mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
     });
   },
   methods: {
@@ -93,18 +94,19 @@ export default {
       }
     },
     setAppHeight() {
-      let h =
-        document.documentElement.clientHeight - this.header.offsetHeight + "px";
-      this.$refs.app.style.minHeight = h;
-      this.$refs.app.style.height = h;
+      let h = document.documentElement.clientHeight - this.header.offsetHeight + "px"
+      this.$refs.app.style.minHeight = h
+      this.$refs.app.style.height = h
     },
     setUserInfo(info) {
-      this.userInfo = info;
-      this.$refs.header.$data.userInfo = info;
+      this.Global.userInfo = info
+      this.userInfo = info
+      this.$refs.header.$data.userInfo = info
     },
     exit() {
-      this.setUserInfo(null);
-      localStorage.clear();
+      this.setUserInfo(null)
+      localStorage.clear()
+      this.Global.userInfo = null
       this.$axios.get("logout").then(() => {
         mdui.alert("退出成功", () => {
           setTimeout(() => {

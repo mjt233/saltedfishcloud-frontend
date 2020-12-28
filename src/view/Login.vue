@@ -50,10 +50,10 @@ export default {
       this.$axios.post('User/login', this.form).then(e=>{
         mdui.alert('登录成功',()=>{
           this.loading = false
-          localStorage.setItem('token', e.data.data)
           // 拿到token之后发起请求获取用户信息
           this.$axios.post('User/getUserInfo').then(e=>{
             this.$router.push('/my')
+            localStorage.setItem('userinfo', e.data.data)
             this.$eventBus.$emit('login', e.data.data)
           })
         }, {modal:true})

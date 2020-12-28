@@ -69,6 +69,7 @@ a {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1;
     top: 0px;
     left: 0px;
     background-color: rgba(255, 255, 255, 0.5);

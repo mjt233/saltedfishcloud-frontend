@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import PublicBrowser from '@/view/PublicBrowser.vue'
+import PrivateDisk from '@/view/PrivateDisk'
 import index from '@/view/index'
 Vue.use(Router)
 
@@ -23,7 +24,11 @@ export default new Router({
       },
       {
           path: '/private',
-          component: require('@/view/PrivateDisk').default
+          component: PrivateDisk
+      },
+      {
+          path: '/private/**',
+          component: PrivateDisk
       },
       {
           path: '/login',

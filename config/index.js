@@ -22,6 +22,9 @@ module.exports = {
       '/pubdown': {
         target: 'http://127.0.0.1:8087'
       },
+      '/pridown': {
+        target: 'http://127.0.0.1:8087'
+      },
       '/login': {
         target: 'http://127.0.0.1:8087'
       }

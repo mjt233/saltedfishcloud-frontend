@@ -1,21 +1,30 @@
 <template>
-  <container>
-      <h1>未开发</h1>
-  </container>
+  <file-browser
+    :api="'getPrivateList'"
+    :prefix="'private'"
+    :rootName="'私人网盘'"
+    :showPath="true"
+    @clickFile='clickFile'
+  >
+
+  </file-browser>
 </template>
 
 <script>
-import mdui from 'mdui'
-import Container from '../components/Container.vue'
+import FileBrowser from "../components/FileBrowser.vue"
+
 export default {
-  components: { Container },
-  mounted() {
-    if (!localStorage.token) {
-      mdui.alert('请先登录再访问此页面')
+  components: { FileBrowser },
+  name: 'PrivateDisk',
+  methods: {
+    clickFile(e) {
+      let newPath = location.href.replace(`/#/private`, '/pridown') + `/${encodeURIComponent(e.name)}`
+      location.href = newPath
     }
   }
 }
 </script>
 
-<style scope>
+<style>
+
 </style>

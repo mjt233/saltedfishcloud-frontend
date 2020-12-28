@@ -6,7 +6,7 @@
       <div class="mdui-toolbar-spacer"></div>
       <div v-if="userInfo != null">
         <img class="mdui-chip-icon" src="@/assets/img/bg/bg1.jpg"/>
-        <span class="mdui-chip-title">Example Chip</span>
+        <span class="mdui-chip-title"></span>
       </div>
     </div>
   </header>
