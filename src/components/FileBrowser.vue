@@ -3,6 +3,7 @@
         class="list"
         @clickItem="listClick"
         @back="back"
+        @drop="drop"
         :loading="loading"
         :file-list="fileList">
         <div>
@@ -19,6 +20,12 @@
 </template>
 
 <script>
+/**
+ * @typedef {Object}    DropItemInfo
+ * @property {File[]|Item[]}   files    -   文件对象列表
+ * @property {String}   path            -   对象
+ * @property {String}   target          -   被拖动到的对象
+ */
 import fileList from '@/components/FileList.vue'
 import Container from '../components/Container.vue'
 import Pageniate from '../components/Pageniate.vue'
@@ -66,6 +73,21 @@ export default {
         this.loadList()
     },
     methods: {
+        drop(e, fileName) {
+            if (e.dataTransfer.files.length !== 0) {
+                this.$emit('dropFile', {
+                    files: e.dataTransfer.files,
+                    path: this.paths,
+                    target: fileName
+                })
+            } else if(e.dataTransfer.files.length !== 0) {
+                this.$emit('dropItem', {
+                    files: e.dataTransfer.items,
+                    path: this.paths,
+                    target: fileName
+                })
+            }
+        },
         listClick (e) {
             if (e.type === 1) {
                 location.href += `/${encodeURIComponent(e.name)}`

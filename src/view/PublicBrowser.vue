@@ -6,22 +6,39 @@
         :rootName="'公共网盘'"
         :pathLabel="'当前路径：'"
         @clickFile='clickFile'
+        @dropFile='dropFile'
     >
 
     </file-browser>
 </template>
 
 <script>
+import mdui from 'mdui'
 import FileBrowser from '../components/FileBrowser.vue'
+import FileQueue from '../global/FileQueue'
 export default {
     name: 'PublicBrowser',
+    data() {
+        return {
+            userinfo: {}
+        }
+    },
     components: {
         FileBrowser
+    },
+    mounted () {
+        this.userinfo = JSON.parse(localStorage.userinfo)
     },
     methods: {
         clickFile(e) {
             let newPath = location.href.replace(`/#/public`, '/pubdown') + `/${encodeURIComponent(e.name)}`
             location.href = newPath
+        },
+        dropFile(fileinfo) {
+            if (this.userinfo.type !== 1) {
+                mdui.alert('您无权限操作公共目录')
+                return
+            }
         }
     }
 }

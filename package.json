@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "default-passive-events": "^2.0.0",
+    "js-md5": "^0.7.3",
     "less": "^3.13.0",
     "less-loader": "^7.1.0",
     "mdui": "^1.0.1",

@@ -1,5 +1,10 @@
 <template>
-    <container>
+    <container
+        @dragover="preventAction"
+        @dragleave="preventAction"
+        @dragenter="preventAction"
+        @drag="drag"
+    >
         <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
@@ -18,10 +23,23 @@
                 <div class="file-size"></div>
                 <div class="file-date"></div>
             </li>
-            <li style="overflow: hidden" v-for="item in fileList" v-bind:key="item.name" @click="click(item)" class="list-item mdui-ripple" :class="item.type == 1 ? 'dir' : `file type-${item.suffix}` " >
+            <li
+                style="overflow: hidden"
+                v-for="item in fileList"
+                v-bind:key="item.name"
+                @click="click(item)"
+                @dragleave="dragLeave"
+                @dragover="dragover"
+                @dragenter="dragenter"
+                @drop="drop"
+                class="list-item mdui-ripple" :class="item.type == 1 ? 'dir' : `file type-${item.suffix}` "
+            >
                 <div class="file-name">{{item.name}}</div>
                 <div class="file-size">{{item.formatSize}}</div>
                 <div class="file-date">{{item.formatModified}}</div>
+            </li>
+            <li v-if="fileList.length==0" class="list-item">
+                空空如也
             </li>
         </ul>
     </container>
@@ -29,6 +47,7 @@
 
 <script>
 import Container from './Container.vue'
+import '../css/FileIcon.css'
 export default {
   components: { Container },
     name: "file-list",
@@ -51,6 +70,49 @@ export default {
                 this.path.push(item.name)
             }
             this.$emit('clickItem', item)
+        },
+        dragLeave(e) {
+            this.preventAction(e)
+            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            itemElem.classList.remove('selected')
+            this.$emit('dragleave', e)
+        },
+        dragenter(e) {
+            this.preventAction(e)
+            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            itemElem.classList.add('selected')
+            this.$emit('dragenter', e)
+        },
+        dragover(e) {
+            this.preventAction(e)
+            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            itemElem.classList.add('selected')
+            this.$emit('dragover', e)
+        },
+        drop(e) {
+            this.preventAction(e)
+            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            itemElem.classList.remove('selected')
+            let name = itemElem.querySelector('.file-name').innerText
+            this.$emit('drop', e, {
+                name: name,
+                type: itemElem.classList.contains('file') ? 'file' : 'dir'
+            })
+        },
+        preventAction(e) {
+            e.stopPropagation()
+            e.preventDefault()
+        },
+        getElParentByClass (elem, className) {
+            let t = elem
+            while(t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML')) {
+                t = t.parentNode
+            }
+            if (t.tagName === 'HTML') {
+                return null
+            } else {
+                return t
+            }
         }
     },data () {
         return {
@@ -111,6 +173,9 @@ a {
         overflow: auto;
         transition: all .2s;
         cursor: pointer;
+        &.selected {
+            background-color: rgb(233,233,233);
+        }
         &.tool-bar {
             background-image: url('~@/assets/img/icon/return.png');
             background-size: 16px 16px;
@@ -121,8 +186,8 @@ a {
             text-align: left;
             padding-left: 35px;
         }
-        .file-size { flex-grow: 1; }
-        .file-date { flex-grow: 4}
+        .file-size { flex-grow: 2; flex-basis: 0; flex-shrink: 0;}
+        .file-date { flex-grow: 4; flex-basis: 0; flex-shrink: 0;}
 
         >*{
             flex-basis: 0;
@@ -134,34 +199,34 @@ a {
     }
 }
 
-.dir{ background-image: url("~@/assets/img/icon/dir.png"); }
-.file{ background-image: url("~@/assets/img/icon/file.png"); }
-/* 压缩文件 */
-.type-zip,.type-rar,.type-gz,.type-7z,.type-tar,.type-xz{ background-image: url("~@/assets/img/icon/zipped.png"); }
-/* 视频 */
-.type-mp4,.type-mkv,.type-flv{ background-image: url("~@/assets/img/icon/video.png"); }
-/* 音频 */
-.type-mp3,.type-wav,.type-m4a,.type-flac{ background-image: url("~@/assets/img/icon/audio.png"); }
-/* 图片 */
-.type-jpeg,.type-jpg,.type-gif,.type-png,.type-bmp,.type-icon{ background-image: url("~@/assets/img/icon/picture.png"); }
-/* Office */
-.type-ppt,.type-pptx{ background-image: url("~@/assets/img/icon/ppt.png"); }
-.type-doc,.type-docx{ background-image: url("~@/assets/img/icon/doc.png"); }
-.type-xls,.type-xlsx{ background-image: url("~@/assets/img/icon/excel.png"); }
-/* 文本 */
-.type-txt{background-image: url("~@/assets/img/icon/txt.png");}
-/* EXE */
-.type-exe{ background-image: url("~@/assets/img/icon/exe.png"); }
-/* 镜像类 */
-/* ISO */
-.type-iso{ background-image: url("~@/assets/img/icon/iso.png"); }
-/* 其他 */
-.type-image,.type-dmg{ background-image: url("~@/assets/img/icon/img.png"); }
-/* 代码类文件 */
-/* html */
-.type-html,.type.htm { background-image: url("~@/assets/img/icon/code.png"); }
-/* 配置 */
-.type-ini,.type-conf,.type-cnf{ background-image: url("~@/assets/img/icon/config.png"); }
-.type-apk{ background-image: url("~@/assets/img/icon/android.png"); }
+// .dir{ background-image: url("~@/assets/img/icon/dir.png"); }
+// .file{ background-image: url("~@/assets/img/icon/file.png"); }
+// /* 压缩文件 */
+// .type-zip,.type-rar,.type-gz,.type-7z,.type-tar,.type-xz{ background-image: url("~@/assets/img/icon/zipped.png"); }
+// /* 视频 */
+// .type-mp4,.type-mkv,.type-flv{ background-image: url("~@/assets/img/icon/video.png"); }
+// /* 音频 */
+// .type-mp3,.type-wav,.type-m4a,.type-flac{ background-image: url("~@/assets/img/icon/audio.png"); }
+// /* 图片 */
+// .type-jpeg,.type-jpg,.type-gif,.type-png,.type-bmp,.type-icon{ background-image: url("~@/assets/img/icon/picture.png"); }
+// /* Office */
+// .type-ppt,.type-pptx{ background-image: url("~@/assets/img/icon/ppt.png"); }
+// .type-doc,.type-docx{ background-image: url("~@/assets/img/icon/doc.png"); }
+// .type-xls,.type-xlsx{ background-image: url("~@/assets/img/icon/excel.png"); }
+// /* 文本 */
+// .type-txt{background-image: url("~@/assets/img/icon/txt.png");}
+// /* EXE */
+// .type-exe{ background-image: url("~@/assets/img/icon/exe.png"); }
+// /* 镜像类 */
+// /* ISO */
+// .type-iso{ background-image: url("~@/assets/img/icon/iso.png"); }
+// /* 其他 */
+// .type-image,.type-dmg{ background-image: url("~@/assets/img/icon/img.png"); }
+// /* 代码类文件 */
+// /* html */
+// .type-html,.type.htm { background-image: url("~@/assets/img/icon/code.png"); }
+// /* 配置 */
+// .type-ini,.type-conf,.type-cnf{ background-image: url("~@/assets/img/icon/config.png"); }
+// .type-apk{ background-image: url("~@/assets/img/icon/android.png"); }
 
 </style>

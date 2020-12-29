@@ -33,6 +33,10 @@ export default new Router({
       {
           path: '/login',
           component: require('@/view/Login').default
-      },{path: '/my', component: require('@/view/My').default}
+      },
+      {
+          path: '/my',
+          component: require('@/view/My').default
+      }
   ]
 })

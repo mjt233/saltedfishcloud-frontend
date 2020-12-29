@@ -59,19 +59,23 @@
     <transition on name="route-switch" mode="out-in">
       <router-view />
     </transition>
+    <file-upload-dialog></file-upload-dialog>
   </div>
 </template>
 
 <script>
 import mdui from "mdui";
-import SfHeader from "./components/SfHeader.vue";
+import SfHeader from "./components/SfHeader.vue"
+import FileQueue from './global/FileQueue';
+import FileUploadDialog from './components/FileUploadDialog.vue';
 export default {
-  components: { SfHeader },
+  components: { SfHeader, FileUploadDialog },
   name: "App",
   data() {
     return {
       drawer: null,
       userInfo: null,
+      FileQueue: FileQueue.queue
     };
   },
   mounted() {
@@ -116,8 +120,8 @@ export default {
         });
       });
     },
-  },
-};
+  }
+}
 </script>
 
 <style>
