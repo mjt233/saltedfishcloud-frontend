@@ -37,6 +37,10 @@ export default new Router({
       {
           path: '/my',
           component: require('@/view/My').default
+      },
+      {
+          path: '/test',
+          component: require('@/view/Test').default
       }
   ]
 })

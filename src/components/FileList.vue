@@ -13,7 +13,7 @@
         <slot></slot>
         <ul class="mdui-menu" id="menu">
             <li class="mdui-menu-item">
-                <a href="javascript:;" class="mdui-ripple">
+                <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
                     新建目录
                 </a>
@@ -161,47 +161,79 @@ export default {
          */
         showMenu (e) {
             this.preventAction(e)
-            // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
-            let div = document.createElement('div')
-            div.style.position = 'fixed'
-            div.style.top = e.pageY + 'px'
-            div.style.left = e.pageX + 'px'
-            let container = document.getElementById('container')
-            container.appendChild(div)
+            let show = () => {
+                // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
+                let div = document.createElement('div')
+                div.style.position = 'fixed'
+                div.style.top = e.pageY + 'px'
+                div.style.left = e.pageX + 'px'
+                let container = document.getElementById('container')
+                container.appendChild(div)
 
-            // 实例化菜单对象并打开，打开后用于定位的div可移除
-            let menu = new mdui.Menu(div, '#menu', {
-                gutter: 0,
-                fixed: true
-            })
+                // 实例化菜单对象并打开，打开后用于定位的div可移除
+                let menu = new mdui.Menu(div, '#menu', {
+                    gutter: 0,
+                    fixed: true
+                })
 
-            let target = this.getElParentByClass(e.target, 'list-item')
-            if (target !== null && !target.classList.contains('empty')) {
-                this.fileInfo = {
-                    name: target.querySelector('.file-name').innerText,
-                    type: target.classList.contains('file') ? 'file' : 'dir'
+                let menu_el = document.querySelector('#menu')
+
+                let target = this.getElParentByClass(e.target, 'list-item')
+                if (target !== null && !target.classList.contains('empty')) {
+                    this.fileInfo = {
+                        name: target.querySelector('.file-name').innerText,
+                        type: target.classList.contains('file') ? 'file' : 'dir'
+                    }
+                } else {
+                    this.fileInfo = null
                 }
-            } else {
-                this.fileInfo = null
+                // 
+                menu.open()
+                div.remove()
             }
-            // 
-            menu.open()
-            div.remove()
+            if (this.menuClosing) {
+                setTimeout(() => {
+                    show()
+                }, 250)
+            } else {
+                show()
+            }
         },
         upload () {
             this.$emit('upload')
         },
         refresh () {
             this.$emit('refresh')
+        },
+        createFolder () {
+            mdui.prompt('文件夹名', text => {
+                if (this.fileList.filter(item => item.name === text).length !== 0) {
+                    mdui.alert('文件名冲突')
+                } else {
+                    this.$emit('createFolder', text)
+                }
+            }, () => {}, {
+                defaultValue: '新建文件夹'
+            })
         }
-    }
-    ,data () {
+    },
+    mounted() {
+        let menu = document.querySelector('#menu')
+        menu.addEventListener('closed.mdui.menu', event => {
+            this.menuClosing = false
+        })
+        menu.addEventListener('close.mdui.menu', event => {
+            this.menuClosing = true
+        })
+    },
+    data () {
         return {
             path:[],
             /**
              * @type {Type.BaseFileInfo}
              */
-            fileInfo: null
+            fileInfo: null,
+            menuClosing: false
         }
     }
 }

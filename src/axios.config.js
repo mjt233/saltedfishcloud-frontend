@@ -1,6 +1,7 @@
 import axios from 'axios'
 import qs from 'qs'
 import mdui from 'mdui'
+import Globle from './global/Global'
 axios.defaults.baseURL = '/api/'
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
@@ -10,7 +11,7 @@ axios.interceptors.request.use(conf => {
   if (token) {
     conf.headers.token = token
   }
-  if (conf.data !== undefined) {
+  if (conf.data !== undefined && conf.method === 'post') {
     let name = conf.data.constructor.name
     if (name !== 'FormData') {
       conf.data = qs.stringify(conf.data)
@@ -27,6 +28,7 @@ axios.interceptors.response.use(
       case -1:
           if (conf.config.url !== 'User/getUserInfo') {
             mdui.snackbar(conf.data.msg)
+            Globle.userInfo = null
           }
           break;
       case 0:

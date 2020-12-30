@@ -6,6 +6,7 @@
         @drop="drop"
         @upload="upload"
         @delete="deleteItem"
+        @createFolder="createFolder"
         @refresh="loadList();$emit('refresh', paths)"
         :loading="loading || loadingControl"
         :file-list="fileList">
@@ -152,6 +153,12 @@ export default {
             }, ()=>{}, {
                 confirmText: '删除',
                 cancelText: '取消'
+            })
+        },
+        createFolder (name) {
+            this.$emit('createFolder', {
+                name: name,
+                path: this.paths
             })
         }
     },

@@ -10,6 +10,7 @@
     @dropFile='addUploadFile'
     @upload='upload'
     @delete='deleteItem'
+    @createFolder='createFolder'
     ref='browser'
   >
 
@@ -76,13 +77,24 @@ export default {
       this.loading = true
       let cb = msg => {
         this.loading = false
-        mdui.alert(msg)
+        mdui.snackbar(msg,{
+          position: 'bottom'
+        })
         this.$refs.browser.loadList()
       }
       axios.post(`delete/private/${target}/${itemInfo.name}`).then(() => {
         cb('删除成功')
       }).catch(() => {
         cb('删除失败')
+      })
+    },
+    createFolder (info) {
+      let path = info.path.join('/')
+      let url = `mkdir/private/${path}`
+      this.$axios.post(url, {
+        name: info.name
+      }).then(e=>{
+        this.$refs.browser.loadList()
       })
     }
   }
