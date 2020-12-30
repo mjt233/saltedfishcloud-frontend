@@ -31,7 +31,7 @@
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
-            <li v-if="fileInfo" class="mdui-menu-item">
+            <li v-if="fileInfo" class="mdui-menu-item" @click="$emit('delete', fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
                     删除

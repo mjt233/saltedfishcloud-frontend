@@ -5,9 +5,12 @@
     :rootName="'私人网盘'"
     :showPath="true"
     :pathLabel="'当前路径：'"
+    :loadingControl="loading"
     @clickFile='clickFile'
     @dropFile='addUploadFile'
     @upload='upload'
+    @delete='deleteItem'
+    ref='browser'
   >
 
   </file-browser>
@@ -20,11 +23,13 @@ import FileBrowser from "../components/FileBrowser.vue"
 import md5 from 'js-md5'
 import FileQueue from '../global/FileQueue'
 import FileUtils from '../utils/FileUtils'
+import axios from 'axios'
 export default {
   components: { FileBrowser },
   name: 'PrivateDisk',
   data() {
     return {
+      loading: false
     }
   },
   methods: {
@@ -63,6 +68,23 @@ export default {
         })
       }
     },
+    /**
+     * @param {Type.FileInfo} itemInfo
+     */
+    deleteItem (itemInfo) {
+      let target = itemInfo.path.join('/')
+      this.loading = true
+      let cb = msg => {
+        this.loading = false
+        mdui.alert(msg)
+        this.$refs.browser.loadList()
+      }
+      axios.post(`delete/private/${target}/${itemInfo.name}`).then(() => {
+        cb('删除成功')
+      }).catch(() => {
+        cb('删除失败')
+      })
+    }
   }
 }
 </script>

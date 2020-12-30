@@ -5,8 +5,9 @@
         @back="back"
         @drop="drop"
         @upload="upload"
+        @delete="deleteItem"
         @refresh="loadList();$emit('refresh', paths)"
-        :loading="loading"
+        :loading="loading || loadingControl"
         :file-list="fileList">
         <div>
             <div v-if="showPath">
@@ -27,6 +28,7 @@ import Container from '../components/Container.vue'
 import Pageniate from '../components/Pageniate.vue'
 import Type from "../typedescribe/type";
 import FileUtils from '../utils/FileUtils';
+import mdui from 'mdui';
 export default {
     name: 'FileBrowser',
     props: {
@@ -57,6 +59,11 @@ export default {
             // 路径标签文字
             type: String,
             default: '当前路径'
+        },
+        'loadingControl': {
+            // 父组件加载控制，为true时将进入加载中状态
+            type: Boolean,
+            default: false
         }
     },
     data () {
@@ -130,12 +137,30 @@ export default {
                     }
                 })
             })
+        },
+        /**
+         * @param {Type.BaseFileInfo} fileInfo
+         */
+        deleteItem (fileInfo) {
+            mdui.confirm(`确定要删除 "${fileInfo.name}" 吗？`, () => {
+                /**
+                 * @type {Type.FileInfo}
+                 */
+                let itemInfo = fileInfo
+                itemInfo.path = this.paths
+                this.$emit('delete', itemInfo)
+            }, ()=>{}, {
+                confirmText: '删除',
+                cancelText: '取消'
+            })
         }
     },
     watch: {
         $route(to, from) {
-            this.updatePath()
-            this.loadList()
+            if (to.path != from.path) {
+                this.updatePath()
+                this.loadList()
+            }
         }
     },
     filters: {
