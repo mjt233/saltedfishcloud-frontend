@@ -27,6 +27,7 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
+import Global from '../global/Global'
 export default {
   components: { Container },
   data() {
@@ -53,7 +54,7 @@ export default {
           // 拿到token之后发起请求获取用户信息
           this.$axios.post('User/getUserInfo').then(e=>{
             this.$router.push('/my')
-            localStorage.setItem('userinfo',JSON.stringify(e.data.data))
+            Global.userInfo = e.data.data
             this.$eventBus.$emit('login', e.data.data)
           })
         }, {modal:true})

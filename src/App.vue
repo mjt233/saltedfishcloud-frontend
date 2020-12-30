@@ -68,6 +68,7 @@ import mdui from "mdui";
 import SfHeader from "./components/SfHeader.vue"
 import FileQueue from './global/FileQueue';
 import FileUploadDialog from './components/FileUploadDialog.vue';
+import Global from './global/Global'
 export default {
   components: { SfHeader, FileUploadDialog },
   name: "App",
@@ -103,14 +104,14 @@ export default {
       this.$refs.app.style.height = h
     },
     setUserInfo(info) {
-      this.Global.userInfo = info
+      Global.userInfo = info
       this.userInfo = info
       this.$refs.header.$data.userInfo = info
     },
     exit() {
       this.setUserInfo(null)
       localStorage.clear()
-      this.Global.userInfo = null
+      Global.userInfo = null
       this.$axios.get("logout").then(() => {
         mdui.alert("退出成功", () => {
           setTimeout(() => {

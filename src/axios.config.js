@@ -28,7 +28,6 @@ axios.interceptors.response.use(
           if (conf.config.url !== 'User/getUserInfo') {
             mdui.snackbar(conf.data.msg)
           }
-          localStorage.clear()
           break;
       case 0:
           mdui.alert(conf.data.msg)

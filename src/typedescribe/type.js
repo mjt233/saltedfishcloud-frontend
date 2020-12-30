@@ -6,8 +6,15 @@
  */
 /**
  * @typedef {Object}    DropItemInfo
- * @property {File[]}   files    -   文件对象列表
- * @property {String[]}   path            -   路径数组
- * @property {BaseFileInfo}   target          -   被拖动到的对象属性
+ * @property {FileList|DataTransferItemList}   files               -   文件对象列表
+ * @property {String[]}   path              -   路径数组
+ * @property {BaseFileInfo}   target        -   被拖动到的对象属性
  */
+
+ /**
+  * @typedef {Object} FileInfo
+  * @property {String}   name    -   文件名
+  * @property {String}   type    -   文件类型 dir或file
+  * @property {String[]} path    -   文件所在路径
+  */
 module.exports = {}

@@ -16,6 +16,7 @@
 import mdui from 'mdui'
 import FileBrowser from '../components/FileBrowser.vue'
 import FileQueue from '../global/FileQueue'
+import Global from '../global/Global'
 export default {
     name: 'PublicBrowser',
     data() {
@@ -27,7 +28,7 @@ export default {
         FileBrowser
     },
     mounted () {
-        this.userinfo = JSON.parse(localStorage.userinfo)
+        this.userinfo = Global.userInfo
     },
     methods: {
         clickFile(e) {

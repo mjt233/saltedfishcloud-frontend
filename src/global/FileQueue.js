@@ -1,5 +1,5 @@
+const { default: mdui} = require('mdui')
 const { default: axios } = require("axios")
-const StringFormatter = require("../utils/StringFormatter")
 
 /**
  * @typedef {Object} FileInfo
@@ -25,11 +25,20 @@ let obj = {
      * @param {Object=} fileInfo.params         -   上传时附带的参数
      */
     addFile(fileInfo) {
-        fileInfo.status = 'ready'
-        fileInfo.prog = -1
-        fileInfo.speed = fileInfo.file.size
-        fileInfo.params = fileInfo.params ? fileInfo.params : {}
-        this.queue.push(fileInfo)
+        // 利用FileReader读取这个文件 若发生错误则为文件夹，成功则为文件
+        // 缺陷： 文件过大导致读取时间长
+        let reader = new FileReader
+        reader.readAsArrayBuffer(fileInfo.file)
+        reader.addEventListener('error', e=> {
+            mdui.alert(`"${fileInfo.file.name}"是个文件夹，浏览器不支持文件夹上传`, '提示')
+        })
+        reader.addEventListener('load', () => {
+            fileInfo.status = 'ready'
+            fileInfo.prog = -1
+            fileInfo.speed = 0
+            fileInfo.params = fileInfo.params ? fileInfo.params : {}
+            this.queue.push(fileInfo)
+        })
     },
     shift() {
         return this.queue.shift()
@@ -94,7 +103,7 @@ let obj = {
             this.shift()
             setTimeout(() => {
                 this.executeQueue()
-            }, 1000)
+            }, 100)
         })
     }
 }

@@ -4,6 +4,8 @@
         @clickItem="listClick"
         @back="back"
         @drop="drop"
+        @upload="upload"
+        @refresh="loadList();$emit('refresh', paths)"
         :loading="loading"
         :file-list="fileList">
         <div>
@@ -20,15 +22,11 @@
 </template>
 
 <script>
-/**
- * @typedef {Object}    DropItemInfo
- * @property {File[]|Item[]}   files    -   文件对象列表
- * @property {String}   path            -   对象
- * @property {String}   target          -   被拖动到的对象
- */
 import fileList from '@/components/FileList.vue'
 import Container from '../components/Container.vue'
 import Pageniate from '../components/Pageniate.vue'
+import Type from "../typedescribe/type";
+import FileUtils from '../utils/FileUtils';
 export default {
     name: 'FileBrowser',
     props: {
@@ -73,6 +71,10 @@ export default {
         this.loadList()
     },
     methods: {
+        /**
+         * @param {DragEvent}           e
+         * @param {Type.DropItemInfo}   fileName
+         */
         drop(e, fileName) {
             if (e.dataTransfer.files.length !== 0) {
                 this.$emit('dropFile', {
@@ -97,22 +99,37 @@ export default {
                     name: e.name
                 })
             }
-        },loadList() {
+        },
+        loadList() {
             this.loading = true
             let url = `${this.api}/${this.paths.join('/')}`
             this.$axios.post(url).then(e => {
                 this.loading = false
                 this.fileList = e.data.data[0].concat(e.data.data[1])
             }).catch(() => this.loading = false)
-        },updatePath() {
+        },
+        updatePath() {
             this.paths = this.$route.path.substring(`/${this.prefix}`.length).split('/').filter(i => i.length > 0)
-        },back() {
+        },
+        back() {
             if (this.paths.length === 0) {
                 return
             }
             this.paths.pop()
             location.href = `/#/${this.prefix}/${this.paths.join('/')}`
             this.loadList()
+        },
+        upload () {
+            FileUtils.openFileDialog(filelist => {
+                this.$emit('upload', {
+                    files: filelist,
+                    path: this.paths,
+                    target: {
+                        name: this.paths.length === 0 ? '/' : this.paths[this.paths.length - 1],
+                        type: 'dir'
+                    }
+                })
+            })
         }
     },
     watch: {

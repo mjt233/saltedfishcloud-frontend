@@ -1,14 +1,43 @@
 <template>
     <container
-        @dragover="preventAction"
-        @dragleave="preventAction"
-        @dragenter="preventAction"
-        @drag="drag"
+        @dragenter.native="preventAction"
+        @dragleave.native="preventAction"
+        @dragover.native="preventAction"
+        @drop.native="drop"
+        @contextmenu.native="showMenu"
+        id="container"
     >
         <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
         <slot></slot>
+        <ul class="mdui-menu" id="menu">
+            <li class="mdui-menu-item">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
+                    新建目录
+                </a>
+            </li>
+            <li class="mdui-menu-item">
+                <a href="javascript:;" @click="refresh">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">refresh</i>
+                    刷新
+                </a>
+            </li>
+            <li class="mdui-menu-item" @click="upload">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_upload</i>
+                    上传
+                </a>
+            </li>
+            <li v-if="fileInfo" class="mdui-divider"></li>
+            <li v-if="fileInfo" class="mdui-menu-item">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
+                    删除
+                </a>
+            </li>
+        </ul>
         <ul class="list-container">
             <div class="loading-mask" :class="{'hid':!loading}">
                 <!-- <div class="mdui-spinner"></div> -->
@@ -38,7 +67,7 @@
                 <div class="file-size">{{item.formatSize}}</div>
                 <div class="file-date">{{item.formatModified}}</div>
             </li>
-            <li v-if="fileList.length==0" class="list-item">
+            <li v-if="fileList.length==0" class="list-item empty">
                 空空如也
             </li>
         </ul>
@@ -46,8 +75,10 @@
 </template>
 
 <script>
+import Type from '../typedescribe/type'
 import Container from './Container.vue'
 import '../css/FileIcon.css'
+import mdui from 'mdui'
 export default {
   components: { Container },
     name: "file-list",
@@ -62,13 +93,9 @@ export default {
         }
     },methods: {
         back() {
-            this.path.pop()
             this.$emit('back')
         },
         click(item) {
-            if (item.type === 1) {
-                this.path.push(item.name)
-            }
             this.$emit('clickItem', item)
         },
         dragLeave(e) {
@@ -92,11 +119,26 @@ export default {
         drop(e) {
             this.preventAction(e)
             let itemElem = this.getElParentByClass(e.target, 'list-item')
-            itemElem.classList.remove('selected')
-            let name = itemElem.querySelector('.file-name').innerText
+            let name = ''
+            let type = ''
+            if (!itemElem) {
+                // 拖动到非列表项目中
+                type = 'dir'
+                if (this.path.length === 0) {
+                    name = '/'
+                } else {
+                    name = this.path[this.path.length - 1]
+                }
+            } else {
+                // 拖动到列表项目中
+                itemElem.classList.remove('selected')
+                name = itemElem.querySelector('.file-name').innerText
+                type = itemElem.classList.contains('file') ? 'file' : 'dir'
+
+            }
             this.$emit('drop', e, {
                 name: name,
-                type: itemElem.classList.contains('file') ? 'file' : 'dir'
+                type: type
             })
         },
         preventAction(e) {
@@ -113,10 +155,53 @@ export default {
             } else {
                 return t
             }
+        },
+        /**
+         * @param {MouseEvent} e
+         */
+        showMenu (e) {
+            this.preventAction(e)
+            // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
+            let div = document.createElement('div')
+            div.style.position = 'fixed'
+            div.style.top = e.pageY + 'px'
+            div.style.left = e.pageX + 'px'
+            let container = document.getElementById('container')
+            container.appendChild(div)
+
+            // 实例化菜单对象并打开，打开后用于定位的div可移除
+            let menu = new mdui.Menu(div, '#menu', {
+                gutter: 0,
+                fixed: true
+            })
+
+            let target = this.getElParentByClass(e.target, 'list-item')
+            if (target !== null && !target.classList.contains('empty')) {
+                this.fileInfo = {
+                    name: target.querySelector('.file-name').innerText,
+                    type: target.classList.contains('file') ? 'file' : 'dir'
+                }
+            } else {
+                this.fileInfo = null
+            }
+            // 
+            menu.open()
+            div.remove()
+        },
+        upload () {
+            this.$emit('upload')
+        },
+        refresh () {
+            this.$emit('refresh')
         }
-    },data () {
+    }
+    ,data () {
         return {
-            path:[]
+            path:[],
+            /**
+             * @type {Type.BaseFileInfo}
+             */
+            fileInfo: null
         }
     }
 }
@@ -199,34 +284,5 @@ a {
     }
 }
 
-// .dir{ background-image: url("~@/assets/img/icon/dir.png"); }
-// .file{ background-image: url("~@/assets/img/icon/file.png"); }
-// /* 压缩文件 */
-// .type-zip,.type-rar,.type-gz,.type-7z,.type-tar,.type-xz{ background-image: url("~@/assets/img/icon/zipped.png"); }
-// /* 视频 */
-// .type-mp4,.type-mkv,.type-flv{ background-image: url("~@/assets/img/icon/video.png"); }
-// /* 音频 */
-// .type-mp3,.type-wav,.type-m4a,.type-flac{ background-image: url("~@/assets/img/icon/audio.png"); }
-// /* 图片 */
-// .type-jpeg,.type-jpg,.type-gif,.type-png,.type-bmp,.type-icon{ background-image: url("~@/assets/img/icon/picture.png"); }
-// /* Office */
-// .type-ppt,.type-pptx{ background-image: url("~@/assets/img/icon/ppt.png"); }
-// .type-doc,.type-docx{ background-image: url("~@/assets/img/icon/doc.png"); }
-// .type-xls,.type-xlsx{ background-image: url("~@/assets/img/icon/excel.png"); }
-// /* 文本 */
-// .type-txt{background-image: url("~@/assets/img/icon/txt.png");}
-// /* EXE */
-// .type-exe{ background-image: url("~@/assets/img/icon/exe.png"); }
-// /* 镜像类 */
-// /* ISO */
-// .type-iso{ background-image: url("~@/assets/img/icon/iso.png"); }
-// /* 其他 */
-// .type-image,.type-dmg{ background-image: url("~@/assets/img/icon/img.png"); }
-// /* 代码类文件 */
-// /* html */
-// .type-html,.type.htm { background-image: url("~@/assets/img/icon/code.png"); }
-// /* 配置 */
-// .type-ini,.type-conf,.type-cnf{ background-image: url("~@/assets/img/icon/config.png"); }
-// .type-apk{ background-image: url("~@/assets/img/icon/android.png"); }
 
 </style>

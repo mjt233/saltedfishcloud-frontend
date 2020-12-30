@@ -8,8 +8,6 @@ import VueAxios from 'vue-axios'
 import 'mdui/dist/css/mdui.css'
 import mdui from 'mdui'
 import 'default-passive-events'
-import Global from './global'
-Vue.prototype.Global = Global
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios
