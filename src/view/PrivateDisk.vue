@@ -58,7 +58,6 @@ export default {
      * @param {Type.DropItemInfo} info
      */
     upload (info) {
-      console.log(info)
       for (let i = 0; i < info.files.length; i++) {
         const file = info.files[i]
         let target = info.path.join('/')

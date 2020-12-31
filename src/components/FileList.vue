@@ -5,8 +5,16 @@
         @dragover.native="preventAction"
         @drop.native="drop"
         @contextmenu.native="showMenu"
+        @mousedown.native="mousedown"
+        @mouseup.native="mouseup"
+        @mousemove.native="mousemove"
+        @click.native="containerClick"
+        ref="list"
         id="container"
     >
+        <div class="select-panel" ref="selectPanel" :class="{'show': mouseHasDown}">
+
+        </div>
         <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
@@ -145,6 +153,11 @@ export default {
             e.stopPropagation()
             e.preventDefault()
         },
+        /**
+         * @param {Element} elem
+         * @param {String} className
+         * @return {Element}
+         */
         getElParentByClass (elem, className) {
             let t = elem
             while(t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML')) {
@@ -215,6 +228,65 @@ export default {
             }, () => {}, {
                 defaultValue: '新建文件夹'
             })
+        },
+        /**
+         * @param {MouseEvent} e
+         */
+        containerClick (e) {
+            if (!this.selectPanelOpened) {
+                this.selected.forEach(el => {
+                    el.classList.remove('selected')
+                })
+                this.selected = []
+            }
+        },
+        /**
+         * @param {MouseEvent} e
+         */
+        mousedown (e) {
+            this.selectPanel = this.$refs.selectPanel
+            this.downX = e.pageX    
+            this.downY = e.pageY
+            this.selectPanel.style.top = e.pageY + 'px'
+            this.selectPanel.style.left = e.pageX + 'px'
+            this.mouseHasDown = true
+        },
+        mouseup () {
+            this.mouseHasDown = false
+            setTimeout(() => {
+                this.selectPanelOpened = false
+            }, 100)
+            this.selectPanel.style.height = 0
+            this.selectPanel.style.width = 0
+        },
+        /**
+         * @param {MouseEvent} e
+         */
+        mousemove (e) {
+            if (this.mouseHasDown) {
+                let width = Math.abs(e.pageX - this.downX)
+                let height = Math.abs(e.pageY - this.downY)
+                let minSize = 5
+                if (!this.selectPanelOpened && (width < minSize || height < minSize)) {
+                    return
+                }
+                this.selectPanelOpened = true
+                this.selectPanel.style.width = width + 'px'
+                this.selectPanel.style.height = height + 'px'
+                
+                let item = this.getElParentByClass(e.target, 'list-item')
+                if (item && !item.classList.contains('selected') && !item.classList.contains('head') && !item.classList.contains('tool-bar')) {
+                    item.classList.add('selected')
+                    this.selected.push(item)
+                }
+
+                if (e.pageX < this.downX) {
+                    this.selectPanel.style.left = e.pageX + 'px'
+                }
+                if (e.pageY < this.downY) {
+                    this.selectPanel.style.top = e.pageY + 'px'
+                }
+            }
         }
     },
     mounted() {
@@ -225,6 +297,7 @@ export default {
         menu.addEventListener('close.mdui.menu', event => {
             this.menuClosing = true
         })
+        this.listEl = this.$refs.list.$el
     },
     data () {
         return {
@@ -233,13 +306,42 @@ export default {
              * @type {Type.BaseFileInfo}
              */
             fileInfo: null,
-            menuClosing: false
+            menuClosing: false,
+            downX: 0,
+            downY: 0,
+            mouseHasDown: 0,
+            /**
+             * @type {Element}
+             */
+            selectPanel: undefined,
+            selectPanelOpened: false,
+            /**
+             * @type {Element[]}
+             */
+            selected: [],
+            /**
+             * @type {Element}
+             */
+            listEl: null
         }
     }
 }
 </script>
 
 <style lang="less" scope>
+.select-panel {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 153, 255, 0.2);
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+    z-index: 10;
+    &.show {
+        opacity: 1;
+    }
+}
 a {
     text-decoration: none;
 }
@@ -267,6 +369,7 @@ a {
     opacity: 0.95;
     width: calc(100%-20px);
     position: relative;
+    user-select: none;
     .file,.dir {
         &:hover {
             &:hover {background-color: rgb(233, 233, 233);}

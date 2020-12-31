@@ -143,7 +143,7 @@ export default {
          * @param {Type.BaseFileInfo} fileInfo
          */
         deleteItem (fileInfo) {
-            mdui.confirm(`确定要删除 "${fileInfo.name}" 吗？`, () => {
+            mdui.confirm(`确定要删除 "${fileInfo.name}"${fileInfo.type==='dir' ? '及其子目录和文件' : ''} 吗？`, () => {
                 /**
                  * @type {Type.FileInfo}
                  */
