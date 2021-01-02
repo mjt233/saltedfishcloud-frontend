@@ -5,19 +5,18 @@
         @dragover.native="preventAction"
         @drop.native="drop"
         @contextmenu.native="showMenu"
-        @mousedown.native="mousedown"
-        @mouseup.native="mouseup"
-        @mousemove.native="mousemove"
         @click.native="containerClick"
         ref="list"
         id="container"
+        style="overflow:auto;height:0px"
     >
-        <div class="select-panel" ref="selectPanel" :class="{'show': mouseHasDown}">
-
-        </div>
+        <!-- 以下为绝对定位图层 -->
+        <select-area />
+        <div class="select-panel" ref="selectPanel" :class="{'show': mouseHasDown}" />
         <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
+        <!-- 以上为绝对定位图层 -->
         <slot></slot>
         <ul class="mdui-menu" id="menu">
             <li class="mdui-menu-item">
@@ -87,8 +86,9 @@ import Type from '../typedescribe/type'
 import Container from './Container.vue'
 import '../css/FileIcon.css'
 import mdui from 'mdui'
+import selectArea from './SelectArea.vue'
 export default {
-  components: { Container },
+  components: { Container, selectArea },
     name: "file-list",
     props: {
         'fileList': {
@@ -239,55 +239,55 @@ export default {
                 })
                 this.selected = []
             }
-        },
-        /**
-         * @param {MouseEvent} e
-         */
-        mousedown (e) {
-            this.selectPanel = this.$refs.selectPanel
-            this.downX = e.pageX    
-            this.downY = e.pageY
-            this.selectPanel.style.top = e.pageY + 'px'
-            this.selectPanel.style.left = e.pageX + 'px'
-            this.mouseHasDown = true
-        },
-        mouseup () {
-            this.mouseHasDown = false
-            setTimeout(() => {
-                this.selectPanelOpened = false
-            }, 100)
-            this.selectPanel.style.height = 0
-            this.selectPanel.style.width = 0
-        },
-        /**
-         * @param {MouseEvent} e
-         */
-        mousemove (e) {
-            if (this.mouseHasDown) {
-                let width = Math.abs(e.pageX - this.downX)
-                let height = Math.abs(e.pageY - this.downY)
-                let minSize = 5
-                if (!this.selectPanelOpened && (width < minSize || height < minSize)) {
-                    return
-                }
-                this.selectPanelOpened = true
-                this.selectPanel.style.width = width + 'px'
-                this.selectPanel.style.height = height + 'px'
-                
-                let item = this.getElParentByClass(e.target, 'list-item')
-                if (item && !item.classList.contains('selected') && !item.classList.contains('head') && !item.classList.contains('tool-bar')) {
-                    item.classList.add('selected')
-                    this.selected.push(item)
-                }
-
-                if (e.pageX < this.downX) {
-                    this.selectPanel.style.left = e.pageX + 'px'
-                }
-                if (e.pageY < this.downY) {
-                    this.selectPanel.style.top = e.pageY + 'px'
-                }
-            }
         }
+        // /**
+        //  * @param {MouseEvent} e
+        //  */
+        // mousedown (e) {
+        //     this.selectPanel = this.$refs.selectPanel
+        //     this.downX = e.pageX    
+        //     this.downY = e.pageY
+        //     this.selectPanel.style.top = e.pageY + 'px'
+        //     this.selectPanel.style.left = e.pageX + 'px'
+        //     this.mouseHasDown = true
+        // },
+        // mouseup () {
+        //     this.mouseHasDown = false
+        //     setTimeout(() => {
+        //         this.selectPanelOpened = false
+        //     }, 100)
+        //     this.selectPanel.style.height = 0
+        //     this.selectPanel.style.width = 0
+        // },
+        // /**
+        //  * @param {MouseEvent} e
+        //  */
+        // mousemove (e) {
+        //     if (this.mouseHasDown) {
+        //         let width = Math.abs(e.pageX - this.downX)
+        //         let height = Math.abs(e.pageY - this.downY)
+        //         let minSize = 5
+        //         if (!this.selectPanelOpened && (width < minSize || height < minSize)) {
+        //             return
+        //         }
+        //         this.selectPanelOpened = true
+        //         this.selectPanel.style.width = width + 'px'
+        //         this.selectPanel.style.height = height + 'px'
+                
+        //         let item = this.getElParentByClass(e.target, 'list-item')
+        //         if (item && !item.classList.contains('selected') && !item.classList.contains('head') && !item.classList.contains('tool-bar')) {
+        //             item.classList.add('selected')
+        //             this.selected.push(item)
+        //         }
+
+        //         if (e.pageX < this.downX) {
+        //             this.selectPanel.style.left = e.pageX + 'px'
+        //         }
+        //         if (e.pageY < this.downY) {
+        //             this.selectPanel.style.top = e.pageY + 'px'
+        //         }
+        //     }
+        // }
     },
     mounted() {
         let menu = document.querySelector('#menu')
@@ -370,6 +370,7 @@ a {
     width: calc(100%-20px);
     position: relative;
     user-select: none;
+    overflow: auto;
     .file,.dir {
         &:hover {
             &:hover {background-color: rgb(233, 233, 233);}
