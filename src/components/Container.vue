@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="loading-mask" :class="{'hid':!loading}">
-      <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
+      <div style="position:absolute;top:0;" class="mdui-progress" >
           <div class="mdui-progress-indeterminate"></div>
       </div>
-        <!-- <div class="mdui-spinner"></div> -->
+      <div class="mdui-spinner"></div>
     </div>
     <slot></slot>
   </div>
@@ -33,6 +33,7 @@ export default {
     height: 100%;
     width: 100%;
     transition: all .2s;
+    z-index: 10;
     &.hid {
         opacity: 0;
         pointer-events: none;

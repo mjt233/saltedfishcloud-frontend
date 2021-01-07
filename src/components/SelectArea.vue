@@ -9,13 +9,26 @@
 </template>
 
 <script>
+import DOMUtils from '../utils/DOMUtils'
 /**
  * @description 通用鼠标选区组件 将该组件置于需要被选择的元素同级元素下即可，父元素定位不能是static或默认
+ * @emits selectStart   选择开始
+ * @emits selectEnd     选择结束
+ * @emits selectChange  选择的项目发生改变 参数：当前选中项
  * @author xiaotao233
  * @version 1.0
  */
 export default {
     name: 'select-area',
+    props: {
+        /**
+         * 最大可被选择的节点深度，默认为1（即仅选择同级节点）
+         */
+        'maxDepth': {
+            type: Number,
+            default: 1
+        }
+    },
     data () {
         return {
             /**
@@ -36,13 +49,14 @@ export default {
              */
             active: false,
             /**
-             * 最近一次鼠标事件的clientX
+             * 最近一次鼠标事件[this.mousePositionType+'X']
              */
             eventX: 0,
             /**
-             * 最近一次鼠标事件的clientY
+             * 最近一次鼠标事件[this.mousePositionType+'Y']
              */
             eventY: 0,
+            eventEl: null,
             /**
              * 最近一次事件触发时父容器的offsetLeft
              */
@@ -67,16 +81,22 @@ export default {
              * 是否通过偏移移动选区的Y位置
              */
             moveY: false,
-            reverseY: false
+            reverseY: false,
+            /**
+             * 已被选择的元素
+             * @type {HTMLElement[]}
+             */
+            selecteds: [],
+            mousePositionType: 'page'
         }
     }, mounted () {
         this.parentEl = this.$el.parentElement
         this.parentEl.addEventListener('mousedown', e=> {
             // 记录初始x,y坐标
-            this.downX = this.getX(e.clientX)
-            this.downY = this.getY(e.clientY)
+            this.eventEl = e.target
+            this.downX = this.eventX = this.getX(e[this.mousePositionType+'X'])
+            this.downY = this.eventY = this.getY(e[this.mousePositionType+'Y'])
             this.downScrollTop = this.parentEl.scrollTop
-
             /**
              * 鼠标移动时的触发的函数
              * @type {Function}
@@ -84,20 +104,27 @@ export default {
              */
             let moveCallback = ev => {
                 // 记录最近一次鼠标事件响应的原生x,y坐标和更新滚动高度
-                this.eventX = ev.clientX
-                this.eventY = ev.clientY
+                this.eventX = ev[this.mousePositionType+'X']
+                this.eventY = ev[this.mousePositionType+'Y']
                 this.offsetLeft = this.parentEl.offsetLeft
                 this.offsetTop = this.parentEl.offsetTop
                 this.scrollTop = this.parentEl.scrollTop
 
                 // 根据当前x,y坐标与初始x,y坐标进行大小对比决定 采用初始位置还是初始位置减去高宽的位置
-                let x = this.getX(ev.clientX)
-                let y = this.getY(ev.clientY)
+                let x = this.getX(ev[this.mousePositionType+'X'])
+                let y = this.getY(ev[this.mousePositionType+'Y'])
                 this.moveX = x < this.downX
                 this.moveY = y < this.downY
 
-                // 显示选区遮罩
-                this.active = true
+                if (this.width > 5 && this.height > 5) {
+                    if (!this.active) {
+                        this.$emit('selectStart')
+                    }
+                    // 显示选区遮罩
+                    this.active = true
+                    this.selecteds = this.getSelectedElem()
+                }
+                
                 // 关闭文字选中
                 this.parentEl.style.userSelect = 'none'
             }
@@ -105,7 +132,7 @@ export default {
              * 父容器滚动事件触发的函数
              * @type {Function}
              * @param {Event} ev
-             * @ [不紧急|不重要] 若滚动时鼠标所处坐标与当前是否偏移移动XY的控制相反时 选区方向错误
+             * @todo [不紧急|不重要] 若滚动时鼠标所处坐标与当前是否偏移移动XY的控制相反时 选区方向错误
              */
             let scrollCallback = ev => {
                 this.offsetLeft = this.parentEl.offsetLeft
@@ -118,12 +145,14 @@ export default {
              * @param {MouseEvent} ev
              */
             let mouseupCallback = ev => {
-                this.active = false
                 this.parentEl.style.userSelect = ''
                 this.parentEl.removeEventListener('mousemove', moveCallback)
                 this.parentEl.removeEventListener('scroll', scrollCallback)
                 this.parentEl.removeEventListener('mouseup', mouseupCallback)
-                console.log(this.area)
+                if (this.active) {
+                    this.$emit('selectEnd', this.selecteds)
+                    this.active = false
+                }
             }
             this.parentEl.addEventListener('mousemove', moveCallback)
             this.parentEl.addEventListener('scroll', scrollCallback)
@@ -135,13 +164,20 @@ export default {
          * 选区宽度
          */
         width() {
-            return Math.abs(this.eventX - this.offsetLeft - this.downX)
+            if (this.eventX === this.downX) {
+                return 0
+            }
+            let res = Math.abs(this.eventX - this.absoluteLeft - this.downX)
+            return res
         },
         /**
          * 选区高度
          */
         height() {
-            return Math.abs(this.scrollTop + this.eventY - this.offsetTop - this.downY)
+            if (this.eventY === this.downY) {
+                return 0
+            }
+            return Math.abs(this.scrollTop + this.eventY - this.absoluteTop - this.downY)
         },
         /**
          * 选区相对父元素的X坐标
@@ -157,6 +193,8 @@ export default {
         },
         /**
          * 选区的区域属性参数（起始xy与结束xy）
+         * @typedef {Object} area
+         * @property {Number} startX
          */
         area() {
             return {
@@ -165,24 +203,82 @@ export default {
                 endX: this.getX(this.eventX),
                 endY: this.getY(this.eventY)
             }
+        },
+        absoluteTop() {
+            let el = this.parentEl
+            let res = 0
+            let log = []
+            if (el === undefined) return 0
+            while (el !== document.body) {
+                if (window.getComputedStyle(el).position !== 'static') {
+                    res += el.offsetTop
+                }
+                el = el.parentElement
+            }
+            return res
+        },
+        absoluteLeft() {
+            let el = this.parentEl
+            let res = 0
+            if (el === undefined) return 0
+            while (el !== document.body) {
+                if (window.getComputedStyle(el).position !== 'static') {
+                    res += el.offsetLeft
+                }
+                el = el.parentElement
+            }
+            return res
         }
     },
     methods: {
         /**
-         * 通过事件的clientY计算出相对父元素的Y
+         * 通过事件[this.mousePositionType+'Y']计算出相对父元素的Y
          * @param {Number} rawY 事件原始Y
          * @return {Number}
          */
         getY (rawY) {
-            return this.parentEl.scrollTop + rawY - this.parentEl.offsetTop
+            return this.parentEl.scrollTop + rawY - this.absoluteTop
         },
         /**
-         * 通过事件的clientX计算出相对父元素的X
+         * 通过事件[this.mousePositionType+'X']计算出相对父元素的X
          * @param {Number} rawX 事件原始X
          * @return {Number}
          */
         getX (rawX) {
-            return rawX - this.parentEl.offsetLeft
+            return rawX - this.absoluteLeft
+        },
+        getSelectedElem() {
+            /**
+             * @type {HTMLElement[]}
+             */
+            let elems = this.parentEl.querySelectorAll("*[selectable]")
+            let r = []
+            elems.forEach(el => {
+                /**
+                 * 元素的y坐标
+                 */
+                let ely = DOMUtils.getAbsoluteOffsetTop(el, this.parentEl)
+                /**
+                 * 元素的x坐标
+                 */
+                let elx = DOMUtils.getAbsoluteOffsetLeft(el, this.parentEl)
+                if (
+                    (this.downY <= ely && this.area.endY >= ely) ||
+                    (this.downY >= (ely + el.offsetHeight) && this.area.endY <= (ely + el.offsetHeight)) ||
+                    (this.downY >= ely && this.downY <= (ely + el.offsetHeight))
+                ) {
+                    r.push(el)
+                }
+                
+            })
+            return r
+        }
+    },
+    watch: {
+        selecteds(o,n) {
+            if (o.length != n.length) {
+                this.$emit('selectChange', this.selecteds)
+            }
         }
     }
 }
@@ -201,6 +297,7 @@ export default {
     opacity: 0;
     transition: opacity .2s;
     z-index: 10;
+    pointer-events: none;
     &.active {
         opacity: 1;
     }

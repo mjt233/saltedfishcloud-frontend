@@ -16,11 +16,16 @@
                 <li v-for="(file,index) in fileQueue" :key="index">
                     <div
                         class="upload-item file"
-                        :class="`type-${getFileSuffix(file.file.name)}`"
+                        :class="classObj(file)"
                         :style="`--prog:${file.prog}%`"
                     >
-                        <div class="file-name">{{file.file.name}}</div>
-                        <div class="upload-speed">{{file.speed | formatSizeString}}/s</div>
+                        <p class="file-name">{{file.file.name}}</p>
+                        <div class="info">
+                            <span v-if="file.status === 'preparing'">文件读取中...{{file.prog}}%</span>
+                            <span v-if="file.status === 'computing'">正在计算文件md5</span>
+                            <span v-if="file.status === 'processing'">上传完成，服务器正在处理</span>
+                            <span v-if="file.status === 'uploading'">上传进度：{{file.prog.toFixed(2)}}% 速度：{{file.speed | formatSizeString}}/s</span>
+                        </div>
                     </div>
                 </li>
             </ul>
@@ -37,6 +42,7 @@ export default {
     data() {
         return {
             fileQueue: FileQueue.getQueue(),
+            prepareInfo: FileQueue.preparing,
             showList: false
         }
     },
@@ -46,6 +52,16 @@ export default {
         },
         startUpload() {
             FileQueue.executeQueue()
+        },
+        /**
+         * @param {FileInfo} file
+         */
+        classObj(file) {
+            let typeKey = `type-${this.getFileSuffix(file.file.name)}`
+            let obj = {}
+            obj['preparing-item'] = file.status === 'preparing' || file.status == 'computing'
+            obj[typeKey] = true
+            return obj
         }
     },
     filters: {
@@ -92,7 +108,6 @@ export default {
     right: 0;
     width: 100%;
     height: var(--totalHeight);
-    // background-color: rgb(233, 233, 233);
     box-shadow: 0 0 5px 0 darkgray;
     transition: all .35s;
     &.show {
@@ -117,6 +132,11 @@ export default {
         padding: 0;
         height: calc( var(--totalHeight) - 30px);
         overflow: auto;
+        .preparing-item {
+            &::before {
+                background-color: rgb(255, 233, 133) !important;
+            }
+        }
         .upload-item {
             position: relative;
             height: 32px;
@@ -126,9 +146,16 @@ export default {
             background-size: 32px 32px;
             background-position: 10px 10px;
             // z-index: 2;
-            .upload-speed {
+            .info {
                 line-height: 20px;
                 font-size: 10px;
+                color: green;
+            }
+            .file-name {
+                margin: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
             &::before {
                 position: absolute;

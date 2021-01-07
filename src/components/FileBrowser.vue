@@ -111,7 +111,7 @@ export default {
         loadList() {
             this.loading = true
             let url = `${this.api}/${this.paths.join('/')}`
-            this.$axios.post(url).then(e => {
+            this.$axios.get(url).then(e => {
                 this.loading = false
                 this.fileList = e.data.data[0].concat(e.data.data[1])
             }).catch(() => this.loading = false)
@@ -140,15 +140,35 @@ export default {
             })
         },
         /**
-         * @param {Type.BaseFileInfo} fileInfo
+         * @param {Type.BaseFileInfo[]} fileInfo
          */
         deleteItem (fileInfo) {
-            mdui.confirm(`确定要删除 "${fileInfo.name}"${fileInfo.type==='dir' ? '及其子目录和文件' : ''} 吗？`, () => {
+            let msg = '确定要删除<br>'
+            let haveDir = false
+            haveDir = fileInfo.filter(item => item.type === 'dir').length !== 0
+            for (let i = 0; i < fileInfo.length && i < 6; i++) {
+                const file = fileInfo[i]
+                msg += `<strong>${file.name}</strong><br>`
+            }
+            if (fileInfo.length > 6) {
+                msg += ` 等共${fileInfo.length}个文件`
+            }
+            if (haveDir) {
+                msg += '及其子目录'
+            }
+            msg += '吗'
+            mdui.confirm(msg, () => {
                 /**
-                 * @type {Type.FileInfo}
+                 * @type {Type.FileInfo[]}
                  */
-                let itemInfo = fileInfo
-                itemInfo.path = this.paths
+                let itemInfo = []
+                fileInfo.forEach(file => {
+                    itemInfo.push({
+                        name: file.name,
+                        type: file.type,
+                        path: this.paths
+                    })
+                })
                 this.$emit('delete', itemInfo)
             }, ()=>{}, {
                 confirmText: '删除',

@@ -5,14 +5,19 @@
         @dragover.native="preventAction"
         @drop.native="drop"
         @contextmenu.native="showMenu"
-        @click.native="containerClick"
         ref="list"
         id="container"
         style="overflow:auto;height:0px"
+        @click.native="containerClick"
     >
         <!-- 以下为绝对定位图层 -->
-        <select-area />
-        <div class="select-panel" ref="selectPanel" :class="{'show': mouseHasDown}" />
+        <select-area
+            @selectEnd="selected"
+            @selectStart="selectStart"
+            @selectChange="selectChange"
+        >
+
+        </select-area>
         <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
@@ -38,7 +43,7 @@
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
-            <li v-if="fileInfo" class="mdui-menu-item" @click="$emit('delete', fileInfo)">
+            <li v-if="fileInfo" class="mdui-menu-item" @click="deleteItem(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
                     删除
@@ -68,6 +73,7 @@
                 @dragover="dragover"
                 @dragenter="dragenter"
                 @drop="drop"
+                selectable
                 class="list-item mdui-ripple" :class="item.type == 1 ? 'dir' : `file type-${item.suffix}` "
             >
                 <div class="file-name">{{item.name}}</div>
@@ -87,6 +93,7 @@ import Container from './Container.vue'
 import '../css/FileIcon.css'
 import mdui from 'mdui'
 import selectArea from './SelectArea.vue'
+import DOMUtils from '../utils/DOMUtils'
 export default {
   components: { Container, selectArea },
     name: "file-list",
@@ -104,29 +111,36 @@ export default {
             this.$emit('back')
         },
         click(item) {
-            this.$emit('clickItem', item)
+            if (this.selecting === false) {
+                this.$emit('clickItem', item)
+            }
+        },
+        containerClick() {
+            if (!this.selecting) {
+                this.resetSelect()
+            }
         },
         dragLeave(e) {
             this.preventAction(e)
-            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            let itemElem = DOMUtils.getElParentByClass(e.target, 'list-item')
             itemElem.classList.remove('selected')
             this.$emit('dragleave', e)
         },
         dragenter(e) {
             this.preventAction(e)
-            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            let itemElem = DOMUtils.getElParentByClass(e.target, 'list-item')
             itemElem.classList.add('selected')
             this.$emit('dragenter', e)
         },
         dragover(e) {
             this.preventAction(e)
-            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            let itemElem = DOMUtils.getElParentByClass(e.target, 'list-item')
             itemElem.classList.add('selected')
             this.$emit('dragover', e)
         },
         drop(e) {
             this.preventAction(e)
-            let itemElem = this.getElParentByClass(e.target, 'list-item')
+            let itemElem = DOMUtils.getElParentByClass(e.target, 'list-item')
             let name = ''
             let type = ''
             if (!itemElem) {
@@ -154,27 +168,15 @@ export default {
             e.preventDefault()
         },
         /**
-         * @param {Element} elem
-         * @param {String} className
-         * @return {Element}
-         */
-        getElParentByClass (elem, className) {
-            let t = elem
-            while(t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML')) {
-                t = t.parentNode
-            }
-            if (t.tagName === 'HTML') {
-                return null
-            } else {
-                return t
-            }
-        },
-        /**
          * @param {MouseEvent} e
          */
         showMenu (e) {
             this.preventAction(e)
             let show = () => {
+                let target = DOMUtils.getElParentByClass(e.target, 'list-item')
+                if (target !== null && target.classList.contains('tool-bar')) {
+                    return
+                }
                 // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
                 let div = document.createElement('div')
                 div.style.position = 'fixed'
@@ -191,7 +193,6 @@ export default {
 
                 let menu_el = document.querySelector('#menu')
 
-                let target = this.getElParentByClass(e.target, 'list-item')
                 if (target !== null && !target.classList.contains('empty')) {
                     this.fileInfo = {
                         name: target.querySelector('.file-name').innerText,
@@ -230,64 +231,53 @@ export default {
             })
         },
         /**
-         * @param {MouseEvent} e
+         * @param {HTMLElement[]} elems
          */
-        containerClick (e) {
-            if (!this.selectPanelOpened) {
-                this.selected.forEach(el => {
-                    el.classList.remove('selected')
+        selected(elems) {
+            setTimeout(() => {
+                this.selecting = false
+            }, 100)
+        },
+        /**
+         * 鼠标选区触发selectChange时的回调
+         * @param {HTMLElement[]} elems
+         */
+        selectChange(elems) {
+            this.resetSelect()
+            this.selectedEl = elems
+            elems.forEach(item => item.classList.add('selected'))
+        },
+        /**
+         * 鼠标选区触发selectStart时的回调
+         */
+        selectStart() {
+            this.resetSelect()
+            this.selecting = true
+        },
+        /**
+         * 重置已选元素为空
+         */
+        resetSelect() {
+            this.selectedEl = []
+            this.$el.querySelectorAll("*[selectable]").forEach(item => item.classList.remove('selected'))
+        },
+        /**
+         * @param {Type.BaseFileInfo} file
+         */
+        deleteItem(file) {
+            let fileInfo = []
+            if (this.selectedEl.length !== 0) {
+                this.selectedEl.forEach(item => {
+                    fileInfo.push({
+                        name: item.querySelector('.file-name').innerText,
+                        type: item.classList.contains('file') ? 'file' : 'dir'
+                    })
                 })
-                this.selected = []
+            } else {
+                fileInfo.push(file)
             }
+            this.$emit('delete', fileInfo)
         }
-        // /**
-        //  * @param {MouseEvent} e
-        //  */
-        // mousedown (e) {
-        //     this.selectPanel = this.$refs.selectPanel
-        //     this.downX = e.pageX    
-        //     this.downY = e.pageY
-        //     this.selectPanel.style.top = e.pageY + 'px'
-        //     this.selectPanel.style.left = e.pageX + 'px'
-        //     this.mouseHasDown = true
-        // },
-        // mouseup () {
-        //     this.mouseHasDown = false
-        //     setTimeout(() => {
-        //         this.selectPanelOpened = false
-        //     }, 100)
-        //     this.selectPanel.style.height = 0
-        //     this.selectPanel.style.width = 0
-        // },
-        // /**
-        //  * @param {MouseEvent} e
-        //  */
-        // mousemove (e) {
-        //     if (this.mouseHasDown) {
-        //         let width = Math.abs(e.pageX - this.downX)
-        //         let height = Math.abs(e.pageY - this.downY)
-        //         let minSize = 5
-        //         if (!this.selectPanelOpened && (width < minSize || height < minSize)) {
-        //             return
-        //         }
-        //         this.selectPanelOpened = true
-        //         this.selectPanel.style.width = width + 'px'
-        //         this.selectPanel.style.height = height + 'px'
-                
-        //         let item = this.getElParentByClass(e.target, 'list-item')
-        //         if (item && !item.classList.contains('selected') && !item.classList.contains('head') && !item.classList.contains('tool-bar')) {
-        //             item.classList.add('selected')
-        //             this.selected.push(item)
-        //         }
-
-        //         if (e.pageX < this.downX) {
-        //             this.selectPanel.style.left = e.pageX + 'px'
-        //         }
-        //         if (e.pageY < this.downY) {
-        //             this.selectPanel.style.top = e.pageY + 'px'
-        //         }
-        //     }
-        // }
     },
     mounted() {
         let menu = document.querySelector('#menu')
@@ -309,20 +299,21 @@ export default {
             menuClosing: false,
             downX: 0,
             downY: 0,
-            mouseHasDown: 0,
             /**
              * @type {Element}
              */
             selectPanel: undefined,
             selectPanelOpened: false,
             /**
-             * @type {Element[]}
-             */
-            selected: [],
-            /**
              * @type {Element}
              */
-            listEl: null
+            listEl: null,
+            selecting: false,
+            /**
+             * 被选中的元素
+             * @type {HTMLElement[]}
+             */
+            selectedEl: []
         }
     }
 }
@@ -372,9 +363,7 @@ a {
     user-select: none;
     overflow: auto;
     .file,.dir {
-        &:hover {
-            &:hover {background-color: rgb(233, 233, 233);}
-        }
+        &:hover {background-color: rgb(233, 233, 233);}
     }
     .head {
         cursor: unset;
@@ -395,7 +384,7 @@ a {
         transition: all .2s;
         cursor: pointer;
         &.selected {
-            background-color: rgb(233,233,233);
+            background-color: rgb(201, 229, 248);
         }
         &.tool-bar {
             background-image: url('~@/assets/img/icon/return.png');

@@ -25,6 +25,7 @@ import md5 from 'js-md5'
 import FileQueue from '../global/FileQueue'
 import FileUtils from '../utils/FileUtils'
 import axios from 'axios'
+import qs from 'qs'
 export default {
   components: { FileBrowser },
   name: 'PrivateDisk',
@@ -33,28 +34,37 @@ export default {
       loading: false
     }
   },
+  mounted () {
+    this.$eventBus.$on('uploaded', e=> {
+      console.log(e)
+    })
+  },
   methods: {
+    /**
+     * 文件被点击时执行的回调
+     */
     clickFile(e) {
       let newPath = location.href.replace(`/#/private`, '/pridown') + `/${encodeURIComponent(e.name)}`
       location.href = newPath
     },
     /**
-     * 
+     * 有文件被拖到文件列表时执行的回调
      * @param {Type.DropItemInfo} fileInfo
      */
     addUploadFile(fileInfo) {
-      console.log(fileInfo)
       for (let i = 0; i < fileInfo.files.length; i++) {
         const file = fileInfo.files[i]
         let target = fileInfo.path.join('/')
         target = fileInfo.target.type === 'file' ? target : target + fileInfo.target.name
         FileQueue.addFile({
           api: `upload/private/${target}`,
-          file: file
+          file: file,
+          path: fileInfo.path
         })
       }
     },
     /**
+     * 文件列表上传按钮被点击时执行的回调
      * @param {Type.DropItemInfo} info
      */
     upload (info) {
@@ -62,18 +72,26 @@ export default {
         const file = info.files[i]
         let target = info.path.join('/')
         FileQueue.addFile({
-          api: `upload/private/${target}`,
+          api: `private/${target}`,
           file: file,
-          params: {}
+          params: {},
+          path: info.path
         })
       }
     },
     /**
-     * @param {Type.FileInfo} itemInfo
+     * 文件列表删除按钮被点击时执行的回调
+     * @param {Type.FileInfo[]} itemInfo
      */
     deleteItem (itemInfo) {
-      let target = itemInfo.path.join('/')
+      let fileList = itemInfo.map(file => file.name)
+      let path = itemInfo[0].path.join('/')
+      let url = `delete/private/${path}`
       this.loading = true
+      /**
+       * 请求完成时的回调
+       * @param {String} msg 提示信息
+       */
       let cb = msg => {
         this.loading = false
         mdui.snackbar(msg,{
@@ -81,15 +99,24 @@ export default {
         })
         this.$refs.browser.loadList()
       }
-      axios.post(`delete/private/${target}/${itemInfo.name}`).then(() => {
+      /**
+       * 发起删除请求
+       */
+      axios.delete(`private/${path}`, {
+        data: {fileName: fileList},
+        headers: {'Content-Type': 'application/json;charset=utf-8'}
+      }).then(() => {
         cb('删除成功')
       }).catch(() => {
         cb('删除失败')
       })
     },
+    /**
+     * 文件列表创建目录按钮被点击时执行的回调函数
+     */
     createFolder (info) {
       let path = info.path.join('/')
-      let url = `mkdir/private/${path}`
+      let url = `private/${path}`
       this.$axios.post(url, {
         name: info.name
       }).then(e=>{

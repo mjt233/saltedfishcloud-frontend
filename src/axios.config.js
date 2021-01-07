@@ -7,13 +7,9 @@ axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
 // axios请求拦截器 添加token 和转换表单数据类型
 axios.interceptors.request.use(conf => {
-  let token = localStorage.getItem('token')
-  if (token) {
-    conf.headers.token = token
-  }
   if (conf.data !== undefined && conf.method === 'post') {
     let name = conf.data.constructor.name
-    if (name !== 'FormData') {
+    if (name !== 'FormData' && conf.headers['Content-Type'].indexOf('json') === -1) {
       conf.data = qs.stringify(conf.data)
     }
   }
