@@ -167,7 +167,7 @@ export default {
             if (this.eventX === this.downX) {
                 return 0
             }
-            let res = Math.abs(this.eventX - this.absoluteLeft - this.downX)
+            let res = Math.abs(this.getX(this.eventX) - this.downX)
             return res
         },
         /**
@@ -177,7 +177,7 @@ export default {
             if (this.eventY === this.downY) {
                 return 0
             }
-            return Math.abs(this.scrollTop + this.eventY - this.absoluteTop - this.downY)
+            return Math.abs(this.getY(this.eventY) - this.downY)
         },
         /**
          * 选区相对父元素的X坐标
@@ -216,18 +216,6 @@ export default {
                 el = el.parentElement
             }
             return res
-        },
-        absoluteLeft() {
-            let el = this.parentEl
-            let res = 0
-            if (el === undefined) return 0
-            while (el !== document.body) {
-                if (window.getComputedStyle(el).position !== 'static') {
-                    res += el.offsetLeft
-                }
-                el = el.parentElement
-            }
-            return res
         }
     },
     methods: {
@@ -237,7 +225,7 @@ export default {
          * @return {Number}
          */
         getY (rawY) {
-            return this.parentEl.scrollTop + rawY - this.absoluteTop
+            return this.parentEl.scrollTop + rawY - DOMUtils.getAbsoluteOffsetTop(this.parentEl, document.body)
         },
         /**
          * 通过事件[this.mousePositionType+'X']计算出相对父元素的X
@@ -245,7 +233,8 @@ export default {
          * @return {Number}
          */
         getX (rawX) {
-            return rawX - this.absoluteLeft
+            let res = rawX - DOMUtils.getAbsoluteOffsetLeft(this.parentEl, document.body)
+            return res
         },
         getSelectedElem() {
             /**

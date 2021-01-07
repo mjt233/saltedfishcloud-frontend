@@ -10,7 +10,9 @@ const DOMUtils = {
         let res = 0
         let log = []
         while (el !== parentElement && el !== document.body) {
-            res += el.offsetTop
+            if (window.getComputedStyle(el).position !== 'static') {
+                res += el.offsetTop
+            }
             el = el.parentElement
         }
         return res
@@ -25,7 +27,9 @@ const DOMUtils = {
         let el = childElement
         let res = 0
         while (el !== parentElement && el !== document.body) {
-            res += el.offsetLeft
+            if (window.getComputedStyle(el).position !== 'static') {
+                res += el.offsetLeft
+            }
             el = el.parentElement
         }
         return res
