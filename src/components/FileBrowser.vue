@@ -11,6 +11,7 @@
         :loading="loading || loadingControl"
         :file-list="fileList">
         <div>
+            <!-- 路径显示 -->
             <div v-if="showPath">
                 <span>{{pathLabel}}</span>
                 <ul class="path-bar mdui-typo">
@@ -69,6 +70,9 @@ export default {
     },
     data () {
         return {
+            /**
+             * @type {Type.ServerRawFileInfo}
+             */
             fileList:[],
             paths:[],
             loading:false
@@ -80,8 +84,10 @@ export default {
     },
     methods: {
         /**
+         * 文件列表组件被拖入文件时的回调
          * @param {DragEvent}           e
          * @param {Type.DropItemInfo}   fileName
+         * @emits dropFile|dropItem
          */
         drop(e, fileName) {
             if (e.dataTransfer.files.length !== 0) {
@@ -98,6 +104,11 @@ export default {
                 })
             }
         },
+        /**
+         * 文件列表有项目被点击时触发的回调，点击到文件夹则发起请求获取新的文件，点击到文件则向父组件传递clickFile事件
+         * @param {Type.ServerRawFileInfo} e
+         * @emits clickFile
+         */
         listClick (e) {
             if (e.type === 1) {
                 location.href += `/${encodeURIComponent(e.name)}`
@@ -108,6 +119,10 @@ export default {
                 })
             }
         },
+        /**
+         * 从服务器加载文件列表
+         * 加载参数由组件参数api和组件数据paths决定
+         */
         loadList() {
             this.loading = true
             let url = `${this.api}/${this.paths.join('/')}`
@@ -116,9 +131,15 @@ export default {
                 this.fileList = e.data.data[0].concat(e.data.data[1])
             }).catch(() => this.loading = false)
         },
+        /**
+         * 根据当前路由更新组件的paths
+         */
         updatePath() {
             this.paths = this.$route.path.substring(`/${this.prefix}`.length).split('/').filter(i => i.length > 0)
         },
+        /**
+         * 返回上一级目录
+         */
         back() {
             if (this.paths.length === 0) {
                 return
@@ -127,6 +148,10 @@ export default {
             location.href = `/#/${this.prefix}/${this.paths.join('/')}`
             this.loadList()
         },
+        /**
+         * 点击菜单的上传按钮时触发的回调，用户选择好文件后提交一个upload事件给父组件
+         * @emits upload
+         */
         upload () {
             FileUtils.openFileDialog(filelist => {
                 this.$emit('upload', {
@@ -140,7 +165,9 @@ export default {
             })
         },
         /**
+         * 点击菜单中的删除按钮时触发的事件，删除确认后产生一个delete事件
          * @param {Type.BaseFileInfo[]} fileInfo
+         * @emits delete
          */
         deleteItem (fileInfo) {
             let msg = '确定要删除<br>'
@@ -175,6 +202,10 @@ export default {
                 cancelText: '取消'
             })
         },
+        /**
+         * 菜单“新建文件夹”被点击时触发的回调
+         * @emits createFolder
+         */
         createFolder (name) {
             this.$emit('createFolder', {
                 name: name,

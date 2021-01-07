@@ -1,4 +1,11 @@
 /**
+ * 服务器传来的原始文件信息
+ * @typedef {Object} ServerRawFileInfo
+ * @property {String} name 文件名
+ * @property {Number} type 文件类型 1为目录 0为文件
+ */
+
+/**
  * 基础文件信息 
  * @typedef {Object} BaseFileInfo
  * @property {String}   name    -   文件名

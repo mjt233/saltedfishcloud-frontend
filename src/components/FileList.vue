@@ -110,6 +110,10 @@ export default {
         back() {
             this.$emit('back')
         },
+        /**
+         * 列表项目被点击时触发的回调
+         * @param {Type.BaseFileInfo} item
+         */
         click(item) {
             if (this.selecting === false) {
                 this.$emit('clickItem', item)
@@ -287,27 +291,19 @@ export default {
         menu.addEventListener('close.mdui.menu', event => {
             this.menuClosing = true
         })
-        this.listEl = this.$refs.list.$el
     },
     data () {
         return {
             path:[],
             /**
+             * 文件列表被鼠标右键点击时点击的文件
              * @type {Type.BaseFileInfo}
              */
             fileInfo: null,
+            /**
+             * 菜单是否处于关闭中状态
+             */
             menuClosing: false,
-            downX: 0,
-            downY: 0,
-            /**
-             * @type {Element}
-             */
-            selectPanel: undefined,
-            selectPanelOpened: false,
-            /**
-             * @type {Element}
-             */
-            listEl: null,
             selecting: false,
             /**
              * 被选中的元素
