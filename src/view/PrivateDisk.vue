@@ -35,9 +35,6 @@ export default {
     }
   },
   mounted () {
-    this.$eventBus.$on('uploaded', e=> {
-      console.log(e)
-    })
   },
   methods: {
     /**
@@ -57,7 +54,7 @@ export default {
         let target = fileInfo.path.join('/')
         target = fileInfo.target.type === 'file' ? target : target + fileInfo.target.name
         FileQueue.addFile({
-          api: `upload/private/${target}`,
+          api: `private/${target}`,
           file: file,
           path: fileInfo.path
         })
@@ -117,9 +114,11 @@ export default {
     createFolder (info) {
       let path = info.path.join('/')
       let url = `private/${path}`
+      this.loading = true
       this.$axios.post(url, {
         name: info.name
       }).then(e=>{
+        this.loading = false
         this.$refs.browser.loadList()
       })
     }

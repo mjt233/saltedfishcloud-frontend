@@ -57,10 +57,9 @@ let obj = {
      */
     executeQueue(finish) {
         if (this.executing) {
-            mdui.snackbar('已经正在上传了')
+            mdui.snackbar('已经正在上传了,剩余任务数量：' + this.queue.length)
             return
         }
-        this.executing = true
         if (this.queue.length === 0) {
             mdui.snackbar('上传任务完成')
             this.executing = false
@@ -69,6 +68,7 @@ let obj = {
             }
             return
         }
+        this.executing = true
         let task = this.queue[0]
 
         // 先读取文件md5
@@ -88,6 +88,14 @@ let obj = {
             }
         }
 
+        reader.onload = () => {
+            setTimeout(() => {
+                task.status = 'ready'
+                task.prog = 0
+                task.md5 = md5(reader.result)
+                uploadHandler()
+            }, 100)
+        }
         /**
          * 上传动作函数
          */
@@ -109,6 +117,7 @@ let obj = {
                 loaded: 0
             }
             // 开始上传
+            task.status = 'uploading'
             axios.put(task.api, fd, {
                 /**
                  * 实时更新上传进度和计算上传速度
@@ -129,29 +138,29 @@ let obj = {
             }).then(e => {
                 // 上传成功
                 task.status = 'finish'
-                Vue.prototype.$eventBus.$emit('uploaded', this.shift())
-                setTimeout(() => {
-                    this.executing = false
-                    this.shift()
-                    this.executeQueue()
-                }, 100)
+                Vue.prototype.$eventBus.$emit('uploaded', this.queue[0])
+                this.executing = false
+                this.shift()
+                this.executeQueue()
             }).catch(e => {
-                task.status = 'error'
-                Vue.prototype.$eventBus.$emit('uploaderr', {
-                    file: this.shift(),
-                    error: e
+                let msg = `
+                    <strong>错误：${e}</strong><br>
+                    <p>文件名：${task.file.name}</p>
+                    <p>大小：${task.file.size}</p>
+                    <p style="word-break:break-all">上传API地址：${decodeURIComponent(task.api)}</p>
+                `
+                mdui.alert(msg, () => {
+                    task.status = 'error'
+                    Vue.prototype.$eventBus.$emit('uploaderr', {
+                        file: this.shift(),
+                        error: e
+                    })
+                    this.executing = false
+                    this.executeQueue()
+                },{
+                    modal: true
                 })
             })
-            task.status = 'uploading'
-        }
-        reader.onload = () => {
-            setTimeout(() => {
-                task.status = 'ready'
-                task.prog = 0
-                task.md5 = md5(reader.result)
-                uploadHandler()
-            }, 100)
-            
         }
     }
 }

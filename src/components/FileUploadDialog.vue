@@ -21,6 +21,7 @@
                     >
                         <p class="file-name">{{file.file.name}}</p>
                         <div class="info">
+                            <span v-if="file.status === 'waiting'">大小：{{file.file.size | formatSizeString}}</span>
                             <span v-if="file.status === 'preparing'">文件读取中...{{file.prog}}%</span>
                             <span v-if="file.status === 'computing'">正在计算文件md5</span>
                             <span v-if="file.status === 'processing'">上传完成，服务器正在处理</span>
@@ -134,7 +135,7 @@ export default {
         overflow: auto;
         .preparing-item {
             &::before {
-                background-color: rgb(255, 233, 133) !important;
+                background-color: rgb(255, 255, 255) !important;
             }
         }
         .upload-item {
@@ -145,7 +146,6 @@ export default {
             background-repeat: no-repeat;
             background-size: 32px 32px;
             background-position: 10px 10px;
-            // z-index: 2;
             .info {
                 line-height: 20px;
                 font-size: 10px;
@@ -166,6 +166,7 @@ export default {
                 top: 0;
                 left: 0;
                 background-color: rgb(133, 206, 255);
+                transition: all .2s;
                 z-index: -1;
             }
         }

@@ -170,20 +170,21 @@ export default {
          * @emits delete
          */
         deleteItem (fileInfo) {
-            let msg = '确定要删除<br>'
+            let msg = '<div class="mdui-typo"><strong>确定要删除</strong><hr>'
             let haveDir = false
             haveDir = fileInfo.filter(item => item.type === 'dir').length !== 0
             for (let i = 0; i < fileInfo.length && i < 6; i++) {
                 const file = fileInfo[i]
-                msg += `<strong>${file.name}</strong><br>`
+                msg += `${file.name}<br>`
             }
             if (fileInfo.length > 6) {
-                msg += ` 等共${fileInfo.length}个文件`
+                msg += '...<br>'
             }
+            msg += `<hr>共<span style="font-weight:bold;font-size:16px;color:red">${fileInfo.length}</span>个文件`
             if (haveDir) {
                 msg += '及其子目录'
             }
-            msg += '吗'
+            msg += '吗（不可逆操作）</div>'
             mdui.confirm(msg, () => {
                 /**
                  * @type {Type.FileInfo[]}

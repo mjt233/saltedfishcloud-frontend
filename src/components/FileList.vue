@@ -238,6 +238,9 @@ export default {
          * @param {HTMLElement[]} elems
          */
         selected(elems) {
+            this.resetSelect()
+            this.selectedEl = elems
+            elems.forEach(item => item.classList.add('selected'))
             setTimeout(() => {
                 this.selecting = false
             }, 100)
