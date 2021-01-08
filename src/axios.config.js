@@ -22,8 +22,8 @@ axios.interceptors.response.use(
     switch (conf.data.code) {
       case 1: return conf
       case -1:
-          if (conf.config.url !== 'User/getUserInfo') {
-            mdui.snackbar(conf.data.msg)
+          if (conf.config.url !== 'user' && conf.config.method !== 'get') {
+            mdui.alert(conf.data.msg)
             Globle.userInfo = null
           }
           break;

@@ -1,6 +1,6 @@
 <template>
     <file-browser 
-        :api="'getPublicList'"
+        :api="'public'"
         :showPath="true"
         :prefix="'public'"
         :rootName="'公共网盘'"

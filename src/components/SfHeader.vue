@@ -14,12 +14,13 @@
 
 <script>
 import mdui from 'mdui'
+import Global from '../global/Global'
 export default {
     name:'sf-header',
     data () {
       return {
         drawer: null,
-        userInfo: null
+        userInfo: Global.userInfo
       }
     },
     methods: {

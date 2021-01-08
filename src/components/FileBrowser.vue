@@ -75,12 +75,48 @@ export default {
              */
             fileList:[],
             paths:[],
-            loading:false
+            loading:false,
+            /**
+             * 上次自动刷新的时间
+             * @type {Number}
+             */
+            lastAutoRefresh: 0,
+            /**
+             * 自动刷新是否处于阻塞状态
+             * @type {Boolean}
+             */
+            blocking: false
         }
     },
     mounted() {
         this.updatePath()
         this.loadList()
+        /**
+         * 捕获到上传完成事件时自动刷新文件列表
+         */
+        this.$eventBus.$on('uploaded', item => {
+            // 当然 上传完成的文件路径与当前正在浏览的路径相同的时候才刷新
+            if (item.api == this.fullApi) {
+                // 小文件上传太多频繁刷新不好，搞个限频，自动刷新间隔不能低于500ms
+                let now = new Date().getTime()
+                if (now - this.lastAutoRefresh >= 500) {
+                    this.lastAutoRefresh = now
+                    this.loadList()
+                } else if (!this.blocking) {
+                    this.blocking = true
+                    setTimeout(() => {
+                        this.lastAutoRefresh = new Date().getTime()
+                        this.blocking = false
+                        this.loadList()
+                    }, 500);
+                }
+            }
+        })
+    },
+    computed: {
+        fullApi() {
+            return `${this.api}/${this.paths.join('/')}`
+        }
     },
     methods: {
         /**
@@ -124,8 +160,12 @@ export default {
          * 加载参数由组件参数api和组件数据paths决定
          */
         loadList() {
+            // 在上次请求未响应之前 不执行
+            if (this.loading) {
+                return
+            }
             this.loading = true
-            let url = `${this.api}/${this.paths.join('/')}`
+            let url = this.fullApi
             this.$axios.get(url).then(e => {
                 this.loading = false
                 this.fileList = e.data.data[0].concat(e.data.data[1])

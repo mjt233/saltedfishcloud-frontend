@@ -1,6 +1,6 @@
 <template>
   <file-browser
-    :api="'getPrivateList'"
+    :api="'private'"
     :prefix="'private'"
     :rootName="'私人网盘'"
     :showPath="true"

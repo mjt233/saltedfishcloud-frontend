@@ -129,17 +129,6 @@ export default {
                 this.parentEl.style.userSelect = 'none'
             }
             /**
-             * 父容器滚动事件触发的函数
-             * @type {Function}
-             * @param {Event} ev
-             * @todo [不紧急|不重要] 若滚动时鼠标所处坐标与当前是否偏移移动XY的控制相反时 选区方向错误
-             */
-            let scrollCallback = ev => {
-                this.offsetLeft = this.parentEl.offsetLeft
-                this.offsetTop = this.parentEl.offsetTop
-                this.scrollTop = this.parentEl.scrollTop
-            }
-            /**
              * 父容器鼠标左键被抬起时触发的函数
              * @type {Function}
              * @param {MouseEvent} ev
@@ -147,7 +136,6 @@ export default {
             let mouseupCallback = ev => {
                 this.parentEl.style.userSelect = ''
                 this.parentEl.removeEventListener('mousemove', moveCallback)
-                this.parentEl.removeEventListener('scroll', scrollCallback)
                 this.parentEl.removeEventListener('mouseup', mouseupCallback)
                 if (this.active) {
                     this.$emit('selectEnd', this.selecteds)
@@ -155,7 +143,6 @@ export default {
                 }
             }
             this.parentEl.addEventListener('mousemove', moveCallback)
-            this.parentEl.addEventListener('scroll', scrollCallback)
             this.parentEl.addEventListener('mouseup', mouseupCallback)
         })
     },

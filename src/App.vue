@@ -87,7 +87,7 @@ export default {
     this.$eventBus.$on("login", (e) => {
       this.setUserInfo(e);
     });
-    this.$axios.post("User/getUserInfo",{},{noDefaultAction:true}).then((e) => {
+    this.$axios.get("user",{},{noDefaultAction:true}).then((e) => {
       this.setUserInfo(e.data.data);
       mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
     });
@@ -106,7 +106,6 @@ export default {
     setUserInfo(info) {
       Global.userInfo = info
       this.userInfo = info
-      this.$refs.header.$data.userInfo = info
     },
     exit() {
       this.setUserInfo(null)

@@ -104,6 +104,7 @@ let obj = {
             // 构造表单参数
             let fd = new FormData
             fd.append('file', task.file)
+            fd.append('md5', task.md5)
             //   将文件信息中的params附加到表单中
             for (const key in task.params) {
                 if (Object.hasOwnProperty.call(task.params, key)) {
