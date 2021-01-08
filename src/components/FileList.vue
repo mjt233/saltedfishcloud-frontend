@@ -394,13 +394,17 @@ a {
             flex-grow: 6;
             text-align: left;
             padding-left: 35px;
+            text-overflow: ellipsis;
+            word-wrap: break-all;
         }
-        .file-size { flex-grow: 2; flex-basis: 0; flex-shrink: 0;}
-        .file-date { flex-grow: 4; flex-basis: 0; flex-shrink: 0;}
+        .file-size { flex-grow: 3;}
+        .file-date { flex-grow: 3;}
 
-        >*{
-            flex-basis: 0;
+        *{
+            padding: 0 5px;
+            overflow: hidden;
             flex-shrink: 0;
+            flex-basis: 0;
         }
     }
     .list-item + .list-item {
