@@ -1,7 +1,7 @@
 const { default: Vue} = require('vue')
 const { default: mdui} = require('mdui')
 const { default: axios } = require("axios")
-const md5 = require('js-md5')
+const FileUtils = require('../utils/FileUtils')
 
 /**
  * @typedef {Object} FileInfo
@@ -70,32 +70,29 @@ let obj = {
         }
         this.executing = true
         let task = this.queue[0]
-
-        // 先读取文件md5
-        let reader = new FileReader
-        reader.readAsArrayBuffer(task.file)
         task.status = 'preparing'
-        reader.onerror = () => {
-            mdui.alert(`${task.file.name} 为文件夹，无法上传`)
-            this.executing = false
-            this.queue.shift()
-            this.executeQueue()
-        }
-        reader.onprogress = e => {
-            task.prog = ((e.loaded/e.total)*100).toFixed(2)
-            if (task.prog == 100) {
-                task.status = 'computing'
+        FileUtils.computeMd5(task.file, {
+            success: e => {
+                setTimeout(() => {
+                    task.status = 'ready'
+                    task.prog = 0
+                    task.md5 = e
+                    uploadHandler()
+                }, 100)
+            },
+            error: e => {
+                mdui.alert(`${task.file.name} 为文件夹，无法上传`)
+                this.executing = false
+                this.queue.shift()
+                this.executeQueue()
+            },
+            prog: e => {
+                task.prog = ((e.loaded/e.total)*100).toFixed(2)
+                if (task.prog == 100) {
+                    task.status = 'computing'
+                }
             }
-        }
-
-        reader.onload = () => {
-            setTimeout(() => {
-                task.status = 'ready'
-                task.prog = 0
-                task.md5 = md5(reader.result)
-                uploadHandler()
-            }, 100)
-        }
+        })
         /**
          * 上传动作函数
          */
