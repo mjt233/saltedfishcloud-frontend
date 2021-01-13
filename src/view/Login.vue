@@ -8,7 +8,7 @@
           <input v-model="form.user" :disabled="loading" class="mdui-textfield-input" type="text" required/>
           <div class="mdui-textfield-error">用户名不能为空</div>
         </div>
-        <a tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</a>
+        <router-link to="/reg" tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</router-link>
       </div>
       <div class="item">
         <div class="mdui-textfield mdui-textfield-floating-label input">
@@ -52,7 +52,7 @@ export default {
           this.loading = false
           // 拿到token之后发起请求获取用户信息
           this.$axios.get('user').then(e=>{
-            this.$router.push('/my')
+            this.$router.push('/private')
             Global.userInfo = e.data.data
             this.$eventBus.$emit('login', e.data.data)
           })
@@ -79,20 +79,20 @@ export default {
   >.item {
     display: flex;
     align-items: center;
-    height: 80px;
-    padding-bottom: 20px;
     >*{
       flex-shrink: 0;
       flex-basis: 0;
     }
     >.input {
       flex-grow: 4;
+      padding: 24px 0;
     }
     >.link {
       flex-grow: 1;
       font-size: 14px;
       padding-top: 20px;
       padding-left: 10px;
+      outline: none;
     }
   }
   
