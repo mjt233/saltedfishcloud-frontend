@@ -22,21 +22,21 @@ axios.interceptors.response.use(
     switch (conf.data.code) {
       case 1: return conf
       case -1:
-          if (conf.config.url !== 'user' && conf.config.method !== 'get') {
+          Globle.userInfo = null
+          if (!conf.config.noDefaultAction) {
             mdui.alert(conf.data.msg)
-            Globle.userInfo = null
           }
-          break;
+          break
       case 0:
           mdui.alert(conf.data.msg)
     }
-    return Promise.reject(conf.data.msg)
+    return Promise.reject(conf.data)
   },
   err => {
-    if (err.config.noDefaultAction) {
-        return Promise.reject(err)
-    }
     if (err.response) {
+      if (err.config.noDefaultAction) {
+          return Promise.reject(err)
+      }
       mdui.snackbar('服务器错误', {
         'position': 'top'
       })

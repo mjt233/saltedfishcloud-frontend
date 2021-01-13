@@ -53,6 +53,14 @@
             <div class="mdui-list-item-content">退出登录</div>
           </li>
         </a>
+        <router-link v-else to="/reg">
+          <li class="mdui-list-item" @click="closeDrawer">
+            <i class="mdui-list-item-avatar mdui-icon material-icons"
+              >&#xe7fd;</i
+            >
+            <div class="mdui-list-item-content">用户注册</div>
+          </li>
+        </router-link>
       </ul>
     </div>
     <sf-header ref="header" />
@@ -69,6 +77,7 @@ import SfHeader from "./components/SfHeader.vue"
 import FileQueue from './global/FileQueue';
 import FileUploadDialog from './components/FileUploadDialog.vue';
 import Global from './global/Global'
+import axios from './axios.config'
 export default {
   components: { SfHeader, FileUploadDialog },
   name: "App",
@@ -87,7 +96,7 @@ export default {
     this.$eventBus.$on("login", (e) => {
       this.setUserInfo(e);
     });
-    this.$axios.get("user",{},{noDefaultAction:true}).then((e) => {
+    axios.get("user",{noDefaultAction:true}).then((e) => {
       this.setUserInfo(e.data.data);
       mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
     });
@@ -125,23 +134,16 @@ export default {
 </script>
 
 <style>
-.route-switch-enter-active,
+.route-switch-enter-active {
+  transition: all 0.1s ease-in;
+}
 .route-switch-leave-active {
-  transition: all 0.1s;
-  /* // position: fixed; */
-  position: relative;
-  left: 0;
-  right: 0;
+  transition: all 0.1s ease-out;
 }
-.route-switch-enter {
-  transform: scale(0.98);
-  /* // transform: translateX(50px); */
-  /* opacity: 0; */
-}
+.route-switch-enter,
 .route-switch-leave-to {
-  /* // transform: translateX(-50px); */
-  transform: scale(0.98);
-  /* opacity: 0; */
+  transform: rotateY(10deg);
+  opacity: .9;
 }
 
 body {

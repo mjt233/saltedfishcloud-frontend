@@ -31,6 +31,7 @@ import Pageniate from '../components/Pageniate.vue'
 import Type from "../typedescribe/type";
 import FileUtils from '../utils/FileUtils';
 import mdui from 'mdui';
+import axios from 'axios';
 export default {
     name: 'FileBrowser',
     props: {
