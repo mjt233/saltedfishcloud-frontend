@@ -18,7 +18,6 @@
         </div>
         <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
       </div>
-      
       <button ref="btn" :disabled="loading" @click="login" class="mdui-btn mdui-color-theme-accent mdui-ripple">登录</button>
     </form>
   </container>
@@ -80,6 +79,8 @@ export default {
   >.item {
     display: flex;
     align-items: center;
+    height: 80px;
+    padding-bottom: 20px;
     >*{
       flex-shrink: 0;
       flex-basis: 0;
