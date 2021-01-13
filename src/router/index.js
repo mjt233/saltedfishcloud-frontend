@@ -41,6 +41,10 @@ export default new Router({
       {
           path: '/test',
           component: require('@/view/Test').default
+      },
+      {
+          path: '/reg',
+          component: require('@/view/RegUser').default
       }
   ]
 })
