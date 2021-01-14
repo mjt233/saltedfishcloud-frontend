@@ -43,12 +43,6 @@
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
-            <li v-if="fileInfo" class="mdui-menu-item">
-                <a href="javascript:;" class="mdui-ripple">
-                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
-                    下载
-                </a>
-            </li>
             <li v-if="fileInfo" class="mdui-menu-item" @click="deleteItem(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
