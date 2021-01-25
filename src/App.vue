@@ -78,26 +78,28 @@ import FileQueue from './global/FileQueue';
 import FileUploadDialog from './components/FileUploadDialog.vue';
 import Global from './global/Global'
 import axios from './axios.config'
+import Store from './Store'
 export default {
   components: { SfHeader, FileUploadDialog },
   name: "App",
   data() {
     return {
       drawer: null,
-      userInfo: null,
       FileQueue: FileQueue.queue
-    };
+    }
+  },
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo
+    }
   },
   mounted() {
-    this.drawer = this.$refs.header.drawer;
-    this.header = document.querySelector("header");
+    this.drawer = this.$refs.header.drawer
+    this.header = document.querySelector("header")
     this.setAppHeight();
     window.addEventListener("resize", this.setAppHeight);
-    this.$eventBus.$on("login", (e) => {
-      this.setUserInfo(e);
-    });
     axios.get("user",{noDefaultAction:true}).then((e) => {
-      this.setUserInfo(e.data.data);
+      Store.commit('setUserInfo', e.data.data)
       mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
     });
   },
@@ -112,14 +114,9 @@ export default {
       this.$refs.app.style.minHeight = h
       this.$refs.app.style.height = h
     },
-    setUserInfo(info) {
-      Global.userInfo = info
-      this.userInfo = info
-    },
     exit() {
-      this.setUserInfo(null)
       localStorage.clear()
-      Global.userInfo = null
+      Store.commit('setUserInfo', null)
       this.$axios.get("logout").then(() => {
         mdui.alert("退出成功", () => {
           setTimeout(() => {

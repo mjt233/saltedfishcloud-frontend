@@ -2,6 +2,7 @@ import axios from 'axios'
 import qs from 'qs'
 import mdui from 'mdui'
 import Globle from './global/Global'
+import Store from './Store'
 axios.defaults.baseURL = '/api/'
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
@@ -22,7 +23,7 @@ axios.interceptors.response.use(
     switch (conf.data.code) {
       case 1: return conf
       case -1:
-          Globle.userInfo = null
+          Store.commit('setUserInfo', null)
           if (!conf.config.noDefaultAction) {
             mdui.alert(conf.data.msg)
           }

@@ -8,6 +8,7 @@ import VueAxios from 'vue-axios'
 import 'mdui/dist/css/mdui.css'
 import mdui from 'mdui'
 import 'default-passive-events'
+import Store from './Store'
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios
@@ -16,6 +17,7 @@ Vue.prototype.$eventBus = new Vue()
 /* eslint-disable no-new */
 window.vue = new Vue({
   el: '#app',
+  store: Store,
   router,
   components: { App },
   template: '<App/>'

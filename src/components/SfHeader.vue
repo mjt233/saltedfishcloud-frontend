@@ -14,22 +14,26 @@
 
 <script>
 import mdui from 'mdui'
-import Global from '../global/Global'
 export default {
     name:'sf-header',
     data () {
       return {
         drawer: null,
-        userInfo: Global.userInfo
       }
     },
     methods: {
       t() {
         this.drawer.toggle()
       }
-    },mounted() {
+    },
+    mounted() {
       this.drawer = new mdui.Drawer('#drawer')
       this.drawer.close()
+    },
+    computed: {
+      userInfo() {
+        return this.$store.state.userInfo
+      }
     }
 }
 </script>

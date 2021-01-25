@@ -53,8 +53,7 @@ export default {
           // 拿到token之后发起请求获取用户信息
           this.$axios.get('user').then(e=>{
             this.$router.push('/private')
-            Global.userInfo = e.data.data
-            this.$eventBus.$emit('login', e.data.data)
+            this.$store.commit('setUserInfo', e.data.data)
           })
         }, {modal:true})
       }).catch(e=>{this.loading = false})
