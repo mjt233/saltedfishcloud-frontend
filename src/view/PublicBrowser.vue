@@ -5,6 +5,7 @@
         :prefix="'public'"
         :rootName="'公共网盘'"
         :pathLabel="'当前路径：'"
+        :showToolBar="userInfo && userInfo.type === 1"
         @clickFile='clickFile'
         @dropFile='dropFile'
     >
@@ -15,20 +16,28 @@
 <script>
 import mdui from 'mdui'
 import FileBrowser from '../components/FileBrowser.vue'
-import FileQueue from '../global/FileQueue'
+import Type from '../typedescribe/type'
 import Global from '../global/Global'
 export default {
     name: 'PublicBrowser',
     data() {
         return {
-            userinfo: {}
+            showToolBar: false
         }
     },
     components: {
         FileBrowser
     },
+    computed: {
+        /**
+         * @type {Type.UserInfo}
+         * @return {Type.UserInfo}
+         */
+        userInfo() {
+            return this.$store.state.userInfo
+        }
+    },
     mounted () {
-        this.userinfo = Global.userInfo
     },
     methods: {
         clickFile(e) {

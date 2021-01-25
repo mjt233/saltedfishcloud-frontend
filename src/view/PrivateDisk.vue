@@ -6,6 +6,7 @@
     :showPath="true"
     :pathLabel="'当前路径：'"
     :loadingControl="loading"
+    :showToolBar="true"
     @clickFile='clickFile'
     @dropFile='addUploadFile'
     @upload='upload'

@@ -26,7 +26,6 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
-import Global from '../global/Global'
 export default {
   components: { Container },
   data() {
@@ -51,7 +50,7 @@ export default {
         mdui.alert('登录成功',()=>{
           this.loading = false
           // 拿到token之后发起请求获取用户信息
-          this.$axios.get('user').then(e=>{
+          this.$axios.get('user').then(e => {
             this.$router.push('/private')
             this.$store.commit('setUserInfo', e.data.data)
           })

@@ -50,6 +50,12 @@
                 </a>
             </li>
         </ul>
+        <div class="toolbar" v-if="showToolBar">
+            <a @click="upload" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">file_upload</i></a>
+            <a @click="refresh" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
+            <a @click="createFolder" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">create_new_folder</i></a>
+            <div class="mdui-toolbar-spacer"></div>
+        </div>
         <ul class="list-container">
             <div class="loading-mask" :class="{'hid':!loading}">
                 <!-- <div class="mdui-spinner"></div> -->
@@ -104,6 +110,11 @@ export default {
         },
         'loading': {
             type: [Boolean],
+            default: false
+        },
+        'showToolBar': {
+            // 是否显示工具栏
+            type: Boolean,
             default: false
         }
     },methods: {

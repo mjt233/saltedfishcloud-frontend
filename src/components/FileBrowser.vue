@@ -9,6 +9,7 @@
         @createFolder="createFolder"
         @refresh="loadList();$emit('refresh', paths)"
         :loading="loading || loadingControl"
+        :showToolBar='showToolBar'
         :file-list="fileList">
         <div>
             <!-- 路径显示 -->
@@ -26,12 +27,10 @@
 
 <script>
 import fileList from '@/components/FileList.vue'
-import Container from '../components/Container.vue'
 import Pageniate from '../components/Pageniate.vue'
-import Type from "../typedescribe/type";
-import FileUtils from '../utils/FileUtils';
-import mdui from 'mdui';
-import axios from 'axios';
+import Type from "../typedescribe/type"
+import FileUtils from '../utils/FileUtils'
+import mdui from 'mdui'
 export default {
     name: 'FileBrowser',
     props: {
@@ -65,6 +64,11 @@ export default {
         },
         'loadingControl': {
             // 父组件加载控制，为true时将进入加载中状态
+            type: Boolean,
+            default: false
+        },
+        'showToolBar': {
+            // 是否显示工具栏
             type: Boolean,
             default: false
         }
