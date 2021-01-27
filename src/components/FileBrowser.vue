@@ -14,11 +14,14 @@
         <div>
             <!-- 路径显示 -->
             <div v-if="showPath">
-                <span>{{pathLabel}}</span>
+                <span style="font-size: 13px">{{pathLabel}}</span>
                 <ul class="path-bar mdui-typo">
                     <li><a :href='`/#/${prefix}`'>{{rootName}}</a></li>
                     <li v-for="(path,index) in paths" :key="index"><a :href="`/#/${prefix}/`+paths.slice(0,index+1).join('/')">{{path | urlDecode}}</a></li>
                 </ul>
+            </div>
+            <div class="mdui-textfield search">
+                <input v-model="searchName" @keydown.enter="search" type="text" placeholder="搜索文件 回车执行" class="mdui-textfield-input">
             </div>
             <slot></slot>
         </div>
@@ -90,7 +93,8 @@ export default {
              * 自动刷新是否处于阻塞状态
              * @type {Boolean}
              */
-            blocking: false
+            blocking: false,
+            searchName: ''
         }
     },
     mounted() {
@@ -124,6 +128,12 @@ export default {
         }
     },
     methods: {
+        /**
+         * 搜索
+         */
+        search() {
+            this.$emit('search', this.searchName)
+        },
         /**
          * 文件列表组件被拖入文件时的回调
          * @param {DragEvent}           e
@@ -277,14 +287,20 @@ export default {
 </script>
 
 <style scope lang="less">
+.search {
+    input::placeholder {
+        font-size: 12px;
+    }
+}
 .path-bar {
     display: inline-block;
     margin: 0;
     padding: 0;
+    font-size: 13px;
     li {
         a {
             display: inline-block;
-            padding: 0 10px;
+            padding: 0 2px;
         }
         display: inline-block;
         color: blue;

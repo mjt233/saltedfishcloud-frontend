@@ -70,7 +70,6 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
-import Global from '../global/Global'
 export default {
     components: { Container },
     data() {

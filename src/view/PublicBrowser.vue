@@ -8,6 +8,7 @@
         :showToolBar="userInfo && userInfo.type === 1"
         @clickFile='clickFile'
         @dropFile='dropFile'
+        @search='search'
     >
 
     </file-browser>
@@ -17,7 +18,6 @@
 import mdui from 'mdui'
 import FileBrowser from '../components/FileBrowser.vue'
 import Type from '../typedescribe/type'
-import Global from '../global/Global'
 export default {
     name: 'PublicBrowser',
     data() {
@@ -49,6 +49,8 @@ export default {
                 mdui.alert('您无权限操作公共目录')
                 return
             }
+        },search(name) {
+            console.log(name)
         }
     }
 }

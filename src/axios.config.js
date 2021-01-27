@@ -1,7 +1,6 @@
 import axios from 'axios'
 import qs from 'qs'
 import mdui from 'mdui'
-import Globle from './global/Global'
 import Store from './Store'
 axios.defaults.baseURL = '/api/'
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'

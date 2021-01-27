@@ -22,11 +22,8 @@
 import Type from '../typedescribe/type'
 import mdui from 'mdui'
 import FileBrowser from "../components/FileBrowser.vue"
-import md5 from 'js-md5'
 import FileQueue from '../global/FileQueue'
-import FileUtils from '../utils/FileUtils'
 import axios from 'axios'
-import qs from 'qs'
 export default {
   components: { FileBrowser },
   name: 'PrivateDisk',
@@ -121,6 +118,11 @@ export default {
       }).then(e=>{
         this.loading = false
         this.$refs.browser.loadList()
+      }).catch(e => {
+        mdui.alert(e.msg, () => {
+          this.loading = false
+          this.$refs.browser.loadList()
+        })
       })
     }
   }

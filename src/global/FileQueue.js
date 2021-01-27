@@ -142,7 +142,7 @@ let obj = {
                 this.executeQueue()
             }).catch(e => {
                 let msg = `
-                    <strong>错误：${e}</strong><br>
+                    <strong>错误：${e.msg}</strong><br>
                     <p>文件名：${task.file.name}</p>
                     <p>大小：${task.file.size}</p>
                     <p style="word-break:break-all">上传API地址：${decodeURIComponent(task.api)}</p>

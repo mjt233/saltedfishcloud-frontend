@@ -27,7 +27,7 @@
             <li class="mdui-menu-item">
                 <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
-                    新建目录
+                    新建文件夹
                 </a>
             </li>
             <li class="mdui-menu-item">
@@ -50,10 +50,17 @@
                 </a>
             </li>
         </ul>
+        <!-- 工具条 -->
         <div class="toolbar" v-if="showToolBar">
-            <a @click="upload" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">file_upload</i></a>
-            <a @click="refresh" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">refresh</i></a>
-            <a @click="createFolder" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">create_new_folder</i></a>
+            <button  @click="upload" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
+                <i class="mdui-icon mdui-icon-left material-icons">file_upload</i>上传
+            </button>
+            <button @click="createFolder" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
+                <i class="mdui-icon mdui-icon-left material-icons">create_new_folder</i>新建文件夹
+            </button>
+            <button @click="refresh" class="mdui-btn mdui-btn-dense mdui-ripple">
+                <i class="mdui-icon mdui-icon-left material-icons">refresh</i>刷新
+            </button>
             <div class="mdui-toolbar-spacer"></div>
         </div>
         <ul class="list-container">
