@@ -74,6 +74,11 @@ export default {
             // 是否显示工具栏
             type: Boolean,
             default: false
+        },
+        'autoRefreshDelay': {
+            // 自动刷新延迟 单位ms
+            type: Number,
+            default: 1000
         }
     },
     data () {
@@ -105,8 +110,8 @@ export default {
          */
         this.$eventBus.$on('uploaded', item => {
             // 当然 上传完成的文件路径与当前正在浏览的路径相同的时候才刷新
-            if (item.api == this.fullApi) {
-                // 小文件上传太多频繁刷新不好，搞个限频，自动刷新间隔不能低于500ms
+            if (item.api.replace(/\/+$/g, '') == this.fullApi) {
+                // 小文件上传太多频繁刷新不好，搞个限频，自动刷新间隔autoRefreshDelay
                 let now = new Date().getTime()
                 if (now - this.lastAutoRefresh >= 500) {
                     this.lastAutoRefresh = now
@@ -117,7 +122,7 @@ export default {
                         this.lastAutoRefresh = new Date().getTime()
                         this.blocking = false
                         this.loadList()
-                    }, 500);
+                    }, this.autoRefreshDelay);
                 }
             }
         })
@@ -184,7 +189,12 @@ export default {
             this.$axios.get(url).then(e => {
                 this.loading = false
                 this.fileList = e.data.data[0].concat(e.data.data[1])
-            }).catch(() => this.loading = false)
+            }).catch(e => {
+                if (e.code !== -1) {
+                    mdui.alert(e.msg)
+                }
+                this.loading = false
+            })
         },
         /**
          * 根据当前路由更新组件的paths
