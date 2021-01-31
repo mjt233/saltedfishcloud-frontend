@@ -110,7 +110,7 @@ export default {
          */
         this.$eventBus.$on('uploaded', item => {
             // 当然 上传完成的文件路径与当前正在浏览的路径相同的时候才刷新
-            if (item.api.replace(/\/+$/g, '') == this.fullApi) {
+            if (item.api.replace(/\/+$/g, '') == this.fullApi.replace(/\/+$/g, '')) {
                 // 小文件上传太多频繁刷新不好，搞个限频，自动刷新间隔autoRefreshDelay
                 let now = new Date().getTime()
                 if (now - this.lastAutoRefresh >= 500) {
@@ -128,6 +128,9 @@ export default {
         })
     },
     computed: {
+        /**
+         * @return {String} 当前页面的取列表API地址
+         */
         fullApi() {
             return `${this.api}/${this.paths.join('/')}`
         }
