@@ -299,17 +299,11 @@ export default {
             this.statu = 'rename'
             this.newName = fileInfo.name
 
-            // 等待DOM被渲染，否则代码会因为input在被Vue响应式渲染之前执行查询而导致取不到input元素
-            // 我等它个100ms没问题吧，不会有的浏览器100ms了还没渲染input吧 不会吧不会吧
-            // 如果确实100ms还是不够的话，那表项可能特别多，这个情况还没测试咋整
-            setTimeout(() => {
-                /**
-                 * @type {HTMLInputElement}
-                 */
+            this.$nextTick().then(() => {
                 let input = this.$refs.list.$el.querySelectorAll('.file,.dir')[this.targetIndex].querySelector('input')
                 input.focus()
                 input.select()
-            }, 100)
+            })
         },
         createFolder () {
             mdui.prompt('文件夹名', text => {

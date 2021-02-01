@@ -76,7 +76,7 @@ export default {
             type: Boolean,
             default: false
         },
-        'autoRefreshDelay': {
+        'refreshDelay': {
             // 自动刷新延迟 单位ms
             type: Number,
             default: 1000
@@ -94,7 +94,7 @@ export default {
              * 上次自动刷新的时间
              * @type {Number}
              */
-            lastAutoRefresh: 0,
+            lastRefresh: 0,
             /**
              * 自动刷新是否处于阻塞状态
              * @type {Boolean}
@@ -112,19 +112,20 @@ export default {
         this.$eventBus.$on('uploaded', item => {
             // 当然 上传完成的文件路径与当前正在浏览的路径相同的时候才刷新
             if (item.api.replace(/\/+$/g, '') == this.fullApi.replace(/\/+$/g, '')) {
-                // 小文件上传太多频繁刷新不好，搞个限频，自动刷新间隔autoRefreshDelay
-                let now = new Date().getTime()
-                if (now - this.lastAutoRefresh >= 500) {
-                    this.lastAutoRefresh = now
-                    this.loadList()
-                } else if (!this.blocking) {
-                    this.blocking = true
-                    setTimeout(() => {
-                        this.lastAutoRefresh = new Date().getTime()
-                        this.blocking = false
-                        this.loadList()
-                    }, this.autoRefreshDelay);
-                }
+                this.loadList()
+                // // 小文件上传太多频繁刷新不好，搞个限频，自动刷新间隔autoRefreshDelay
+                // let now = new Date().getTime()
+                // if (now - this.lastRefresh >= 500) {
+                //     this.lastRefresh = now
+                //     this.loadList()
+                // } else if (!this.blocking) {
+                //     this.blocking = true
+                //     setTimeout(() => {
+                //         this.lastRefresh = new Date().getTime()
+                //         this.blocking = false
+                //         this.loadList()
+                //     }, this.refreshDelay);
+                // }
             }
         })
     },
@@ -192,17 +193,39 @@ export default {
             if (this.loading) {
                 return
             }
-            this.loading = true
-            let url = this.fullApi
-            this.$axios.get(url).then(e => {
-                this.loading = false
-                this.fileList = e.data.data[0].concat(e.data.data[1])
-            }).catch(e => {
-                if (e.code !== -1) {
-                    mdui.alert(e.msg)
-                }
-                this.loading = false
-            })
+
+            // 刷新请求API本体动作函数
+            let refresh = () => {
+                this.loading = true
+                let url = this.fullApi
+                this.$axios.get(url).then(e => {
+                    this.loading = false
+                    this.fileList = e.data.data[0].concat(e.data.data[1])
+                }).catch(e => {
+                    if (e.code !== -1) {
+                        mdui.alert(e.msg)
+                    }
+                    this.loading = false
+                })
+            }
+
+            // 调用限频，防止刷新被按爆或大量小文件上传触发极频繁的自动刷新
+            let now = new Date().getTime()
+            if (now - this.lastRefresh >= this.refreshDelay) {
+
+                //  刷新间隔大于延迟，可立即刷新
+                this.lastRefresh = now
+                refresh()
+            } else if (!this.blocking) {
+                
+                //  刷新间隔过小，设置阻塞不再接收调用请求，并将等待一段时间后自动刷新一次同时解除阻塞。
+                this.blocking = true
+                setTimeout(() => {
+                    this.lastRefresh = new Date().getTime()
+                    this.blocking = false
+                    refresh()
+                }, this.refreshDelay)
+            }
         },
         /**
          * 根据当前路由更新组件的paths
