@@ -6,7 +6,6 @@
         @drop.native="drop"
         @contextmenu.native="showMenu"
         ref="list"
-        id="container"
         style="overflow:auto;height:0px"
         @click.native="containerClick"
     >
@@ -43,6 +42,12 @@
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
+            <li v-if="fileInfo" class="mdui-menu-item" @click="rename(fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">edit</i>
+                    重命名
+                </a>
+            </li>
             <li v-if="fileInfo" class="mdui-menu-item" @click="deleteItem(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
@@ -64,6 +69,7 @@
             <div class="mdui-toolbar-spacer"></div>
         </div>
         <ul class="list-container">
+            <!-- 表头 -->
             <div class="loading-mask" :class="{'hid':!loading}">
                 <!-- <div class="mdui-spinner"></div> -->
             </div>
@@ -77,11 +83,12 @@
                 <div class="file-size"></div>
                 <div class="file-date"></div>
             </li>
+            <!-- 文件列表本体 -->
             <li
                 style="overflow: hidden"
-                v-for="item in fileList"
-                v-bind:key="item.name"
-                @click="click(item)"
+                v-for="(item, index) in fileList"
+                v-bind:key="index"
+                @click="click(item, index)"
                 @dragleave="dragLeave"
                 @dragover="dragover"
                 @dragenter="dragenter"
@@ -89,7 +96,15 @@
                 selectable
                 class="list-item mdui-ripple" :class="item.type == 1 ? 'dir' : `file type-${item.suffix}` "
             >
-                <div class="file-name">{{item.name}}</div>
+                <div class="file-name">
+                    <input 
+                        v-if="index == targetIndex && statu == 'rename'"
+                        class="rename-input"
+                        v-model="newName"
+                        @keyup.enter="resetFileInfo"
+                    />
+                    <span v-else>{{item.name}}</span>
+                </div>
                 <div class="file-size">{{item.formatSize}}</div>
                 <div class="file-date">{{item.formatModified}}</div>
             </li>
@@ -132,15 +147,46 @@ export default {
          * 列表项目被点击时触发的回调
          * @param {Type.BaseFileInfo} item
          */
-        click(item) {
-            if (this.selecting === false) {
-                this.$emit('clickItem', item)
+        click(item, index) {
+            this.fileInfo = null
+            switch (this.statu) {
+                case 'ok':
+                    this.$emit('clickItem', item);break;
+                case 'rename':
+                    if (index !== this.targetIndex) {
+                        this.resetFileInfo();
+                    }
+                    break;
+                default:
+                    mdui.alert(`当前文件编辑编辑器处于"${this.statu}"状态 无法执行此操作`)
+                    break;
             }
         },
-        containerClick() {
+        /**
+         * @param {MouseEvent} e
+         */
+        containerClick(e) {
+            if (e.target == this.$refs.list.$el) {
+                this.resetFileInfo()
+            }
             if (!this.selecting) {
                 this.resetSelect()
             }
+        },
+        /**
+         * 重置当前的文件信息，若文件处于编辑状态 则会触发文件重命名事件
+         */
+        resetFileInfo() {
+            if (this.statu === 'rename') {
+                let info = {
+                    old: this.fileList[this.targetIndex].name,
+                    new: this.newName
+                }
+                this.$emit('rename', info)
+            }
+            this.targetIndex = undefined
+            this.newName = undefined
+            this.statu = 'ok'
         },
         dragLeave(e) {
             this.preventAction(e)
@@ -193,6 +239,7 @@ export default {
          * @param {MouseEvent} e
          */
         showMenu (e) {
+            this.resetFileInfo()
             this.preventAction(e)
             let show = () => {
                 let target = DOMUtils.getElParentByClass(e.target, 'list-item')
@@ -204,7 +251,7 @@ export default {
                 div.style.position = 'fixed'
                 div.style.top = e.pageY + 'px'
                 div.style.left = e.pageX + 'px'
-                let container = document.getElementById('container')
+                let container = this.$refs.list.$el
                 container.appendChild(div)
 
                 // 实例化菜单对象并打开，打开后用于定位的div可移除
@@ -213,14 +260,18 @@ export default {
                     fixed: true
                 })
 
-                let menu_el = document.querySelector('#menu')
 
                 if (target !== null && !target.classList.contains('empty')) {
-                    this.fileInfo = {
-                        name: target.querySelector('.file-name').innerText,
-                        type: target.classList.contains('file') ? 'file' : 'dir'
-                    }
+                    let index = 0
+                    this.$el.querySelectorAll('.file,.dir').forEach((e,i) => {
+                        if (e == target) {
+                            index = i
+                        }
+                    })
+                    this.fileInfo = this.fileList[index]
+                    this.targetIndex = index
                 } else {
+                    this.targetIndex = undefined
                     this.fileInfo = null
                 }
                 // 
@@ -241,6 +292,25 @@ export default {
         refresh () {
             this.$emit('refresh')
         },
+        /**
+         * @param {Type.ServerRawFileInfo} fileInfo
+         */
+        rename (fileInfo) {
+            this.statu = 'rename'
+            this.newName = fileInfo.name
+
+            // 等待DOM被渲染，否则代码会因为input在被Vue响应式渲染之前执行查询而导致取不到input元素
+            // 我等它个100ms没问题吧，不会有的浏览器100ms了还没渲染input吧 不会吧不会吧
+            // 如果确实100ms还是不够的话，那表项可能特别多，这个情况还没测试咋整
+            setTimeout(() => {
+                /**
+                 * @type {HTMLInputElement}
+                 */
+                let input = this.$refs.list.$el.querySelectorAll('.file,.dir')[this.targetIndex].querySelector('input')
+                input.focus()
+                input.select()
+            }, 100)
+        },
         createFolder () {
             mdui.prompt('文件夹名', text => {
                 if (this.fileList.filter(item => item.name === text).length !== 0) {
@@ -253,9 +323,11 @@ export default {
             })
         },
         /**
+         * 选择结束时触发的selectEnd回调
          * @param {HTMLElement[]} elems
          */
         selected(elems) {
+            this.statu = 'ok'
             this.resetSelect()
             this.selectedEl = elems
             elems.forEach(item => item.classList.add('selected'))
@@ -276,6 +348,7 @@ export default {
          * 鼠标选区触发selectStart时的回调
          */
         selectStart() {
+            this.statu = 'select'
             this.resetSelect()
             this.selecting = true
         },
@@ -287,7 +360,7 @@ export default {
             this.$el.querySelectorAll("*[selectable]").forEach(item => item.classList.remove('selected'))
         },
         /**
-         * @param {Type.BaseFileInfo} file
+         * @param {Type.ServerRawFileInfo} file
          */
         deleteItem(file) {
             let fileInfo = []
@@ -318,9 +391,12 @@ export default {
             path:[],
             /**
              * 文件列表被鼠标右键点击时点击的文件
-             * @type {Type.BaseFileInfo}
+             * @type {Type.ServerRawFileInfo}
              */
             fileInfo: null,
+            targetIndex: null,
+            newName: null,
+            statu: 'ok',
             /**
              * 菜单是否处于关闭中状态
              */
@@ -337,6 +413,10 @@ export default {
 </script>
 
 <style lang="less" scope>
+.rename-input {
+    width: 80%;
+    outline: none;
+}
 .select-panel {
     position: fixed;
     width: 30px;

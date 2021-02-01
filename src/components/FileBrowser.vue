@@ -7,6 +7,7 @@
         @upload="upload"
         @delete="deleteItem"
         @createFolder="createFolder"
+        @rename="rename"
         @refresh="loadList();$emit('refresh', paths)"
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
@@ -136,6 +137,10 @@ export default {
         }
     },
     methods: {
+        rename(info) {
+            info.path = this.paths
+            this.$emit('rename', info)
+        },
         /**
          * 搜索
          */

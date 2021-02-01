@@ -12,6 +12,7 @@
     @upload='upload'
     @delete='deleteItem'
     @createFolder='createFolder'
+    @rename='rename'
     ref='browser'
   >
 
@@ -35,6 +36,25 @@ export default {
   mounted () {
   },
   methods: {
+    rename(info) {
+      let url = `rename/private/${info.path.join('/')}`
+      this.loading = true
+      this.$axios.post(url, {
+        oldName: info.old,
+        newName: info.new
+      }).then(e => {
+        this.$refs.browser.loadList()
+        mdui.snackbar('重命名成功')
+        this.loading = false
+      }).catch(e => {
+        if (e.code === -4) {
+          mdui.snackbar('文件名冲突')
+        } else {
+          mdui.snackbar(`出错：${e.msg}`)
+        }
+        this.loading = false
+      })
+    },
     /**
      * 文件被点击时执行的回调
      */
