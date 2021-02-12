@@ -13,6 +13,7 @@
     @delete='deleteItem'
     @createFolder='createFolder'
     @rename='rename'
+    @search='search'
     ref='browser'
   >
 
@@ -25,17 +26,22 @@ import mdui from 'mdui'
 import FileBrowser from "../components/FileBrowser.vue"
 import FileQueue from '../global/FileQueue'
 import axios from 'axios'
+import FileList from '../components/FileList.vue'
 export default {
-  components: { FileBrowser },
+  components: { FileBrowser, FileList },
   name: 'PrivateDisk',
   data() {
     return {
-      loading: false
+      loading: false,
+      searchRes: []
     }
   },
   mounted () {
   },
   methods: {
+    search(name) {
+      console.log(name)
+    },
     rename(info) {
       let url = `rename/private/${info.path.join('/')}`
       this.loading = true

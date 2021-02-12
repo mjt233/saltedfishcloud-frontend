@@ -8,7 +8,7 @@
         @delete="deleteItem"
         @createFolder="createFolder"
         @rename="rename"
-        @refresh="loadList();$emit('refresh', paths)"
+        @refresh="refresh"
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList">
@@ -21,8 +21,21 @@
                     <li v-for="(path,index) in paths" :key="index"><a :href="`/#/${prefix}/`+paths.slice(0,index+1).join('/')">{{path | urlDecode}}</a></li>
                 </ul>
             </div>
-            <div class="mdui-textfield search">
-                <input v-model="searchName" @keydown.enter="search" type="text" placeholder="搜索文件 回车执行" class="mdui-textfield-input">
+            <!-- 工具条 -->
+            <div class="mdui-toolbar">
+                <button  @click="upload" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
+                    <i class="mdui-icon mdui-icon-left material-icons">file_upload</i>上传
+                </button>
+                <button @click="createFolder" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
+                    <i class="mdui-icon mdui-icon-left material-icons">create_new_folder</i>新建文件夹
+                </button>
+                <button @click="refresh" class="mdui-btn mdui-btn-dense mdui-ripple">
+                    <i class="mdui-icon mdui-icon-left material-icons">refresh</i>刷新
+                </button>
+                <div class="mdui-toolbar-spacer"></div>
+                <div class="mdui-textfield search">
+                    <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text" class="mdui-textfield-input">
+                </div> 
             </div>
             <slot></slot>
         </div>
@@ -126,6 +139,10 @@ export default {
         }
     },
     methods: {
+        refresh() {
+            this.loadList()
+            this.$emit('refresh', this.paths)
+        },
         rename(info) {
             info.path = this.paths
             this.$emit('rename', info)
@@ -184,7 +201,6 @@ export default {
 
             // 刷新请求API本体动作函数
             let refresh = () => {
-                console.log('触发');
                 this.lastLoadPath = this.paths.join('/')
                 this.loading = true
                 let url = this.fullApi
@@ -296,12 +312,19 @@ export default {
         },
         /**
          * 菜单“新建文件夹”被点击时触发的回调
-         * @emits createFolder
          */
-        createFolder (name) {
-            this.$emit('createFolder', {
-                name: name,
-                path: this.paths
+        createFolder () {
+            mdui.prompt('文件夹名', text => {
+                if (this.fileList.filter(item => item.name === text).length !== 0) {
+                    mdui.alert('文件名冲突')
+                } else {
+                    this.$emit('createFolder', {
+                        name: text,
+                        path: this.paths
+                    })
+                }
+            }, () => {}, {
+                defaultValue: '新建文件夹'
             })
         }
     },

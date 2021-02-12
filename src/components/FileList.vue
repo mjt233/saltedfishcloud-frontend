@@ -55,19 +55,6 @@
                 </a>
             </li>
         </ul>
-        <!-- 工具条 -->
-        <div class="toolbar" v-if="showToolBar">
-            <button  @click="upload" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
-                <i class="mdui-icon mdui-icon-left material-icons">file_upload</i>上传
-            </button>
-            <button @click="createFolder" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
-                <i class="mdui-icon mdui-icon-left material-icons">create_new_folder</i>新建文件夹
-            </button>
-            <button @click="refresh" class="mdui-btn mdui-btn-dense mdui-ripple">
-                <i class="mdui-icon mdui-icon-left material-icons">refresh</i>刷新
-            </button>
-            <div class="mdui-toolbar-spacer"></div>
-        </div>
         <ul class="list-container">
             <!-- 表头 -->
             <div class="loading-mask" :class="{'hid':!loading}">
@@ -306,15 +293,7 @@ export default {
             })
         },
         createFolder () {
-            mdui.prompt('文件夹名', text => {
-                if (this.fileList.filter(item => item.name === text).length !== 0) {
-                    mdui.alert('文件名冲突')
-                } else {
-                    this.$emit('createFolder', text)
-                }
-            }, () => {}, {
-                defaultValue: '新建文件夹'
-            })
+            this.$emit('createFolder')
         },
         /**
          * 选择结束时触发的selectEnd回调
