@@ -76,7 +76,6 @@ import mdui from "mdui";
 import SfHeader from "./components/SfHeader.vue"
 import FileQueue from './global/FileQueue'
 import FileUploadDialog from './components/FileUploadDialog.vue'
-import axios from './axios.config'
 import Store from './Store'
 export default {
   components: { SfHeader, FileUploadDialog },

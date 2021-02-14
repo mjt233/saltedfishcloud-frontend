@@ -26,7 +26,7 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
-import api from '../api/api'
+import apiConfig from '../api/apiConfig'
 export default {
   components: { Container },
   data() {
@@ -46,10 +46,11 @@ export default {
         return
       }
       this.loading = true
-      api.login(this.form.user, this.form.passwd).then(e => {
+      let conf = apiConfig.login(this.form.user, this.form.passwd)
+      this.$axios(conf).then(e => {
         mdui.alert('登录成功',()=>{
           this.loading = false
-          api.getUserInfo().then(e => {
+          this.$axios(apiConfig.getUserInfo).then(e => {
             this.$router.push('/private')
             this.$store.commit('setUserInfo', e)
           })

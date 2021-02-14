@@ -9,6 +9,7 @@ import 'mdui/dist/css/mdui.css'
 import mdui from 'mdui'
 import 'default-passive-events'
 import Store from './Store'
+import apiConfig from './api/apiConfig'
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios
@@ -23,7 +24,7 @@ let vue = new Vue({
 })
 
 // 挂载App前 先检查登录状态和获取用户信息，以解决一些依赖用户信息的组件在页码首次被打开加载时获取用户信息异常的问题，同时也可根据用户信息的有无判断是否已登录
-axios.get("user",{noDefaultAction:true}).then((e) => {
+axios(apiConfig.getUserInfo, {noDefaultAction:true}).then((e) => {
   console.log('已登录')
   Store.commit('setUserInfo', e.data.data)
   mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})

@@ -19,7 +19,7 @@
 import mdui from 'mdui'
 import FileBrowser from '../components/FileBrowser.vue'
 import Type from '../typedescribe/type'
-import api from '../api/api'
+import apiConfig from '../api/apiConfig'
 export default {
     name: 'PublicBrowser',
     data() {
@@ -44,7 +44,7 @@ export default {
     methods: {
         clickFile(e) {
             let filePath = location.href.replace(/^(.*)\/public/, '/') + `/${encodeURIComponent(e.name)}`
-            let newPath = `${api.server}/download/0${filePath.replace(/\/+/g, '/')}`
+            let newPath = `${apiConfig.server}/download/0${filePath.replace(/\/+/g, '/')}`
             location.href = newPath
         },
         dropFile(fileinfo) {

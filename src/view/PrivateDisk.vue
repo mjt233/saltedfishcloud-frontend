@@ -44,7 +44,7 @@ import axios from 'axios'
 import FileList from '../components/FileList.vue'
 import Container from "@/components/Container.vue"
 import SearchResult from '@/components/SearchResult'
-import api from '../api/api'
+import apiConfig from '../api/apiConfig'
 export default {
   components: { FileBrowser, FileList, Container, SearchResult },
   name: 'PrivateDisk',
@@ -100,7 +100,7 @@ export default {
      */
     clickFile(e) {
       let filePath = location.href.replace(/^(.*)\/private/, '/') + `/${encodeURIComponent(e.name)}`
-      let newPath = `${api.server}/download/${this.userInfo.id}${filePath.replace(/\/+/g, '/')}`
+      let newPath = `${apiConfig.server}/download/${this.userInfo.id}${filePath.replace(/\/+/g, '/')}`
       location.href = newPath
     },
     /**

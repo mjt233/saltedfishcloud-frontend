@@ -2,8 +2,8 @@ import axios from 'axios'
 import qs from 'qs'
 import mdui from 'mdui'
 import Store from './Store'
-import api from './api/api'
-axios.defaults.baseURL = `${api.server}/api`
+import apiConfig from './api/apiConfig'
+axios.defaults.baseURL = `${apiConfig.server}/api`
 axios.defaults.withCredentials = true
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 

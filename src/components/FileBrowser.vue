@@ -50,7 +50,7 @@ import Pageniate from '../components/Pageniate.vue'
 import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
-import api from '../api/api'
+import apiConfig from '../api/apiConfig'
 export default {
     name: 'FileBrowser',
     props: {
@@ -212,10 +212,10 @@ export default {
             let refresh = () => {
                 this.lastLoadPath = this.paths.join('/')
                 this.loading = true
-                api.getFileList(this.uid, this.lastLoadPath)
+                this.$axios(apiConfig.getFileList(this.uid, this.lastLoadPath))
                 .then(e => {
                     this.loading = false
-                    this.fileList = e[0].concat(e[1])
+                    this.fileList = e.data.data[0].concat(e.data.data[1])
                 }).catch(e => {
                     if (e.code !== -1) {
                         mdui.alert(e.msg)
