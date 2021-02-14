@@ -11,7 +11,9 @@
         @refresh="refresh"
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
-        :file-list="fileList">
+        :file-list="fileList"
+        :enable="'name size date return drag-select menu'"
+    >
         <div>
             <!-- 路径显示 -->
             <div v-if="showPath">

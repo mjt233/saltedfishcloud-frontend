@@ -14,6 +14,7 @@
             @selectEnd="selected"
             @selectStart="selectStart"
             @selectChange="selectChange"
+            v-if="enableDragSelect"
         >
 
         </select-area>
@@ -61,11 +62,12 @@
                 <!-- <div class="mdui-spinner"></div> -->
             </div>
             <li class="list-item head">
-                <div class="file-name">文件名</div>
-                <div class="file-size">大小</div>
-                <div class="file-date">最后修改日期</div>
+                <div class="file-name" v-if="enableName">文件名</div>
+                <div class="file-size" v-if="enableSize">大小</div>
+                <div class="file-date" v-if="enableDate">最后修改日期</div>
+                <slot name="columnHeader"></slot>
             </li>
-            <li class="list-item tool-bar mdui-ripple" @click="back" style="overflow: hidden">
+            <li v-if="enableReturn" class="list-item tool-bar mdui-ripple" @click="back" style="overflow: hidden">
                 <div class="file-name">返回上一级</div>
                 <div class="file-size"></div>
                 <div class="file-date"></div>
@@ -81,9 +83,9 @@
                 @dragenter="dragenter"
                 @drop="drop"
                 selectable
-                class="list-item mdui-ripple" :class="item.type == 1 ? 'dir' : `file type-${item.suffix}` "
+                class="list-item mdui-ripple" :class="item.dir ? 'dir' : `file type-${item.suffix}` "
             >
-                <div class="file-name">
+                <div class="file-name" v-if="enableName">
                     <input 
                         v-if="index == targetIndex && statu == 'rename'"
                         class="rename-input"
@@ -92,8 +94,12 @@
                     />
                     <span v-else>{{item.name}}</span>
                 </div>
-                <div class="file-size">{{item.formatSize}}</div>
-                <div class="file-date">{{item.formatModified}}</div>
+                <template v-if="enableSize">
+                    <div class="file-size" v-if="item.dir">-</div>
+                    <div class="file-size" v-else>{{item.size | formatSize}}</div>
+                </template>
+                <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
+                <slot name="columnItem" v-bind:item="item"></slot>
             </li>
             <li v-if="fileList.length==0" class="list-item empty">
                 空空如也
@@ -109,6 +115,7 @@ import '../css/FileIcon.css'
 import mdui from 'mdui'
 import selectArea from './SelectArea.vue'
 import DOMUtils from '../utils/DOMUtils'
+import StringFormatter from '../utils/StringFormatter'
 export default {
   components: { Container, selectArea },
     name: "file-list",
@@ -121,12 +128,42 @@ export default {
             type: [Boolean],
             default: false
         },
-        'showToolBar': {
-            // 是否显示工具栏
+        'enableRClickMemu': {
+            // 是否启用鼠标右键菜单
             type: Boolean,
-            default: false
+            default: true
+        },
+        'enable': {
+            type: String,
+            default: ''
         }
-    },methods: {
+    },
+    computed: {
+        enableName() {
+            return this.enable.indexOf('name') != -1
+        },
+        enableSize() {
+            return this.enable.indexOf('size') != -1
+        },
+        enableDate() {
+            return this.enable.indexOf('date') != -1
+        },
+        enableReturn() {
+            return this.enable.indexOf('return') != -1
+        },
+        enableMenu() {
+            return this.enable.indexOf('menu') != -1
+        },
+        enableDragSelect() {
+            return this.enable.indexOf('drag-select') != -1
+        }
+    },
+    filters: {
+        formatSize(input) {
+            return StringFormatter.formatSizeString(input)
+        }
+    },
+    methods: {
         back() {
             this.$emit('back')
         },
@@ -153,11 +190,15 @@ export default {
          * @param {MouseEvent} e
          */
         containerClick(e) {
-            if (e.target == this.$refs.list.$el) {
-                this.resetFileInfo()
-            }
-            if (!this.selecting) {
-                this.resetSelect()
+            try {
+                if (e.target == this.$refs.list.$el) {
+                    this.resetFileInfo()
+                }
+                if (!this.selecting) {
+                    this.resetSelect()
+                }
+            } catch (error) {
+                
             }
         },
         /**
@@ -228,6 +269,9 @@ export default {
         showMenu (e) {
             this.resetFileInfo()
             this.preventAction(e)
+            if (!this.enableMenu) {
+                return
+            }
             let show = () => {
                 let target = DOMUtils.getElParentByClass(e.target, 'list-item')
                 if (target !== null && target.classList.contains('tool-bar')) {
@@ -451,7 +495,7 @@ a {
         background-position-x: 10px;
         background-size: 24px 24px;
         overflow: auto;
-        transition: all .2s;
+        // transition: all .2s;
         cursor: pointer;
         &.selected {
             background-color: rgb(201, 229, 248);
@@ -468,14 +512,13 @@ a {
             text-overflow: ellipsis;
             word-wrap: break-all;
         }
-        .file-size { flex-grow: 3;}
-        .file-date { flex-grow: 3;}
 
-        *{
+        >*{
             padding: 0 5px;
             overflow: hidden;
             flex-shrink: 0;
             flex-basis: 0;
+            flex-grow: 3;
         }
     }
     .list-item + .list-item {
