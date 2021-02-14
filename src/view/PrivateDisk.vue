@@ -68,7 +68,8 @@ export default {
       location.href = url
     },
     dirClick(path) {
-      console.log('dir', path)
+      this.searchMode = false
+      location.href = '/#/private/' + path
     },
     search(key) {
       this.searchMode = !this.searchMode
