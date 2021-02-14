@@ -1,5 +1,6 @@
 <template>
     <file-browser 
+        :uid="0"
         :api="'fileList/0'"
         :showPath="true"
         :prefix="'public'"

@@ -26,6 +26,7 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
+import api from '../api/api'
 export default {
   components: { Container },
   data() {
@@ -45,14 +46,12 @@ export default {
         return
       }
       this.loading = true
-      // 发起登录请求 获取token
-      this.$axios.post('User/login', this.form).then(e=>{
+      api.login(this.form.user, this.form.passwd).then(e => {
         mdui.alert('登录成功',()=>{
           this.loading = false
-          // 拿到token之后发起请求获取用户信息
-          this.$axios.get('user').then(e => {
+          api.getUserInfo().then(e => {
             this.$router.push('/private')
-            this.$store.commit('setUserInfo', e.data.data)
+            this.$store.commit('setUserInfo', e)
           })
         }, {modal:true})
       }).catch(e=>{this.loading = false})

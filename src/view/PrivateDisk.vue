@@ -15,6 +15,7 @@
   <file-browser
     v-else
     :api="`fileList/${userInfo.id}`"
+    :uid="userInfo.id"
     :prefix="'private'"
     :rootName="'私人网盘'"
     :showPath="true"

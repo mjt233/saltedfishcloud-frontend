@@ -50,9 +50,16 @@ import Pageniate from '../components/Pageniate.vue'
 import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
+import api from '../api/api'
 export default {
     name: 'FileBrowser',
     props: {
+        'uid': {
+            /**
+             * 用户ID
+             */
+            type: Number
+        },
         'api': {
             /**
              * API接口地址，用于持续浏览
@@ -205,10 +212,10 @@ export default {
             let refresh = () => {
                 this.lastLoadPath = this.paths.join('/')
                 this.loading = true
-                let url = this.fullApi
-                this.$axios.get(url).then(e => {
+                api.getFileList(this.uid, this.lastLoadPath)
+                .then(e => {
                     this.loading = false
-                    this.fileList = e.data.data[0].concat(e.data.data[1])
+                    this.fileList = e[0].concat(e[1])
                 }).catch(e => {
                     if (e.code !== -1) {
                         mdui.alert(e.msg)
