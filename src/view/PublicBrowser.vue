@@ -1,6 +1,6 @@
 <template>
     <file-browser 
-        :api="'public'"
+        :api="'fileList/0'"
         :showPath="true"
         :prefix="'public'"
         :rootName="'公共网盘'"
@@ -18,6 +18,7 @@
 import mdui from 'mdui'
 import FileBrowser from '../components/FileBrowser.vue'
 import Type from '../typedescribe/type'
+import api from '../api/api'
 export default {
     name: 'PublicBrowser',
     data() {
@@ -41,7 +42,8 @@ export default {
     },
     methods: {
         clickFile(e) {
-            let newPath = location.href.replace(`/#/public`, '/pubdown') + `/${encodeURIComponent(e.name)}`
+            let filePath = location.href.replace(/^(.*)\/public/, '/') + `/${encodeURIComponent(e.name)}`
+            let newPath = `${api.server}/download/0${filePath.replace(/\/+/g, '/')}`
             location.href = newPath
         },
         dropFile(fileinfo) {

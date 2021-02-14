@@ -514,6 +514,9 @@ a {
         }
 
         >*{
+            display: flex;
+            align-items: center;
+            height: 100%;
             padding: 0 5px;
             overflow: hidden;
             flex-shrink: 0;

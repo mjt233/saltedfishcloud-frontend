@@ -92,15 +92,13 @@ export default {
       return this.$store.state.userInfo
     }
   },
+  created() {
+    window.addEventListener("resize", this.setAppHeight)
+  },
   mounted() {
     this.drawer = this.$refs.header.drawer
     this.header = document.querySelector("header")
     this.setAppHeight();
-    window.addEventListener("resize", this.setAppHeight);
-    axios.get("user",{noDefaultAction:true}).then((e) => {
-      Store.commit('setUserInfo', e.data.data)
-      mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
-    });
   },
   methods: {
     closeDrawer() {

@@ -2,7 +2,9 @@ import axios from 'axios'
 import qs from 'qs'
 import mdui from 'mdui'
 import Store from './Store'
-axios.defaults.baseURL = '/api/'
+import api from './api/api'
+axios.defaults.baseURL = `${api.server}/api`
+axios.defaults.withCredentials = true
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
 // axios请求拦截器 添加token 和转换表单数据类型

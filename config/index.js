@@ -19,10 +19,7 @@ module.exports = {
           '^/api': '/api'
         }
       },
-      '/pubdown': {
-        target: 'http://127.0.0.1:8087'
-      },
-      '/pridown': {
+      '/download': {
         target: 'http://127.0.0.1:8087'
       },
       '/login': {

@@ -1,6 +1,20 @@
 <template>
+  <search-result 
+    v-if="searchMode"
+    :searchKey='searchKey'
+    :uid='userInfo.id'
+    :rootLabel='"私人网盘"'
+    @back='searchMode = false'
+    @clickFile='fileClick'
+    @clickDir='dirClick'
+  >
+    <div class="mdui-typo">
+      <a>返回</a>
+    </div>
+  </search-result>
   <file-browser
-    :api="'private'"
+    v-else
+    :api="`fileList/${userInfo.id}`"
     :prefix="'private'"
     :rootName="'私人网盘'"
     :showPath="true"
@@ -27,20 +41,38 @@ import FileBrowser from "../components/FileBrowser.vue"
 import FileQueue from '../global/FileQueue'
 import axios from 'axios'
 import FileList from '../components/FileList.vue'
+import Container from "@/components/Container.vue"
+import SearchResult from '@/components/SearchResult'
+import api from '../api/api'
 export default {
-  components: { FileBrowser, FileList },
+  components: { FileBrowser, FileList, Container, SearchResult },
   name: 'PrivateDisk',
   data() {
     return {
       loading: false,
-      searchRes: []
+      searchRes: [],
+      searchMode: false,
+      searchKey: '测试'
     }
   },
   mounted () {
   },
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo
+    }
+  },
   methods: {
-    search(name) {
-      console.log(name)
+    fileClick(path) {
+      let url = `/download/${this.userInfo.id}/${path}`
+      location.href = url
+    },
+    dirClick(path) {
+      console.log('dir', path)
+    },
+    search(key) {
+      this.searchMode = !this.searchMode
+      this.searchKey = key
     },
     rename(info) {
       let url = `rename/private/${info.path.join('/')}`
@@ -65,7 +97,8 @@ export default {
      * 文件被点击时执行的回调
      */
     clickFile(e) {
-      let newPath = location.href.replace(`/#/private`, '/pridown') + `/${encodeURIComponent(e.name)}`
+      let filePath = location.href.replace(/^(.*)\/private/, '/') + `/${encodeURIComponent(e.name)}`
+      let newPath = `${api.server}/download/${this.userInfo.id}${filePath.replace(/\/+/g, '/')}`
       location.href = newPath
     },
     /**
