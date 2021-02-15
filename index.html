@@ -4,12 +4,33 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>saltedfishcloud</title>
+    <style>
+      #first-load {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        transition: all .2s;
+      }
+      #first-load.hid {
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
   </head>
   <body class="mdui-theme-primary-indigo
       mdui-theme-accent-blue
       mdui-appbar-with-toolbar
       mdui-drawer-body-left">
     <div id="app"></div>
+    <div id="first-load">
+      <h1>加载中，请稍候</h1>
+    </div>
     <!-- built files will be auto injected -->
   </body>
 </html>

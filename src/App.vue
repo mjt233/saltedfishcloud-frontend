@@ -99,6 +99,7 @@ export default {
     this.header = document.querySelector("header")
     this.$store.commit('setDrawer', this.drawer)
     this.setAppHeight();
+    document.querySelector('#first-load').classList.add('hid')
   },
   methods: {
     closeDrawer() {

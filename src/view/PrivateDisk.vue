@@ -1,18 +1,28 @@
 <template>
     <file-handler
+        v-if="userInfo != null"
         :uid="userInfo.id"
     >
-
     </file-handler>
+    <container v-else class="mdui-typo">
+        <h3>未登录，请先<router-link to="/login">登录</router-link></h3>
+    </container>
 </template>
 
 <script>
+import mdui from 'mdui'
 import FileHandler from '../components/FileHandler.vue'
+import Container from '../components/Container.vue'
 export default {
-    components: { FileHandler },
+    components: { FileHandler, Container },
     computed: {
         userInfo() {
             return this.$store.state.userInfo
+        }
+    },
+    mounted() {
+        if (this.userInfo == null) {
+            mdui.alert('私人网盘需要登录，请先登录')
         }
     }
 }

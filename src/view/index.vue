@@ -1,12 +1,18 @@
 <template>
-  <div>
-      <h1></h1>
-  </div>
+  <container class="mdui-typo">
+      <h1>欢迎使用咸鱼云网盘</h1>
+      <h3>在左边的抽屉菜单里选择相应服务吧</h3>
+      <h4>没有菜单？试试左上角的小按钮</h4>
+  </container>
 </template>
 
 <script>
+import Container from '../components/Container.vue'
 export default {
-    name: 'index'
+  name: 'index',
+  components: {
+    Container
+  }
 }
 </script>
 
