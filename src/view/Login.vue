@@ -46,9 +46,9 @@ export default {
         return
       }
       this.loading = true
-      let conf = apiConfig.login(this.form.user, this.form.passwd)
+      let conf = apiConfig.user.login(this.form.user, this.form.passwd)
       this.$axios(conf).then(e => {
-        this.$axios(apiConfig.getUserInfo).then(e => {
+        this.$axios(apiConfig.user.getUserInfo).then(e => {
           this.loading = false
           this.$store.commit('setUserInfo', e.data.data)
           mdui.alert('登录成功',()=>{

@@ -212,7 +212,7 @@ export default {
             let refresh = () => {
                 this.lastLoadPath = this.paths.join('/')
                 this.loading = true
-                this.$axios(apiConfig.getFileList(this.uid, this.lastLoadPath))
+                this.$axios(apiConfig.resource.getFileList(this.uid, this.lastLoadPath))
                 .then(e => {
                     this.loading = false
                     this.fileList = e.data.data[0].concat(e.data.data[1])
