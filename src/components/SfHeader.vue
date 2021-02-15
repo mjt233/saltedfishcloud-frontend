@@ -13,26 +13,21 @@
 </template>
 
 <script>
-import mdui from 'mdui'
 export default {
     name:'sf-header',
-    data () {
-      return {
-        drawer: null,
-      }
-    },
     methods: {
       t() {
         this.drawer.toggle()
       }
     },
     mounted() {
-      this.drawer = new mdui.Drawer('#drawer')
-      this.drawer.close()
     },
     computed: {
       userInfo() {
         return this.$store.state.userInfo
+      },
+      drawer() {
+        return this.$store.state.drawer
       }
     }
 }

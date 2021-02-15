@@ -95,8 +95,9 @@ export default {
     window.addEventListener("resize", this.setAppHeight)
   },
   mounted() {
-    this.drawer = this.$refs.header.drawer
+    this.drawer = new mdui.Drawer('#drawer')
     this.header = document.querySelector("header")
+    this.$store.commit('setDrawer', this.drawer)
     this.setAppHeight();
   },
   methods: {
