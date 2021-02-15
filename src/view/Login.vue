@@ -52,7 +52,9 @@ export default {
           this.loading = false
           this.$store.commit('setUserInfo', e.data.data)
           mdui.alert('登录成功',()=>{
-            this.$router.push('/private')
+            setTimeout(() => {
+              this.$router.push('/private')
+            }, 100)
           }, {modal:true})
         })
       }).catch(e=>{this.loading = false})
