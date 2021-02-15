@@ -48,13 +48,13 @@ export default {
       this.loading = true
       let conf = apiConfig.login(this.form.user, this.form.passwd)
       this.$axios(conf).then(e => {
-        mdui.alert('登录成功',()=>{
+        this.$axios(apiConfig.getUserInfo).then(e => {
           this.loading = false
-          this.$axios(apiConfig.getUserInfo).then(e => {
+          this.$store.commit('setUserInfo', e.data.data)
+          mdui.alert('登录成功',()=>{
             this.$router.push('/private')
-            this.$store.commit('setUserInfo', e)
-          })
-        }, {modal:true})
+          }, {modal:true})
+        })
       }).catch(e=>{this.loading = false})
     },
     tips() {

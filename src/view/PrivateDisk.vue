@@ -13,7 +13,7 @@
     </div>
   </search-result>
   <file-browser
-    v-else
+    v-else-if="!searchMode && hasLogin"
     :api="`fileList/${userInfo.id}`"
     :uid="userInfo.id"
     :prefix="'private'"
@@ -31,8 +31,10 @@
     @search='search'
     ref='browser'
   >
-
   </file-browser>
+  <container class="mdui-typo" v-else>
+    <h3>未登录，请先<router-link to="/login">登录</router-link> </h3>
+  </container>
 </template>
 
 <script>
@@ -61,6 +63,9 @@ export default {
   computed: {
     userInfo() {
       return this.$store.state.userInfo
+    },
+    hasLogin() {
+      return this.$store.state.userInfo != null
     }
   },
   methods: {

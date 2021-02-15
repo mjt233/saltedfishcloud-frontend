@@ -102,7 +102,7 @@ export default {
   methods: {
     closeDrawer() {
       if (document.documentElement.offsetWidth < 1024) {
-        this.drawer.close();
+        this.drawer.close()
       }
     },
     setAppHeight() {
@@ -114,12 +114,7 @@ export default {
       localStorage.clear()
       Store.commit('setUserInfo', null)
       this.$axios.get("logout").then(() => {
-        mdui.alert("退出成功", () => {
-          setTimeout(() => {
-            this.drawer.close();
-            this.$router.push("/login");
-          }, 100);
-        });
+        mdui.alert('退出成功')
       });
     },
   }

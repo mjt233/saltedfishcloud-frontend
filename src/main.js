@@ -24,7 +24,10 @@ let vue = new Vue({
 })
 
 // 挂载App前 先检查登录状态和获取用户信息，以解决一些依赖用户信息的组件在页码首次被打开加载时获取用户信息异常的问题，同时也可根据用户信息的有无判断是否已登录
-axios(apiConfig.getUserInfo, {noDefaultAction:true}).then((e) => {
+let conf = apiConfig.getUserInfo
+conf.noDefaultAction = true
+
+axios(conf, {noDefaultAction:true}).then((e) => {
   console.log('已登录')
   Store.commit('setUserInfo', e.data.data)
   mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
