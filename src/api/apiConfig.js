@@ -1,5 +1,9 @@
 const apiConfig = {
-    server: 'http://127.0.0.1:8087',
+    //  webpack-dev-server反代的目标服务器
+    proxyServer: 'http://192.168.5.2:8087',
+
+    //  请求的服务器地址
+    server: '',
     user: {
         regUser: {
             url: 'regUser',
@@ -94,4 +98,4 @@ const apiConfig = {
     }
 
 }
-export default apiConfig
+module.exports = apiConfig

@@ -3,7 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-
+const apiConfig = require('../src/api/apiConfig')
 module.exports = {
   dev: {
 
@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'http://127.0.0.1:8087',
+        target: apiConfig.proxyServer,
         changeOrigin: false,
         secure: false,
         pathRewrith: {
@@ -20,10 +20,10 @@ module.exports = {
         }
       },
       '/download': {
-        target: 'http://127.0.0.1:8087'
+        target: apiConfig.proxyServer
       },
       '/login': {
-        target: 'http://127.0.0.1:8087'
+        target: apiConfig.proxyServer
       }
     },
 
