@@ -73,12 +73,14 @@ export default {
     },
     methods: {
         doSearch() {
+            this.d_loading = true
             this.$axios.get(this.searchAPI, {
                 params: {
                     key: this.searchKey,
                     page: this.page
                 }
             }).then(e => {
+                this.d_loading = false
                 this.res = e.data.data.list
             })
         },
