@@ -3,16 +3,24 @@
         <file-list 
             :enableDragSelect="false"
             :loading="loading || d_loading"
-            :fileList='res'
+            :fileList='res.list'
         >
+        
+            <!-- 文件列表标头 -->
             <div class="mdui-typo">
                 <p>当前路径：<a @click="$emit('back')">{{rootLabel}}</a> > "搜索：{{searchKey}}"</p>
             </div>
+            <div style="display:flex;justify-content: center;">
+                <pager :disabled="d_loading" :pageCount="res.pages" @change="doSearch"></pager>
+            </div>
+            <!-- 表格表头列 -->
             <template v-slot:columnHeader>
                 <div class="file-name">文件名</div>
                 <div>大小</div>
                 <div>所在目录</div>
             </template>
+
+            <!-- 表格数据列 -->
             <template v-slot:columnItem="props">
                 <div @click="clickFile(props.item)" class="file-name">{{props.item.name}}</div>
                 <div @click="clickFile(props.item)" v-if="props.item.file">{{props.item.size | formatSize}}</div>
@@ -21,6 +29,11 @@
                     <a @click="clickPath(props.item.node)" href="javascript:;">{{props.item.parent || '/'}}</a>
                 </div>
             </template>
+
+            <!-- 文件列表页脚处 -->
+            <template v-slot:footer>
+                <div class="res-info mdui-typo">结果总数：{{res.total}}条  页数：{{res.pages}}页</div>
+            </template>
         </file-list>
     </div>
 </template>
@@ -28,8 +41,9 @@
 <script>
 import StringFormatter from '../utils/StringFormatter'
 import FileList from './FileList.vue'
+import Pager from './ui/pager.vue'
 export default {
-    components: { FileList },
+    components: { FileList, Pager },
     data() {
         return {
             page: 1,
@@ -69,19 +83,19 @@ export default {
         }
     },
     mounted() {
-        this.doSearch()
+        this.doSearch(1)
     },
     methods: {
-        doSearch() {
+        doSearch(page) {
             this.d_loading = true
             this.$axios.get(this.searchAPI, {
                 params: {
                     key: this.searchKey,
-                    page: this.page
+                    page: page
                 }
             }).then(e => {
                 this.d_loading = false
-                this.res = e.data.data.list
+                this.res = e.data.data
             })
         },
         clickFile(info) {
@@ -130,6 +144,10 @@ export default {
 <style lang="less" scoped>
 a {
     cursor: pointer;
+}
+.res-info {
+    font-size: 12px;
+    color: rgb(39, 39, 39);
 }
 </style>
 <style>
