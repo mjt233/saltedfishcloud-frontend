@@ -45,12 +45,12 @@ export default {
     padding: 0;
     margin: 0;
     padding:  10px;
-    width: 1000px;
+    width: 800px;
     position: relative;
     background-color: rgba(255, 255, 255, 0.95);
     margin: 0 auto;
 }
-@media screen and (max-width: 1100px){
+@media screen and (max-width: 1200px){
     .container {
       width: calc(100% - 20px);
     }

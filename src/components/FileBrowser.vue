@@ -25,14 +25,14 @@
             </div>
             <!-- 工具条 -->
             <div class="mdui-toolbar">
-                <button  @click="upload" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
-                    <i class="mdui-icon mdui-icon-left material-icons">file_upload</i>上传
+                <button  @click="upload" class="mdui-btn mdui-ripple mdui-btn-icon">
+                    <i class="mdui-icon material-icons">file_upload</i>
                 </button>
-                <button @click="createFolder" class="mdui-btn mdui-btn-dense mdui-color-theme-accent mdui-ripple">
-                    <i class="mdui-icon mdui-icon-left material-icons">create_new_folder</i>新建文件夹
+                <button @click="createFolder" class="mdui-btn mdui-ripple mdui-btn-icon">
+                    <i class="mdui-icon material-icons">create_new_folder</i>
                 </button>
-                <button @click="refresh" class="mdui-btn mdui-btn-dense mdui-ripple">
-                    <i class="mdui-icon mdui-icon-left material-icons">refresh</i>刷新
+                <button @click="refresh" class="mdui-btn mdui-ripple mdui-btn-icon">
+                    <i class="mdui-icon material-icons">refresh</i>
                 </button>
                 <div class="mdui-toolbar-spacer"></div>
                 <div class="mdui-textfield search">
@@ -355,6 +355,14 @@ export default {
 </script>
 
 <style scope lang="less">
+@media screen and (max-width: 720px) {
+    .btn-text {
+        display: none;
+    }
+    .mdui-toolbar>button {
+        width: 120px;
+    }
+}
 .search {
     input::placeholder {
         font-size: 12px;
