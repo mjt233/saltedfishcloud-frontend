@@ -76,7 +76,8 @@ export default {
     methods: {
         fileClick(path) {
             let url = `/download/${this.uid}/${path}`
-            location.href = url
+            let href = url.replace(/\/+/g, '/')
+            location.href = href
         },
         dirClick(path) {
             this.searchMode = false
