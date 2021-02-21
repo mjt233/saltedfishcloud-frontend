@@ -81,7 +81,7 @@ export default {
         fileClick(path) {
             let url = `/download/${this.uid}/${path}`
             let href = url.replace(/\/+/g, '/')
-            FormUtils.openWindowsWithPost(href, {
+            FormUtils.jumpWithPost(href, true, {
                 Token: this.token
             })
         },
@@ -116,7 +116,7 @@ export default {
             let exp = new RegExp(`^(.*)\/${this.viewRouteName}`)
             let filePath = location.href.replace(exp, '/') + `/${encodeURIComponent(e.name)}`
             let newPath = `${apiConfig.server}/download/${this.uid}${filePath.replace(/\/+/g, '/')}`
-            FormUtils.openWindowsWithPost(newPath, {
+            FormUtils.jumpWithPost(newPath, true, {
                 Token: this.token
             })
         },
