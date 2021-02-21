@@ -47,6 +47,7 @@ import FileList from '../components/FileList.vue'
 import Container from "@/components/Container.vue"
 import SearchResult from '@/components/SearchResult'
 import apiConfig from '../api/apiConfig'
+import FormUtils from '../utils/FormUtils'
 export default {
     components: { FileBrowser, FileList, Container, SearchResult },
     name: 'FileHandler',
@@ -71,13 +72,18 @@ export default {
         },
         viewRouteName() {
             return this.uid == 0 ? 'public' : 'private'
+        },
+        token() {
+            return this.$store.state.token
         }
     },
     methods: {
         fileClick(path) {
             let url = `/download/${this.uid}/${path}`
             let href = url.replace(/\/+/g, '/')
-            location.href = href
+            FormUtils.openWindowsWithPost(href, {
+                Token: this.token
+            })
         },
         dirClick(path) {
             this.searchMode = false
@@ -88,7 +94,6 @@ export default {
             this.searchKey = key
         },
         rename(info) {
-            let url = `rename/${this.uid}/${info.path.join('/')}`
             this.loading = true
             let conf = apiConfig.resource.rename(this.uid, info.path.join('/'), info.old, info.new)
             this.$axios(conf).then(e => {
@@ -111,7 +116,9 @@ export default {
             let exp = new RegExp(`^(.*)\/${this.viewRouteName}`)
             let filePath = location.href.replace(exp, '/') + `/${encodeURIComponent(e.name)}`
             let newPath = `${apiConfig.server}/download/${this.uid}${filePath.replace(/\/+/g, '/')}`
-            location.href = newPath
+            FormUtils.openWindowsWithPost(newPath, {
+                Token: this.token
+            })
         },
         /**
          * 有文件被拖到文件列表时执行的回调

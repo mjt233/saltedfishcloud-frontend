@@ -5,7 +5,7 @@ const Store = new Vuex.Store({
     state: {
         userInfo: null,
         drawer: null,
-        token: null
+        token: ""
     },
     mutations: {
         setDrawer(state, drawer) {
