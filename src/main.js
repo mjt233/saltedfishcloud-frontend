@@ -27,9 +27,14 @@ let vue = new Vue({
 let conf = apiConfig.user.getUserInfo
 conf.noDefaultAction = true
 
+let token
+// 加载之前登陆时保存的token
+if (localStorage.getItem('token')) {
+  token = localStorage.getItem('token')
+  Store.commit('setToken', token)
+}
+
 axios(conf, {noDefaultAction:true}).then((e) => {
-  console.log('已登录')
-  Store.commit('setToken', e.data.data)
   mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
   vue.$mount('#app')
 }).catch(() => {
