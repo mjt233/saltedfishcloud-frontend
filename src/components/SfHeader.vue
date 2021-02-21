@@ -24,7 +24,7 @@ export default {
     },
     computed: {
       userInfo() {
-        return this.$store.state.userInfo
+        return this.$store.getters.userInfo
       },
       drawer() {
         return this.$store.state.drawer

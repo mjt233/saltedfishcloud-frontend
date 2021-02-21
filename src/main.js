@@ -29,7 +29,7 @@ conf.noDefaultAction = true
 
 axios(conf, {noDefaultAction:true}).then((e) => {
   console.log('已登录')
-  Store.commit('setUserInfo', e.data.data)
+  Store.commit('setToken', e.data.data)
   mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
   vue.$mount('#app')
 }).catch(() => {

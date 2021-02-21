@@ -4,14 +4,24 @@ Vue.use(Vuex)
 const Store = new Vuex.Store({
     state: {
         userInfo: null,
-        drawer: null
+        drawer: null,
+        token: null
     },
     mutations: {
-        setUserInfo(state, userInfo) {
-            state.userInfo = userInfo
-        },
         setDrawer(state, drawer) {
             state.drawer = drawer
+        },
+        setToken(state, token) {
+            state.token = token
+        }
+    },
+    getters: {
+        userInfo: state => {
+            try {
+                return JSON.parse(JSON.parse(window.atob(state.token.split('.')[1])).data)
+            } catch (error) {
+                return null
+            }
         }
     }
 })

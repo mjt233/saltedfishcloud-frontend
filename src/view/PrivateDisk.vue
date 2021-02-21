@@ -17,7 +17,7 @@ export default {
     components: { FileHandler, Container },
     computed: {
         userInfo() {
-            return this.$store.state.userInfo
+            return this.$store.getters.userInfo
         }
     },
     mounted() {

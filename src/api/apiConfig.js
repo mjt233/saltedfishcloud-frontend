@@ -1,6 +1,6 @@
 const apiConfig = {
     //  webpack-dev-server反代的目标服务器
-    proxyServer: 'http://192.168.5.2:8087',
+    proxyServer: 'http://127.0.0.1:8087',
 
     //  请求的服务器地址
     server: '',
@@ -11,7 +11,7 @@ const apiConfig = {
         },
         login(user, passwd) {
             return {
-                url: 'User/login',
+                url: 'login',
                 method: 'post',
                 data: {
                     user: user,

@@ -88,7 +88,7 @@ export default {
   },
   computed: {
     userInfo() {
-      return this.$store.state.userInfo
+      return this.$store.getters.userInfo
     }
   },
   created() {
@@ -114,7 +114,7 @@ export default {
     },
     exit() {
       localStorage.clear()
-      Store.commit('setUserInfo', null)
+      Store.commit('setToken', null)
       this.$axios.get("logout").then(() => {
         mdui.alert('退出成功')
       });
