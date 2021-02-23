@@ -143,12 +143,10 @@ export default {
         upload (info) {
             for (let i = 0; i < info.files.length; i++) {
                 const file = info.files[i]
-                let conf = apiConfig.resource.upload(this.uid, info.path)
+                let conf = apiConfig.resource.upload(this.uid, info.path.join('/'))
                 FileQueue.addFile({
                     api: conf.url,
-                    file: file,
-                    params: {},
-                    path: info.path
+                    file: file
                 })
             }
         },

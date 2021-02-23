@@ -25,7 +25,6 @@ let obj = {
      * @param {Object} fileInfo 
      * @param {String} fileInfo.api             -   上传的API地址
      * @param {File}    fileInfo.file           -   文件对象
-     * @param {String[]}  path                  -   文件所在路径
      * @param {Object=} fileInfo.params         -   上传时附带的参数
      */
     addFile(fileInfo) {
