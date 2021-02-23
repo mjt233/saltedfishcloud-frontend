@@ -38,6 +38,8 @@ axios(conf, {noDefaultAction:true}).then((e) => {
   mdui.snackbar(`欢迎回来，${e.data.data.user}`, {position: 'bottom'})
   vue.$mount('#app')
 }).catch(() => {
+  Store.commit('setToken', null)
+  localStorage.clear()
   console.log('未登录')
   vue.$mount('#app')
 })
