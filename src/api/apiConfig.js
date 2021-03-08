@@ -5,10 +5,30 @@ const apiConfig = {
     //  请求的服务器地址
     server: '',
     user: {
-        regUser: {
-            url: 'regUser',
-            method: 'post'
+        /**
+         * 注册新用户
+         * @param {String} user 用户名
+         * @param {String} passwd 密码
+         * @param {String} regcode 注册码
+         * @returns {Object}
+         */
+        regUser(user, passwd, regcode) {
+            return {
+                url: 'regUser',
+                method: 'post',
+                data: {
+                    user: user,
+                    passwd: passwd,
+                    regcode: regcode
+                }
+            }
         },
+        /**
+         * 用户登录
+         * @param {String} user 用户
+         * @param {String} passwd 密码
+         * @returns 
+         */
         login(user, passwd) {
             return {
                 url: 'login',
@@ -19,16 +39,39 @@ const apiConfig = {
                 }
             }
         },
-        getUserInfo: {
-            url: 'user',
-            method: 'get'
+        /**
+         * 获取用户信息
+         */
+        getUserInfo() {
+            return {
+                url: 'user',
+                method: 'get'
+            }
         }
     },
     resource: {
-        parseNodeId: {
-            url: 'resource/getPath',
-            method: 'get'
+        /**
+         * 解析节点ID取路径
+         * @param {Number} uid 用户ID
+         * @param {String} nodeId 节点ID
+         * @returns 
+         */
+        parseNodeId(uid, nodeId) {
+            return {
+                url: 'resource/getPath',
+                method: 'get',
+                data: {
+                    uid: uid,
+                    nodeId: nodeId
+                }
+            }
         },
+        /**
+         * 取文件列表
+         * @param {String} uid 用户ID
+         * @param {String} path 路径
+         * @returns 
+         */
         getFileList(uid, path) {
             return {
                 url: `fileList/${uid}/${path}`,
@@ -36,7 +79,7 @@ const apiConfig = {
             }
         },
         /**
-         * 
+         * 上传文件
          * @param {Number} uid 用户ID
          * @param {String} path 资源路径
          * @param {File} file 文件
@@ -52,12 +95,24 @@ const apiConfig = {
                 }
             }
         },
+        /**
+         * 搜索文件
+         * @param {String} uid 用户ID
+         * @returns 
+         */
         search(uid) {
             return {
                 url: `resource/search/${uid}`,
                 method: 'get'
             }
         },
+        /**
+         * 创建文件夹
+         * @param {String} uid 用户ID
+         * @param {String} path 所在文件夹路径
+         * @param {String} name 文件夹名
+         * @returns 
+         */
         mkdir(uid, path, name) {
             return {
                 url: `mkdir/${uid}/${path}`,
@@ -67,6 +122,14 @@ const apiConfig = {
                 }
             }
         },
+        /**
+         * 文件重命名
+         * @param {String} uid 用户ID
+         * @param {String} path 所在路径
+         * @param {String} oldName 原文件名
+         * @param {String} newName 新文件名
+         * @returns 
+         */
         rename(uid, path, oldName, newName) {
             return {
                 url: `rename/${uid}/${path}`,

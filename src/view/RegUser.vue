@@ -70,6 +70,7 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
+import apiConfig from '../api/apiConfig'
 export default {
     components: { Container },
     data() {
@@ -113,7 +114,10 @@ export default {
                 return
             }
             this.loading = true
-            this.$axios.post('regUser', this.form, {noDefaultAction:true}).then(() => {
+            let conf = apiConfig.user.regUser()
+            conf.data = this.form
+            conf.noDefaultAction = true
+            this.$axios(conf).then(() => {
                 this.loading = false
                 mdui.alert('注册成功', () => {
                     setTimeout(() => {

@@ -24,7 +24,7 @@ let vue = new Vue({
 })
 
 // 挂载App前 先检查登录状态和获取用户信息，以解决一些依赖用户信息的组件在页码首次被打开加载时获取用户信息异常的问题，同时也可根据用户信息的有无判断是否已登录
-let conf = apiConfig.user.getUserInfo
+let conf = apiConfig.user.getUserInfo()
 conf.noDefaultAction = true
 
 let token
