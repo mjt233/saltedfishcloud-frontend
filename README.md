@@ -14,12 +14,9 @@
 
 ## 快速开始  
 ### 设置咸鱼云网盘后端地址
-- 修改文件`src/axios.config.js`中的`axios.defaults.baseURL`
-- 默认值为`'/api/'`，即项目访问主机名+/api/，适用于直接将该项目部署于后端系统的静态访问路径中
-- 前端与后端不在同一服务器的配置样例
-    ```JavaScript
-    axios.defaults.baseURL = 'https://host.domain.com/api/'
-    ```
+- 在`/src/api/apiConfig.js`中可配置项目请求的后端API服务器地址和webpack-dev-server反代服务器地址
+- 服务器后端API在`/src/api/apiConfig.js`中集中管理，调用方法或属性直接返回请求API的axios配置
+- 咸鱼云后端API接口URL前缀均为/api
 ### 构建项目
 
 ``` bash
