@@ -115,9 +115,7 @@ export default {
     exit() {
       localStorage.clear()
       Store.commit('setToken', null)
-      this.$axios.get("logout").then(() => {
-        mdui.alert('退出成功')
-      });
+      mdui.alert('退出成功')
     },
   }
 }

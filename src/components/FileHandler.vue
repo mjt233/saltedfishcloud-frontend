@@ -54,6 +54,10 @@ export default {
     props: {
         'uid': {
             type: Number
+        },
+        'modifiable': {
+            type: Boolean,
+            default: true
         }
     },
     data() {
@@ -94,6 +98,10 @@ export default {
             this.searchKey = key
         },
         rename(info) {
+            if (!this.modifiable) {
+                mdui.alert('无权操作')
+                return
+            }
             this.loading = true
             let conf = apiConfig.resource.rename(this.uid, info.path.join('/'), info.old, info.new)
             this.$axios(conf).then(e => {
@@ -125,6 +133,10 @@ export default {
          * @param {Type.DropItemInfo} fileInfo
          */
         addUploadFile(fileInfo) {
+            if (!this.modifiable) {
+                mdui.alert('无权操作')
+                return
+            }
             for (let i = 0; i < fileInfo.files.length; i++) {
                 const file = fileInfo.files[i]
                 let target = fileInfo.path.join('/')
@@ -141,6 +153,10 @@ export default {
          * @param {Type.DropItemInfo} info
          */
         upload (info) {
+            if (!this.modifiable) {
+                mdui.alert('无权操作')
+                return
+            }
             for (let i = 0; i < info.files.length; i++) {
                 const file = info.files[i]
                 let conf = apiConfig.resource.upload(this.uid, info.path.join('/'))
@@ -155,9 +171,12 @@ export default {
          * @param {Type.FileInfo[]} itemInfo
          */
         deleteItem (itemInfo) {
+            if (!this.modifiable) {
+                mdui.alert('无权操作')
+                return
+            }
             let fileList = itemInfo.map(file => file.name)
             let path = itemInfo[0].path.join('/')
-            let url = `delete/private/${path}`
             this.loading = true
             /**
              * 请求完成时的回调
@@ -182,6 +201,10 @@ export default {
          * 文件列表创建目录按钮被点击时执行的回调函数
          */
         createFolder (info) {
+            if (!this.modifiable) {
+                mdui.alert('无权操作')
+                return
+            }
             let path = info.path.join('/')
             let conf = apiConfig.resource.mkdir(this.uid, path, info.name)
             this.loading = true

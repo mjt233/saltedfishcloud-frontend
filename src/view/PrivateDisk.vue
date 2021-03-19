@@ -6,6 +6,7 @@
     </file-handler>
     <container v-else class="mdui-typo">
         <h3>未登录，请先<router-link to="/login">登录</router-link></h3>
+        <p>该功能需要登录账号后才能使用噢~</p>
     </container>
 </template>
 
@@ -22,7 +23,9 @@ export default {
     },
     mounted() {
         if (this.userInfo == null) {
-            mdui.alert('私人网盘需要登录，请先登录')
+            mdui.snackbar('私人网盘需要登录，请先登录', {
+                position: 'top'
+            })
         }
     }
 }
