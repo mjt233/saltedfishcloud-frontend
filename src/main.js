@@ -10,11 +10,17 @@ import mdui from 'mdui'
 import 'default-passive-events'
 import Store from './Store'
 import apiConfig from './api/apiConfig'
+import formatter from "./utils/StringFormatter"
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios
 Vue.prototype.$mdui = mdui.$
 Vue.prototype.$eventBus = new Vue()
+
+// 注册全局过滤器 格式化数字为方便阅读的存储大小表示
+Vue.filter('formatSize', e => {
+  return formatter.formatSizeString(e)
+})
 /* eslint-disable no-new */
 let vue = new Vue({
   store: Store,

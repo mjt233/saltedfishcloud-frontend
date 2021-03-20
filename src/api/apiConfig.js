@@ -71,6 +71,15 @@ const apiConfig = {
             return {
                 url: username ? `getAvatar/${username}` : 'getAvatar',
             }
+        },
+        /**
+         * 获取配额使用情况
+         * @returns 
+         */
+        getQuotaUsed() {
+            return {
+                url: 'quotaUsed'
+            }
         }
     },
     resource: {
