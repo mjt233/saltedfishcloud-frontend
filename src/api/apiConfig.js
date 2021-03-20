@@ -47,6 +47,30 @@ const apiConfig = {
                 url: 'user',
                 method: 'get'
             }
+        },
+        /**
+         * 上传用户头像
+         * @param {File} img 头像文件
+         * @returns 
+         */
+        uploadAvatar(img) {
+            return {
+                url: 'uploadAvatar',
+                method: 'post',
+                data: {
+                    file: img
+                }
+            }
+        },
+        /**
+         * 获取用户头像
+         * @param {String} username 用户名
+         * @returns 
+         */
+        getAvatar(username) {
+            return {
+                url: username ? `getAvatar/${username}` : 'getAvatar',
+            }
         }
     },
     resource: {

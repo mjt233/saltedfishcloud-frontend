@@ -13,6 +13,7 @@ const Store = new Vuex.Store({
         },
         setToken(state, token) {
             state.token = token
+            state.userInfo = JSON.parse(JSON.parse(window.atob(state.token.split('.')[1])).data)
         }
     },
     getters: {

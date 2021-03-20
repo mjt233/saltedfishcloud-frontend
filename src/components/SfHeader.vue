@@ -5,7 +5,7 @@
       <span class="mdui-typo-title">咸鱼云网盘</span>
       <div class="mdui-toolbar-spacer"></div>
       <div v-if="userInfo != null">
-        <img class="mdui-chip-icon" src="@/assets/img/bg/bg1.jpg"/>
+        <img class="mdui-chip-icon" :src="userAvatarURL" />
         <span class="mdui-chip-title">{{userInfo.user}}</span>
       </div>
     </div>
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import apiConfig from '../api/apiConfig'
 export default {
     name:'sf-header',
     methods: {
@@ -28,6 +29,15 @@ export default {
       },
       drawer() {
         return this.$store.state.drawer
+      },
+      userAvatarURL() {
+        if (this.userInfo) {
+          let res = '/api/' + apiConfig.user.getAvatar(this.userInfo.user).url
+          console.log(res)
+          return res
+        } else {
+          return '/api/static/static/defaultAvatar.png'
+        }
       }
     }
 }
