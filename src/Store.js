@@ -5,7 +5,8 @@ const Store = new Vuex.Store({
     state: {
         userInfo: null,
         drawer: null,
-        token: ""
+        token: "",
+        avatarURL: '/api/static/static/defaultAvatar.png'
     },
     mutations: {
         setDrawer(state, drawer) {
@@ -18,6 +19,9 @@ const Store = new Vuex.Store({
             } catch (error) {
                 
             }
+        },
+        setAvatarURL(state, url) {
+            state.avatarURL = url
         }
     },
     getters: {

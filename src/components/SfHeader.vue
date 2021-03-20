@@ -31,12 +31,7 @@ export default {
         return this.$store.state.drawer
       },
       userAvatarURL() {
-        if (this.userInfo) {
-          let res = '/api/' + apiConfig.user.getAvatar(this.userInfo.user).url
-          return res
-        } else {
-          return '/api/static/static/defaultAvatar.png'
-        }
+        return this.$store.state.avatarURL
       }
     }
 }

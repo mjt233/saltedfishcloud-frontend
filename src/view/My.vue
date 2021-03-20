@@ -5,7 +5,7 @@
           <!-- 头像显示 -->
           <li class="mdui-list-item mdui-ripple">
             <div class="mdui-list-item-content"><span>头像</span></div>
-            <div class="mdui-list-item-avatar"> <img :src="avatarURL"></div>
+            <div class="mdui-list-item-avatar" @click="uploadAvatar"> <img ref="img" :src="avatarURL"></div>
           </li>
           <li class="mdui-divider"></li>
           <!-- 用户基本信息 -->
@@ -40,8 +40,10 @@
 </template>
 
 <script>
+import mdui from 'mdui'
 import apiConfig from '../api/apiConfig'
 import Container from '../components/Container.vue'
+import FileUtils from '../utils/FileUtils'
 export default {
   components: { Container },
   data() {
@@ -55,11 +57,7 @@ export default {
   },
   computed: {
     avatarURL() {
-      if (this.userInfo) {
-        return '/api/' + apiConfig.user.getAvatar(this.userInfo.user).url
-      } else {
-        return '/api/static/static/defaultAvatar.png'
-      }
+      return this.$store.state.avatarURL
     },
     userInfo() {
       return this.$store.getters.userInfo
@@ -78,6 +76,29 @@ export default {
     this.$axios(apiConfig.user.getQuotaUsed()).then(e => {
       this.quota = e.data.data
     })
+  },
+  methods: {
+    uploadAvatar() {
+      FileUtils.openFileDialog().then(e => {
+        let file = e.item(0)
+        if (file.size > 1024*1024*3) {
+          mdui.snackbar('文件大于3MiB', {position: 'top'})
+          return
+        }
+        let conf = apiConfig.user.uploadAvatar(file)
+        this.loading = true
+        this.$axios(conf).then(e => {
+          mdui.snackbar('上传成功')
+          
+          // 更新图片显示
+          this.$store.commit('setAvatarURL', this.avatarURL + '?' + Math.random() )
+          this.loading = false
+        }).catch(e => {
+          this.loading = false
+          mdui.snackbar('上传失败：' + e.msg)
+        })
+      })
+    }
   }
 }
 </script>

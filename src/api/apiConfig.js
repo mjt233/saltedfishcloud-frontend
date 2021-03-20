@@ -54,12 +54,12 @@ const apiConfig = {
          * @returns 
          */
         uploadAvatar(img) {
+            let fd = new FormData
+            fd.append('file', img)
             return {
                 url: 'uploadAvatar',
                 method: 'post',
-                data: {
-                    file: img
-                }
+                data: fd
             }
         },
         /**
