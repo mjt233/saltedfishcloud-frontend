@@ -49,6 +49,7 @@ export default {
       let conf = apiConfig.user.login(this.form.user, this.form.passwd)
       this.$axios(conf).then(e => {
         this.$store.commit('setToken', e.data.data)
+        this.$store.commit('setAvatarURL', `/api/${apiConfig.user.getAvatar(this.form.user).url}`)
         localStorage.setItem('token', e.data.data)
         mdui.alert('登录成功',()=>{
           setTimeout(() => {
