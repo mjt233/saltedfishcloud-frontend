@@ -12,11 +12,13 @@ let FileUtils = {
     /**
      * 打开文件选择框
      * 原理：动态创建一个type为file的input元素并设置好相应的事件回调后，插入到文档并通过JavaScript事件触发默认的click事件
-     * @param {GetFileListCallback} callback 选择文件后触发的回调函数
+     * @param {Object} options
+     * @param {Boolean} options.multiple 是否允许多选文件
+     * @returns {Promise<FileList>}
      * @author xiaotao233 <mjt233@qq.com>
      * 
      */
-    openFileDialog (callback) {
+    openFileDialog ({multiple = false} = {}) {
       /**
        * 若用户上次执行该函数后但点击取消，则上次创建的input未被删除，这里可重复利用同时也防止了ID冲突
        */
@@ -26,14 +28,18 @@ let FileUtils = {
         el.style.display = 'none'                 //  不可视，不占据文档流空间
         el.id = 'FileDialogmjt233'                //  设置一个id方便获取
         el.type = 'file'                          //  设为file类型的input
-        el.setAttribute('multiple', 'multiple')   //  多文件模式 即<input multiple="multiple" type="file">
+        if (multiple) {
+          el.setAttribute('multiple', 'multiple')   //  多文件模式 即<input multiple="multiple" type="file">
+        }
         document.documentElement.appendChild(el)  //  插入到文档流，因为display为none，因此不会破坏文档布局和显示
       }
-      el.onchange = e => {
-        callback(el.files)
-        document.documentElement.removeChild(el)
-      }
-      el.click()
+      return new Promise( res => {
+        el.onchange = e => {
+          document.documentElement.removeChild(el)
+          res(el.files)
+        }
+        el.click()
+      })
     },
 
     
@@ -129,4 +135,4 @@ let FileUtils = {
       load()
     }
 }
-module.exports = FileUtils
+export default FileUtils

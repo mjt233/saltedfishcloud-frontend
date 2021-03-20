@@ -269,7 +269,9 @@ export default {
          * @emits upload
          */
         upload () {
-            FileUtils.openFileDialog(filelist => {
+            FileUtils.openFileDialog({
+                multiple: true
+            }).then(filelist => {
                 this.$emit('upload', {
                     files: filelist,
                     path: this.paths,

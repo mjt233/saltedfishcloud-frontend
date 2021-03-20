@@ -190,7 +190,6 @@ export default {
                 this.$refs.browser.loadList()
             }
             let conf = apiConfig.resource.delete(this.uid, path, fileList)
-            console.log(conf)
             /**
              * 发起删除请求
              */

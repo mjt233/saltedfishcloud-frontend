@@ -33,7 +33,6 @@ export default {
       userAvatarURL() {
         if (this.userInfo) {
           let res = '/api/' + apiConfig.user.getAvatar(this.userInfo.user).url
-          console.log(res)
           return res
         } else {
           return '/api/static/static/defaultAvatar.png'

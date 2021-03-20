@@ -1,7 +1,7 @@
 const { default: Vue} = require('vue')
 const { default: mdui} = require('mdui')
 const { default: axios } = require("axios")
-const FileUtils = require('../utils/FileUtils')
+const { default: FileUtils} = require('../utils/FileUtils')
 
 /**
  * @typedef {Object} FileInfo
@@ -44,7 +44,7 @@ let obj = {
         return this.queue
     },
     /**
-     * 输入当前队列信息
+     * 输出当前队列信息
      */
     printInfo() {
         console.log(this.queue)
@@ -55,6 +55,8 @@ let obj = {
      * @param {Function} finish
      */
     executeQueue(finish) {
+
+        // 队列状态判断
         if (this.executing) {
             mdui.snackbar('已经正在上传了,剩余任务数量：' + this.queue.length)
             return
@@ -67,6 +69,7 @@ let obj = {
             }
             return
         }
+
         this.executing = true
         let task = this.queue[0]
         task.status = 'preparing'
