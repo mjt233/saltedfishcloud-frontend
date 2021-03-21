@@ -142,7 +142,7 @@ export default {
                 let target = fileInfo.path.join('/')
                 target = fileInfo.target.type === 'file' ? target : target + fileInfo.target.name
                 FileQueue.addFile({
-                    api: `private/${target}`,
+                    api: apiConfig.resource.upload(this.uid, fileInfo.path.join('/')).url,
                     file: file,
                     path: fileInfo.path
                 })
