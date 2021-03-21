@@ -9,6 +9,7 @@
         @createFolder="createFolder"
         @rename="rename"
         @refresh="refresh"
+        @getURL='getURL'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
@@ -148,6 +149,15 @@ export default {
         }
     },
     methods: {
+        /**
+         * @param {Type.ServerRawFileInfo} fileInfo
+         */
+        getURL(fileInfo) {
+            this.$emit('getURL', {
+                path: this.paths,
+                fileInfo: fileInfo
+            })
+        },
         refresh() {
             this.loadList()
             this.$emit('refresh', this.paths)

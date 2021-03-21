@@ -84,6 +84,34 @@ const apiConfig = {
     },
     resource: {
         /**
+         * 获取使用文件下载码下载文件的链接
+         * @param {String} dc 下载码
+         * @returns 
+         */
+        downloadUseFileDC(dc) {
+            let server = apiConfig.server || location.origin
+            return {
+                url: `${server}/api/fdc/${dc}`
+            }
+        },
+        /**
+         * 
+         * @param {Number} uid 用户ID
+         * @param {String} path 文件所在目录
+         * @param {String} name 文件名
+         * @param {String} md5 文件MD5
+         * @returns 
+         */
+        getFileDC(uid, path, name, md5) {
+            return {
+                url: `resource/getFDC/${uid}/${path}`,
+                params: {
+                    name: name,
+                    md5: md5
+                }
+            }
+        },
+        /**
          * 解析节点ID取路径
          * @param {Number} uid 用户ID
          * @param {String} nodeId 节点ID

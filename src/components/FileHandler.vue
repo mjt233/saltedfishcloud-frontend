@@ -29,6 +29,7 @@
         @createFolder='createFolder'
         @rename='rename'
         @search='search'
+        @getURL='getURL'
         ref='browser'
     >
     </file-browser>
@@ -82,6 +83,19 @@ export default {
         }
     },
     methods: {
+        getURL(info) {
+            let conf = apiConfig.resource.getFileDC(this.uid, info.path.join('/'), info.fileInfo.name, info.fileInfo.md5)
+            this.$axios(conf).then(e => {
+                let url = apiConfig.resource.downloadUseFileDC(e.data.data).url
+                let content = `
+                    <h3>下载链接</h3>
+                    <a target="_blank" href="${url}" style="word-break: break-all">
+                        ${url}
+                    </a>
+                `
+                mdui.alert(content)
+            })
+        },
         fileClick(path) {
             let url = `/download/${this.uid}/${path}`
             let href = url.replace(/\/+/g, '/')

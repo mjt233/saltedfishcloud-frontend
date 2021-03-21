@@ -49,6 +49,12 @@
                     重命名
                 </a>
             </li>
+            <li v-if="fileInfo && fileInfo.size > 0" class="mdui-menu-item" @click="getURL(fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
+                    获取链接
+                </a>
+            </li>
             <li v-if="fileInfo" class="mdui-menu-item" @click="deleteItem(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
@@ -117,6 +123,7 @@ import mdui from 'mdui'
 import selectArea from './SelectArea.vue'
 import DOMUtils from '../utils/DOMUtils'
 import StringFormatter from '../utils/StringFormatter'
+import apiConfig from '../api/apiConfig'
 export default {
   components: { Container, selectArea },
     name: "file-list",
@@ -165,6 +172,12 @@ export default {
         }
     },
     methods: {
+        /**
+         * 获取文件下载链接
+         */
+        getURL(info) {
+            this.$emit('getURL', info)
+        },
         back() {
             this.$emit('back')
         },

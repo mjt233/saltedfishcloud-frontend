@@ -12,6 +12,11 @@
  * @typedef {Object} ServerRawFileInfo
  * @property {String} name 文件名
  * @property {Number} type 文件类型 1为目录 0为文件
+ * @property {String} md5 文件MD5
+ * @property {String} node 文件所在节点ID
+ * @property {Number} size 文件大小
+ * @property {String} created_at 文件创建日期
+ * @property {String} formatModified 文件上次被修改日期（已格式化）
  */
 
 /**
