@@ -23,7 +23,7 @@
           </li>
           <li class="mdui-divider"></li>
           <!-- 配额情况 -->
-          <li class="mdui-list-item">
+          <li class="mdui-list-item mdui-ripple">
             <div class="mdui-list-item-content"><span>存储使用情况</span></div>
             <div class="mdui-list-item-text"><span>
               <span>{{quota.used | formatSize}}/{{quota.quota | formatSize}}</span>

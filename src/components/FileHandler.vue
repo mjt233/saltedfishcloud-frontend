@@ -103,7 +103,11 @@ export default {
                 Token: this.token
             })
         },
+        /**
+         * @param {String} path
+         */
         dirClick(path) {
+            path = path.split('/').map(encodeURIComponent).join('/')
             this.searchMode = false
             location.href = `/#/${this.viewRouteName}` + path
         },

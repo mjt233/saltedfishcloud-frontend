@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import mdui from 'mdui'
 import StringFormatter from '../utils/StringFormatter'
 import FileList from './FileList.vue'
 import Pager from './ui/pager.vue'
@@ -133,6 +134,7 @@ export default {
                         resolve(e.data.data)
                     }
                 }).catch(e => {
+                    mdui.alert('请求路径解析出错')
                     reject(e)
                 })
             })
