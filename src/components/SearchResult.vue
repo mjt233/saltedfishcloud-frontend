@@ -23,7 +23,7 @@
             <!-- 表格数据列 -->
             <template v-slot:columnItem="props">
                 <div @click="clickFile(props.item)" class="file-name">{{props.item.name}}</div>
-                <div @click="clickFile(props.item)" v-if="props.item.file">{{props.item.size | formatSize}}</div>
+                <div @click="clickFile(props.item)" v-if="props.item.size > 0">{{props.item.size | formatSize}}</div>
                 <div @click="clickFile(props.item)" v-else>-</div>
                 <div class="mdui-typo">
                     <a @click="clickPath(props.item.node)" href="javascript:;">{{props.item.parent || '/'}}</a>
