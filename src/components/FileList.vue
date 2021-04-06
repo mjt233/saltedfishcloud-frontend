@@ -195,6 +195,8 @@ export default {
                         this.resetFileInfo();
                     }
                     break;
+                case 'select':
+                    break;
                 default:
                     mdui.alert(`当前文件编辑编辑器处于"${this.statu}"状态 无法执行此操作`)
                     break;
@@ -358,12 +360,12 @@ export default {
          * @param {HTMLElement[]} elems
          */
         selected(elems) {
-            this.statu = 'ok'
             this.resetSelect()
             this.selectedEl = elems
             elems.forEach(item => item.classList.add('selected'))
             setTimeout(() => {
                 this.selecting = false
+                this.statu = 'ok'
             }, 100)
         },
         /**
