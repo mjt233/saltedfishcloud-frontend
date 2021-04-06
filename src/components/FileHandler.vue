@@ -85,7 +85,9 @@ export default {
     methods: {
         getURL(info) {
             let conf = apiConfig.resource.getFileDC(this.uid, info.path.join('/'), info.fileInfo.name, info.fileInfo.md5)
+            this.loading = true
             this.$axios(conf).then(e => {
+                this.loading = false
                 let url = apiConfig.resource.downloadUseFileDC(e.data.data).url
                 let content = `
                     <h3>下载链接</h3>
@@ -94,6 +96,9 @@ export default {
                     </a>
                 `
                 mdui.alert(content)
+            }).catch(e => {
+                this.loading = false
+                mdui.snackbar(e.msg)
             })
         },
         fileClick(path) {
