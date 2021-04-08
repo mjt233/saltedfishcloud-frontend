@@ -100,14 +100,16 @@ const apiConfig = {
          * @param {String} path 文件所在目录
          * @param {String} name 文件名
          * @param {String} md5 文件MD5
+         * @param {Number} expr 有效期（单位：天，负数为无限制）
          * @returns 
          */
-        getFileDC(uid, path, name, md5) {
+        getFileDC(uid, path, name, md5, expr) {
             return {
                 url: `resource/getFDC/${uid}/${path}`,
                 params: {
                     name: name,
-                    md5: md5
+                    md5: md5,
+                    expr: expr
                 }
             }
         },

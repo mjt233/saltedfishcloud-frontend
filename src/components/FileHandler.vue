@@ -84,21 +84,25 @@ export default {
     },
     methods: {
         getURL(info) {
-            let conf = apiConfig.resource.getFileDC(this.uid, info.path.join('/'), info.fileInfo.name, info.fileInfo.md5)
-            this.loading = true
-            this.$axios(conf).then(e => {
-                this.loading = false
-                let url = apiConfig.resource.downloadUseFileDC(e.data.data).url
-                let content = `
-                    <h3>下载链接</h3>
-                    <a target="_blank" href="${url}" style="word-break: break-all">
-                        ${url}
-                    </a>
-                `
-                mdui.alert(content)
-            }).catch(e => {
-                this.loading = false
-                mdui.snackbar(e.msg)
+            mdui.prompt('有效时长(单位：天，-1为永久)', '设置链接有效期', e => {
+                let conf = apiConfig.resource.getFileDC(this.uid, info.path.join('/'), info.fileInfo.name, info.fileInfo.md5, e)
+                this.loading = true
+                this.$axios(conf).then(e => {
+                    this.loading = false
+                    let url = apiConfig.resource.downloadUseFileDC(e.data.data).url
+                    let content = `
+                        <h3>下载链接</h3>
+                        <a target="_blank" href="${url}" style="word-break: break-all">
+                            ${url}
+                        </a>
+                    `
+                    mdui.alert(content)
+                }).catch(e => {
+                    this.loading = false
+                    mdui.snackbar(e.msg)
+                })
+            }, e => e, {
+                defaultValue: -1
             })
         },
         fileClick(path) {
