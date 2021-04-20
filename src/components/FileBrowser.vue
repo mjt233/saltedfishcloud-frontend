@@ -10,10 +10,11 @@
         @rename="rename"
         @refresh="refresh"
         @getURL='getURL'
+        @cut='cut'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="'name size date return drag-select menu'"
+        :enable="`name size date return drag-select menu cut ${clipBoard ? 'patse' : ''}`"
     >
         <div>
             <!-- 路径显示 -->
@@ -124,7 +125,8 @@ export default {
              * @type {Boolean}
              */
             blocking: false,
-            searchName: ''
+            searchName: '',
+            clipBoard: null
         }
     },
     mounted() {
@@ -149,6 +151,18 @@ export default {
         }
     },
     methods: {
+        /**
+         * @param {Type.ServerRawFileInfo} fileInfo
+         */
+        cut(fileInfo) {
+            this.clipBoard = {
+                type: 'cut',
+                fileInfo: fileInfo,
+                path: '/' + this.paths.join('/')
+            }
+            console.log(this.clipBoard);
+            mdui.snackbar('已剪切，在目标目录可粘贴', {position: 'top'})
+        },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
          */
