@@ -11,6 +11,7 @@
         @refresh="refresh"
         @getURL='getURL'
         @cut='cut'
+        @paste='paste'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
@@ -151,6 +152,15 @@ export default {
         }
     },
     methods: {
+        paste() {
+            this.clipBoard.fileInfo.forEach(item => {
+                let conf = apiConfig.resource.move(this.uid, 
+                                this.clipBoard.path, 
+                                '/' + this.paths.join('/'),
+                                item.name)
+                console.log(conf)
+            })
+        },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
          */
@@ -158,9 +168,8 @@ export default {
             this.clipBoard = {
                 type: 'cut',
                 fileInfo: fileInfo,
-                path: '/' + this.paths.join('/')
+                path: this.paths.join('/')
             }
-            console.log(this.clipBoard);
             mdui.snackbar('已剪切，在目标目录可粘贴', {position: 'top'})
         },
         /**
