@@ -84,6 +84,24 @@ const apiConfig = {
     },
     resource: {
         /**
+         * 移动文件或目录到另一个指定目录下
+         * @param {Number} uid 用户
+         * @param {String} source 原文件所在目录
+         * @param {String} target 要移动到的目标目录
+         * @param {String} name 文件名
+         * @todo 后端该API将重构 使用一次请求移动多个文件或目录
+         */
+        move(uid, source, target, name) {
+            return {
+                method: 'post',
+                url: `/move/${uid}/${source}`,
+                data: {
+                    target: target,
+                    name: name
+                }
+            }
+        },
+        /**
          * 获取使用文件下载码下载文件的链接
          * @param {String} dc 下载码
          * @returns 

@@ -10,10 +10,12 @@
         @rename="rename"
         @refresh="refresh"
         @getURL='getURL'
+        @cut='cut'
+        @paste='paste'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="'name size date return drag-select menu'"
+        :enable="`name size date return drag-select menu cut ${clipBoard.fileInfo.length != 0 ?  'patse' : ''}`"
     >
         <div>
             <!-- 路径显示 -->
@@ -124,7 +126,14 @@ export default {
              * @type {Boolean}
              */
             blocking: false,
-            searchName: ''
+            searchName: '',
+            /**
+             * 剪切板的文件信息和路径
+             */
+            clipBoard: {
+                fileInfo: [],
+                path: null
+            }
         }
     },
     mounted() {
@@ -149,6 +158,39 @@ export default {
         }
     },
     methods: {
+        paste() {
+            this.loading = true
+            let axiosTask = []
+
+            // 使用事件传递的多个文件名创建多个axios请求对象
+            this.clipBoard.fileInfo.forEach(item => {
+                let conf = apiConfig.resource.move(this.uid, 
+                                this.clipBoard.path, 
+                                '/' + this.paths.join('/'),
+                                item)
+                axiosTask.push(this.$axios(conf))
+            })
+            this.$axios.all(axiosTask).then(e => {
+                mdui.snackbar('粘贴成功')
+                setTimeout(() => this.loadList(), 100)
+                this.loading = false
+                this.clipBoard = {
+                    fileInfo: [],
+                    path: null
+                }
+            }).catch(e => {
+                mdui.alert(e.msg)
+                this.loading = false
+            })
+        },
+        cut(fileInfo) {
+            this.clipBoard = {
+                type: 'cut',
+                fileInfo: fileInfo,
+                path: this.paths.join('/')
+            }
+            mdui.snackbar('已剪切，在目标目录可粘贴', {position: 'top'})
+        },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
          */

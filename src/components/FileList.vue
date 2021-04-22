@@ -42,6 +42,19 @@
                     上传
                 </a>
             </li>
+            <li v-if="(fileInfo && (enableCut || enableCopy)) || enablePaste"  class="mdui-divider"></li>
+            <li v-if="fileInfo && enableCut" class="mdui-menu-item" @click="cut(fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">content_cut</i>
+                    剪切
+                </a>
+            </li>
+            <li v-if="enablePaste" class="mdui-menu-item" @click="paste">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">content_paste</i>
+                    粘贴
+                </a>
+            </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
             <li v-if="fileInfo" class="mdui-menu-item" @click="rename(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
@@ -123,7 +136,6 @@ import mdui from 'mdui'
 import selectArea from './SelectArea.vue'
 import DOMUtils from '../utils/DOMUtils'
 import StringFormatter from '../utils/StringFormatter'
-import apiConfig from '../api/apiConfig'
 export default {
   components: { Container, selectArea },
     name: "file-list",
@@ -164,6 +176,15 @@ export default {
         },
         enableDragSelect() {
             return this.enable.indexOf('drag-select') != -1
+        },
+        enableCut() {
+            return this.enable.indexOf('cut') != -1
+        },
+        enableCopy() {
+            return this.enable.indexOf('copy') != -1
+        },
+        enablePaste() {
+            return this.enable.indexOf('patse') != -1
         }
     },
     filters: {
@@ -172,6 +193,16 @@ export default {
         }
     },
     methods: {
+        cut(e) {
+            if (this.selectedEl.length != 0) {
+                this.$emit('cut', this.selectedEl.map(e => e.querySelector('.file-name').innerText))
+            } else {
+                this.$emit('cut', [e.name])
+            }
+        },
+        paste() {
+            this.$emit('paste')
+        },
         /**
          * 获取文件下载链接
          */
@@ -407,6 +438,7 @@ export default {
             } else {
                 fileInfo.push(file)
             }
+            this.resetSelect()
             this.$emit('delete', fileInfo)
         }
     },
