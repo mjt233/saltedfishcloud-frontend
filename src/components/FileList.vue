@@ -197,7 +197,7 @@ export default {
             if (this.selectedEl.length != 0) {
                 this.$emit('cut', this.selectedEl.map(e => e.querySelector('.file-name').innerText))
             } else {
-                this.$emit('cut', [e])
+                this.$emit('cut', [e.name])
             }
         },
         paste() {

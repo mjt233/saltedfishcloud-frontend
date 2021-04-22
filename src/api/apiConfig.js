@@ -89,11 +89,12 @@ const apiConfig = {
          * @param {String} source 原文件所在目录
          * @param {String} target 要移动到的目标目录
          * @param {String} name 文件名
+         * @todo 后端该API将重构 使用一次请求移动多个文件或目录
          */
         move(uid, source, target, name) {
             return {
                 method: 'post',
-                url: `/api/move/${uid}/${source}`,
+                url: `/move/${uid}/${source}`,
                 data: {
                     target: target,
                     name: name
