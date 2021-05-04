@@ -55,7 +55,6 @@ import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
 import apiConfig from '../api/apiConfig'
-import axios from 'axios'
 export default {
     name: 'FileBrowser',
     props: {
@@ -299,9 +298,13 @@ export default {
                     this.loading = false
                     this.fileList = e.data.data[0].concat(e.data.data[1])
                 }).catch(e => {
-                    if (e.code !== -1) {
+                    if (e.code === 404) {
+                        mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
+                            this.$router.push(location.href = '/#/' + this.prefix)
+                        })
+                    } else if (e.code !== -1) {
                         mdui.alert(e.msg)
-                    }
+                    } 
                     this.loading = false
                 })
             }
