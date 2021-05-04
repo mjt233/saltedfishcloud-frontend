@@ -11,11 +11,12 @@
         @refresh="refresh"
         @getURL='getURL'
         @cut='cut'
+        @copy='copy'
         @paste='paste'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="`name size date return drag-select menu cut ${clipBoard.fileInfo.length != 0 ?  'patse' : ''}`"
+        :enable="`name size date return drag-select menu cut copy ${clipBoard.fileInfo.length != 0 ?  'patse' : ''}`"
     >
         <div>
             <!-- 路径显示 -->
@@ -54,6 +55,7 @@ import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
 import apiConfig from '../api/apiConfig'
+import axios from 'axios'
 export default {
     name: 'FileBrowser',
     props: {
@@ -110,7 +112,7 @@ export default {
     data () {
         return {
             /**
-             * @type {Type.ServerRawFileInfo}
+             * @type {Type.ServerRawFileInfo[]}
              */
             fileList:[],
             paths:[],
@@ -159,29 +161,57 @@ export default {
     },
     methods: {
         paste() {
-            this.loading = true
-            let axiosTask = []
+            /**
+             * axios请求配置集合
+             */
+            let confs = []
 
-            // 使用事件传递的多个文件名创建多个axios请求对象
-            this.clipBoard.fileInfo.forEach(item => {
-                let conf = apiConfig.resource.move(this.uid, 
-                                this.clipBoard.path, 
-                                '/' + this.paths.join('/'),
-                                item)
-                axiosTask.push(this.$axios(conf))
-            })
-            this.$axios.all(axiosTask).then(e => {
-                mdui.snackbar('粘贴成功')
-                setTimeout(() => this.loadList(), 100)
-                this.loading = false
-                this.clipBoard = {
-                    fileInfo: [],
-                    path: null
-                }
-            }).catch(e => {
-                mdui.alert(e.msg)
-                this.loading = false
-            })
+            // 判断当前目录是否存在同名文件或目录
+            let curNameMap = new Map(this.fileList.map(e => [e.name, 1]))
+            let sameName = this.clipBoard.fileInfo.filter(e => curNameMap.get(e))
+            let overwrite = true
+            let createRequest = () => {
+                this.loading = true
+                // 使用事件传递的多个文件名创建多个axios请求对象
+                this.clipBoard.fileInfo.forEach(item => {
+                    let conf = {}
+                    if (this.clipBoard.type === 'cut') {
+                        conf = apiConfig.resource.move(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), item)
+                    } else {
+                        conf = apiConfig.resource.copy(this.uid, this.clipBoard.path, item, '/' + this.paths.join('/'), item, overwrite)
+                    }
+                    confs.push(conf)
+                })
+                this.$axios.all(confs.map(e => this.$axios(e))).then(e => {
+                    mdui.snackbar('粘贴成功')
+                    setTimeout(() => this.loadList(), 100)
+                    this.loading = false
+                    if (this.clipBoard.type === 'cut') {
+                        this.clipBoard = {
+                            fileInfo: [],
+                            path: null
+                        }
+                    }
+                }).catch(e => {
+                    mdui.alert(e.msg)
+                    this.loading = false
+                })
+            }
+            if (sameName.length > 0) {
+                mdui.confirm(`存在同名目录<strong>"${sameName.join('，')}"</strong>,是否继续?<br>(将合并文件夹和覆盖文件)`, '文件名冲突', e => {
+                    createRequest()
+                }, e => mdui.snackbar('操作取消'))
+            } else {
+                createRequest()
+            }
+        },
+        copy(fileInfo) {
+            this.clipBoard = {
+                type: 'copy',
+                fileInfo: fileInfo,
+                path: this.paths.join('/')
+            }
+            mdui.snackbar('已复制，在目标目录可粘贴', {position: 'top'})
         },
         cut(fileInfo) {
             this.clipBoard = {

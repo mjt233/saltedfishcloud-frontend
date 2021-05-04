@@ -43,6 +43,12 @@
                 </a>
             </li>
             <li v-if="(fileInfo && (enableCut || enableCopy)) || enablePaste"  class="mdui-divider"></li>
+            <li v-if="fileInfo && enableCopy" class="mdui-menu-item" @click="copy(fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">content_copy</i>
+                    复制
+                </a>
+            </li>
             <li v-if="fileInfo && enableCut" class="mdui-menu-item" @click="cut(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">content_cut</i>
@@ -193,6 +199,13 @@ export default {
         }
     },
     methods: {
+        copy(e) {
+            if (this.selectedEl.length != 0) {
+                this.$emit('copy', this.selectedEl.map(e => e.querySelector('.file-name').innerText))
+            } else {
+                this.$emit('copy', [e.name])
+            }
+        },
         cut(e) {
             if (this.selectedEl.length != 0) {
                 this.$emit('cut', this.selectedEl.map(e => e.querySelector('.file-name').innerText))

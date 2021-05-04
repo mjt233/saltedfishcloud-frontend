@@ -84,6 +84,27 @@ const apiConfig = {
     },
     resource: {
         /**
+         * 复制文件或目录
+         * @param {Number} uid 用户ID
+         * @param {String} source 原文件所在目录
+         * @param {String} sourceName 原文件名
+         * @param {String} target 目标文件所在目录
+         * @param {String} targetName 目标文件名（可不同于源文件名，此时相当于粘贴后重命名源文件名）
+         * @param {boolean} overwrite 是否覆盖原有文件
+         */
+        copy(uid, source, sourceName, target, targetName, overwrite = true) {
+            return {
+                method: 'post',
+                url: `/copy/${uid}/${source}`,
+                data: {
+                    name: sourceName,
+                    target: target,
+                    targetName: targetName,
+                    overwrite: overwrite
+                }
+            }
+        },
+        /**
          * 移动文件或目录到另一个指定目录下
          * @param {Number} uid 用户
          * @param {String} source 原文件所在目录
