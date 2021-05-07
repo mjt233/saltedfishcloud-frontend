@@ -168,20 +168,26 @@ export default {
             // 判断当前目录是否存在同名文件或目录
             let curNameMap = new Map(this.fileList.map(e => [e.name, 1]))
             let sameName = this.clipBoard.fileInfo.filter(e => curNameMap.get(e))
-            let overwrite = true
             let createRequest = () => {
+                let files = []
                 this.loading = true
+                /**
+                 * @type {import("_axios@0.21.1@axios").AxiosRequestConfig}
+                 */
+                let conf = {}
                 // 使用事件传递的多个文件名创建多个axios请求对象
                 this.clipBoard.fileInfo.forEach(item => {
-                    let conf = {}
-                    if (this.clipBoard.type === 'cut') {
-                        conf = apiConfig.resource.move(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), item)
-                    } else {
-                        conf = apiConfig.resource.copy(this.uid, this.clipBoard.path, item, '/' + this.paths.join('/'), item, overwrite)
-                    }
-                    confs.push(conf)
+                    files.push({
+                        source: item,
+                        target: item
+                    })
                 })
-                this.$axios.all(confs.map(e => this.$axios(e))).then(e => {
+                if (this.clipBoard.type === 'cut') {
+                    conf = apiConfig.resource.move(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), true, files)
+                } else {
+                    conf = apiConfig.resource.copy(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), true, files)
+                }
+                this.$axios(conf).then(e => {
                     mdui.snackbar('粘贴成功')
                     setTimeout(() => this.loadList(), 100)
                     this.loading = false
