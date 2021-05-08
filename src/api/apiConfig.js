@@ -1,3 +1,8 @@
+/**
+ * @typedef {Object} FileTransferInfo 文件复制粘贴信息
+ * @property {String} source    源文件名
+ * @property {String} target    粘贴/移动后的文件名（可用于重命名）
+ */
 const apiConfig = {
     //  webpack-dev-server反代的目标服务器
     proxyServer: 'http://127.0.0.1:8087',
@@ -84,22 +89,41 @@ const apiConfig = {
     },
     resource: {
         /**
-         * 移动文件或目录到另一个指定目录下
-         * @param {Number} uid 用户
+         * 复制文件或目录
+         * @param {Number} uid 用户ID
          * @param {String} source 原文件所在目录
-         * @param {String} target 要移动到的目标目录
-         * @param {String} name 文件名
-         * @todo 后端该API将重构 使用一次请求移动多个文件或目录
+         * @param {String} target 目标文件所在目录
+         * @param {boolean} overwrite 是否覆盖原有文件
+         * @param {FileTransferInfo} files 要操作的文件信息
+         * @returns {import("_axios@0.21.1@axios").AxiosRequestConfig}
          */
-        move(uid, source, target, name) {
+        copy(uid, source, target, overwrite = true, files) {
             return {
                 method: 'post',
-                url: `/move/${uid}/${source}`,
+                url: `/copy/${uid}/${source}`,
                 data: {
                     target: target,
-                    name: name
+                    files: files,
+                    overwrite: overwrite
+                },
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
                 }
             }
+        },
+        /**
+         * 复制文件或目录
+         * @param {Number} uid 用户ID
+         * @param {String} source 原文件所在目录
+         * @param {String} target 目标文件所在目录
+         * @param {boolean} overwrite 是否覆盖原有文件
+         * @param {FileTransferInfo} files 要操作的文件信息
+         * @returns {import("_axios@0.21.1@axios").AxiosRequestConfig}
+         */
+        move(uid, source, target, overwrite = true, files) {
+            let conf = this.copy(uid, source, target, overwrite, files)
+            conf.url = `/move/${uid}/${source}`
+            return conf
         },
         /**
          * 获取使用文件下载码下载文件的链接
