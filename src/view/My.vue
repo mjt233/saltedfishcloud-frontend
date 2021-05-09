@@ -41,7 +41,7 @@
 
 <script>
 import mdui from 'mdui'
-import apiConfig from '../api/apiConfig'
+import apiConfig from '../api/API'
 import Container from '../components/Container.vue'
 import FileUtils from '../utils/FileUtils'
 export default {

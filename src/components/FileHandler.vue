@@ -14,7 +14,7 @@
     </search-result>
     <file-browser
         v-else-if="!searchMode && hasLogin"
-        :api="`fileList/${uid}`"
+        :api="`diskFile/${uid}/file`"
         :uid="uid"
         :prefix="uid == 0 ? 'public' : 'private'"
         :rootName="uid == 0 ? '公共网盘' : '私人网盘'"
@@ -47,8 +47,9 @@ import axios from 'axios'
 import FileList from '../components/FileList.vue'
 import Container from "@/components/Container.vue"
 import SearchResult from '@/components/SearchResult'
-import apiConfig from '../api/apiConfig'
+import apiConfig from '../api/API'
 import FormUtils from '../utils/FormUtils'
+import API from '../api/API'
 export default {
     components: { FileBrowser, FileList, Container, SearchResult },
     name: 'FileHandler',
@@ -89,7 +90,7 @@ export default {
                 this.loading = true
                 this.$axios(conf).then(e => {
                     this.loading = false
-                    let url = apiConfig.resource.downloadUseFileDC(e.data.data).url
+                    let url = apiConfig.resource.downloadUseFileDC(e.data.data)
                     let content = `
                         <h3>下载链接</h3>
                         <a target="_blank" href="${url}" style="word-break: break-all">
@@ -106,9 +107,8 @@ export default {
             })
         },
         fileClick(path) {
-            let url = `/download/${this.uid}/${path}`
-            let href = url.replace(/\/+/g, '/')
-            FormUtils.jumpWithPost(href, true, {
+            let url =  '/api/' + API.file.getContent(this.uid, path).url
+            FormUtils.jumpWithPost(url, true, {
                 Token: this.token
             })
         },
@@ -130,7 +130,7 @@ export default {
                 return
             }
             this.loading = true
-            let conf = apiConfig.resource.rename(this.uid, info.path.join('/'), info.old, info.new)
+            let conf = apiConfig.file.rename(this.uid, info.path.join('/'), info.old, info.new)
             this.$axios(conf).then(e => {
                 this.$refs.browser.loadList()
                 mdui.snackbar('重命名成功')
@@ -150,7 +150,8 @@ export default {
         clickFile(e) {
             let exp = new RegExp(`^(.*)\/${this.viewRouteName}`)
             let filePath = location.href.replace(exp, '/') + `/${encodeURIComponent(e.name)}`
-            let newPath = `${apiConfig.server}/download/${this.uid}${filePath.replace(/\/+/g, '/')}`
+            let url = API.file.getContent(this.uid, filePath).url
+            let newPath = `/api/${apiConfig.server}/${url}`
             FormUtils.jumpWithPost(newPath, true, {
                 Token: this.token
             })
@@ -169,7 +170,7 @@ export default {
                 let target = fileInfo.path.join('/')
                 target = fileInfo.target.type === 'file' ? target : target + fileInfo.target.name
                 FileQueue.addFile({
-                    api: apiConfig.resource.upload(this.uid, fileInfo.path.join('/')).url,
+                    api: apiConfig.file.upload(this.uid, fileInfo.path.join('/')).url,
                     file: file,
                     path: fileInfo.path
                 })
@@ -186,7 +187,7 @@ export default {
             }
             for (let i = 0; i < info.files.length; i++) {
                 const file = info.files[i]
-                let conf = apiConfig.resource.upload(this.uid, info.path.join('/'))
+                let conf = apiConfig.file.upload(this.uid, info.path.join('/'))
                 FileQueue.addFile({
                     api: conf.url,
                     file: file
@@ -216,7 +217,7 @@ export default {
                 })
                 this.$refs.browser.loadList()
             }
-            let conf = apiConfig.resource.delete(this.uid, path, fileList)
+            let conf = apiConfig.file.delete(this.uid, path, fileList)
             /**
              * 发起删除请求
              */
@@ -232,7 +233,7 @@ export default {
                 return
             }
             let path = info.path.join('/')
-            let conf = apiConfig.resource.mkdir(this.uid, path, info.name)
+            let conf = apiConfig.file.mkdir(this.uid, path, info.name)
             this.loading = true
             this.$axios(conf).then(e=>{
                 this.loading = false

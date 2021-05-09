@@ -43,6 +43,7 @@ import mdui from 'mdui'
 import StringFormatter from '../utils/StringFormatter'
 import FileList from './FileList.vue'
 import Pager from './ui/pager.vue'
+import apiConfig from '../api/API'
 export default {
     components: { FileList, Pager },
     data() {
@@ -89,14 +90,13 @@ export default {
     methods: {
         doSearch(page) {
             this.d_loading = true
-            this.$axios.get(this.searchAPI, {
-                params: {
-                    key: this.searchKey,
-                    page: page
-                }
-            }).then(e => {
+            let conf = apiConfig.file.search(this.uid, this.searchKey, page)
+            this.$axios(conf).then(e => {
                 this.d_loading = false
                 this.res = e.data.data
+            }).catch(e => {
+                this.d_loading = false
+                mdui.alert(e.msg)
             })
         },
         clickFile(info) {
@@ -109,7 +109,7 @@ export default {
                 } else {
                     this.$emit('clickFile', `${e}/${info.name}`)
                 }
-            })
+            }).catch(this.d_loading = false)
         },
         clickPath(info) {
             this.d_loading = true
@@ -118,23 +118,19 @@ export default {
             this.parseNode(this.uid, info).then(e => {
                 this.d_loading = false
                 this.$emit('clickDir', e)
-            })
+            }).catch(this.d_loading = false)
         },
         parseNode(uid, nodeId) {
             return new Promise((resolve, reject) => {
-                this.$axios.get('resource/getPath', {
-                    params: {
-                        uid: uid,
-                        nodeId: nodeId
-                    }
-                }).then(e => {
+                let conf = apiConfig.resource.parseNodeId(uid, nodeId)
+                this.$axios(conf).then(e => {
                     if (e.data.data == '/') {
                         resolve('')
                     } else {
                         resolve(e.data.data)
                     }
                 }).catch(e => {
-                    mdui.alert('请求路径解析出错')
+                    mdui.alert('请求路径解析出错，服务器信息：<br>' + e.msg)
                     reject(e)
                 })
             })

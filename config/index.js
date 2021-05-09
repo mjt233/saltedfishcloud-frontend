@@ -3,7 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-const apiConfig = require('../src/api/apiConfig')
+const apiConfig = require('../src/api/API')
 module.exports = {
   dev: {
 

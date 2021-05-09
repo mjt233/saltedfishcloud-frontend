@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import apiConfig from '../api/apiConfig'
+import apiConfig from '../api/API'
 export default {
     name:'sf-header',
     methods: {

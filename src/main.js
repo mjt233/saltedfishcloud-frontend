@@ -9,7 +9,7 @@ import 'mdui/dist/css/mdui.css'
 import mdui from 'mdui'
 import 'default-passive-events'
 import Store from './Store'
-import apiConfig from './api/apiConfig'
+import apiConfig from './api/API'
 import formatter from "./utils/StringFormatter"
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)

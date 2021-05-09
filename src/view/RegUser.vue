@@ -70,7 +70,7 @@
 <script>
 import mdui from 'mdui'
 import Container from '../components/Container.vue'
-import apiConfig from '../api/apiConfig'
+import apiConfig from '../api/API'
 export default {
     components: { Container },
     data() {

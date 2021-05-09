@@ -54,7 +54,7 @@ import Pageniate from '../components/Pageniate.vue'
 import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
-import apiConfig from '../api/apiConfig'
+import apiConfig from '../api/API'
 export default {
     name: 'FileBrowser',
     props: {
@@ -183,9 +183,9 @@ export default {
                     })
                 })
                 if (this.clipBoard.type === 'cut') {
-                    conf = apiConfig.resource.move(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), true, files)
+                    conf = apiConfig.file.move(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), true, files)
                 } else {
-                    conf = apiConfig.resource.copy(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), true, files)
+                    conf = apiConfig.file.copy(this.uid, this.clipBoard.path, '/' + this.paths.join('/'), true, files)
                 }
                 this.$axios(conf).then(e => {
                     mdui.snackbar('粘贴成功')
@@ -299,7 +299,7 @@ export default {
             let refresh = () => {
                 this.lastLoadPath = this.paths.join('/')
                 this.loading = true
-                this.$axios(apiConfig.resource.getFileList(this.uid, this.lastLoadPath))
+                this.$axios(apiConfig.file.getFileList(this.uid, this.lastLoadPath))
                 .then(e => {
                     this.loading = false
                     this.fileList = e.data.data[0].concat(e.data.data[1])

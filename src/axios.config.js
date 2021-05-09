@@ -2,7 +2,7 @@ import axios from 'axios'
 import qs from 'qs'
 import mdui from 'mdui'
 import Store from './Store'
-import apiConfig from './api/apiConfig'
+import apiConfig from './api/API'
 axios.defaults.baseURL = `${apiConfig.server}/api`
 axios.defaults.withCredentials = true
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -12,7 +12,7 @@ axios.interceptors.request.use(conf => {
   if (Store.state.token != null) {
     conf.headers['Token'] = Store.state.token
   }
-  if (conf.data !== undefined && conf.method === 'post') {
+  if (conf.data !== undefined && conf.method !== 'get') {
     let name = conf.data.constructor.name
     if (name !== 'FormData' && conf.headers['Content-Type'].indexOf('json') === -1) {
       conf.data = qs.stringify(conf.data)
