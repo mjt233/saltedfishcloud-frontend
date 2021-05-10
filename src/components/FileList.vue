@@ -25,7 +25,7 @@
         <slot></slot>
 
         <!-- 右键菜单 -->
-        <ul class="mdui-menu context-menu" style="width: 180px" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
+        <ul class="mdui-menu" style="width: 180px" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
             <li class="mdui-menu-item">
                 <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
@@ -382,6 +382,7 @@ export default {
                     this.targetIndex = undefined
                     this.fileInfo = null
                 }
+                document.querySelector('#menu').style.width = this.mobileMenu ? '' : '180px'
                 this.$nextTick().then(() => {
                     menu.open()
                     div.remove()
@@ -536,9 +537,6 @@ export default {
 </script>
 
 <style lang="less" scope>
-.context-menu {
-    width: 180px;
-}
 .rename-input {
     width: 80%;
     outline: none;
