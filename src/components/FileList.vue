@@ -23,7 +23,9 @@
         </div>
         <!-- 以上为绝对定位图层 -->
         <slot></slot>
-        <ul class="mdui-menu" id="menu">
+
+        <!-- 右键菜单 -->
+        <ul class="mdui-menu context-menu" style="width: 180px" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
             <li class="mdui-menu-item">
                 <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
@@ -380,9 +382,10 @@ export default {
                     this.targetIndex = undefined
                     this.fileInfo = null
                 }
-                // 
-                menu.open()
-                div.remove()
+                this.$nextTick().then(() => {
+                    menu.open()
+                    div.remove()
+                })
             }
             if (this.menuClosing) {
                 setTimeout(() => {
@@ -487,6 +490,7 @@ export default {
         })
         this.fn = () => {
             this.containerItemMargin = this.getFileTableMargin() + 'px'
+            this.mobileMenu = document.documentElement.clientWidth < 640 ? true : false
         }
         this.fn()
         window.addEventListener('resize', this.fn)
@@ -496,6 +500,10 @@ export default {
     },
     data () {
         return {
+            /**
+             * 是否启用移动端菜单
+             */
+            mobileMenu: false,
             fn: null,
             containerItemMargin: '0px',
             /**
@@ -528,6 +536,9 @@ export default {
 </script>
 
 <style lang="less" scope>
+.context-menu {
+    width: 180px;
+}
 .rename-input {
     width: 80%;
     outline: none;

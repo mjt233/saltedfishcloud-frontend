@@ -459,6 +459,9 @@ export default {
     .mdui-toolbar>button {
         width: 120px;
     }
+    .mdui-toolbar>* {
+        margin: 0;
+    }
 }
 .search {
     input::placeholder {
