@@ -112,12 +112,20 @@
             >
                 <div class="file-name" v-if="enableName">
                     <input 
-                        v-if="index == targetIndex && statu == 'rename'"
+                        v-if="index == targetIndex && statu == 'rename' && type == 'list'"
                         class="rename-input"
                         v-model="newName"
                         @keyup.enter="resetFileInfo"
                     />
-                    <span v-else>{{item.name}}</span>
+                    <textarea 
+                        style="border-radius: 0; resize:none"
+                        rows="3"
+                        v-if="index == targetIndex && statu == 'rename' && type == 'table'"
+                        class="rename-input"
+                        v-model="newName"
+                        @keyup.enter="resetFileInfo"
+                    />
+                    <span v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
                 </div>
                 <template v-if="enableSize">
                     <div class="file-size" v-if="item.dir">-</div>
@@ -273,9 +281,11 @@ export default {
             if (this.statu === 'rename') {
                 let info = {
                     old: this.fileList[this.targetIndex].name,
-                    new: this.newName
+                    new: this.newName.replace(/\n/g, '')
                 }
-                this.$emit('rename', info)
+                if (info.old != info.new) {
+                    this.$emit('rename', info)
+                }
             }
             this.targetIndex = undefined
             this.newName = undefined
@@ -396,7 +406,8 @@ export default {
             this.newName = fileInfo.name
 
             this.$nextTick().then(() => {
-                let input = this.$refs.list.$el.querySelectorAll('.file,.dir')[this.targetIndex].querySelector('input')
+                let tagName = this.type == 'table' ? 'textarea' : 'input'
+                let input = this.$refs.list.$el.querySelectorAll('.file,.dir')[this.targetIndex].querySelector(tagName)
                 input.focus()
                 input.select()
             })
@@ -587,7 +598,7 @@ a {
                 display: block;
                 text-align: center;
                 bottom: 0;
-                height: 32px;
+                height: 45px;
                 padding: 0;
                 width: 100%;
             }
@@ -623,6 +634,13 @@ a {
             padding-left: 35px;
             text-overflow: ellipsis;
             word-wrap: break-all;
+            &>span {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                overflow: hidden;
+                word-wrap: break-all;
+            }
         }
 
         >*{
