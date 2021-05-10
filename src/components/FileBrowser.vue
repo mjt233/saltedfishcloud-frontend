@@ -13,6 +13,7 @@
         @cut='cut'
         @copy='copy'
         @paste='paste'
+        :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
@@ -29,15 +30,17 @@
             </div>
             <!-- 工具条 -->
             <div class="mdui-toolbar">
-                <button  @click="upload" class="mdui-btn mdui-ripple mdui-btn-icon">
-                    <i class="mdui-icon material-icons">file_upload</i>
+                <button @click="back" class="mdui-btn mdui-btn-icon mdui-btn-dense">
+                    <i class="mdui-icon material-icons">keyboard_backspace</i>
                 </button>
-                <button @click="createFolder" class="mdui-btn mdui-ripple mdui-btn-icon">
-                    <i class="mdui-icon material-icons">create_new_folder</i>
-                </button>
-                <button @click="refresh" class="mdui-btn mdui-ripple mdui-btn-icon">
-                    <i class="mdui-icon material-icons">refresh</i>
-                </button>
+                <div class="mdui-btn-group">
+                    <button @click="listType = 'table'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'table'}">
+                        <i class="mdui-icon material-icons">apps</i>
+                    </button>
+                    <button @click="listType = 'list'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'list'}">
+                        <i class="mdui-icon material-icons">format_align_justify</i>
+                    </button>
+                </div>
                 <div class="mdui-toolbar-spacer"></div>
                 <div class="mdui-textfield search">
                     <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text" class="mdui-textfield-input">
@@ -110,6 +113,7 @@ export default {
     },
     data () {
         return {
+            listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}
              */

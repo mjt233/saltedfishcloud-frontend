@@ -81,18 +81,18 @@
                 </a>
             </li>
         </ul>
-        <ul class="list-container">
+        <ul :style="{'--item-margin': containerItemMargin}" class="list-container" ref="container" :class="`type-${type}`">
             <!-- 表头 -->
             <div class="loading-mask" :class="{'hid':!loading}">
                 <!-- <div class="mdui-spinner"></div> -->
             </div>
-            <li class="list-item head">
+            <li class="list-item head" v-if="type == 'list'">
                 <div class="file-name" v-if="enableName">文件名</div>
                 <div class="file-size" v-if="enableSize">大小</div>
                 <div class="file-date" v-if="enableDate">最后修改日期</div>
                 <slot name="columnHeader"></slot>
             </li>
-            <li v-if="enableReturn" class="list-item tool-bar mdui-ripple" @click="back" style="overflow: hidden">
+            <li v-if="enableReturn && type == 'list'" class="list-item tool-bar mdui-ripple" @click="back">
                 <div class="file-name">返回上一级</div>
                 <div class="file-size"></div>
                 <div class="file-date"></div>
@@ -126,8 +126,8 @@
                 <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
                 <slot name="columnItem" v-bind:item="item"></slot>
             </li>
-            <li v-if="fileList.length==0" class="list-item empty">
-                空空如也
+            <li v-if="fileList.length==0" >
+                <p style="text-align: center">空空如也</p>
             </li>
         </ul>
         <slot name="footer"></slot>
@@ -162,6 +162,11 @@ export default {
         'enable': {
             type: String,
             default: ''
+        },
+        'type': {
+            // 文件显示类型，list为列表，table为表格
+            type: String,
+            default: 'list'
         }
     },
     computed: {
@@ -453,9 +458,15 @@ export default {
             }
             this.resetSelect()
             this.$emit('delete', fileInfo)
+        },
+        getFileTableMargin() {
+            let elCnt = parseInt(this.containerEl.offsetWidth/125)
+            let space = this.containerEl.offsetWidth - elCnt*125
+            return space/(elCnt)
         }
     },
     mounted() {
+        this.containerEl = this.$refs.container
         let menu = document.querySelector('#menu')
         menu.addEventListener('closed.mdui.menu', event => {
             this.menuClosing = false
@@ -463,9 +474,24 @@ export default {
         menu.addEventListener('close.mdui.menu', event => {
             this.menuClosing = true
         })
+        this.fn = () => {
+            this.containerItemMargin = this.getFileTableMargin() + 'px'
+        }
+        this.fn()
+        window.addEventListener('resize', this.fn)
+    },
+    destroyed() {
+        window.removeEventListener('resize', this.fn)
     },
     data () {
         return {
+            fn: null,
+            containerItemMargin: '0px',
+            /**
+             * 文件列表容器元素
+             * @type {HTMLDocument}
+             */
+            containerEl: null,
             path:[],
             /**
              * 文件列表被鼠标右键点击时点击的文件
@@ -543,6 +569,30 @@ a {
     .head {
         cursor: unset;
     }
+    &.type-table {
+        >.list-item {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            margin: 0 0 var(--item-margin) var(--item-margin);
+            overflow: hidden;
+            border: none !important;
+            background-size: 48px 48px;
+            background-position-x: center;
+            background-position-y: 16px;
+            padding: 0;
+            .file-size,.file-date {display: none;}
+            .file-name {
+                position: absolute;
+                display: block;
+                text-align: center;
+                bottom: 0;
+                height: 32px;
+                padding: 0;
+                width: 100%;
+            }
+        }
+    }
     .list-item {
         font-size: 12px;
         color: #323d55;
@@ -558,6 +608,7 @@ a {
         overflow: auto;
         // transition: all .2s;
         cursor: pointer;
+        overflow: hidden;
         &.selected {
             background-color: rgb(201, 229, 248);
         }

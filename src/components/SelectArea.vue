@@ -239,9 +239,16 @@ export default {
                  */
                 let elx = DOMUtils.getAbsoluteOffsetLeft(el, this.parentEl)
                 if (
-                    (this.downY <= ely && this.area.endY >= ely) ||
-                    (this.downY >= (ely + el.offsetHeight) && this.area.endY <= (ely + el.offsetHeight)) ||
-                    (this.downY >= ely && this.downY <= (ely + el.offsetHeight))
+                    (
+                        (this.downY <= ely && this.area.endY >= ely) ||
+                        (this.downY >= (ely + el.offsetHeight) && this.area.endY <= (ely + el.offsetHeight)) ||
+                        (this.downY >= ely && this.downY <= (ely + el.offsetHeight))
+                    ) && 
+                    (
+                        (this.downX <= elx && this.area.endX >= elx) ||
+                        (this.downX >= (elx + el.offsetWidth) && this.area.endX <= (elx + el.offsetWidth)) ||
+                        (this.downX >= elx && this.downX <= (elx + el.offsetWidth))
+                    )
                 ) {
                     r.push(el)
                 }
