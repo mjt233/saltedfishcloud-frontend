@@ -107,7 +107,7 @@ export default {
             })
         },
         fileClick(path) {
-            let url =  '/api/' + API.file.getContent(this.uid, path).url
+            let url = (API.server || location.origin) + '/api/' + API.file.getContent(this.uid, path).url.replace(/\/+/g, '/')
             FormUtils.jumpWithPost(url, true, {
                 Token: this.token
             })
@@ -150,8 +150,8 @@ export default {
         clickFile(e) {
             let exp = new RegExp(`^(.*)\/${this.viewRouteName}`)
             let filePath = location.href.replace(exp, '/') + `/${encodeURIComponent(e.name)}`
-            let url = API.file.getContent(this.uid, filePath).url
-            let newPath = `/api/${apiConfig.server}/${url}`
+            let url = API.file.getContent(this.uid, filePath).url.replace(/\/+/g, '/')
+            let newPath = (API.server || location.origin) + '/api/' + url
             FormUtils.jumpWithPost(newPath, true, {
                 Token: this.token
             })
