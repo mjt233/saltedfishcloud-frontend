@@ -75,6 +75,16 @@ const user = {
         return {
             url: this.prefix + '/quota'
         }
+    },
+    modifyPasswd(oldPasswd, newPasswd) {
+        return {
+            url: `${this.prefix}/passwd`,
+            method: 'post',
+            data: {
+                old: oldPasswd,
+                new: newPasswd
+            }
+        }
     }
 }
 

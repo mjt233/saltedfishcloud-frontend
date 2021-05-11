@@ -1,6 +1,20 @@
 <template>
   <container v-if="userInfo" :loading="loading">
       <div class="mdui-container">
+        <mdui-dialog id="dialog" :title="'修改密码'" :loading="mp.loading">
+          <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">旧密码</label>
+            <input class="mdui-textfield-input" v-model="mp.op" type="password"/>
+          </div>
+          <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">新密码</label>
+            <input class="mdui-textfield-input" v-model="mp.np"  type="password"/>
+          </div>
+          <div class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">确认密码</label>
+            <input class="mdui-textfield-input" @keydown.enter="confirm"  v-model="mp.cp" type="password"/>
+          </div>
+        </mdui-dialog>
         <ul class="mdui-list">
           <!-- 头像显示 -->
           <li class="mdui-list-item mdui-ripple">
@@ -20,6 +34,10 @@
           <li class="mdui-list-item mdui-ripple">
             <div class="mdui-list-item-content"><span>身份</span></div>
             <div class="mdui-list-item-text">{{userInfo.type == 1 ? '管理员' : '普通用户'}}</div>
+          </li>
+          <li class="mdui-divider"></li>
+          <li class="mdui-list-item mdui-ripple" @click="openDialog">
+            <div class="mdui-list-item-content"><span>修改密码</span></div>
           </li>
           <li class="mdui-divider"></li>
           <!-- 配额情况 -->
@@ -44,15 +62,25 @@ import mdui from 'mdui'
 import apiConfig from '../api/API'
 import Container from '../components/Container.vue'
 import FileUtils from '../utils/FileUtils'
+import MduiDialog from '../components/ui/MduiDialog.vue'
 export default {
-  components: { Container },
+  components: { Container, MduiDialog },
   data() {
     return {
       quota: {
         used: 0,
         quota: 0
       },
-      loading: false
+      loading: false,
+      dialog: {
+        mp: null
+      },
+      mp: {
+        op: '',
+        np: '',
+        cp: '',
+        loading: false
+      }
     }
   },
   computed: {
@@ -76,8 +104,54 @@ export default {
     this.$axios(apiConfig.user.getQuotaUsed()).then(e => {
       this.quota = e.data.data
     })
+    this.dialog.mp = new mdui.Dialog('#dialog', {closeOnConfirm: false, modal: true})
+    document.querySelector('#dialog').addEventListener('confirm.mdui.dialog', this.confirm)
+    document.querySelector('#dialog').addEventListener('cancel.mdui.dialog', () => {
+      this.mp.op = this.mp.np = this.mp.cp = ''
+    })
   },
   methods: {
+    /**
+     * 修改密码点击确定
+     */
+    confirm() {
+      let openAlert = (text) => {
+        this.dialog.mp.close()
+        mdui.alert(text, () => {
+          this.openDialog()
+        })
+      }
+      let reset = () => {
+        this.mp.op = this.mp.np = this.mp.cp = ''
+        this.loading = false
+      }
+      if (this.mp.cp != this.mp.np) {
+        openAlert('新密码与确认密码不一致')
+        return
+      } else if (this.mp.cp.length < 6 || this.mp.op.length < 6) {
+        openAlert('密码太短（少于6个字符）')
+        return
+      }
+      this.loading = true
+      let conf = apiConfig.user.modifyPasswd(this.mp.op, this.mp.np)
+      this.$axios(conf).then(_ => {
+        reset()
+        mdui.snackbar('修改成功', {position: 'bottom'})
+        this.dialog.mp.close()
+      }).catch(e => {
+        reset()
+        openAlert(e.msg)
+      })
+    },
+    /**
+     * 打开修改密码对话框
+     */
+    openDialog() {
+      this.dialog.mp.open()
+    },
+    /**
+     * 上传用户头像
+     */
     uploadAvatar() {
       FileUtils.openFileDialog().then(e => {
         let file = e.item(0)
