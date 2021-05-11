@@ -468,7 +468,7 @@ export default {
         width: 120px;
     }
     .mdui-toolbar>* {
-        margin: 0;
+        margin: 0 !important;
     }
     .search {
         width: 50%;
