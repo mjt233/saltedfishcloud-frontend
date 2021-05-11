@@ -452,6 +452,14 @@ export default {
 </script>
 
 <style scope lang="less">
+.search {
+    input::placeholder {
+        font-size: 12px;
+    }
+    input {
+        width: 360px;
+    }
+}
 @media screen and (max-width: 720px) {
     .btn-text {
         display: none;
@@ -462,10 +470,11 @@ export default {
     .mdui-toolbar>* {
         margin: 0;
     }
-}
-.search {
-    input::placeholder {
-        font-size: 12px;
+    .search {
+        width: 50%;
+        input {
+            width: 100%;
+        }
     }
 }
 .path-bar {
