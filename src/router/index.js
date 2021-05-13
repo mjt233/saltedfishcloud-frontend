@@ -24,11 +24,13 @@ export default new Router({
       },
       {
           path: '/private',
-          component: PrivateDisk
+          component: PrivateDisk,
+          name: 'privateDisk'
       },
       {
           path: '/private/**',
-          component: PrivateDisk
+          component: PrivateDisk,
+          name: 'privateDisk'
       },
       {
           path: '/login',
@@ -36,7 +38,8 @@ export default new Router({
       },
       {
           path: '/my',
-          component: require('@/view/My').default
+          component: require('@/view/My').default,
+          name: 'my'
       },
       {
           path: '/test',

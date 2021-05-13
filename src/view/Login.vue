@@ -1,25 +1,34 @@
 <template>
   <container :loading="loading">
-    <p class="title">账号登录</p>
-    <form class="login-panel" ref="form">
-      <div class="item">
-        <div class="mdui-textfield mdui-textfield-floating-label input">
-          <label class="mdui-textfield-label">用户名</label>
-          <input v-model="form.user" :disabled="loading" class="mdui-textfield-input" type="text" required/>
-          <div class="mdui-textfield-error">用户名不能为空</div>
-        </div>
-        <router-link to="/reg" tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</router-link>
+    <div class="mdui-card" style="max-width: 480px; margin:40px auto">
+      <!-- 头部标题 -->
+      <div class="mdui-card-header">
+        <img class="mdui-card-header-avatar" src="/api/user/avatar"/>
+        <div class="mdui-card-header-title">账号登录</div>
+        <div class="mdui-card-header-subtitle">开启云存储之旅</div>
       </div>
-      <div class="item">
-        <div class="mdui-textfield mdui-textfield-floating-label input">
-          <label class="mdui-textfield-label">密码</label>
-          <input autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
-          <div class="mdui-textfield-error">密码至少 6 位</div>
-        </div>
-        <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
+      <div class="mdui-card-content">
+        <form class="login-panel" ref="form">
+          <div class="item">
+            <div class="mdui-textfield mdui-textfield-floating-label input">
+              <label class="mdui-textfield-label">用户名</label>
+              <input v-model="form.user" :disabled="loading" class="mdui-textfield-input" type="text" required/>
+              <div class="mdui-textfield-error">用户名不能为空</div>
+            </div>
+            <router-link to="/reg" tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</router-link>
+          </div>
+          <div class="item">
+            <div class="mdui-textfield mdui-textfield-floating-label input">
+              <label class="mdui-textfield-label">密码</label>
+              <input autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
+              <div class="mdui-textfield-error">密码至少 6 位</div>
+            </div>
+            <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
+          </div>
+          <button ref="btn" :disabled="loading" @click="login" class="mdui-btn mdui-color-theme-accent mdui-ripple">登录</button>
+        </form>
       </div>
-      <button ref="btn" :disabled="loading" @click="login" class="mdui-btn mdui-color-theme-accent mdui-ripple">登录</button>
-    </form>
+    </div>
   </container>
 </template>
 
@@ -39,7 +48,7 @@ export default {
     }
   },
   methods: {
-    login(e) {
+    async login(e) {
       let elems = this.$refs.form.querySelectorAll(".mdui-textfield-invalid-html5")
       if (elems.length !== 0 || this.form.user == '' || this.form.passwd == '') {
         mdui.alert('有输入的数据不符合要求，请重新检查')
@@ -47,16 +56,17 @@ export default {
       }
       this.loading = true
       let conf = apiConfig.user.login(this.form.user, this.form.passwd)
-      this.$axios(conf).then(e => {
-        this.$store.commit('setToken', e.data.data)
+      try {
+        let token = (await this.$axios(conf)).data.data
+        this.$store.commit('setToken', token)
         this.$store.commit('setAvatarURL', `/api/${apiConfig.user.getAvatar(this.form.user).url}`)
-        localStorage.setItem('token', e.data.data)
-        mdui.alert('登录成功',()=>{
-          setTimeout(() => {
-            this.$router.push('/private')
-          }, 100)
-        }, {modal:true})
-      }).catch(e=>{this.loading = false})
+        localStorage.setItem('token', token)
+        mdui.snackbar('登录成功')
+        this.$router.push('/private')
+      } catch (error) {
+        
+      }
+      this.loading = false
     },
     tips() {
       mdui.alert('暂未开放该功能')
@@ -66,12 +76,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.title {
-  margin: 0;
-  font-size: 20px;
-  padding-top: 20px;
-  text-align: center;
-}
 .login-panel {
   margin: 0 auto;
   max-width: 480px;

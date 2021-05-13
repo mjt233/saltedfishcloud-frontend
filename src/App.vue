@@ -115,7 +115,13 @@ export default {
     exit() {
       localStorage.clear()
       Store.commit('setToken', null)
-      mdui.alert('退出成功')
+      mdui.snackbar('退出成功')
+      if (this.$route.name == 'privateDisk' || this.$route.name == 'my') {
+        this.$router.push('/login')
+      }
+      if (document.documentElement.clientWidth < 1024) {
+        this.drawer.close()
+      }
     },
   }
 }

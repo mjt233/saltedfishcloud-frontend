@@ -5,15 +5,16 @@
       <span class="mdui-typo-title">咸鱼云网盘</span>
       <div class="mdui-toolbar-spacer"></div>
       <div v-if="userInfo != null">
-        <img class="mdui-chip-icon" :src="userAvatarURL" />
-        <span class="mdui-chip-title">{{userInfo.user}}</span>
+        <router-link to="/my" style="color: white">
+          <img class="mdui-chip-icon" :src="userAvatarURL" />
+          <span class="mdui-chip-title">{{userInfo.user}}</span>
+        </router-link>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-import apiConfig from '../api/API'
 export default {
     name:'sf-header',
     methods: {
