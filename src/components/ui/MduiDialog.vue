@@ -7,7 +7,7 @@
     <div class="mdui-dialog-content"><slot></slot></div>
     <div class="mdui-dialog-actions">
         <button class="mdui-btn mdui-ripple" mdui-dialog-cancel>取消</button>
-        <button class="mdui-btn mdui-ripple" mdui-dialog-confirm>确定</button>
+        <button class="mdui-btn mdui-ripple" @click="$emit('confirm')">确定</button>
     </div>
 </div>
 </template>
@@ -24,9 +24,55 @@ export default {
         'loading': {
             type: Boolean,
             default: false
+        },
+        'renderOnBody': {
+            // 将该组件渲染到Body
+            type: Boolean,
+            default: true
+        },
+        'show': {
+            /**
+             * 控制是否显示
+             */
+            type: Boolean,
+            default: false
         }
-    },mounted() {
+    },
+    data() {
+        return {
+            /**
+             * @type {HTMLDocument}
+             */
+            el: null,
+            /**
+             * @type {MduiStatic.Dialog}
+             */
+            dialog:null
+        }
+    },
+    mounted() {
         mdui.mutation('.mdui-spinner')
+        this.el = this.$el
+        if (this.renderOnBody) {
+            document.body.appendChild(this.el)
+        }
+        this.dialog = new mdui.Dialog(this.el, {modal: true})
+        this.el.addEventListener('close.mdui.dialog', e => {
+            this.$emit('close', e)
+        })
+    },
+    methods: {
+        open() {
+            this.dialog.open()
+        },
+        close() {
+            this.dialog.close()
+        }
+    },
+    destroyed() {
+        if (this.renderOnBody) {
+            document.body.removeChild(this.$el)
+        }
     }
 }
 </script>

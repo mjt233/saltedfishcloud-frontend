@@ -73,7 +73,7 @@
             <li v-if="fileInfo && fileInfo.size > 0" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
-                    获取链接
+                    获取直接
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-menu-item" @click="deleteItem(fileInfo)">

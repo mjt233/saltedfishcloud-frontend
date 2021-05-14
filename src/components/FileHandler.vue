@@ -29,9 +29,19 @@
         @createFolder='createFolder'
         @rename='rename'
         @search='search'
-        @getURL='getURL'
+        @getURL='openDialog'
         ref='browser'
     >
+        <mdui-dialog id='attr-dialog' :title="'设置下载链接属性'" ref="dialog" @confirm='getURL'>
+            <div style="margin: 20px auto; width: 90%" class="mdui-typo">
+                <span>链接有效时长：<span style="color: red;font-weight: 900" class="mdui-text-color-theme">{{link.expr == 32 ? '无限制' : link.expr + '天'}}</span></span>
+                <label class="mdui-slider">
+                    <input type="range" v-model="link.expr" step="1" min="1" max="32"/>
+                </label>
+                <mdui-checkbox :label="'启用预览'" v-model="link.preview" />
+                <p class="mdui-text-color-theme-300">注意：若原文件位置改变，重命名或删除链接将失效</p>
+            </div>
+        </mdui-dialog>
     </file-browser>
     <container class="mdui-typo" v-else>
         <h3>未登录，请先<router-link to="/login">登录</router-link> </h3>
@@ -50,8 +60,10 @@ import SearchResult from '@/components/SearchResult'
 import apiConfig from '../api/API'
 import FormUtils from '../utils/FormUtils'
 import API from '../api/API'
+import MduiDialog from './ui/MduiDialog.vue'
+import MduiCheckbox from "./ui/MduiCheckbox"
 export default {
-    components: { FileBrowser, FileList, Container, SearchResult },
+    components: { FileBrowser, FileList, Container, SearchResult, MduiDialog, MduiCheckbox },
     name: 'FileHandler',
     props: {
         'uid': {
@@ -67,10 +79,18 @@ export default {
             loading: false,
             searchRes: [],
             searchMode: false,
-            searchKey: '测试'
+            searchKey: '测试',
+            link: {
+                expr: 32,
+                preview: true,
+                info: {}
+            }
         }
     },
-    mounted () {
+    filters: {
+        fixed(i) {
+            return i.toFixed(0)
+        }
     },
     computed: {
         hasLogin() {
@@ -84,27 +104,28 @@ export default {
         }
     },
     methods: {
-        getURL(info) {
-            mdui.prompt('有效时长(单位：天，-1为永久)', '设置链接有效期', e => {
-                let conf = apiConfig.resource.getFileDC(this.uid, info.path.join('/'), info.fileInfo.name, info.fileInfo.md5, e)
-                this.loading = true
-                this.$axios(conf).then(e => {
-                    this.loading = false
-                    let url = apiConfig.resource.downloadUseFileDC(e.data.data)
-                    let content = `
-                        <h3>下载链接</h3>
-                        <a target="_blank" href="${url}" style="word-break: break-all">
-                            ${url}
-                        </a>
-                    `
-                    mdui.alert(content)
-                }).catch(e => {
-                    this.loading = false
-                    mdui.snackbar(e.msg)
-                })
-            }, e => e, {
-                defaultValue: -1
-            })
+        async getURL() {
+            let e = (await this.$axios(
+                apiConfig.resource.getFileDC(this.uid,
+                this.link.info.path.join('/'), 
+                this.link.info.fileInfo.name, 
+                this.link.info.fileInfo.md5, 
+                this.link.expr == 32 ? -1 : this.link.expr)
+            ))
+            
+            let url = apiConfig.server || location.origin + apiConfig.resource.downloadUseFileDC(e.data.data, !this.link.preview, this.link.info.fileInfo.name)
+            let content = `
+                <h3>下载链接</h3>
+                <a target="_blank" href="${url}" style="word-break: break-all">
+                    ${url}
+                </a>
+            `
+            this.$refs.dialog.close()
+            mdui.alert(content)
+        },
+        openDialog(info) {
+            this.link.info = info
+            this.$refs.dialog.open()
         },
         fileClick(path) {
             let url = (API.server || location.origin) + '/api/' + API.file.getContent(this.uid, path).url.replace(/\/+/g, '/')

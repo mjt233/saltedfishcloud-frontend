@@ -3,10 +3,15 @@ const resource = {
     /**
      * 获取使用文件下载码下载文件的链接
      * @param {String} dc 下载码
+     * @param {Boolean} directDownload 是否直接下载
+     * @param {String=} name 文件名
      * @returns {String}
      */
-    downloadUseFileDC(dc) {
-        return `/api/${this.prefix}/0/fileContentByFDC/${dc}`
+    downloadUseFileDC(dc, directDownload = false, name = '') {
+        let baseURI = `/api/${this.prefix}/0/fileContentByFDC/${dc}`
+        if (name != '') baseURI += `/${name}`
+        if (directDownload) baseURI += '?download=true'
+        return baseURI;
     },
     /**
      * 
