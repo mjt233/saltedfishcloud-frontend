@@ -64,7 +64,7 @@
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
-            <li v-if="fileInfo" class="mdui-menu-item" @click="rename(fileInfo)">
+            <li v-if="fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="rename(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">edit</i>
                     重命名
@@ -104,7 +104,7 @@
                 style="overflow: hidden"
                 v-for="(item, index) in fileList"
                 v-bind:key="index"
-                @click="click(item, index)"
+                @click="click(item, index, $event)"
                 @dragleave="dragLeave"
                 @dragover="dragover"
                 @dragenter="dragenter"
@@ -242,10 +242,31 @@ export default {
         },
         /**
          * 列表项目被点击时触发的回调
-         * @param {Type.BaseFileInfo} item
+         * @param {Type.BaseFileInfo} item  被单击的文件信息
+         * @param {Number} index            被单击的文件索引
+         * @param {MouseEvent} e            单击事件
          */
-        click(item, index) {
+        click(item, index, e) {
             this.fileInfo = null
+
+            //  按住Ctrl单击文件
+            if (e.ctrlKey)  {
+                let el = document.querySelectorAll('.dir,.file')[index]
+                let t = this.selectedEl
+                let index2 = 0
+
+                //  切换选中状态
+                if (el.classList.contains('selected')) {
+                    t.forEach( (elem, i) => { if (elem == el) index2 = i })
+                    t.splice(index2, 1)
+                } else {
+                    t.push(el)
+                }
+                this.selectChange(t)
+                return
+            }
+
+            //  一般情况
             switch (this.statu) {
                 case 'ok':
                     this.$emit('clickItem', item);break;
@@ -269,12 +290,22 @@ export default {
                 if (e.target == this.$refs.list.$el) {
                     this.resetFileInfo()
                 }
-                if (!this.selecting) {
+
+                //  
+                /**
+                 *  选择文件结束时，也会触发该事件
+                 *  不清空选择状态的情况
+                 *  1. 选择刚刚完成的一瞬间触发的该方法
+                 *  2. 按住Ctrl时点击文件
+                 *  3. 点击删除按钮
+                 */
+                if ( (e.ctrlKey && DOMUtils.getElParentByClass(e.target, 'list-item')) || this.selecting) {
+                    
+                } else {
                     this.resetSelect()
                 }
-            } catch (error) {
-                
-            }
+            } catch (error) { }
+
         },
         /**
          * 重置当前的文件信息，若文件处于编辑状态 则会触发文件重命名事件
@@ -349,11 +380,16 @@ export default {
             if (!this.enableMenu) {
                 return
             }
+            //  文件列表区域外的右键点击事件忽略
+
+            /**
+             * 触发的文件元素
+             */
+            let target = DOMUtils.getElParentByClass(e.target, 'list-item')
+            if (target !== null && target.classList.contains('tool-bar')) {
+                return
+            }
             let show = () => {
-                let target = DOMUtils.getElParentByClass(e.target, 'list-item')
-                if (target !== null && target.classList.contains('tool-bar')) {
-                    return
-                }
                 // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
                 let div = document.createElement('div')
                 div.style.position = 'fixed'
@@ -370,6 +406,7 @@ export default {
 
 
                 if (target !== null && !target.classList.contains('empty')) {
+                    //  找出右键触发位置的项目所在的索引，以便从文件列表(this.fileList)中取出对应的文件信息
                     let index = 0
                     this.$el.querySelectorAll('.file,.dir').forEach((e,i) => {
                         if (e == target) {
@@ -378,6 +415,11 @@ export default {
                     })
                     this.fileInfo = this.fileList[index]
                     this.targetIndex = index
+
+                    //  若触发右键的元素是未选中状态，则重置选中状态同时只选择该元素
+                    if (!target.classList.contains('selected')) {
+                        this.selectChange([target])
+                    }
                 } else {
                     this.targetIndex = undefined
                     this.fileInfo = null

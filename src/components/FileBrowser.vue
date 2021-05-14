@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import fileList from '@/components/FileList.vue'
+import fileList from '../components/FileList.vue'
 import Pageniate from '../components/Pageniate.vue'
 import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
