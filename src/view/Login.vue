@@ -3,7 +3,7 @@
     <div class="mdui-card" style="max-width: 480px; margin:40px auto">
       <!-- 头部标题 -->
       <div class="mdui-card-header">
-        <img class="mdui-card-header-avatar" src="/api/user/avatar"/>
+        <img class="mdui-card-header-avatar" :src="defaultLoginLogo"/>
         <div class="mdui-card-header-title">账号登录</div>
         <div class="mdui-card-header-subtitle">开启云存储之旅</div>
       </div>
@@ -45,6 +45,11 @@ export default {
         passwd:''
       },
       loading:false
+    }
+  },
+  computed: {
+    defaultLoginLogo() {
+      return `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar().url}`
     }
   },
   methods: {
