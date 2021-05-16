@@ -15,7 +15,12 @@ const API = {
     server: '',
     user: user,
     file: file,
-    resource: resource
-
+    resource: resource,
+    /**
+     * 获取服务器地址，当服务器地址为空时，返回当前页面地址
+     */
+    getServer() {
+        return this.server || location.origin
+    }
 }
 module.exports = API
