@@ -16,10 +16,10 @@
 ## 快速开始  
 1. 设置咸鱼云网盘后端地址
 
-    - 修改`/src/api/apiConfig.js`以配置项目请求的后端API服务器地址和webpack-dev-server反代服务器地址  
+    - 修改`/src/api/API.js`以配置项目请求的后端API服务器地址和webpack-dev-server反代服务器地址  
         配置示例
         ```JavaScript
-        const apiConfig = {
+        const API = {
             //  webpack-dev-server反代的目标服务器，仅开发用
             proxyServer: 'http://127.0.0.1:8087',
 
