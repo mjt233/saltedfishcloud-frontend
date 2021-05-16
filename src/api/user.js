@@ -76,9 +76,17 @@ const user = {
             url: this.prefix + '/quota'
         }
     },
-    modifyPasswd(oldPasswd, newPasswd) {
+
+    /**
+     * 
+     * @param {Number} uid 用户ID
+     * @param {String} oldPasswd 旧密码
+     * @param {String} newPasswd 新密码
+     * @returns 
+     */
+    modifyPasswd(uid, oldPasswd, newPasswd) {
         return {
-            url: `${this.prefix}/passwd`,
+            url: `${this.prefix}/${uid}/passwd`,
             method: 'post',
             data: {
                 old: oldPasswd,

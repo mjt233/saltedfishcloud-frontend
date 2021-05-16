@@ -1,7 +1,7 @@
 <template>
   <container v-if="userInfo" :loading="loading">
       <div class="mdui-container">
-        <mdui-dialog id="dialog" :title="'修改密码'" :loading="mp.loading">
+        <mdui-dialog @confirm='confirm' id="dialog" :title="'修改密码'" :loading="mp.loading">
           <div class="mdui-textfield mdui-textfield-floating-label">
             <label class="mdui-textfield-label">旧密码</label>
             <input class="mdui-textfield-input" v-model="mp.op" type="password"/>
@@ -133,7 +133,7 @@ export default {
         return
       }
       this.loading = true
-      let conf = apiConfig.user.modifyPasswd(this.mp.op, this.mp.np)
+      let conf = apiConfig.user.modifyPasswd(this.userInfo.id ,this.mp.op, this.mp.np)
       this.$axios(conf).then(_ => {
         reset()
         mdui.snackbar('修改成功', {position: 'bottom'})
