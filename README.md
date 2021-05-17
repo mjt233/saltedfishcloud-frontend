@@ -67,7 +67,7 @@
             # 使用反向代理后端时可选配置
             location ~ (^/api|^/download) {
                 proxy_pass http://127.0.0.1:8087;
-                proxy_buffering on;
+                proxy_buffering off;
                 index index.html index.htm;
             }
 
