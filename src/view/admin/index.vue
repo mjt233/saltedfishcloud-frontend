@@ -3,8 +3,8 @@
         <header class="mdui-appbar mdui-appbar-fixed">
             <div class="mdui-toolbar mdui-color-indigo">
             <a @click="switchMenu" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
-            <a href="javascript:;" class="mdui-typo-title">咸鱼云管理员后台</a>
-            <a href="">返回前台</a>
+            <a href="javascript:;" class="mdui-typo-title">咸鱼云后台</a>
+            <router-link to="/">前台</router-link>
             <div class="mdui-toolbar-spacer"></div>
             <div v-if="userInfo != null">
                 <router-link to="/my" style="color: white">
@@ -22,16 +22,14 @@
         </header>
         <mdui-drawer ref="drawer" class="mdui-color-white">
             <mdui-list>
-                <mdui-list-item :icon="'move_to_inbox'">Inbox</mdui-list-item>
-                <mdui-list-item :icon="'star'">starred</mdui-list-item>
-                <mdui-list-item :icon="'send'">Sent mail</mdui-list-item>
-                <mdui-subheader>我是子标题</mdui-subheader>
-                <mdui-list-item :icon="'email'">All mail</mdui-list-item>
-                <mdui-sub-list :icon="'email'" :title="'二级菜单'">
-                    <mdui-list-item >aaaaa</mdui-list-item>
+                <mdui-list-item :icon="'pie_chart'">系统总览</mdui-list-item>
+                <mdui-list-item :icon="'people'">用户管理</mdui-list-item>
+                <mdui-sub-list :title="'系统设置'" :icon="'settings_applications'">
+                    <mdui-list-item>常规设置</mdui-list-item>
+                    <mdui-list-item>存储设置</mdui-list-item>
+                    <mdui-list-item>安全选项</mdui-list-item>
                 </mdui-sub-list>
-                <mdui-list-item :icon="'delete'">Trash</mdui-list-item>
-                <mdui-list-item :icon="'error'">Spam</mdui-list-item>
+                <mdui-list-item :icon="'developer_board'">开发者调试</mdui-list-item>
             </mdui-list>
         </mdui-drawer>
     </div>
