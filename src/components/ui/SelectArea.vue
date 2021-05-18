@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import DOMUtils from '../utils/DOMUtils'
+import DOMUtils from '../../utils/DOMUtils'
 /**
  * @description 通用鼠标选区组件 将该组件置于需要被选择的元素同级元素下即可，父元素定位不能是static或默认
  * @emits selectStart   选择开始

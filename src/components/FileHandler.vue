@@ -55,7 +55,7 @@ import FileBrowser from "../components/FileBrowser.vue"
 import FileQueue from '../global/FileQueue'
 import axios from 'axios'
 import FileList from '../components/FileList.vue'
-import Container from "@/components/Container.vue"
+import Container from "../components/layout/Container.vue"
 import SearchResult from '@/components/SearchResult'
 import apiConfig from '../api/API'
 import FormUtils from '../utils/FormUtils'

@@ -69,7 +69,7 @@
 
 <script>
 import mdui from 'mdui'
-import Container from '../../components/Container.vue'
+import Container from '../../components/layout/Container.vue'
 import apiConfig from '../../api/API'
 export default {
     components: { Container },

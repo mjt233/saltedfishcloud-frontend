@@ -15,13 +15,13 @@
         </div>
       </div>
       <ul class="mdui-list">
-        <router-link to="public">
+        <router-link to="/public">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons">folder</i>
             <div class="mdui-list-item-content">公共网盘</div>
           </li>
         </router-link>
-        <router-link to="private">
+        <router-link to="/private">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons"
               >&#xe897;</i
@@ -29,7 +29,7 @@
             <div class="mdui-list-item-content">私人网盘</div>
           </li>
         </router-link>
-        <router-link to="login" v-if="userInfo === null">
+        <router-link to="/login" v-if="userInfo === null">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons"
               >&#xe7fd;</i
@@ -37,7 +37,7 @@
             <div class="mdui-list-item-content">去登录</div>
           </li>
         </router-link>
-        <router-link v-else to="my">
+        <router-link v-else to="/my">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons"
               >&#xe7fd;</i
@@ -53,7 +53,7 @@
             <div class="mdui-list-item-content">退出登录</div>
           </li>
         </a>
-        <router-link v-else to="reg">
+        <router-link v-else to="/reg">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons"
               >&#xe7fd;</i
@@ -73,7 +73,7 @@
 
 <script>
 import mdui from "mdui"
-import SfHeader from "../../components/SfHeader.vue"
+import SfHeader from "../../components/layout/SfHeader.vue"
 import FileQueue from '../../global/FileQueue'
 import FileUploadDialog from '../../components/FileUploadDialog.vue'
 import Store from '../../Store'

@@ -53,7 +53,7 @@
 
 <script>
 import fileList from '../components/FileList.vue'
-import Pageniate from '../components/Pageniate.vue'
+import Pageniate from './ui/Pageniate.vue'
 import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'

@@ -146,10 +146,10 @@
 
 <script>
 import Type from '../typedescribe/type'
-import Container from './Container.vue'
+import Container from './layout/Container.vue'
 import '../css/FileIcon.css'
 import mdui from 'mdui'
-import selectArea from './SelectArea.vue'
+import selectArea from './ui/SelectArea.vue'
 import DOMUtils from '../utils/DOMUtils'
 import StringFormatter from '../utils/StringFormatter'
 export default {

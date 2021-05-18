@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Container from '../../components/Container'
+import Container from '../../components/layout/Container'
 export default {
   name: 'welcome',
   components: {
