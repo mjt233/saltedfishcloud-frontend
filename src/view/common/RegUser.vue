@@ -1,69 +1,70 @@
 <template>
     <container class="mdui-typo" :loading="loading">
-        <p class="title">注册账号</p>
-        <form class="panel" ref="form">
-            <div class="item">
-            <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.user}">
-                <label class="mdui-textfield-label">用户名（必填）</label>
-                <input 
-                    v-model="form.user"
-                    :disabled="loading" 
-                    class="mdui-textfield-input" 
-                    type="text" 
-                    placeholder="以后就用这个登录了噢~"
-                    @keyup="errorFlag.user = form.user.length < 2"
-                    required
-                />
-                <div class="mdui-textfield-error">用户名不能少于2个字符</div>
-            </div>
-            </div>
-            <div class="item">
+        <mdui-card :layout="'center'" :size="'mini'" :title="'注册账号'" :subtitle="'咸鱼云通行证'" :avatar="defaultLogo">
+            <form class="panel" ref="form">
+                <div class="item">
+                <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.user}">
+                    <label class="mdui-textfield-label">用户名（必填）</label>
+                    <input 
+                        v-model="form.user"
+                        :disabled="loading" 
+                        class="mdui-textfield-input" 
+                        type="text" 
+                        placeholder="以后就用这个登录了噢~"
+                        @keyup="errorFlag.user = form.user.length < 2"
+                        required
+                    />
+                    <div class="mdui-textfield-error">用户名不能少于2个字符</div>
+                </div>
+                </div>
+                <div class="item">
+                    <div class="mdui-textfield input">
+                    <label class="mdui-textfield-label">密码（必填）</label>
+                    <input
+                        autocomplete="1"
+                        v-model="form.passwd"
+                        class="mdui-textfield-input"
+                        type="password"
+                        pattern="^.*(?=.{6,}).*$"
+                        placeholder="请输入密码"
+                        @keyup="errorFlag.confirm = form.passwd !== form.confirm"
+                        required
+                    />
+                    <div class="mdui-textfield-error">密码至少 6 位</div>
+                </div>
+                </div>
+                <div class="item">
+                <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.confirm}">
+                    <label class="mdui-textfield-label">确认密码（必填）</label>
+                    <input 
+                        autocomplete="1" 
+                        v-model="form.confirm" 
+                        class="mdui-textfield-input" 
+                        type="password"
+                        placeholder="再输一次密码吧~"
+                        required
+                        @keyup="errorFlag.confirm = form.passwd !== form.confirm"
+                    />
+                    <div class="mdui-textfield-error">两次密码不一致</div>
+                </div>
+                </div>
+                <div class="item">
                 <div class="mdui-textfield input">
-                <label class="mdui-textfield-label">密码（必填）</label>
-                <input
-                    autocomplete="1"
-                    v-model="form.passwd"
-                    class="mdui-textfield-input"
-                    type="password"
-                    pattern="^.*(?=.{6,}).*$"
-                    placeholder="请输入密码"
-                    @keyup="errorFlag.confirm = form.passwd !== form.confirm"
-                    required
-                />
-                <div class="mdui-textfield-error">密码至少 6 位</div>
-            </div>
-            </div>
-            <div class="item">
-            <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.confirm}">
-                <label class="mdui-textfield-label">确认密码（必填）</label>
-                <input 
-                    autocomplete="1" 
-                    v-model="form.confirm" 
-                    class="mdui-textfield-input" 
-                    type="password"
-                    placeholder="再输一次密码吧~"
-                    required
-                    @keyup="errorFlag.confirm = form.passwd !== form.confirm"
-                />
-                <div class="mdui-textfield-error">两次密码不一致</div>
-            </div>
-            </div>
-            <div class="item">
-            <div class="mdui-textfield input">
-                <label class="mdui-textfield-label">注册邀请码（必填）</label>
-                <input 
-                    autocomplete="1" 
-                    v-model="form.regcode" 
-                    class="mdui-textfield-input"
-                    placeholder="请输入注册邀请码"
-                    required
-                />
-                <div class="mdui-textfield-error">请输入注册邀请码</div>
-            </div>
-            </div>
-            <button ref="btn" class="mdui-btn mdui-color-theme-accent mdui-ripple" type="button" @click="reg">注册</button>
-            <router-link to="/login">已有账号？(点我登录)</router-link>
-        </form>
+                    <label class="mdui-textfield-label">注册邀请码（必填）</label>
+                    <input 
+                        autocomplete="1" 
+                        v-model="form.regcode" 
+                        class="mdui-textfield-input"
+                        placeholder="请输入注册邀请码"
+                        required
+                    />
+                    <div class="mdui-textfield-error">请输入注册邀请码</div>
+                </div>
+                </div>
+                <button ref="btn" class="mdui-btn mdui-color-theme-accent mdui-ripple" type="button" @click="reg">注册</button>
+                <router-link to="/login">已有账号？(点我登录)</router-link>
+            </form>
+        </mdui-card>
     </container>
 </template>
 
@@ -71,8 +72,9 @@
 import mdui from 'mdui'
 import Container from '../../components/layout/Container.vue'
 import apiConfig from '../../api/API'
+import MduiCard from '../../components/ui/MduiCard.vue'
 export default {
-    components: { Container },
+    components: { Container, MduiCard },
     data() {
         return {
             form: {
@@ -88,6 +90,11 @@ export default {
                 regCode: false
             },
             loading:false
+        }
+    },
+    computed: {
+        defaultLogo() {
+            return `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar().url}`
         }
     },
     methods: {

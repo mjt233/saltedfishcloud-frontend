@@ -1,34 +1,26 @@
 <template>
   <container :loading="loading">
-    <div class="mdui-card" style="max-width: 480px; margin:40px auto">
-      <!-- 头部标题 -->
-      <div class="mdui-card-header">
-        <img class="mdui-card-header-avatar" :src="defaultLoginLogo"/>
-        <div class="mdui-card-header-title">账号登录</div>
-        <div class="mdui-card-header-subtitle">开启云存储之旅</div>
-      </div>
-      <div class="mdui-card-content">
-        <form class="login-panel" ref="form">
-          <div class="item">
-            <div class="mdui-textfield mdui-textfield-floating-label input">
-              <label class="mdui-textfield-label">用户名</label>
-              <input v-model="form.user" :disabled="loading" class="mdui-textfield-input" type="text" required/>
-              <div class="mdui-textfield-error">用户名不能为空</div>
-            </div>
-            <router-link to="/reg" tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</router-link>
+    <mdui-card :avatar="defaultLoginLogo" :layout="'center'" :size="'mini'" :subtitle="'开启云存储之旅'" :title="'账号登录'">
+      <form class="login-panel" ref="form">
+        <div class="item">
+          <div class="mdui-textfield mdui-textfield-floating-label input">
+            <label class="mdui-textfield-label">用户名</label>
+            <input v-model="form.user" :disabled="loading" class="mdui-textfield-input" type="text" required/>
+            <div class="mdui-textfield-error">用户名不能为空</div>
           </div>
-          <div class="item">
-            <div class="mdui-textfield mdui-textfield-floating-label input">
-              <label class="mdui-textfield-label">密码</label>
-              <input autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
-              <div class="mdui-textfield-error">密码至少 6 位</div>
-            </div>
-            <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
+          <router-link to="/reg" tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</router-link>
+        </div>
+        <div class="item">
+          <div class="mdui-textfield mdui-textfield-floating-label input">
+            <label class="mdui-textfield-label">密码</label>
+            <input autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
+            <div class="mdui-textfield-error">密码至少 6 位</div>
           </div>
-          <button ref="btn" :disabled="loading" @click="login" class="mdui-btn mdui-color-theme-accent mdui-ripple">登录</button>
-        </form>
-      </div>
-    </div>
+          <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
+        </div>
+        <button ref="btn" :disabled="loading" @click="login" class="mdui-btn mdui-color-theme-accent mdui-ripple">登录</button>
+      </form>
+    </mdui-card>
   </container>
 </template>
 
@@ -36,8 +28,9 @@
 import mdui from 'mdui'
 import Container from '../../components/layout/Container.vue'
 import apiConfig from '../../api/API'
+import MduiCard from '../../components/ui/MduiCard.vue'
 export default {
-  components: { Container },
+  components: { Container, MduiCard },
   data() {
     return {
       form: {
