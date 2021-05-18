@@ -1,59 +1,14 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import PublicBrowser from '../view/common/PublicBrowser.vue'
-import PrivateDisk from '../view/common/PrivateDisk'
-import common from '../view/common'
-import welcome from '../view/common/welcome'
+import commonRouteOpt from './common'
 Vue.use(Router)
 
-export default new Router({
-    routes: [
-        {
-            path: '/',
-            component: common,
-            children: [
-                {
-                    path: '/',
-                    component: welcome
-                },
-                {
-                    path: 'public/*',
-                    name: 'PublicBrowser',
-                    component: PublicBrowser
-                },
-                {
-                    path: 'public',
-                    name: 'PublicBrowser2',
-                    component: PublicBrowser
-                },
-                {
-                    path: 'private',
-                    component: PrivateDisk,
-                    name: 'privateDisk'
-                },
-                {
-                    path: 'private/**',
-                    component: PrivateDisk,
-                    name: 'privateDisk2'
-                },
-                {
-                    path: 'login',
-                    component: require('../view/common/Login').default
-                },
-                {
-                    path: 'my',
-                    component: require('../view/common/My').default,
-                    name: 'my'
-                },
-                {
-                    path: 'test',
-                    component: require('../view/common/Test').default
-                },
-                {
-                    path: 'reg',
-                    component: require('../view/common/RegUser').default
-                }
-            ]
-        }
-    ]
-})
+/**
+ * @type {import('_vue-router@3.5.1@vue-router/types/router').RouterOptions}
+ */
+const option = {
+    routes: []
+}
+
+option.routes.push(commonRouteOpt)
+export default new Router(option)
