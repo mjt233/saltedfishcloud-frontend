@@ -77,6 +77,7 @@ import SfHeader from "../../components/layout/SfHeader.vue"
 import FileQueue from '../../global/FileQueue'
 import FileUploadDialog from '../../components/FileUploadDialog.vue'
 import Store from '../../Store'
+import API from '../../api/API'
 export default {
   name: 'index',
   components: {
@@ -117,6 +118,7 @@ export default {
     exit() {
       localStorage.clear()
       Store.commit('setToken', null)
+      Store.commit('setAvatarURL', '/api/' + API.user.getAvatar().url)
       mdui.snackbar('退出成功')
       if (this.$route.name == 'privateDisk' || this.$route.name == 'my') {
         this.$router.push('/login')
