@@ -22,6 +22,7 @@
         :pathLabel="'当前路径：'"
         :loadingControl="loading"
         :showToolBar="true"
+        :path="path"
         @clickFile='clickFile'
         @dropFile='addUploadFile'
         @upload='upload'
@@ -72,6 +73,11 @@ export default {
         'modifiable': {
             type: Boolean,
             default: true
+        },
+        'path': {
+            //  访问的路径
+            type: String,
+            default: ''
         }
     },
     data() {

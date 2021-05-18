@@ -109,6 +109,11 @@ export default {
             // 自动刷新延迟 单位ms
             type: Number,
             default: 1000
+        },
+        'path': {
+            // 访问的文件夹路径
+            type: String,
+            default: ''
         }
     },
     data () {
@@ -346,7 +351,7 @@ export default {
          * 根据当前路由更新组件的paths
          */
         updatePath() {
-            this.paths = this.$route.path.substring(`/${this.prefix}`.length).split('/').filter(i => i.length > 0)
+            this.paths = this.path.split('/').filter(i => i.length > 0)
         },
         /**
          * 返回上一级目录
@@ -435,12 +440,16 @@ export default {
         }
     },
     watch: {
-        $route(to, from) {
-            if (to.path != from.path) {
-                this.updatePath()
-                this.loadList()
-            }
+        path(n, o) {
+            this.updatePath()
+            this.loadList()
         }
+        // $route(to, from) {
+        //     if (to.path != from.path) {
+        //         this.updatePath()
+        //         this.loadList()
+        //     }
+        // }
     },
     filters: {
         urlDecode(input) {

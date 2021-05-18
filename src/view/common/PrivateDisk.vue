@@ -2,6 +2,7 @@
     <file-handler
         v-if="userInfo != null"
         :uid="userInfo.id"
+        :path="path"
     >
     </file-handler>
     <container v-else class="mdui-typo">
@@ -16,6 +17,16 @@ import FileHandler from '../../components/FileHandler.vue'
 import Container from '../../components/layout/Container.vue'
 export default {
     components: { FileHandler, Container },
+    data() {
+        return {
+            path: ''
+        }
+    },
+    methods: {
+        updatePath() {
+            this.path = this.$route.params.pathMatch || '/'
+        }
+    },
     computed: {
         userInfo() {
             return this.$store.getters.userInfo
@@ -26,6 +37,12 @@ export default {
             mdui.snackbar('私人网盘需要登录，请先登录', {
                 position: 'top'
             })
+        }
+        this.updatePath()
+    },
+    watch: {
+        $route(to, from) {
+            this.updatePath()
         }
     }
 }
