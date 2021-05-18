@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import FileHandler from '../components/FileHandler.vue'
+import FileHandler from '../../components/FileHandler.vue'
 export default {
   components: { FileHandler },
   computed: {

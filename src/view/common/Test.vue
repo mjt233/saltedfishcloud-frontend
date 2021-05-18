@@ -15,7 +15,7 @@
 
 <script>
 import mdui from 'mdui'
-import FileList from '../components/FileList.vue'
+import FileList from '../../components/FileList.vue'
 export default {
   components: { FileList },
   data() {

@@ -7,9 +7,9 @@
 </template>
 
 <script>
-import Container from '../components/Container.vue'
+import Container from '../../components/Container'
 export default {
-  name: 'index',
+  name: 'welcome',
   components: {
     Container
   }

@@ -12,8 +12,8 @@
 
 <script>
 import mdui from 'mdui'
-import FileHandler from '../components/FileHandler.vue'
-import Container from '../components/Container.vue'
+import FileHandler from '../../components/FileHandler.vue'
+import Container from '../../components/Container.vue'
 export default {
     components: { FileHandler, Container },
     computed: {
