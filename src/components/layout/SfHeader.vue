@@ -13,7 +13,7 @@
       <div v-else>
         <router-link to="/login" style="color: white">
           <img class="mdui-chip-icon" :src="userAvatarURL" />
-          <span class="mdui-chip-title">[未登录]</span>
+          <span class="mdui-chip-title">[游客]</span>
         </router-link>
       </div>
     </div>
