@@ -1,7 +1,7 @@
 import PublicBrowser from '../view/common/PublicBrowser.vue'
 import PrivateDisk from '../view/common/PrivateDisk'
 import common from '../view/common'
-import welcome from '../view/common/welcome'
+import welcome from '../view/common/Welcome'
 
 export default {
     path: '/',
