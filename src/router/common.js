@@ -9,7 +9,6 @@ import welcome from '../view/common/Welcome'
 const routeOpt =  {
     path: '/',
     component: common,
-    name: 'common',
     children: [
         {
             path: '/',

@@ -13,18 +13,12 @@ const option = {
 option.routes.push(commonRouteOpt)
 option.routes.push(adminRoute)
 let router = new Router(option)
-router.afterEach((to, from) => {
 
-    /**
-     * @param {import('_vue-router@3.5.1@vue-router/types/router').RouteRecord} e 
-     * @returns 
-     */
-    let filter = e => e.name && (e.name === 'common' || e.name === 'admin')
-    let toName = to.matched.filter(filter).map(e => e.name)[0]
-    let fromName = from.matched.filter(filter).map(e => e.name)[0]
-    let left = getComputedStyle(document.body)['paddingLeft']
-    
-    if (toName && fromName && toName != fromName && left == '0px') {
+/**
+ * 当admin与common之间的路由转跳时通过判断body的paddingLeft标记抽屉导航栏是否处于关闭状态，以便组件挂载后关闭抽屉，防止抽屉导航栏遮挡body
+ */
+router.afterEach((to, from) => {
+    if (to.matched[0] && from.matched[0] && to.matched[0].path != from.matched[0].path && getComputedStyle(document.body)['paddingLeft'] == '0px') {
         to.params['close'] = true
     }
 })
