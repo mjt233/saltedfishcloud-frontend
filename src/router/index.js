@@ -12,4 +12,20 @@ const option = {
 }
 option.routes.push(commonRouteOpt)
 option.routes.push(adminRoute)
-export default new Router(option)
+let router = new Router(option)
+router.afterEach((to, from) => {
+
+    /**
+     * @param {import('_vue-router@3.5.1@vue-router/types/router').RouteRecord} e 
+     * @returns 
+     */
+    let filter = e => e.name && (e.name === 'common' || e.name === 'admin')
+    let toName = to.matched.filter(filter).map(e => e.name)[0]
+    let fromName = from.matched.filter(filter).map(e => e.name)[0]
+    let left = getComputedStyle(document.body)['paddingLeft']
+    
+    if (toName && fromName && toName != fromName && left == '0px') {
+        to.params['close'] = true
+    }
+})
+export default router

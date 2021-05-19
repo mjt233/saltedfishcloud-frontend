@@ -59,6 +59,9 @@ export default {
             })
         }
         this.drawer = new mdui.Drawer(this.$refs.drawer.$el)
+        if (this.$route.params['close']) {
+            this.drawer.close()
+        }
     },
     computed: {
         userInfo() {

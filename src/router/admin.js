@@ -8,6 +8,7 @@ import welcome from '../view/admin/Welcome'
 const adminRoute =  {
     path: '/admin',
     component: admin,
+    name: 'admin',
     children:[
         {
             path: 'overview',

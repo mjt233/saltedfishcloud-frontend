@@ -103,6 +103,9 @@ export default {
     this.header = document.querySelector("header")
     this.$store.commit('setDrawer', this.drawer)
     this.setAppHeight()
+    if (this.$route.params['close']) {
+        this.drawer.close()
+    }
   },
   methods: {
     setAppHeight() {
