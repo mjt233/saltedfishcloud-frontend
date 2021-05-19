@@ -67,6 +67,7 @@ export default {
       padding: 10px 20px;
       width: calc(100% - 40px);
       height: 100%;
+      overflow: auto;
     }
 }
 @media screen and (max-width: 1200px){

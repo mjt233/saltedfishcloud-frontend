@@ -1,17 +1,151 @@
 <template>
     <container fill>
-        <h1>预览</h1>
+        <div class="mdui-container">
+            <div class="mdui-row">
+                <div class="mdui-col-md-6">
+                    <mdui-card >
+                        <h3>系统状态</h3>
+                        <div class="mdui-table-fluid">
+                            <table class="mdui-table" v-if="store.state">
+                                <tbody>
+                                    <tr>
+                                        <td>存储模式</td>
+                                        <td>{{store.state.store_type}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>切换阻塞中</td>
+                                        <td>{{store.state.store_type_switching ? '是' : '否'}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>用户数据根</td>
+                                        <td>{{store.state.store_root}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>公共数据根</td>
+                                        <td>{{store.state.public_root}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </mdui-card>
+                </div>
+                <div class="mdui-col-md-6">
+                    <mdui-card >
+                        <h3>存储统计</h3>
+                        <div class="mdui-table-fluid">
+                            <table class="mdui-table" v-if="store.state">
+                                <tbody>
+                                    <tr>
+                                        <td>文件总数</td>
+                                        <td>{{store.state.file_count}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>目录总数</td>
+                                        <td>{{store.state.dir_count}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>数据大小</td>
+                                        <td>{{store.state.total_size | formatSize}} ({{store.state.total_size}}Bytes) </td>
+                                    </tr>
+                                    <tr>
+                                        <td>实际存储大小</td>
+                                        <td>{{store.state.real_size | formatSize}} ({{store.state.real_size}}Bytes) </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </mdui-card>
+                </div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-col-xs-12">
+                    <mdui-card>
+                        <h3>硬盘状态</h3>
+                        <div class="mdui-col-md-6">
+                            <div ref="user" style="height:360px; width: 360px;margin: 0 auto"></div>
+                        </div>
+                        <div class="mdui-col-md-6">
+                            <div ref="pub" style="height:360px; width: 360px;margin: 0 auto"></div>
+                        </div>
+                    </mdui-card>
+                </div>
+            </div>
+        </div>
     </container>
 </template>
 
 <script>
+import API from '../../api/API'
 import Container from '../../components/layout/Container.vue'
+import MduiCard from '../../components/ui/MduiCard.vue'
+import * as echarts from 'echarts'
+import stringFormatter from '../../utils/StringFormatter';
 export default {
-  components: { Container },
-    name: 'overview'
+  components: { Container, MduiCard },
+    name: 'overview',
+    data() {
+        return {
+            store: {
+                state: null
+            }
+        }
+    },
+    mounted() {
+        this.loadData()
+    },
+    methods: {
+        async loadData() {
+            this.store.state = (await this.$axios(API.admin.sys.store.getStoreState())).data.data
+            console.log(this.store);
+            echarts.init(this.$refs.user).setOption(this.generateChartOption('用户数据根硬盘', '占用', [
+                {value: this.store.state.store_total_space - this.store.state.store_free_space, name: '已使用'},
+                {value: this.store.state.store_free_space, name: '剩余空间'}
+            ]))
+            echarts.init(this.$refs.pub).setOption(this.generateChartOption('公共数据根硬盘', '占用', [
+                {value: this.store.state.public_total_space - this.store.state.public_free_space, name: '已使用'},
+                {value: this.store.state.public_free_space, name: '剩余空间'}
+            ]))
+        },
+        generateChartOption(title, itemTitle, data) {
+            return {
+                title: {
+                    text: title,
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: (e) => {
+                        return `<span>${e.data.name}: ${stringFormatter.formatSizeString(e.data.value)}</span>`
+                    }
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left',
+                },
+                series: [
+                    {
+                        name: itemTitle,
+                        type: 'pie',
+                        radius: '50%',
+                        data: data,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
 }
 </script>
 
-<style>
-
+<style lang="less" scoped>
+td {
+    word-break : break-all;
+}
 </style>
