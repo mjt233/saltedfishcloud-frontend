@@ -4,8 +4,8 @@
             <div class="mdui-toolbar mdui-color-indigo">
             <a @click="switchMenu" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
             <a href="javascript:;" class="mdui-typo-title">咸鱼云后台</a>
-            <router-link to="/">前台</router-link>
             <div class="mdui-toolbar-spacer"></div>
+            <router-link to="/">用户前台</router-link>
             <div v-if="userInfo != null">
                 <router-link to="/my" style="color: white">
                 <img class="mdui-chip-icon" :src="userAvatarURL" />
