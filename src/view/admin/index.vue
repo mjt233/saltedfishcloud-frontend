@@ -22,7 +22,7 @@
         </header>
         <mdui-drawer ref="drawer" class="mdui-color-white">
             <mdui-list>
-                <mdui-list-item :icon="'pie_chart'">系统总览</mdui-list-item>
+                <router-link to="/admin/overview"><mdui-list-item :icon="'pie_chart'">系统总览</mdui-list-item></router-link>
                 <mdui-list-item :icon="'people'">用户管理</mdui-list-item>
                 <mdui-sub-list :title="'系统设置'" :icon="'settings_applications'">
                     <mdui-list-item>常规设置</mdui-list-item>
@@ -32,6 +32,7 @@
                 <mdui-list-item :icon="'developer_board'">开发者调试</mdui-list-item>
             </mdui-list>
         </mdui-drawer>
+        <router-view></router-view>
     </div>
 </template>
 
