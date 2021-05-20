@@ -4,7 +4,7 @@
       <a @click="t" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
       <span class="mdui-typo-title">咸鱼云网盘</span>
       <div class="mdui-toolbar-spacer"></div>
-      <router-link to="/admin" v-if="userInfo && userInfo.type == 1">管理后台</router-link>
+      <router-link to="/admin/overview" v-if="userInfo && userInfo.type == 1">管理后台</router-link>
       <div v-if="userInfo != null">
         <router-link to="/my" style="color: white">
           <img class="mdui-chip-icon" :src="userAvatarURL" />

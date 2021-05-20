@@ -4,13 +4,14 @@
       <div style="position:absolute;top:0;" class="mdui-progress" >
           <div class="mdui-progress-indeterminate"></div>
       </div>
-      <div class="mdui-spinner"></div>
+      <div ref="spinner" class="mdui-spinner"></div>
     </div>
     <slot></slot>
   </div>
 </template>
 
 <script>
+import mdui from 'mdui'
 import DOMUtils from '../../utils/DOMUtils'
 export default {
   props: {
@@ -25,6 +26,7 @@ export default {
   },
   mounted() {
     this.setHeight()
+    mdui.mutation(this.$refs.spinner)
   },
   methods: {
     setHeight() {

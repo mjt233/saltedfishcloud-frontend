@@ -1,5 +1,5 @@
 <template>
-    <container fill class="mdui-typo">
+    <container fill :loading="loading" class="mdui-typo" >
         <div class="mdui-container">
             <div class="mdui-row">
                 <div class="mdui-col-md-6">
@@ -89,7 +89,8 @@ export default {
         return {
             store: {
                 state: null
-            }
+            },
+            loading: false
         }
     },
     mounted() {
@@ -102,8 +103,13 @@ export default {
     },
     methods: {
         async loadData() {
-            this.store.state = (await this.$axios(API.admin.sys.store.getStoreState())).data.data
-            console.log(this.store);
+            this.loading = true
+            try {
+                this.store.state = (await this.$axios(API.admin.sys.store.getStoreState())).data.data
+            } catch (error) {
+            } finally {
+                this.loading = false
+            }
             echarts.init(this.$refs.user).setOption(this.generateChartOption('用户数据根硬盘', '占用', [
                 {value: this.store.state.store_total_space - this.store.state.store_free_space - this.store.state.real_user_size, name: '其他文件'},
                 {value: this.store.state.store_free_space, name: '剩余空间'},

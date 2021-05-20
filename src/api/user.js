@@ -1,6 +1,30 @@
 const user = {
     prefix: 'user',
     /**
+     * 设置用户的类型
+     * @param {Number} uid      目标用户ID
+     * @param {Boolean} isAdmin 是否设为管理员
+     */
+    setUserType(uid, isAdmin) {
+        return {
+            url: `${this.prefix}/${uid}/type/${isAdmin ? '1' : '0'}`,
+            method: 'put'
+        }
+    },
+    /**
+     * 获取用户列表
+     * @param {Number} page 页码
+     * @returns 
+     */
+    getUserList(page = 1) {
+        return {
+            url: `${this.prefix}/list`,
+            params: {
+                page: page
+            }
+        }
+    },
+    /**
      * 注册新用户
      * @param {String} user 用户名
      * @param {String} passwd 密码
