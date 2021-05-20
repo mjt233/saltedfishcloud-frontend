@@ -1,5 +1,5 @@
 <template>
-    <container fill>
+    <container fill class="mdui-typo">
         <div class="mdui-container">
             <div class="mdui-row">
                 <div class="mdui-col-md-6">
@@ -45,11 +45,11 @@
                                     </tr>
                                     <tr>
                                         <td>数据大小</td>
-                                        <td>{{store.state.total_size | formatSize}} ({{store.state.total_size}}Bytes) </td>
+                                        <td>{{store.state.total_user_size | formatSize}} ({{store.state.total_user_size}}Bytes) </td>
                                     </tr>
                                     <tr>
                                         <td>实际存储大小</td>
-                                        <td>{{store.state.real_size | formatSize}} ({{store.state.real_size}}Bytes) </td>
+                                        <td>{{store.state.real_user_size | formatSize}} ({{store.state.real_user_size}}Bytes) </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -60,12 +60,14 @@
             <div class="mdui-row">
                 <div class="mdui-col-xs-12">
                     <mdui-card>
-                        <h3>硬盘状态</h3>
+                        <h4>硬盘存储状态</h4>
                         <div class="mdui-col-md-6">
-                            <div ref="user" style="height:360px; width: 360px;margin: 0 auto"></div>
+                            <div v-if="store.state">分区空间：{{store.state.store_total_space | formatSize}}<br>剩余可用：{{store.state.store_free_space | formatSize}}</div>
+                            <div ref="user" style="height:360px; width: 400px;margin: 0 auto"></div>
                         </div>
                         <div class="mdui-col-md-6">
-                            <div ref="pub" style="height:360px; width: 360px;margin: 0 auto"></div>
+                            <div v-if="store.state">分区空间：{{store.state.public_total_space | formatSize}}<br>剩余可用：{{store.state.public_free_space | formatSize}}</div>
+                            <div ref="pub" style="height:360px; width: 400px;margin: 0 auto"></div>
                         </div>
                     </mdui-card>
                 </div>
@@ -98,12 +100,14 @@ export default {
             this.store.state = (await this.$axios(API.admin.sys.store.getStoreState())).data.data
             console.log(this.store);
             echarts.init(this.$refs.user).setOption(this.generateChartOption('用户数据根硬盘', '占用', [
-                {value: this.store.state.store_total_space - this.store.state.store_free_space, name: '已使用'},
-                {value: this.store.state.store_free_space, name: '剩余空间'}
+                {value: this.store.state.store_total_space - this.store.state.store_free_space - this.store.state.real_user_size, name: '其他文件'},
+                {value: this.store.state.store_free_space, name: '剩余空间'},
+                {value: this.store.state.real_user_size, name: '用户文件占用'}
             ]))
             echarts.init(this.$refs.pub).setOption(this.generateChartOption('公共数据根硬盘', '占用', [
-                {value: this.store.state.public_total_space - this.store.state.public_free_space, name: '已使用'},
-                {value: this.store.state.public_free_space, name: '剩余空间'}
+                {value: this.store.state.public_total_space - this.store.state.public_free_space - this.store.state.total_public_size, name: '其他文件'},
+                {value: this.store.state.public_free_space, name: '剩余空间'},
+                {value: this.store.state.total_public_size, name: '公共数据占用'}
             ]))
         },
         generateChartOption(title, itemTitle, data) {
