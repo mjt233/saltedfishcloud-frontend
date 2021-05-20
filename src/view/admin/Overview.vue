@@ -36,20 +36,20 @@
                             <table class="mdui-table" v-if="store.state">
                                 <tbody>
                                     <tr>
-                                        <td>文件总数</td>
-                                        <td>{{store.state.file_count}}</td>
+                                        <td>文件总数（文件+目录）</td>
+                                        <td>{{store.state.file_count}} + {{store.state.dir_count}} = {{store.state.file_count + store.state.dir_count}}</td>
                                     </tr>
                                     <tr>
-                                        <td>目录总数</td>
-                                        <td>{{store.state.dir_count}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>数据大小</td>
+                                        <td>用户数据大小</td>
                                         <td>{{store.state.total_user_size | formatSize}} ({{store.state.total_user_size}}Bytes) </td>
                                     </tr>
                                     <tr>
-                                        <td>实际存储大小</td>
+                                        <td>用户实际存储大小</td>
                                         <td>{{store.state.real_user_size | formatSize}} ({{store.state.real_user_size}}Bytes) </td>
+                                    </tr>
+                                    <tr>
+                                        <td>存储复用率</td>
+                                        <td>{{1 - (store.state.real_user_size/store.state.total_user_size) | toRate}} </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -94,6 +94,11 @@ export default {
     },
     mounted() {
         this.loadData()
+    },
+    filters: {
+        toRate(input) {
+            return (input*100).toFixed(2) + '%'
+        }
     },
     methods: {
         async loadData() {
