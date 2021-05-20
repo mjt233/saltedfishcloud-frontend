@@ -3,7 +3,10 @@ import PrivateDisk from '../view/common/PrivateDisk'
 import common from '../view/common'
 import welcome from '../view/common/Welcome'
 
-export default {
+/**
+ * @type {import('_vue-router@3.5.1@vue-router/types/router').RouteConfig}
+ */
+const routeOpt =  {
     path: '/',
     component: common,
     children: [
@@ -50,3 +53,4 @@ export default {
         }
     ]
 }
+export default routeOpt

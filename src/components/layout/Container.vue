@@ -1,21 +1,37 @@
 <template>
-  <div class="container">
+  <div class="container" :class="{'fill': fill}">
     <div class="loading-mask" :class="{'hid':!loading}">
       <div style="position:absolute;top:0;" class="mdui-progress" >
           <div class="mdui-progress-indeterminate"></div>
       </div>
-      <div class="mdui-spinner"></div>
+      <div ref="spinner" class="mdui-spinner"></div>
     </div>
     <slot></slot>
   </div>
 </template>
 
 <script>
+import mdui from 'mdui'
+import DOMUtils from '../../utils/DOMUtils'
 export default {
   props: {
-    'loading':{
+    'loading': {
       type:Boolean,
       defaule: false
+    },
+    'fill': {
+      type: Boolean,
+      defaule: false
+    }
+  },
+  mounted() {
+    this.setHeight()
+    mdui.mutation(this.$refs.spinner)
+  },
+  methods: {
+    setHeight() {
+      let top = DOMUtils.getAbsoluteOffsetTop(this.$el, document.body)
+      this.$el.style.height = document.documentElement.clientHeight - top - 20 + 'px'
     }
   }
 }
@@ -49,10 +65,20 @@ export default {
     position: relative;
     background-color: rgba(255, 255, 255, 0.95);
     margin: 0 auto;
+    &.fill {
+      padding: 10px 20px;
+      width: calc(100% - 40px);
+      height: 100%;
+      overflow: auto;
+    }
 }
 @media screen and (max-width: 1200px){
     .container {
       width: calc(100% - 20px);
+      &.fill {
+        width: calc(100% - 20px);
+        padding: 10px;
+      }
     }
 }
 </style>

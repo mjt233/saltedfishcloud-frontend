@@ -98,11 +98,17 @@ export default {
   created() {
     window.addEventListener("resize", this.setAppHeight)
   },
+  destroyed() {
+    window.removeEventListener('resize', this.setAppHeight)
+  },
   mounted() {
     this.drawer = new mdui.Drawer('#drawer')
     this.header = document.querySelector("header")
     this.$store.commit('setDrawer', this.drawer)
     this.setAppHeight()
+    if (this.$route.params['close']) {
+        this.drawer.close()
+    }
   },
   methods: {
     setAppHeight() {
