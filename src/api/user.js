@@ -106,10 +106,11 @@ const user = {
      * @param {Number} uid 用户ID
      * @param {String} oldPasswd 旧密码
      * @param {String} newPasswd 新密码
+     * @param {String} force     强制修改
      * @returns 
      */
-    modifyPasswd(uid, oldPasswd, newPasswd) {
-        return {
+    modifyPasswd(uid, oldPasswd, newPasswd, force) {
+        let res = {
             url: `${this.prefix}/${uid}/passwd`,
             method: 'post',
             data: {
@@ -117,6 +118,10 @@ const user = {
                 new: newPasswd
             }
         }
+        if (force) {
+            res.data.force = true
+        }
+        return res
     }
 }
 
