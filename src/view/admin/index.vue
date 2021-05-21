@@ -20,30 +20,7 @@
             </div>
             </div>
         </header>
-        <mdui-drawer ref="drawer" class="mdui-color-white">
-            <mdui-list>
-                <template v-for="(item, index) in menu" >
-                    <template  v-if="!item.children">
-                        <router-link :to="item.to" :key="index">
-                            <mdui-list-item :active="routePath == item.to" :icon="item.icon">{{item.name}}</mdui-list-item>
-                        </router-link>
-                    </template>
-                    <template v-else>
-                        <mdui-sub-list :title="item.name" :key="index" :icon="item.icon">
-                            <router-link 
-                                :to="subitem.to" 
-                                v-for="(subitem, i) in item.children" 
-                                :key="i">
-                                <mdui-list-item
-                                    :active="routePath == subitem.to">
-                                    {{subitem.name}}
-                                </mdui-list-item> 
-                            </router-link>
-                        </mdui-sub-list>
-                    </template>
-                </template>
-            </mdui-list>
-        </mdui-drawer>
+        <admin-drawer :menu="menu" ref="drawer"></admin-drawer>
         <router-view></router-view>
     </div>
 </template>
@@ -55,8 +32,9 @@ import MduiList from '../../components/ui/MduiList.vue'
 import MduiListItem from '../../components/ui/MduiListItem.vue'
 import MduiSubheader from '../../components/ui/MduiSubheader.vue'
 import MduiSubList from '../../components/ui/MduiSubList.vue'
+import AdminDrawer from '../../components/layout/AdminDrawer.vue'
 export default {
-    components: { MduiDrawer, MduiList, MduiListItem, MduiSubheader,MduiSubList },
+    components: { MduiDrawer, MduiList, MduiListItem, MduiSubheader,MduiSubList, AdminDrawer },
     data() {
         return {
             drawer: null,
@@ -91,9 +69,6 @@ export default {
         },
         userAvatarURL() {
             return this.$store.state.avatarURL
-        },
-        routePath() {
-            return this.$route.path
         }
     },
     methods: {
