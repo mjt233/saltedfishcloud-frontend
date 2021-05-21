@@ -26,7 +26,7 @@
                                     </tr>
                                     <tr>
                                         <td>注册邀请码</td>
-                                        <td>{{store.state.invite_code}}</td>
+                                        <td>{{code}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -98,6 +98,7 @@ export default {
             store: {
                 state: null
             },
+            code: '',
             loading: false
         }
     },
@@ -113,7 +114,9 @@ export default {
         async loadData() {
             this.loading = true
             try {
-                this.store.state = (await this.$axios(API.admin.sys.store.getStoreState())).data.data
+                let data = (await this.$axios(API.admin.sys.getOverviewInfo())).data.data
+                this.store.state = data.store
+                this.code = data.invite_reg_code
             } catch (error) {
             } finally {
                 this.loading = false
