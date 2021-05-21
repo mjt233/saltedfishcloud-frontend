@@ -13,8 +13,8 @@
                                         <td>{{store.state.store_type}}</td>
                                     </tr>
                                     <tr>
-                                        <td>切换阻塞中</td>
-                                        <td>{{store.state.store_type_switching ? '是' : '否'}}</td>
+                                        <td>只读模式</td>
+                                        <td>{{store.state.read_only ? '是' : '否'}}</td>
                                     </tr>
                                     <tr>
                                         <td>用户数据根</td>
@@ -23,6 +23,10 @@
                                     <tr>
                                         <td>公共数据根</td>
                                         <td>{{store.state.public_root}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>注册邀请码</td>
+                                        <td>{{store.state.invite_code}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -36,8 +40,12 @@
                             <table class="mdui-table" v-if="store.state">
                                 <tbody>
                                     <tr>
-                                        <td>文件总数（文件+目录）</td>
-                                        <td>{{store.state.file_count}} + {{store.state.dir_count}} = {{store.state.file_count + store.state.dir_count}}</td>
+                                        <td>文件总数</td>
+                                        <td>{{store.state.file_count}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>目录总数</td>
+                                        <td>{{store.state.dir_count}}</td>
                                     </tr>
                                     <tr>
                                         <td>用户数据大小</td>
