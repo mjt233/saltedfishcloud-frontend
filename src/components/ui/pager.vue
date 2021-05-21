@@ -2,7 +2,7 @@
     <div style="position: relative;display:inline-block">
         <div class="mask" v-if="disabled"></div>
         <ul class="page-list mdui-typo"  v-if="pageCount < 8">
-            <li @click="jump(1)" class="arrow mdui-text-color-theme">
+            <li @click="jump(cur - 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_before</i></span>
             </li>
             <li v-for="num in pageCount" :key="num">
@@ -14,13 +14,13 @@
             </li>
         </ul>
         <ul class="page-list mdui-typo"  v-else>
-            <li @click="jump(1)" class="arrow mdui-text-color-theme">
+            <li @click="jump(cur - 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_before</i></span>
             </li>
             <!-- 首页常驻 -->
             <li>
-                <a @click="jump(1)" v-if="1 != cur">1</a>
-                <span @click="jump(1)" v-else>1</span>
+                <a @click="jump(cur - 1)" v-if="1 != cur">1</a>
+                <span @click="jump(cur - 1)" v-else>1</span>
             </li>
             <!-- 首页后4个 -->
             <template v-if="cur <= 4">
