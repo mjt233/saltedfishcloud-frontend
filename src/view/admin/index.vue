@@ -75,6 +75,13 @@ export default {
         switchMenu() {
             this.drawer.toggle()
         }
+    },
+    watch: {
+        $route() {
+            if (document.documentElement.clientWidth < 1024) {
+                this.drawer.close()
+            }
+        }
     }
 }
 </script>

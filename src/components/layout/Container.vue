@@ -27,11 +27,24 @@ export default {
   mounted() {
     this.setHeight()
     mdui.mutation(this.$refs.spinner)
+    if (this.fill) {
+      window.addEventListener('resize', this.setHeight)
+    }
+  },
+  destroyed() {
+    if (this.fill) {
+      window.removeEventListener('resize', this.setHeight)
+    }
   },
   methods: {
     setHeight() {
-      let top = DOMUtils.getAbsoluteOffsetTop(this.$el, document.body)
-      this.$el.style.height = document.documentElement.clientHeight - top - 20 + 'px'
+      let set = () => {
+        let top = DOMUtils.getAbsoluteOffsetTop(this.$el, document.body)
+        this.$el.style.height = document.documentElement.clientHeight - top - 20 + 'px'
+      }
+      set()
+      //  等待其他组件的尺寸变化完毕后再执行一次确保高度正确
+      setTimeout(set, 300)
     }
   }
 }
