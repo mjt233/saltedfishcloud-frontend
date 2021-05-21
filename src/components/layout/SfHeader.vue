@@ -1,6 +1,6 @@
 <template>
   <header class="mdui-appbar mdui-appbar-fixed">
-    <div class="mdui-toolbar mdui-color-indigo">
+    <div class="mdui-toolbar mdui-color-theme">
       <a @click="t" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
       <span class="mdui-typo-title">咸鱼云网盘</span>
       <div class="mdui-toolbar-spacer"></div>

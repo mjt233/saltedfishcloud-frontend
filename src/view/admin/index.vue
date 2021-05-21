@@ -1,7 +1,7 @@
 <template>
     <div>
         <header class="mdui-appbar mdui-appbar-fixed">
-            <div class="mdui-toolbar mdui-color-indigo">
+            <div class="mdui-toolbar mdui-color-theme">
             <a @click="switchMenu" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
             <a href="javascript:;" class="mdui-typo-title">咸鱼云后台</a>
             <div class="mdui-toolbar-spacer"></div>
