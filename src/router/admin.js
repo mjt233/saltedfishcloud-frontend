@@ -18,10 +18,6 @@ const adminRoute =  {
             component: overview
         },
         {
-            path: '/',
-            component: welcome
-        },
-        {
             path: 'user',
             component: user
         },
@@ -36,6 +32,10 @@ const adminRoute =  {
         {
             path: 'safe',
             component: safe
+        },
+        {
+            path: '/**',
+            component: welcome
         }
     ]
 }
