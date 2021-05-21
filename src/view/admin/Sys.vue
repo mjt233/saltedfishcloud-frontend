@@ -3,13 +3,13 @@
         <div class="mdui-container">
             <mdui-card>
                 <h3 class="mdui-text-color-theme">系统常规设置</h3>
-                <div class=" mdui-col-xs-8">
+                <div class="mdui-col-md-6">
                     <div class=" mdui-table-fluid">
                         <table class=" mdui-table">
                             <tbody>
                                 <tr>
-                                    <td>注册邀请码</td>
-                                    <td>{{settings.invite_reg_code}} <i @click="editRegCode" style="font-size:16px; cursor: pointer;user-select: none;" class="mdui-icon material-icons">edit</i></td>
+                                    <td>注册邀请码：{{settings.invite_reg_code}} </td>
+                                    <td><mdui-btn dense @click="editRegCode">修改</mdui-btn></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -30,8 +30,10 @@ import Container from '../../components/layout/Container.vue'
 import MduiBtn from '../../components/ui/MduiBtn.vue'
 import MduiCard from '../../components/ui/MduiCard.vue'
 import MduiInput from '../../components/ui/MduiInput.vue'
+import MduiList from '../../components/ui/MduiList.vue'
+import MduiListItem from '../../components/ui/MduiListItem.vue'
 export default {
-  components: { Container, MduiCard, MduiBtn, MduiInput },
+  components: { Container, MduiCard, MduiBtn, MduiInput, MduiList, MduiListItem },
     data() {
         return {
             settings: {

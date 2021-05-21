@@ -41,11 +41,7 @@ export default {
             menu: [
                 { name: '系统总览', icon: 'pie_chart', to: '/admin/overview' },
                 { name: '用户管理', icon: 'people', to: '/admin/user' },
-                { name: '系统设置', icon: 'settings_applications', children: [
-                    { name: '常规设置', to: '/admin/sys' },
-                    { name: '存储设置', to: '/admin/store' },
-                    { name: '安全选项', to: '/admin/safe' }
-                ] },
+                { name: '系统设置', icon: 'settings_applications', to: '/admin/sys'},
                 { name: '开发者调试', icon: 'developer_board', to: '/admin/dev' }
             ]
         }
