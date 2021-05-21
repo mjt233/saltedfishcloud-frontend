@@ -49,7 +49,21 @@
               <progress :max="quota.quota" :value="quota.used"></progress>
               </span></div>
           </li>
+          <li class="mdui-divider"></li>
+          <li class="mdui-list-item mdui-ripple" @click="changeTheme">
+            <div class="mdui-list-item-content">
+              <div class="mdui-list-item-title">主题色</div>
+              <div class="mdui-list-item-text">默认（点击更改）</div>
+            </div>
+          </li>
         </ul>
+        <mdui-dialog ref="theme" title="选择一个颜色主题" @confirm='themeConfirm'>
+          <mdui-btn :themeColor="false" class="mdui-color-pink mdui-text-color-white" @click="setTheme('pink')">少女粉</mdui-btn>
+          <mdui-btn :themeColor="false" class="mdui-color-indigo mdui-text-color-white" @click="setTheme('indigo')">经典蓝</mdui-btn>
+          <mdui-btn :themeColor="false" class="mdui-color-deep-purple mdui-text-color-white" @click="setTheme('deep-purple')">基佬紫</mdui-btn>
+          <mdui-btn :themeColor="false" class="mdui-color-deep-orange mdui-text-color-white" @click="setTheme('deep-orange')">加菲橘</mdui-btn>
+          <mdui-btn :themeColor="false" class="mdui-color-amber" @click="setTheme('amber')">咸蛋黄</mdui-btn>
+        </mdui-dialog>
       </div>
   </container>
   <container v-else>
@@ -63,8 +77,10 @@ import apiConfig from '../../api/API'
 import Container from '../../components/layout/Container.vue'
 import FileUtils from '../../utils/FileUtils'
 import MduiDialog from '../../components/ui/MduiDialog.vue'
+import Theme from '../../utils/Theme'
+import MduiBtn from '../../components/ui/MduiBtn.vue'
 export default {
-  components: { Container, MduiDialog },
+  components: { Container, MduiDialog, MduiBtn },
   data() {
     return {
       quota: {
@@ -73,7 +89,8 @@ export default {
       },
       loading: false,
       dialog: {
-        mp: null
+        mp: null,
+        theme: null
       },
       mp: {
         op: '',
@@ -109,6 +126,7 @@ export default {
     document.querySelector('#dialog').addEventListener('cancel.mdui.dialog', () => {
       this.mp.op = this.mp.np = this.mp.cp = ''
     })
+    this.dialog.theme = new mdui.Dialog(this.$refs.theme.$el)
   },
   methods: {
     /**
@@ -172,6 +190,15 @@ export default {
           mdui.snackbar('上传失败：' + e.msg)
         })
       })
+    },
+    changeTheme() {
+      this.dialog.theme.open()
+    },
+    setTheme(theme) {
+      Theme.switchTheme(theme)
+    },
+    themeConfirm() {
+      this.dialog.theme.close()
     }
   }
 }

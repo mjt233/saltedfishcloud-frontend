@@ -1,6 +1,6 @@
 <template>
   <div ref="root">
-    <div class="mdui-drawer mdui-color-white" id="drawer">
+    <div class="mdui-drawer mdui-color-theme-50" id="drawer">
       <div class="mdui-grid-tile">
         <a href="javascript:;"><img src="@/assets/img/bg/bg2.jpg" /></a>
         <div class="mdui-grid-tile-actions">
@@ -17,13 +17,13 @@
       <ul class="mdui-list">
         <router-link to="/public">
           <li class="mdui-list-item" @click="closeDrawer">
-            <i class="mdui-list-item-avatar mdui-icon material-icons">folder</i>
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300">folder</i>
             <div class="mdui-list-item-content">公共网盘</div>
           </li>
         </router-link>
         <router-link to="/private">
           <li class="mdui-list-item" @click="closeDrawer">
-            <i class="mdui-list-item-avatar mdui-icon material-icons"
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe897;</i
             >
             <div class="mdui-list-item-content">私人网盘</div>
@@ -31,7 +31,7 @@
         </router-link>
         <router-link to="/login" v-if="userInfo === null">
           <li class="mdui-list-item" @click="closeDrawer">
-            <i class="mdui-list-item-avatar mdui-icon material-icons"
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe7fd;</i
             >
             <div class="mdui-list-item-content">去登录</div>
@@ -39,7 +39,7 @@
         </router-link>
         <router-link v-else to="/my">
           <li class="mdui-list-item" @click="closeDrawer">
-            <i class="mdui-list-item-avatar mdui-icon material-icons"
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe7fd;</i
             >
             <div class="mdui-list-item-content">个人中心</div>
@@ -47,7 +47,7 @@
         </router-link>
         <a v-if="userInfo !== null">
           <li class="mdui-list-item" @click="exit">
-            <i class="mdui-list-item-avatar mdui-icon material-icons"
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe879;</i
             >
             <div class="mdui-list-item-content">退出登录</div>
@@ -55,7 +55,7 @@
         </a>
         <router-link v-else to="/reg">
           <li class="mdui-list-item" @click="closeDrawer">
-            <i class="mdui-list-item-avatar mdui-icon material-icons"
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe7fd;</i
             >
             <div class="mdui-list-item-content">用户注册</div>

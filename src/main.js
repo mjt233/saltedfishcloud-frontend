@@ -11,6 +11,7 @@ import 'default-passive-events'
 import Store from './Store'
 import apiConfig from './api/API'
 import formatter from "./utils/StringFormatter"
+import Theme from './utils/Theme'
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios
@@ -50,4 +51,5 @@ axios(conf, {noDefaultAction:true}).then((e) => {
   console.log('未登录')
   vue.$mount('#app')
 })
+Theme.loadTheme()
 window.vue = vue
