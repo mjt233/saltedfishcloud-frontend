@@ -1,6 +1,6 @@
 <template>
   <div ref="root">
-    <div class="mdui-drawer" id="drawer">
+    <div class="mdui-drawer mdui-color-white" id="drawer">
       <div class="mdui-grid-tile">
         <a href="javascript:;"><img src="@/assets/img/bg/bg2.jpg" /></a>
         <div class="mdui-grid-tile-actions">
