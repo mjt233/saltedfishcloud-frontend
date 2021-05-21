@@ -2,7 +2,7 @@
     <container fill :loading="loading" class="mdui-typo">
         <div class="mdui-container">
             <mdui-card>
-                <h3>用户列表</h3>
+                <h3 class="mdui-text-color-theme">用户列表</h3>
                 <div>
                     <span>用户总数：{{users.total}}，共{{users.pages}}页</span>
                     <pager @change="loadUser" :pageCount="users.pages"></pager>

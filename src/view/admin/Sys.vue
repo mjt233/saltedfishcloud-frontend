@@ -2,7 +2,7 @@
     <container fill class="mdui-typo" :loading="loading">
         <div class="mdui-container">
             <mdui-card>
-                <h3>系统常规设置</h3>
+                <h3 class="mdui-text-color-theme">系统常规设置</h3>
                 <div class=" mdui-col-xs-8">
                     <div class=" mdui-table-fluid">
                         <table class=" mdui-table">

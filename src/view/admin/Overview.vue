@@ -4,7 +4,7 @@
             <div class="mdui-row">
                 <div class="mdui-col-md-6">
                     <mdui-card >
-                        <h3>系统状态</h3>
+                        <h3 class="mdui-text-color-theme">系统状态</h3>
                         <div class="mdui-table-fluid">
                             <table class="mdui-table" v-if="store.state">
                                 <tbody>
@@ -14,7 +14,7 @@
                                     </tr>
                                     <tr>
                                         <td>只读模式</td>
-                                        <td>{{store.state.read_only ? '是' : '否'}}</td>
+                                        <td>{{store.state.read_only | decodeReadOnly}}</td>
                                     </tr>
                                     <tr>
                                         <td>用户数据根</td>
@@ -35,7 +35,7 @@
                 </div>
                 <div class="mdui-col-md-6">
                     <mdui-card >
-                        <h3>存储统计</h3>
+                        <h3 class="mdui-text-color-theme">存储统计</h3>
                         <div class="mdui-table-fluid">
                             <table class="mdui-table" v-if="store.state">
                                 <tbody>
@@ -68,7 +68,7 @@
             <div class="mdui-row">
                 <div class="mdui-col-xs-12">
                     <mdui-card>
-                        <h4>硬盘存储状态</h4>
+                        <h4 class="mdui-text-color-theme">硬盘存储状态</h4>
                         <div class="mdui-col-md-6">
                             <div v-if="store.state">分区空间：{{store.state.store_total_space | formatSize}}<br>剩余可用：{{store.state.store_free_space | formatSize}}</div>
                             <div ref="user" style="height:360px; width: 400px;margin: 0 auto"></div>
@@ -108,6 +108,15 @@ export default {
     filters: {
         toRate(input) {
             return (input*100).toFixed(2) + '%'
+        },
+        decodeReadOnly(input) {
+            if (input == null) {
+                return '关闭'
+            } else if (input === 'DATA_MOVING'){
+                return input + '(数据迁移中)'
+            } else {
+                return input + '(数据校验中)'
+            }
         }
     },
     methods: {
