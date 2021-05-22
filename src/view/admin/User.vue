@@ -103,6 +103,9 @@ export default {
                     mdui.snackbar(`已撤销${user.user}的管理员权限`)
                     user.type = 0
                 }
+            }).catch(err => {
+                this.loading = false
+                mdui.alert(err.msg)
             })
         },
         openDialog(e) {

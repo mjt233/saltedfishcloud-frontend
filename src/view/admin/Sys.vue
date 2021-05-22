@@ -72,7 +72,10 @@ export default {
                     this.loading = false
                     mdui.snackbar('修改成功')
                     this.settings[key] = e
-                }).catch(() => this.loading = false)
+                }).catch((e) => {
+                    this.loading = false
+                    mdui.alert(e.msg)
+                })
             }, () => {}, {defaultValue: this.settings[key]})
         },
         switchStore() {
@@ -84,8 +87,9 @@ export default {
                     mdui.alert('切换完成，耗时' + (new Date().getSeconds() - start) + '秒')
                     this.settings.STORE_TYPE = val
                     this.loading = false
-                }).catch(() => {
+                }).catch(e => {
                     this.loading = false
+                    mdui.alert(e.msg)
                 })
             }, ()=>{}, {
                 'confirmText': '已了解，确定继续',

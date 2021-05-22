@@ -127,6 +127,7 @@ export default {
                 this.store.state = data.store
                 this.code = data.invite_reg_code
             } catch (error) {
+                mdui.alert(error.msg)
             } finally {
                 this.loading = false
             }
