@@ -13,7 +13,7 @@
         <div class="item">
           <div class="mdui-textfield mdui-textfield-floating-label input">
             <label class="mdui-textfield-label">密码</label>
-            <input autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
+            <input ref="passwd" autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
             <div class="mdui-textfield-error">密码至少 6 位</div>
           </div>
           <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
@@ -47,6 +47,7 @@ export default {
   },
   methods: {
     async login(e) {
+      this.$refs.passwd.blur()
       let elems = this.$refs.form.querySelectorAll(".mdui-textfield-invalid-html5")
       if (elems.length !== 0 || this.form.user == '' || this.form.passwd == '') {
         mdui.alert('有输入的数据不符合要求，请重新检查')
