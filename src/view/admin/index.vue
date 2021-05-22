@@ -41,7 +41,7 @@ export default {
             menu: [
                 { name: '系统总览', icon: 'pie_chart', to: '/admin/overview' },
                 { name: '用户管理', icon: 'people', to: '/admin/user' },
-                { name: '系统设置', icon: 'settings_applications', to: '/admin/sys'},
+                { name: '系统配置', icon: 'settings_applications', to: '/admin/sys'},
                 { name: '开发者调试', icon: 'developer_board', to: '/admin/dev' }
             ]
         }

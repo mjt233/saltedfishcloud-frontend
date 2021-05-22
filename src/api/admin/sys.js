@@ -1,11 +1,16 @@
 const sys = {
     prefix: 'admin/sys',
+    configKey: {
+        STORE_TYPE: 'STORE_TYPE',
+        REG_CODE: 'REG_CODE',
+        SYNC_DELAY: 'SYNC_DELAY',
+    },
     /**
-     * 获取系统常规设置选项
+     * 读取所有配置项信息
      */
-    getSysSettings() {
+    getAllConfig() {
         return {
-            url: `${this.prefix}/settings`
+            url: `${this.prefix}/config`
         }
     },
     /**
@@ -17,13 +22,24 @@ const sys = {
         }
     },
     /**
-     * 设置邀请码
-     * @param {String} code 邀请码
+     * 设置配置项
+     * @param {'STORE_TYPE' | 'REG_CODE' | 'SYNC_DELAY'} key      配置项名
+     * @param {String} value    值
      */
-    setInviteRegCode(code) {
+    setConfig(key, value) {
         return {
-            url: `${this.prefix}/regCode/${code}`,
+            url: `${this.prefix}/config/${key}/${value}`,
             method: 'put'
+        }
+    },
+    /**
+     * 读配置项名
+     * @param {'STORE_TYPE' | 'REG_CODE' | 'SYNC_DELAY'} key      配置项名
+     * @returns 
+     */
+    getConfig(key) {
+        return {
+            url: `${this.prefix}/config/${key}`
         }
     }
 }
