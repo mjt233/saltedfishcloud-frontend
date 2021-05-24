@@ -18,7 +18,7 @@ const resource = {
      * @returns {String}
      */
     downloadUseFileDC(dc, directDownload = false, name = '') {
-        let baseURI = `/api/${this.prefix}/0/fileContentByFDC/${dc}`
+        let baseURI = `${this.prefix}/0/fileContentByFDC/${dc}`
         if (name != '') baseURI += `/${name}`
         if (directDownload) baseURI += '?download=true'
         return baseURI;
