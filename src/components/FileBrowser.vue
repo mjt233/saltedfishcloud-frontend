@@ -287,10 +287,8 @@ export default {
             if (e.type === 1) {
                 location.href += `/${encodeURIComponent(e.name)}`
             } else {
-                this.$emit('clickFile', {
-                    path: this.paths,
-                    name: e.name
-                })
+                e.path = this.paths
+                this.$emit('clickFile', e)
             }
         },
         /**

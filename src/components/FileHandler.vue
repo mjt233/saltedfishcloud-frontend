@@ -196,13 +196,15 @@ export default {
          * 文件被点击时执行的回调
          */
         clickFile(e) {
-            let exp = new RegExp(`^(.*)\/${this.viewRouteName}`)
-            let filePath = location.href.replace(exp, '/') + `/${encodeURIComponent(e.name)}`
-            let url = API.file.getContent(this.uid, filePath).url.replace(/\/+/g, '/')
-            let newPath = (API.server || location.origin) + '/api/' + url
-            FormUtils.jumpWithPost(newPath, true, {
-                Token: this.token
-            })
+            let res = API.getServer() + '/api/' + API.resource.downloadFileByMD5(e.md5, e.name).url
+            window.open(res)
+            // let exp = new RegExp(`^(.*)\/${this.viewRouteName}`)
+            // let filePath = location.href.replace(exp, '/') + `/${encodeURIComponent(e.name)}`
+            // let url = API.file.getContent(this.uid, filePath).url.replace(/\/+/g, '/')
+            // let newPath = (API.server || location.origin) + '/api/' + url
+            // FormUtils.jumpWithPost(newPath, true, {
+            //     Token: this.token
+            // })
         },
         /**
          * 有文件被拖到文件列表时执行的回调

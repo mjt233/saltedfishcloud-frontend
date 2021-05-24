@@ -1,6 +1,16 @@
 const resource = {
     prefix: 'resource',
     /**
+     * 通过MD5下载文件
+     * @param {String} md5 文件MD5
+     * @param {String} alias 文件重命名
+     */
+    downloadFileByMD5(md5, alias) {
+        return {
+            url: `${this.prefix}/0/fileContentByMD5/${md5}/${alias}`
+        }
+    },
+    /**
      * 获取使用文件下载码下载文件的链接
      * @param {String} dc 下载码
      * @param {Boolean} directDownload 是否直接下载
