@@ -6,8 +6,11 @@
     <div class="mdui-dialog-title">{{title}}</div>
     <div class="mdui-dialog-content"><slot></slot></div>
     <div class="mdui-dialog-actions">
-        <button class="mdui-btn mdui-ripple" mdui-dialog-cancel>取消</button>
-        <button class="mdui-btn mdui-ripple" @click="$emit('confirm')">确定</button>
+        <template v-if="!disableDefBtn">
+            <button class="mdui-btn mdui-ripple" mdui-dialog-cancel>取消</button>
+            <button class="mdui-btn mdui-ripple" @click="$emit('confirm')">确定</button>
+        </template>
+        <slot name="btn"></slot>
     </div>
 </div>
 </template>
@@ -33,6 +36,13 @@ export default {
         'show': {
             /**
              * 控制是否显示
+             */
+            type: Boolean,
+            default: false
+        },
+        'disableDefBtn': {
+            /**
+             * 控制是否禁用默认按钮
              */
             type: Boolean,
             default: false
