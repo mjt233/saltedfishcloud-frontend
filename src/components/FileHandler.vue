@@ -43,6 +43,15 @@
                 <p class="mdui-text-color-theme-300">注意：若原文件位置改变，重命名或删除链接将失效</p>
             </div>
         </mdui-dialog>
+        <mdui-dialog disableDefBtn :title="'下载链接'" ref="linkResDialog">
+            <div style="margin: 20px auto; width: 90%">
+                <a target="_blank" :href="link.res" style="word-break: break-all">{{link.res}}</a>
+            </div>
+            <template v-slot:btn>
+                <mdui-btn v-clipboard:copy="link.res" @click="onCopy(true)" :themeColor="false">复制链接</mdui-btn>
+                <mdui-btn @click="$refs.linkResDialog.close()" :themeColor="false">关闭</mdui-btn>
+            </template>
+        </mdui-dialog>
     </file-browser>
     <container class="mdui-typo" v-else>
         <h3>未登录，请先<router-link to="/login">登录</router-link> </h3>
@@ -63,8 +72,9 @@ import FormUtils from '../utils/FormUtils'
 import API from '../api/API'
 import MduiDialog from './ui/MduiDialog.vue'
 import MduiCheckbox from "./ui/MduiCheckbox"
+import MduiBtn from './ui/MduiBtn.vue'
 export default {
-    components: { FileBrowser, FileList, Container, SearchResult, MduiDialog, MduiCheckbox },
+    components: { FileBrowser, FileList, Container, SearchResult, MduiDialog, MduiCheckbox, MduiBtn },
     name: 'FileHandler',
     props: {
         'uid': {
@@ -89,7 +99,8 @@ export default {
             link: {
                 expr: 32,
                 preview: true,
-                info: {}
+                info: {},
+                res: ''
             }
         }
     },
@@ -110,6 +121,14 @@ export default {
         }
     },
     methods: {
+        onCopy(e) {
+            if (e) {
+                mdui.snackbar('复制成功！')
+            } else {
+                mdui.snackbar('复制失败！')
+            }
+        },
+
         async getURL() {
             let e = (await this.$axios(
                 apiConfig.resource.getFileDC(this.uid,
@@ -120,14 +139,16 @@ export default {
             ))
             
             let url = apiConfig.server || location.origin + apiConfig.resource.downloadUseFileDC(e.data.data, !this.link.preview, this.link.info.fileInfo.name)
-            let content = `
-                <h3>下载链接</h3>
-                <a target="_blank" href="${url}" style="word-break: break-all">
-                    ${url}
-                </a>
-            `
+            this.link.res = url;
+            // let content = `
+            //     <h3>下载链接</h3>
+            //     <a target="_blank" href="${url}" style="word-break: break-all">
+            //         ${url}
+            //     </a>
+            // `
             this.$refs.dialog.close()
-            mdui.alert(content)
+            // mdui.alert(content)
+            this.$refs.linkResDialog.open()
         },
         openDialog(info) {
             this.link.info = info

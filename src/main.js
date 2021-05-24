@@ -12,12 +12,13 @@ import Store from './Store'
 import apiConfig from './api/API'
 import formatter from "./utils/StringFormatter"
 import Theme from './utils/Theme'
+import VueClipboard from 'vue-clipboard2'
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios
 Vue.prototype.$mdui = mdui.$
 Vue.prototype.$eventBus = new Vue()
-
+Vue.use(VueClipboard)
 // 注册全局过滤器 格式化数字为方便阅读的存储大小表示
 Vue.filter('formatSize', e => {
   return formatter.formatSizeString(e)
