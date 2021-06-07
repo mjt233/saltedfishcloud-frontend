@@ -1,12 +1,13 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
+import API from './api/API'
 Vue.use(Vuex)
 const Store = new Vuex.Store({
     state: {
         userInfo: null,
         drawer: null,
         token: "",
-        avatarURL: '/api/static/static/defaultAvatar.png'
+        avatarURL: API.server + '/api/static/static/defaultAvatar.png'
     },
     mutations: {
         setDrawer(state, drawer) {
