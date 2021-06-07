@@ -1,4 +1,4 @@
-import PublicBrowser from '../view/common/PublicBrowser.vue'
+import PublicDisk from '../view/common/PublicDisk.vue'
 import PrivateDisk from '../view/common/PrivateDisk'
 import common from '../view/common'
 import welcome from '../view/common/Welcome'
@@ -17,12 +17,12 @@ const routeOpt =  {
         {
             path: 'public/*',
             name: 'PublicBrowser',
-            component: PublicBrowser
+            component: PublicDisk
         },
         {
             path: 'public',
             name: 'PublicBrowser2',
-            component: PublicBrowser
+            component: PublicDisk
         },
         {
             path: 'private',
