@@ -58,7 +58,7 @@ export default {
       try {
         let token = (await this.$axios(conf)).data.data
         this.$store.commit('setToken', token)
-        this.$store.commit('setAvatarURL', `/api/${apiConfig.user.getAvatar(this.form.user).url}`)
+        this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(this.form.user).url}`)
         localStorage.setItem('token', token)
         mdui.snackbar('登录成功')
         this.$router.push('/private')
