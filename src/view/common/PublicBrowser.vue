@@ -12,17 +12,10 @@
 import FileHandler from '../../components/FileHandler.vue'
 export default {
   components: { FileHandler },
-  data() {
-    return {
-        path: ''
-    }
-  },
-    methods: {
-      updatePath() {
-        this.path = this.$route.params.pathMatch || '/'
-      }
-    },
   computed: {
+    path() {
+      return this.$route.params.pathMatch || '/'
+    },
     userInfo() {
       return this.$store.getters.userInfo
     },
@@ -31,14 +24,6 @@ export default {
     },
     userInfo() {
         return this.$store.getters.userInfo
-    }
-  },
-  mounted() {
-    this.updatePath()
-  },
-  watch: {
-    $route(to, from) {
-      this.updatePath()
     }
   }
 }

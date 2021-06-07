@@ -17,17 +17,16 @@ import FileHandler from '../../components/FileHandler.vue'
 import Container from '../../components/layout/Container.vue'
 export default {
     components: { FileHandler, Container },
-    data() {
-        return {
-            path: ''
-        }
-    },
-    methods: {
-        updatePath() {
-            this.path = this.$route.params.pathMatch || '/'
-        }
-    },
     computed: {
+        path() {
+        return this.$route.params.pathMatch || '/'
+        },
+        userInfo() {
+        return this.$store.getters.userInfo
+        },
+        isModifiable() {
+        return this.userInfo != null && this.userInfo.type == 1
+        },
         userInfo() {
             return this.$store.getters.userInfo
         }
@@ -37,12 +36,6 @@ export default {
             mdui.snackbar('私人网盘需要登录，请先登录', {
                 position: 'top'
             })
-        }
-        this.updatePath()
-    },
-    watch: {
-        $route(to, from) {
-            this.updatePath()
         }
     }
 }
