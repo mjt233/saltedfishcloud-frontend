@@ -6,7 +6,7 @@ import welcome from '../view/common/Welcome'
 /**
  * @type {import('_vue-router@3.5.1@vue-router/types/router').RouteConfig}
  */
-const routeOpt =  {
+const routeOpt = {
     path: '/',
     component: common,
     children: [

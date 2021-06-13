@@ -43,11 +43,8 @@ import API from '../../api/API'
 import Container from '../../components/layout/Container.vue'
 import MduiBtn from '../../components/ui/MduiBtn.vue'
 import MduiCard from '../../components/ui/MduiCard.vue'
-import MduiInput from '../../components/ui/MduiInput.vue'
-import MduiList from '../../components/ui/MduiList.vue'
-import MduiListItem from '../../components/ui/MduiListItem.vue'
 export default {
-  components: { Container, MduiCard, MduiBtn, MduiInput, MduiList, MduiListItem },
+    components: { Container, MduiCard, MduiBtn },
     data() {
         return {
             settings: {
@@ -61,14 +58,14 @@ export default {
     methods: {
         async loadData() {
             this.loading = true
-            let data = (await this.$axios(API.admin.sys.getAllConfig())).data.data
+            const data = (await this.$axios(API.admin.sys.getAllConfig())).data.data
             this.settings = data
             this.loading = false
         },
         setConfig(title, describe, key) {
             mdui.prompt(describe, title, e => {
                 this.loading = true
-                this.$axios(API.admin.sys.setConfig(key, e) ).then(() => {
+                this.$axios(API.admin.sys.setConfig(key, e)).then(() => {
                     this.loading = false
                     mdui.snackbar('修改成功')
                     this.settings[key] = e
@@ -76,13 +73,13 @@ export default {
                     this.loading = false
                     mdui.alert(e.msg)
                 })
-            }, () => {}, {defaultValue: this.settings[key]})
+            }, () => {}, { defaultValue: this.settings[key] })
         },
         switchStore() {
-            let val = this.settings.STORE_TYPE == 'RAW' ? 'UNIQUE' : 'RAW'
+            const val = this.settings.STORE_TYPE == 'RAW' ? 'UNIQUE' : 'RAW'
             mdui.confirm(`即将切换到<strong class=" mdui-text-color-theme-a700">${val}</strong>模式<br>切换过程中会消耗大量服务器资源，可能需要耗费大量时间（取决于文件大小和数量，硬盘IO性能）<br>切换期间文件系统将被锁定，确定要继续吗？`, '警告', () => {
                 this.loading = true
-                let start = new Date().getSeconds()
+                const start = new Date().getSeconds()
                 this.$axios(API.admin.sys.setConfig('STORE_TYPE', val)).then(e => {
                     mdui.alert('切换完成，耗时' + (new Date().getSeconds() - start) + '秒')
                     this.settings.STORE_TYPE = val
@@ -91,9 +88,9 @@ export default {
                     this.loading = false
                     mdui.alert(e.msg)
                 })
-            }, ()=>{}, {
-                'confirmText': '已了解，确定继续',
-                'cancelText': '取消'
+            }, () => {}, {
+                confirmText: '已了解，确定继续',
+                cancelText: '取消'
             })
         }
     }

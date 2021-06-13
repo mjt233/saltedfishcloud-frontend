@@ -12,14 +12,14 @@ const option = {
 }
 option.routes.push(commonRouteOpt)
 option.routes.push(adminRoute)
-let router = new Router(option)
+const router = new Router(option)
 
 /**
  * 当admin与common之间的路由转跳时通过判断body的paddingLeft标记抽屉导航栏是否处于关闭状态，以便组件挂载后关闭抽屉，防止抽屉导航栏遮挡body
  */
 router.afterEach((to, from) => {
-    if (to.matched[0] && from.matched[0] && to.matched[0].path != from.matched[0].path && getComputedStyle(document.body)['paddingLeft'] == '0px') {
-        to.params['close'] = true
+    if (to.matched[0] && from.matched[0] && to.matched[0].path != from.matched[0].path && getComputedStyle(document.body).paddingLeft == '0px') {
+        to.params.close = true
     }
 })
 export default router

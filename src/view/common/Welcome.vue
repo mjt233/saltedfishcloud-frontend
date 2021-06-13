@@ -9,10 +9,10 @@
 <script>
 import Container from '../../components/layout/Container'
 export default {
-  name: 'welcome',
-  components: {
-    Container
-  }
+    name: 'welcome',
+    components: {
+        Container
+    }
 }
 </script>
 

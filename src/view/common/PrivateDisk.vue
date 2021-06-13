@@ -19,16 +19,13 @@ export default {
     components: { FileHandler, Container },
     computed: {
         path() {
-        return this.$route.params.pathMatch || '/'
-        },
-        userInfo() {
-        return this.$store.getters.userInfo
-        },
-        isModifiable() {
-        return this.userInfo != null && this.userInfo.type == 1
+            return this.$route.params.pathMatch || '/'
         },
         userInfo() {
             return this.$store.getters.userInfo
+        },
+        isModifiable() {
+            return this.userInfo != null && this.userInfo.type == 1
         }
     },
     mounted() {

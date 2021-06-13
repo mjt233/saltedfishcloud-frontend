@@ -40,7 +40,7 @@
                 </li>
                 <li class="next" @click="jump(cur + 5)"></li>
             </template>
-            
+
             <!-- 尾页前4个 -->
             <template v-else>
                 <li class="prev" @click="jump(cur - 5)"></li>

@@ -16,21 +16,21 @@
 export default {
     name: 'mduiCard',
     props: {
-        'avatar': {
+        avatar: {
             type: String
         },
-        'title': {
+        title: {
             type: String
         },
-        'subtitle': {
+        subtitle: {
             type: String
         },
-        'size': {
+        size: {
             //  卡片尺寸，可选mini
             type: String,
             default: ''
         },
-        'layout': {
+        layout: {
             //  布局，可选center
             type: String,
             default: ''

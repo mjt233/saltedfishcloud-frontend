@@ -5,11 +5,11 @@
                 <div class="item">
                 <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.user}">
                     <label class="mdui-textfield-label">用户名（必填）</label>
-                    <input 
+                    <input
                         v-model="form.user"
-                        :disabled="loading" 
-                        class="mdui-textfield-input" 
-                        type="text" 
+                        :disabled="loading"
+                        class="mdui-textfield-input"
+                        type="text"
                         placeholder="以后就用这个登录了噢~"
                         @keyup="errorFlag.user = form.user.length < 2"
                         required
@@ -36,10 +36,10 @@
                 <div class="item">
                 <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.confirm}">
                     <label class="mdui-textfield-label">确认密码（必填）</label>
-                    <input 
-                        autocomplete="1" 
-                        v-model="form.confirm" 
-                        class="mdui-textfield-input" 
+                    <input
+                        autocomplete="1"
+                        v-model="form.confirm"
+                        class="mdui-textfield-input"
                         type="password"
                         placeholder="再输一次密码吧~"
                         required
@@ -51,9 +51,9 @@
                 <div class="item">
                 <div class="mdui-textfield input">
                     <label class="mdui-textfield-label">注册邀请码（必填）</label>
-                    <input 
-                        autocomplete="1" 
-                        v-model="form.regcode" 
+                    <input
+                        autocomplete="1"
+                        v-model="form.regcode"
                         class="mdui-textfield-input"
                         placeholder="请输入注册邀请码"
                         required
@@ -78,8 +78,8 @@ export default {
     data() {
         return {
             form: {
-                user:'',
-                passwd:'',
+                user: '',
+                passwd: '',
                 confirm: '',
                 regcode: ''
             },
@@ -89,7 +89,7 @@ export default {
                 confirm: false,
                 regCode: false
             },
-            loading:false
+            loading: false
         }
     },
     computed: {
@@ -121,7 +121,7 @@ export default {
                 return
             }
             this.loading = true
-            let conf = apiConfig.user.regUser()
+            const conf = apiConfig.user.regUser()
             conf.data = this.form
             conf.noDefaultAction = true
             this.$axios(conf).then(() => {
@@ -135,14 +135,14 @@ export default {
                 })
             }).catch(e => {
                 this.loading = false
-                let code = e.code
+                const code = e.code
                 switch (code) {
-                    case -4:
-                        mdui.alert(`用户名 ${this.form.user} 已被注册，换一个吧~`)
-                        break;
-                    default:
-                        mdui.alert(e.msg)
-                        break;
+                case -4:
+                    mdui.alert(`用户名 ${this.form.user} 已被注册，换一个吧~`)
+                    break
+                default:
+                    mdui.alert(e.msg)
+                    break
                 }
             })
         }

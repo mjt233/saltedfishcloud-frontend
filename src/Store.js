@@ -6,7 +6,7 @@ const Store = new Vuex.Store({
     state: {
         userInfo: null,
         drawer: null,
-        token: "",
+        token: '',
         avatarURL: API.server + '/api/static/static/defaultAvatar.png'
     },
     mutations: {
@@ -18,7 +18,7 @@ const Store = new Vuex.Store({
             try {
                 state.userInfo = JSON.parse(JSON.parse(window.atob(state.token.split('.')[1])).data)
             } catch (error) {
-                
+
             }
         },
         setAvatarURL(state, url) {

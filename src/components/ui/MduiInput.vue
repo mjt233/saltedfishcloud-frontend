@@ -21,35 +21,35 @@ export default {
         event: 'change'
     },
     props: {
-        'value': {
+        value: {
             type: String,
             default: ''
         },
-        'placeholder': {
+        placeholder: {
             type: String,
             default: ''
         },
-        'type': {
+        type: {
             type: String,
             default: 'text'
         },
-        'floatLabel': {
+        floatLabel: {
             type: Boolean,
             default: true
         },
-        'disabled': {
+        disabled: {
             type: Boolean,
             default: false
         },
-        'error': {
+        error: {
             type: Boolean,
             default: false
         },
-        'hasBottom': {
+        hasBottom: {
             type: Boolean,
             default: true
         },
-        'errorMsg': {
+        errorMsg: {
             type: String,
             default: 'text'
         }

@@ -14,12 +14,12 @@ export default {
         event: 'change'
     },
     props: {
-        'label': {
+        label: {
             // 选项标签
             type: String,
             default: ''
         },
-        'checked': {
+        checked: {
             type: Boolean
         }
     }

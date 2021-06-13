@@ -1,5 +1,5 @@
 <template>
-    <file-list 
+    <file-list
         class="list"
         @clickItem="listClick"
         @back="back"
@@ -44,7 +44,7 @@
                 <div class="mdui-toolbar-spacer"></div>
                 <div class="mdui-textfield search">
                     <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text" class="mdui-textfield-input">
-                </div> 
+                </div>
             </div>
             <slot></slot>
         </div>
@@ -53,20 +53,19 @@
 
 <script>
 import fileList from '../components/FileList.vue'
-import Type from "../typedescribe/type"
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
 import apiConfig from '../api/API'
 export default {
     name: 'FileBrowser',
     props: {
-        'uid': {
+        uid: {
             /**
              * 用户ID
              */
             type: Number
         },
-        'api': {
+        api: {
             /**
              * API接口地址，用于持续浏览
              * 在该组件内部，将按照以下规则进行API URL拼接的方式进行调用
@@ -74,56 +73,56 @@ export default {
              */
             type: String
         },
-        'prefix': {
+        prefix: {
             // 浏览路由前缀
             type: String,
             default: '/public'
         },
-        'showPath': {
+        showPath: {
             // 是否显示路径
             type: Boolean,
             default: false
         },
-        'rootName': {
+        rootName: {
             // 根路径名称
             type: String,
             default: '/'
         },
-        'pathLabel': {
+        pathLabel: {
             // 路径标签文字
             type: String,
             default: '当前路径'
         },
-        'loadingControl': {
+        loadingControl: {
             // 父组件加载控制，为true时将进入加载中状态
             type: Boolean,
             default: false
         },
-        'showToolBar': {
+        showToolBar: {
             // 是否显示工具栏
             type: Boolean,
             default: false
         },
-        'refreshDelay': {
+        refreshDelay: {
             // 自动刷新延迟 单位ms
             type: Number,
             default: 1000
         },
-        'path': {
+        path: {
             // 访问的文件夹路径
             type: String,
             default: ''
         }
     },
-    data () {
+    data() {
         return {
             listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}
              */
-            fileList:[],
-            paths:[],
-            loading:false,
+            fileList: [],
+            paths: [],
+            loading: false,
             /**
              * 上次自动刷新的时间
              * @type {Number}
@@ -168,16 +167,11 @@ export default {
     },
     methods: {
         paste() {
-            /**
-             * axios请求配置集合
-             */
-            let confs = []
-
             // 判断当前目录是否存在同名文件或目录
-            let curNameMap = new Map(this.fileList.map(e => [e.name, 1]))
-            let sameName = this.clipBoard.fileInfo.filter(e => curNameMap.get(e))
-            let createRequest = () => {
-                let files = []
+            const curNameMap = new Map(this.fileList.map(e => [e.name, 1]))
+            const sameName = this.clipBoard.fileInfo.filter(e => curNameMap.get(e))
+            const createRequest = () => {
+                const files = []
                 this.loading = true
                 /**
                  * @type {import("_axios@0.21.1@axios").AxiosRequestConfig}
@@ -224,7 +218,7 @@ export default {
                 fileInfo: fileInfo,
                 path: this.paths.join('/')
             }
-            mdui.snackbar('已复制，在目标目录可粘贴', {position: 'top'})
+            mdui.snackbar('已复制，在目标目录可粘贴', { position: 'top' })
         },
         cut(fileInfo) {
             this.clipBoard = {
@@ -232,7 +226,7 @@ export default {
                 fileInfo: fileInfo,
                 path: this.paths.join('/')
             }
-            mdui.snackbar('已剪切，在目标目录可粘贴', {position: 'top'})
+            mdui.snackbar('已剪切，在目标目录可粘贴', { position: 'top' })
         },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
@@ -270,7 +264,7 @@ export default {
                     path: this.paths,
                     target: fileName
                 })
-            } else if(e.dataTransfer.files.length !== 0) {
+            } else if (e.dataTransfer.files.length !== 0) {
                 this.$emit('dropItem', {
                     files: e.dataTransfer.items,
                     path: this.paths,
@@ -283,7 +277,7 @@ export default {
          * @param {Type.ServerRawFileInfo} e
          * @emits clickFile
          */
-        listClick (e) {
+        listClick(e) {
             if (e.type === 1) {
                 location.href += `/${encodeURIComponent(e.name)}`
             } else {
@@ -302,39 +296,37 @@ export default {
             }
 
             // 刷新请求API本体动作函数
-            let refresh = () => {
+            const refresh = () => {
                 this.lastLoadPath = this.paths.join('/')
                 this.loading = true
                 this.$axios(apiConfig.file.getFileList(this.uid, this.lastLoadPath))
-                .then(e => {
-                    this.loading = false
-                    this.fileList = e.data.data[0].concat(e.data.data[1])
-                }).catch(e => {
-                    if (e.code === 404) {
-                        mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
-                            this.$router.push(location.href = '/#/' + this.prefix)
-                        })
-                    } else if (e.code !== -1) {
-                        mdui.alert(e.msg)
-                    } 
-                    this.loading = false
-                })
+                    .then(e => {
+                        this.loading = false
+                        this.fileList = e.data.data[0].concat(e.data.data[1])
+                    }).catch(e => {
+                        if (e.code === 404) {
+                            mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
+                                this.$router.push(location.href = '/#/' + this.prefix)
+                            })
+                        } else if (e.code !== -1) {
+                            mdui.alert(e.msg)
+                        }
+                        this.loading = false
+                    })
             }
 
             // 调用限频，防止刷新被按爆或大量小文件上传触发极频繁的自动刷新
-            let strPath = this.paths.join('/')
+            const strPath = this.paths.join('/')
             if (strPath !== this.lastLoadPath) {
                 refresh()
                 return
             }
-            let now = new Date().getTime()
+            const now = new Date().getTime()
             if (now - this.lastRefresh >= (this.refreshDelay + 50)) {
-
                 //  刷新间隔大于延迟，可立即刷新
                 this.lastRefresh = now
                 refresh()
             } else if (!this.blocking) {
-                
                 //  刷新间隔过小，设置阻塞不再接收调用请求，并将等待一段时间后自动刷新一次同时解除阻塞。
                 this.blocking = true
                 setTimeout(() => {
@@ -365,7 +357,7 @@ export default {
          * 点击菜单的上传按钮时触发的回调，用户选择好文件后提交一个upload事件给父组件
          * @emits upload
          */
-        upload () {
+        upload() {
             FileUtils.openFileDialog({
                 multiple: true
             }).then(filelist => {
@@ -384,7 +376,7 @@ export default {
          * @param {Type.BaseFileInfo[]} fileInfo
          * @emits delete
          */
-        deleteItem (fileInfo) {
+        deleteItem(fileInfo) {
             let msg = '<div class="mdui-typo"><strong>确定要删除</strong><hr>'
             let haveDir = false
             haveDir = fileInfo.filter(item => item.type === 'dir').length !== 0
@@ -404,7 +396,7 @@ export default {
                 /**
                  * @type {Type.FileInfo[]}
                  */
-                let itemInfo = []
+                const itemInfo = []
                 fileInfo.forEach(file => {
                     itemInfo.push({
                         name: file.name,
@@ -413,7 +405,7 @@ export default {
                     })
                 })
                 this.$emit('delete', itemInfo)
-            }, ()=>{}, {
+            }, () => {}, {
                 confirmText: '删除',
                 cancelText: '取消'
             })
@@ -421,7 +413,7 @@ export default {
         /**
          * 菜单“新建文件夹”被点击时触发的回调
          */
-        createFolder () {
+        createFolder() {
             mdui.prompt('文件夹名', text => {
                 if (this.fileList.filter(item => item.name === text).length !== 0) {
                     mdui.alert('文件名冲突')

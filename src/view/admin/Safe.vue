@@ -9,7 +9,7 @@
 <script>
 import Container from '../../components/layout/Container.vue'
 export default {
-  components: { Container },
+    components: { Container }
 
 }
 </script>

@@ -1,7 +1,7 @@
-const { default: Vue} = require('vue')
-const { default: mdui} = require('mdui')
-const { default: axios } = require("axios")
-const { default: FileUtils} = require('../utils/FileUtils')
+const { default: Vue } = require('vue')
+const { default: mdui } = require('mdui')
+const { default: axios } = require('axios')
+const { default: FileUtils } = require('../utils/FileUtils')
 
 /**
  * @typedef {Object} FileInfo
@@ -12,17 +12,17 @@ const { default: FileUtils} = require('../utils/FileUtils')
  * @property {Number} prog          -   进度 -1为未开始 0为开始，100为完成
  * @property {Number} speed         -   传输速度 单位Byte/s
  * @property {String} md5           -   文件的md5值
- * 
+ *
  */
-let obj = {
+const obj = {
     /**
      * @type {FileInfo[]}
      */
     queue: [],
     executing: false,
     /**
-     * 
-     * @param {Object} fileInfo 
+     *
+     * @param {Object} fileInfo
      * @param {String} fileInfo.api             -   上传的API地址
      * @param {File}    fileInfo.file           -   文件对象
      * @param {Object=} fileInfo.params         -   上传时附带的参数
@@ -55,7 +55,6 @@ let obj = {
      * @param {Function} finish
      */
     executeQueue(finish) {
-
         // 队列状态判断
         if (this.executing) {
             mdui.snackbar('已经正在上传了,剩余任务数量：' + this.queue.length)
@@ -71,7 +70,7 @@ let obj = {
         }
 
         this.executing = true
-        let task = this.queue[0]
+        const task = this.queue[0]
         task.status = 'preparing'
         FileUtils.computeMd5(task.file, {
             success: e => {
@@ -89,7 +88,7 @@ let obj = {
                 this.executeQueue()
             },
             prog: e => {
-                task.prog = ((e.loaded/e.total)*100).toFixed(2)
+                task.prog = ((e.loaded / e.total) * 100).toFixed(2)
                 if (task.prog == 100) {
                     task.status = 'computing'
                 }
@@ -98,10 +97,9 @@ let obj = {
         /**
          * 上传动作函数
          */
-        let uploadHandler = () => {
-
+        const uploadHandler = () => {
             // 构造表单参数
-            let fd = new FormData
+            const fd = new FormData()
             fd.append('file', task.file)
             fd.append('md5', task.md5)
             //   将文件信息中的params附加到表单中
@@ -124,9 +122,9 @@ let obj = {
                  * @param {ProgressEvent} e
                  */
                 onUploadProgress: e => {
-                    let curr = new Date()
-                    task.speed = (e.loaded - task.lastRecord.loaded)*1000/(curr - task.lastRecord.date)
-                    task.prog = (e.loaded/e.total)*100
+                    const curr = new Date()
+                    task.speed = (e.loaded - task.lastRecord.loaded) * 1000 / (curr - task.lastRecord.date)
+                    task.prog = (e.loaded / e.total) * 100
                     task.lastRecord = {
                         date: curr,
                         loaded: e.loaded
@@ -143,7 +141,7 @@ let obj = {
                 this.shift()
                 this.executeQueue()
             }).catch(e => {
-                let msg = `
+                const msg = `
                     <strong>错误：${e.msg}</strong><br>
                     <p>文件名：${task.file.name}</p>
                     <p>大小：${task.file.size}</p>
@@ -157,13 +155,12 @@ let obj = {
                     })
                     this.executing = false
                     this.executeQueue()
-                },{
+                }, {
                     modal: true
                 })
             })
         }
     }
 }
-
 
 module.exports = obj

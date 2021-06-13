@@ -72,68 +72,68 @@
 </template>
 
 <script>
-import mdui from "mdui"
-import SfHeader from "../../components/layout/SfHeader.vue"
+import mdui from 'mdui'
+import SfHeader from '../../components/layout/SfHeader.vue'
 import FileQueue from '../../global/FileQueue'
 import FileUploadDialog from '../../components/FileUploadDialog.vue'
 import Store from '../../Store'
 import API from '../../api/API'
 export default {
-  name: 'index',
-  components: {
-    FileUploadDialog,
-    SfHeader
-  },
-  data() {
-    return {
-      drawer: null,
-      FileQueue: FileQueue.queue
-    }
-  },
-  computed: {
-    userInfo() {
-      return this.$store.getters.userInfo
-    }
-  },
-  created() {
-    window.addEventListener("resize", this.setAppHeight)
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.setAppHeight)
-  },
-  mounted() {
-    this.drawer = new mdui.Drawer('#drawer')
-    this.header = document.querySelector("header")
-    this.$store.commit('setDrawer', this.drawer)
-    this.setAppHeight()
-    if (this.$route.params['close']) {
-        this.drawer.close()
-    }
-  },
-  methods: {
-    setAppHeight() {
-      let h = document.documentElement.clientHeight - this.header.offsetHeight + "px"
-      this.$refs.root.style.minHeight = h
-      this.$refs.root.style.height = h
+    name: 'index',
+    components: {
+        FileUploadDialog,
+        SfHeader
     },
-    closeDrawer() {
-      if (document.documentElement.offsetWidth < 1024) {
-        this.drawer.close()
-      }
+    data() {
+        return {
+            drawer: null,
+            FileQueue: FileQueue.queue
+        }
     },
-    exit() {
-      localStorage.clear()
-      Store.commit('setToken', null)
-      Store.commit('setAvatarURL', API.getServer() + '/api/' + API.user.getAvatar().url)
-      mdui.snackbar('退出成功')
-      if (this.$route.name == 'privateDisk' || this.$route.name == 'my') {
-        this.$router.push('/login')
-      }
-      if (document.documentElement.clientWidth < 1024) {
-        this.drawer.close()
-      }
+    computed: {
+        userInfo() {
+            return this.$store.getters.userInfo
+        }
     },
-  }
+    created() {
+        window.addEventListener('resize', this.setAppHeight)
+    },
+    destroyed() {
+        window.removeEventListener('resize', this.setAppHeight)
+    },
+    mounted() {
+        this.drawer = new mdui.Drawer('#drawer')
+        this.header = document.querySelector('header')
+        this.$store.commit('setDrawer', this.drawer)
+        this.setAppHeight()
+        if (this.$route.params.close) {
+            this.drawer.close()
+        }
+    },
+    methods: {
+        setAppHeight() {
+            const h = document.documentElement.clientHeight - this.header.offsetHeight + 'px'
+            this.$refs.root.style.minHeight = h
+            this.$refs.root.style.height = h
+        },
+        closeDrawer() {
+            if (document.documentElement.offsetWidth < 1024) {
+                this.drawer.close()
+            }
+        },
+        exit() {
+            localStorage.clear()
+            Store.commit('setToken', null)
+            Store.commit('setAvatarURL', API.getServer() + '/api/' + API.user.getAvatar().url)
+            mdui.snackbar('退出成功')
+            if (this.$route.name == 'privateDisk' || this.$route.name == 'my') {
+                this.$router.push('/login')
+            }
+            if (document.documentElement.clientWidth < 1024) {
+                this.drawer.close()
+            }
+        }
+    }
 }
 </script>
 

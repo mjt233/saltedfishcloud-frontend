@@ -1,6 +1,6 @@
-const file = require("./file")
-const resource = require("./resource")
-const user = require("./user")
+const file = require('./file')
+const resource = require('./resource')
+const user = require('./user')
 const admin = require('./admin')
 
 /**

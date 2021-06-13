@@ -1,5 +1,5 @@
 <template>
-    <search-result 
+    <search-result
         v-if="searchMode"
         :searchKey='searchKey'
         :uid='uid'
@@ -59,32 +59,29 @@
 </template>
 
 <script>
-import Type from '../typedescribe/type'
 import mdui from 'mdui'
-import FileBrowser from "../components/FileBrowser.vue"
+import FileBrowser from '../components/FileBrowser.vue'
 import FileQueue from '../global/FileQueue'
 import axios from 'axios'
-import FileList from '../components/FileList.vue'
-import Container from "../components/layout/Container.vue"
+import Container from '../components/layout/Container.vue'
 import SearchResult from '@/components/SearchResult'
-import apiConfig from '../api/API'
-import FormUtils from '../utils/FormUtils'
 import API from '../api/API'
+import FormUtils from '../utils/FormUtils'
 import MduiDialog from './ui/MduiDialog.vue'
-import MduiCheckbox from "./ui/MduiCheckbox"
+import MduiCheckbox from './ui/MduiCheckbox'
 import MduiBtn from './ui/MduiBtn.vue'
 export default {
-    components: { FileBrowser, FileList, Container, SearchResult, MduiDialog, MduiCheckbox, MduiBtn },
+    components: { FileBrowser, Container, SearchResult, MduiDialog, MduiCheckbox, MduiBtn },
     name: 'FileHandler',
     props: {
-        'uid': {
+        uid: {
             type: Number
         },
-        'modifiable': {
+        modifiable: {
             type: Boolean,
             default: true
         },
-        'path': {
+        path: {
             //  访问的路径
             type: String,
             default: ''
@@ -130,16 +127,16 @@ export default {
         },
 
         async getURL() {
-            let e = (await this.$axios(
-                apiConfig.resource.getFileDC(this.uid,
-                this.link.info.path.join('/'), 
-                this.link.info.fileInfo.name, 
-                this.link.info.fileInfo.md5, 
-                this.link.expr == 32 ? -1 : this.link.expr)
+            const e = (await this.$axios(
+                API.resource.getFileDC(this.uid,
+                    this.link.info.path.join('/'),
+                    this.link.info.fileInfo.name,
+                    this.link.info.fileInfo.md5,
+                    this.link.expr == 32 ? -1 : this.link.expr)
             ))
-            
-            let url = apiConfig.getServer() + '/api/' + apiConfig.resource.downloadUseFileDC(e.data.data, !this.link.preview, this.link.info.fileInfo.name)
-            this.link.res = url;
+
+            const url = API.getServer() + '/api/' + API.resource.downloadUseFileDC(e.data.data, !this.link.preview, this.link.info.fileInfo.name)
+            this.link.res = url
             // let content = `
             //     <h3>下载链接</h3>
             //     <a target="_blank" href="${url}" style="word-break: break-all">
@@ -155,7 +152,7 @@ export default {
             this.$refs.dialog.open()
         },
         fileClick(path) {
-            let url = (API.server || location.origin) + '/api/' + API.file.getContent(this.uid, path).url.replace(/\/+/g, '/')
+            const url = (API.server || location.origin) + '/api/' + API.file.getContent(this.uid, path).url.replace(/\/+/g, '/')
             FormUtils.jumpWithPost(url, true, {
                 Token: this.token
             })
@@ -178,7 +175,7 @@ export default {
                 return
             }
             this.loading = true
-            let conf = apiConfig.file.rename(this.uid, info.path.join('/'), info.old, info.new)
+            const conf = API.file.rename(this.uid, info.path.join('/'), info.old, info.new)
             this.$axios(conf).then(e => {
                 this.$refs.browser.loadList()
                 mdui.snackbar('重命名成功')
@@ -196,7 +193,7 @@ export default {
          * 文件被点击时执行的回调
          */
         clickFile(e) {
-            let res = API.getServer() + '/api/' + API.resource.downloadFileByMD5(e.md5, e.name).url
+            const res = API.getServer() + '/api/' + API.resource.downloadFileByMD5(e.md5, e.name).url
             window.open(res)
         },
         /**
@@ -213,7 +210,7 @@ export default {
                 let target = fileInfo.path.join('/')
                 target = fileInfo.target.type === 'file' ? target : target + fileInfo.target.name
                 FileQueue.addFile({
-                    api: apiConfig.file.upload(this.uid, fileInfo.path.join('/')).url,
+                    api: API.file.upload(this.uid, fileInfo.path.join('/')).url,
                     file: file,
                     path: fileInfo.path
                 })
@@ -223,14 +220,14 @@ export default {
          * 文件列表上传按钮被点击时执行的回调
          * @param {Type.DropItemInfo} info
          */
-        upload (info) {
+        upload(info) {
             if (!this.modifiable) {
                 mdui.alert('无权操作')
                 return
             }
             for (let i = 0; i < info.files.length; i++) {
                 const file = info.files[i]
-                let conf = apiConfig.file.upload(this.uid, info.path.join('/'))
+                const conf = API.file.upload(this.uid, info.path.join('/'))
                 FileQueue.addFile({
                     api: conf.url,
                     file: file
@@ -241,44 +238,44 @@ export default {
          * 文件列表删除按钮被点击时执行的回调
          * @param {Type.FileInfo[]} itemInfo
          */
-        deleteItem (itemInfo) {
+        deleteItem(itemInfo) {
             if (!this.modifiable) {
                 mdui.alert('无权操作')
                 return
             }
-            let fileList = itemInfo.map(file => file.name)
-            let path = itemInfo[0].path.join('/')
+            const fileList = itemInfo.map(file => file.name)
+            const path = itemInfo[0].path.join('/')
             this.loading = true
             /**
              * 请求完成时的回调
              * @param {String} msg 提示信息
              */
-            let cb = msg => {
+            const cb = msg => {
                 this.loading = false
                 mdui.snackbar(msg, {
                     position: 'bottom'
                 })
                 this.$refs.browser.loadList()
             }
-            let conf = apiConfig.file.delete(this.uid, path, fileList)
+            const conf = API.file.delete(this.uid, path, fileList)
             /**
              * 发起删除请求
              */
-            axios(conf).then(() => cb('删除成功'))
-                .catch(() => cb('删除失败'))
+            // eslint-disable-next-line node/no-callback-literal
+            axios(conf).then(() => cb('删除成功')).catch(() => cb('删除失败'))
         },
         /**
          * 文件列表创建目录按钮被点击时执行的回调函数
          */
-        createFolder (info) {
+        createFolder(info) {
             if (!this.modifiable) {
                 mdui.alert('无权操作')
                 return
             }
-            let path = info.path.join('/')
-            let conf = apiConfig.file.mkdir(this.uid, path, info.name)
+            const path = info.path.join('/')
+            const conf = API.file.mkdir(this.uid, path, info.name)
             this.loading = true
-            this.$axios(conf).then(e=>{
+            this.$axios(conf).then(e => {
                 this.loading = false
                 this.$refs.browser.loadList()
             }).catch(e => {

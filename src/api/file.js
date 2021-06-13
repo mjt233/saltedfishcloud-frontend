@@ -5,7 +5,7 @@ const file = {
      * @param {String} uid 用户ID
      * @param {String} key 关键字
      * @param {Number} [page = 1] 页码
-     * @returns 
+     * @returns
      */
     search(uid, key, page = 1) {
         return {
@@ -49,7 +49,7 @@ const file = {
      * @returns {import("_axios@0.21.1@axios").AxiosRequestConfig}
      */
     move(uid, source, target, overwrite = true, files) {
-        let conf = this.copy(uid, source, target, overwrite, files)
+        const conf = this.copy(uid, source, target, overwrite, files)
         conf.method = 'put'
         return conf
     },
@@ -57,7 +57,7 @@ const file = {
      * 取文件列表
      * @param {String} uid 用户ID
      * @param {String} path 路径
-     * @returns 
+     * @returns
      */
     getFileList(uid, path) {
         return {
@@ -70,7 +70,7 @@ const file = {
      * @param {String} uid 用户ID
      * @param {String} path 所在文件夹路径
      * @param {String} name 文件夹名
-     * @returns 
+     * @returns
      */
     mkdir(uid, path, name) {
         return {
@@ -99,7 +99,7 @@ const file = {
         }
     },
     /**
-     * 
+     *
      * @param {Number} uid 用户ID
      * @param {String} path 路径
      * @param {String[]} names 文件名
@@ -122,7 +122,7 @@ const file = {
      * @param {String} path 所在路径
      * @param {String} oldName 原文件名
      * @param {String} newName 新文件名
-     * @returns 
+     * @returns
      */
     rename(uid, path, oldName, newName) {
         return {
@@ -135,7 +135,7 @@ const file = {
         }
     },
     /**
-     * 
+     *
      * @param {Number} uid 用户ID
      * @param {String} filePath 文件在网盘中的完整路径
      */

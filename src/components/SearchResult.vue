@@ -1,11 +1,11 @@
 <template>
     <div style="height: 100%; opacity: .95">
-        <file-list 
+        <file-list
             :enableDragSelect="false"
             :loading="loading || d_loading"
             :fileList='res.list'
         >
-        
+
             <!-- 文件列表标头 -->
             <div class="mdui-typo">
                 <p>当前路径：<a @click="$emit('back')">{{rootLabel}}</a> > "搜索：{{searchKey}}"</p>
@@ -54,21 +54,21 @@ export default {
         }
     },
     props: {
-        'loading': {
+        loading: {
             // 是否加载中
             type: Boolean,
             default: false
         },
-        'searchKey': {
+        searchKey: {
             //  搜索的关键字
             type: String,
             default: ''
         },
-        'uid': {
+        uid: {
             //  用户ID
             type: Number
         },
-        'rootLabel': {
+        rootLabel: {
             //  向用户展示的根目录超链接标签
             type: String,
             default: '全部文件'
@@ -90,7 +90,7 @@ export default {
     methods: {
         doSearch(page) {
             this.d_loading = true
-            let conf = apiConfig.file.search(this.uid, this.searchKey, page)
+            const conf = apiConfig.file.search(this.uid, this.searchKey, page)
             this.$axios(conf).then(e => {
                 this.d_loading = false
                 this.res = e.data.data
@@ -122,7 +122,7 @@ export default {
         },
         parseNode(uid, nodeId) {
             return new Promise((resolve, reject) => {
-                let conf = apiConfig.resource.parseNodeId(uid, nodeId)
+                const conf = apiConfig.resource.parseNodeId(uid, nodeId)
                 this.$axios(conf).then(e => {
                     if (e.data.data == '/') {
                         resolve('')

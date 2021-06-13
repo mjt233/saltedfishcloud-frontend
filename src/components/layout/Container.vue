@@ -14,39 +14,39 @@
 import mdui from 'mdui'
 import DOMUtils from '../../utils/DOMUtils'
 export default {
-  props: {
-    'loading': {
-      type:Boolean,
-      defaule: false
+    props: {
+        loading: {
+            type: Boolean,
+            defaule: false
+        },
+        fill: {
+            type: Boolean,
+            defaule: false
+        }
     },
-    'fill': {
-      type: Boolean,
-      defaule: false
+    mounted() {
+        this.setHeight()
+        mdui.mutation(this.$refs.spinner)
+        if (this.fill) {
+            window.addEventListener('resize', this.setHeight)
+        }
+    },
+    destroyed() {
+        if (this.fill) {
+            window.removeEventListener('resize', this.setHeight)
+        }
+    },
+    methods: {
+        setHeight() {
+            const set = () => {
+                const top = DOMUtils.getAbsoluteOffsetTop(this.$el, document.body)
+                this.$el.style.height = document.documentElement.clientHeight - top - 20 + 'px'
+            }
+            set()
+            //  等待其他组件的尺寸变化完毕后再执行一次确保高度正确
+            setTimeout(set, 300)
+        }
     }
-  },
-  mounted() {
-    this.setHeight()
-    mdui.mutation(this.$refs.spinner)
-    if (this.fill) {
-      window.addEventListener('resize', this.setHeight)
-    }
-  },
-  destroyed() {
-    if (this.fill) {
-      window.removeEventListener('resize', this.setHeight)
-    }
-  },
-  methods: {
-    setHeight() {
-      let set = () => {
-        let top = DOMUtils.getAbsoluteOffsetTop(this.$el, document.body)
-        this.$el.style.height = document.documentElement.clientHeight - top - 20 + 'px'
-      }
-      set()
-      //  等待其他组件的尺寸变化完毕后再执行一次确保高度正确
-      setTimeout(set, 300)
-    }
-  }
 }
 </script>
 

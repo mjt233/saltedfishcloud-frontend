@@ -10,10 +10,10 @@ import dev from '../view/admin/Dev'
 /**
  * @type {import('_vue-router@3.5.1@vue-router/types/router').RouteConfig}
  */
-const adminRoute =  {
+const adminRoute = {
     path: '/admin',
     component: admin,
-    children:[
+    children: [
         {
             path: 'overview',
             component: overview

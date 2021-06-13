@@ -48,14 +48,11 @@ import mdui from 'mdui'
 import API from '../../api/API'
 import Container from '../../components/layout/Container.vue'
 import MduiCard from '../../components/ui/MduiCard.vue'
-import MduiList from '../../components/ui/MduiList.vue'
-import MduiListItem from '../../components/ui/MduiListItem.vue'
-import MduiCheckbox from '../../components/ui/MduiCheckbox.vue'
 import Pager from '../../components/ui/pager.vue'
 import MduiDialog from '../../components/ui/MduiDialog.vue'
 import MduiInput from '../../components/ui/MduiInput.vue'
 export default {
-    components: { Container, MduiCard, MduiList, MduiListItem, MduiCheckbox, Pager, MduiDialog, MduiInput },
+    components: { Container, MduiCard, Pager, MduiDialog, MduiInput },
     data() {
         return {
             loading: false,
@@ -84,7 +81,7 @@ export default {
         async loadUser(page = 1) {
             this.loading = true
             try {
-                let data = (await this.$axios(API.user.getUserList(page))).data.data
+                const data = (await this.$axios(API.user.getUserList(page))).data.data
                 this.users = data
             } catch (e) {
                 mdui.alert(e.msg)
@@ -116,7 +113,7 @@ export default {
             this.passwd.old = this.passwd.new = ''
         },
         resetPasswd() {
-            if(this.validForm()) {
+            if (this.validForm()) {
                 this.dialog.close()
                 this.loading = true
                 this.$axios(API.user.modifyPasswd(this.passwd.user.id, '', this.passwd.new, true)).then(() => {
@@ -137,7 +134,7 @@ export default {
                 return false
             } else if (this.passwd.old != this.passwd.new) {
                 this.passwd.error1 = this.passwd.error2 = true
-                this.passwd.errorMsg1 = this.passwd.errorMsg2  = '两次密码不一致'
+                this.passwd.errorMsg1 = this.passwd.errorMsg2 = '两次密码不一致'
                 return false
             } else {
                 this.passwd.error1 = this.passwd.error2 = false

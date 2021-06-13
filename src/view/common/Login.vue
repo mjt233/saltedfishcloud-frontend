@@ -30,47 +30,47 @@ import Container from '../../components/layout/Container.vue'
 import apiConfig from '../../api/API'
 import MduiCard from '../../components/ui/MduiCard.vue'
 export default {
-  components: { Container, MduiCard },
-  data() {
-    return {
-      form: {
-        user:'',
-        passwd:''
-      },
-      loading:false
-    }
-  },
-  computed: {
-    defaultLoginLogo() {
-      return `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar().url}`
-    }
-  },
-  methods: {
-    async login(e) {
-      this.$refs.passwd.blur()
-      let elems = this.$refs.form.querySelectorAll(".mdui-textfield-invalid-html5")
-      if (elems.length !== 0 || this.form.user == '' || this.form.passwd == '') {
-        mdui.alert('有输入的数据不符合要求，请重新检查')
-        return
-      }
-      this.loading = true
-      let conf = apiConfig.user.login(this.form.user, this.form.passwd)
-      try {
-        let token = (await this.$axios(conf)).data.data
-        this.$store.commit('setToken', token)
-        this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(this.form.user).url}`)
-        localStorage.setItem('token', token)
-        mdui.snackbar('登录成功')
-        this.$router.push('/private')
-      } catch (error) {
-        
-      }
-      this.loading = false
+    components: { Container, MduiCard },
+    data() {
+        return {
+            form: {
+                user: '',
+                passwd: ''
+            },
+            loading: false
+        }
     },
-    tips() {
-      mdui.alert('暂未开放该功能')
+    computed: {
+        defaultLoginLogo() {
+            return `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar().url}`
+        }
+    },
+    methods: {
+        async login(e) {
+            this.$refs.passwd.blur()
+            const elems = this.$refs.form.querySelectorAll('.mdui-textfield-invalid-html5')
+            if (elems.length !== 0 || this.form.user == '' || this.form.passwd == '') {
+                mdui.alert('有输入的数据不符合要求，请重新检查')
+                return
+            }
+            this.loading = true
+            const conf = apiConfig.user.login(this.form.user, this.form.passwd)
+            try {
+                const token = (await this.$axios(conf)).data.data
+                this.$store.commit('setToken', token)
+                this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(this.form.user).url}`)
+                localStorage.setItem('token', token)
+                mdui.snackbar('登录成功')
+                this.$router.push('/private')
+            } catch (error) {
+
+            }
+            this.loading = false
+        },
+        tips() {
+            mdui.alert('暂未开放该功能')
+        }
     }
-  }
 }
 </script>
 
@@ -97,6 +97,6 @@ export default {
       outline: none;
     }
   }
-  
+
 }
 </style>

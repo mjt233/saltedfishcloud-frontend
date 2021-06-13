@@ -23,24 +23,24 @@
 
 <script>
 export default {
-    name:'sf-header',
+    name: 'sf-header',
     methods: {
-      t() {
-        this.drawer.toggle()
-      }
+        t() {
+            this.drawer.toggle()
+        }
     },
     mounted() {
     },
     computed: {
-      userInfo() {
-        return this.$store.getters.userInfo
-      },
-      drawer() {
-        return this.$store.state.drawer
-      },
-      userAvatarURL() {
-        return this.$store.state.avatarURL
-      }
+        userInfo() {
+            return this.$store.getters.userInfo
+        },
+        drawer() {
+            return this.$store.state.drawer
+        },
+        userAvatarURL() {
+            return this.$store.state.avatarURL
+        }
     }
 }
 </script>

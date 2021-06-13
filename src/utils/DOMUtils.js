@@ -8,7 +8,6 @@ const DOMUtils = {
     getAbsoluteOffsetTop(childElement, parentElement) {
         let el = childElement
         let res = 0
-        let log = []
         while (el !== parentElement && el !== document.body) {
             if (window.getComputedStyle(el).position !== 'static') {
                 res += el.offsetTop
@@ -40,9 +39,9 @@ const DOMUtils = {
      * @param {String} className
      * @return {HTMLElement}
      */
-    getElParentByClass (elem, className) {
+    getElParentByClass(elem, className) {
         let t = elem
-        while(t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML')) {
+        while (t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML')) {
             t = t.parentNode
         }
         if (t.tagName === 'HTML') {

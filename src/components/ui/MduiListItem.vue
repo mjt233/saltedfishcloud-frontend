@@ -11,15 +11,15 @@
 export default {
     name: 'mduiListItem',
     props: {
-        'icon': {
+        icon: {
             type: String,
             default: null
         },
-        'dense': {
+        dense: {
             type: Boolean,
             default: false
         },
-        'active': {
+        active: {
             type: Boolean,
             default: false
         }

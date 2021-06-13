@@ -19,18 +19,18 @@ const resource = {
      */
     downloadUseFileDC(dc, directDownload = false, name = '') {
         let baseURI = `${this.prefix}/0/fileContentByFDC/${dc}`
-        if (name != '') baseURI += `/${name}`
+        if (name !== '') baseURI += `/${name}`
         if (directDownload) baseURI += '?download=true'
-        return baseURI;
+        return baseURI
     },
     /**
-     * 
+     *
      * @param {Number} uid 用户ID
      * @param {String} path 文件所在目录
      * @param {String} name 文件名
      * @param {String} md5 文件MD5
      * @param {Number} expr 有效期（单位：天，负数为无限制）
-     * @returns 
+     * @returns
      */
     getFileDC(uid, path, name, md5, expr) {
         return {
@@ -46,7 +46,7 @@ const resource = {
      * 解析节点ID取路径
      * @param {Number} uid 用户ID
      * @param {String} nodeId 节点ID
-     * @returns 
+     * @returns
      */
     parseNodeId(uid, nodeId) {
         return {

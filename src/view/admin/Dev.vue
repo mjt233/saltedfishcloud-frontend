@@ -24,7 +24,7 @@ import MduiCard from '../../components/ui/MduiCard.vue'
 import MduiHr from '../../components/ui/MduiHr.vue'
 
 export default {
-  components: { Container, MduiHr, MduiCard, MduiBtn },
+    components: { Container, MduiHr, MduiCard, MduiBtn },
     data() {
         return {
             loading: false,
@@ -41,7 +41,7 @@ export default {
     },
     methods: {
         async loadData() {
-            let data = (await this.$axios(API.admin.debug.getAllOptions())).data.data
+            const data = (await this.$axios(API.admin.debug.getAllOptions())).data.data
             this.devData = data
         },
         async setReadOnlyLevel(level) {

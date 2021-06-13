@@ -49,7 +49,7 @@ export default {
     },
     methods: {
         getFileSuffix(name) {
-            return name.split('\.').pop()
+            return name.split('.').pop()
         },
         startUpload() {
             FileQueue.executeQueue()
@@ -58,8 +58,8 @@ export default {
          * @param {FileInfo} file
          */
         classObj(file) {
-            let typeKey = `type-${this.getFileSuffix(file.file.name)}`
-            let obj = {}
+            const typeKey = `type-${this.getFileSuffix(file.file.name)}`
+            const obj = {}
             obj['preparing-item'] = file.status === 'preparing' || file.status == 'computing'
             obj[typeKey] = true
             return obj

@@ -3,7 +3,7 @@ const sys = {
     configKey: {
         STORE_TYPE: 'STORE_TYPE',
         REG_CODE: 'REG_CODE',
-        SYNC_DELAY: 'SYNC_DELAY',
+        SYNC_DELAY: 'SYNC_DELAY'
     },
     /**
      * 读取所有配置项信息
@@ -35,7 +35,7 @@ const sys = {
     /**
      * 读配置项名
      * @param {'STORE_TYPE' | 'REG_CODE' | 'SYNC_DELAY'} key      配置项名
-     * @returns 
+     * @returns
      */
     getConfig(key) {
         return {

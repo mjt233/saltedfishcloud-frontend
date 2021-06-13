@@ -27,21 +27,16 @@
 
 <script>
 import mdui from 'mdui'
-import MduiDrawer from '../../components/ui/MduiDrawer.vue'
-import MduiList from '../../components/ui/MduiList.vue'
-import MduiListItem from '../../components/ui/MduiListItem.vue'
-import MduiSubheader from '../../components/ui/MduiSubheader.vue'
-import MduiSubList from '../../components/ui/MduiSubList.vue'
 import AdminDrawer from '../../components/layout/AdminDrawer.vue'
 export default {
-    components: { MduiDrawer, MduiList, MduiListItem, MduiSubheader,MduiSubList, AdminDrawer },
+    components: { AdminDrawer },
     data() {
         return {
             drawer: null,
             menu: [
                 { name: '系统总览', icon: 'pie_chart', to: '/admin/overview' },
                 { name: '用户管理', icon: 'people', to: '/admin/user' },
-                { name: '系统配置', icon: 'settings_applications', to: '/admin/sys'},
+                { name: '系统配置', icon: 'settings_applications', to: '/admin/sys' },
                 { name: '开发者调试', icon: 'developer_board', to: '/admin/dev' }
             ]
         }
@@ -55,7 +50,7 @@ export default {
             })
         }
         this.drawer = new mdui.Drawer(this.$refs.drawer.$el)
-        if (this.$route.params['close']) {
+        if (this.$route.params.close) {
             this.drawer.close()
         }
     },

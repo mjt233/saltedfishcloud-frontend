@@ -6,10 +6,10 @@
 
 <script>
 export default {
-  name: "App",
-  mounted() {
-    document.querySelector('#first-load').classList.add('hid')
-  }
+    name: 'App',
+    mounted() {
+        document.querySelector('#first-load').classList.add('hid')
+    }
 }
 </script>
 

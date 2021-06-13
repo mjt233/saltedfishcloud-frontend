@@ -20,27 +20,27 @@ import mdui from 'mdui'
 export default {
     name: 'mdui-dialog',
     props: {
-        'title': {
+        title: {
             type: String,
             default: '对话框'
         },
-        'loading': {
+        loading: {
             type: Boolean,
             default: false
         },
-        'renderOnBody': {
+        renderOnBody: {
             // 将该组件渲染到Body
             type: Boolean,
             default: true
         },
-        'show': {
+        show: {
             /**
              * 控制是否显示
              */
             type: Boolean,
             default: false
         },
-        'disableDefBtn': {
+        disableDefBtn: {
             /**
              * 控制是否禁用默认按钮
              */
@@ -57,7 +57,7 @@ export default {
             /**
              * @type {MduiStatic.Dialog}
              */
-            dialog:null
+            dialog: null
         }
     },
     mounted() {
@@ -66,7 +66,7 @@ export default {
         if (this.renderOnBody) {
             document.body.appendChild(this.el)
         }
-        this.dialog = new mdui.Dialog(this.el, {modal: true})
+        this.dialog = new mdui.Dialog(this.el, { modal: true })
         this.el.addEventListener('close.mdui.dialog', e => {
             this.$emit('close', e)
         })
@@ -88,7 +88,7 @@ export default {
 </script>
 
 <style>
- 
+
 </style>
 
 <style lang="less" scoped>

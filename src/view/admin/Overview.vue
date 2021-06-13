@@ -89,9 +89,10 @@ import API from '../../api/API'
 import Container from '../../components/layout/Container.vue'
 import MduiCard from '../../components/ui/MduiCard.vue'
 import * as echarts from 'echarts'
-import stringFormatter from '../../utils/StringFormatter';
+import stringFormatter from '../../utils/StringFormatter'
+import mdui from 'mdui'
 export default {
-  components: { Container, MduiCard },
+    components: { Container, MduiCard },
     name: 'overview',
     data() {
         return {
@@ -107,12 +108,12 @@ export default {
     },
     filters: {
         toRate(input) {
-            return (input*100).toFixed(2) + '%'
+            return (input * 100).toFixed(2) + '%'
         },
         decodeReadOnly(input) {
             if (input == null) {
                 return '关闭'
-            } else if (input === 'DATA_MOVING'){
+            } else if (input === 'DATA_MOVING') {
                 return input + '(数据迁移中)'
             } else {
                 return input + '(数据校验中)'
@@ -123,7 +124,7 @@ export default {
         async loadData() {
             this.loading = true
             try {
-                let data = (await this.$axios(API.admin.sys.getOverviewInfo())).data.data
+                const data = (await this.$axios(API.admin.sys.getOverviewInfo())).data.data
                 this.store.state = data.store
                 this.code = data.invite_reg_code
             } catch (error) {
@@ -132,14 +133,14 @@ export default {
                 this.loading = false
             }
             echarts.init(this.$refs.user).setOption(this.generateChartOption('用户数据根硬盘', '占用', [
-                {value: this.store.state.store_total_space - this.store.state.store_free_space - this.store.state.real_user_size, name: '其他文件'},
-                {value: this.store.state.store_free_space, name: '剩余空间'},
-                {value: this.store.state.real_user_size, name: '用户文件占用'}
+                { value: this.store.state.store_total_space - this.store.state.store_free_space - this.store.state.real_user_size, name: '其他文件' },
+                { value: this.store.state.store_free_space, name: '剩余空间' },
+                { value: this.store.state.real_user_size, name: '用户文件占用' }
             ]))
             echarts.init(this.$refs.pub).setOption(this.generateChartOption('公共数据根硬盘', '占用', [
-                {value: this.store.state.public_total_space - this.store.state.public_free_space - this.store.state.total_public_size, name: '其他文件'},
-                {value: this.store.state.public_free_space, name: '剩余空间'},
-                {value: this.store.state.total_public_size, name: '公共数据占用'}
+                { value: this.store.state.public_total_space - this.store.state.public_free_space - this.store.state.total_public_size, name: '其他文件' },
+                { value: this.store.state.public_free_space, name: '剩余空间' },
+                { value: this.store.state.total_public_size, name: '公共数据占用' }
             ]))
         },
         generateChartOption(title, itemTitle, data) {
@@ -156,7 +157,7 @@ export default {
                 },
                 legend: {
                     orient: 'vertical',
-                    left: 'left',
+                    left: 'left'
                 },
                 series: [
                     {

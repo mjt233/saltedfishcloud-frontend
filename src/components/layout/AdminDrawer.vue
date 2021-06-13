@@ -9,14 +9,14 @@
                 </template>
                 <template v-else>
                     <mdui-sub-list :title="item.name" :key="index" :icon="item.icon">
-                        <router-link 
-                            :to="subitem.to" 
-                            v-for="(subitem, i) in item.children" 
+                        <router-link
+                            :to="subitem.to"
+                            v-for="(subitem, i) in item.children"
                             :key="i">
                             <mdui-list-item
                                 :active="routePath == subitem.to">
                                 {{subitem.name}}
-                            </mdui-list-item> 
+                            </mdui-list-item>
                         </router-link>
                     </mdui-sub-list>
                 </template>
@@ -31,10 +31,10 @@ import MduiList from '../ui/MduiList.vue'
 import MduiListItem from '../ui/MduiListItem.vue'
 import MduiSubList from '../ui/MduiSubList.vue'
 export default {
-  components: { MduiList, MduiListItem, MduiSubList, MduiDrawer },
+    components: { MduiList, MduiListItem, MduiSubList, MduiDrawer },
     name: 'adminDrawer',
     props: {
-        'menu': {
+        menu: {
             /**
              * 菜单数据数组，样例：
                 { name: '用户管理', icon: 'people', to: '/admin/user' },
@@ -45,7 +45,9 @@ export default {
                 ]}
              */
             type: Array,
-            default: []
+            default: () => {
+                return []
+            }
         }
     },
     computed: {

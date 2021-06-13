@@ -14,7 +14,7 @@ const user = {
     /**
      * 获取用户列表
      * @param {Number} page 页码
-     * @returns 
+     * @returns
      */
     getUserList(page = 1) {
         return {
@@ -46,7 +46,7 @@ const user = {
      * 用户登录
      * @param {String} user 用户
      * @param {String} passwd 密码
-     * @returns 
+     * @returns
      */
     login(user, passwd) {
         return {
@@ -70,10 +70,10 @@ const user = {
     /**
      * 上传用户头像
      * @param {File} img 头像文件
-     * @returns 
+     * @returns
      */
     uploadAvatar(img) {
-        let fd = new FormData
+        const fd = new FormData()
         fd.append('file', img)
         return {
             url: this.prefix + '/avatar',
@@ -84,16 +84,16 @@ const user = {
     /**
      * 获取用户头像
      * @param {String} username 用户名
-     * @returns 
+     * @returns
      */
     getAvatar(username) {
         return {
-            url: this.prefix + '/avatar/' + username || '',
+            url: this.prefix + '/avatar/' + username || ''
         }
     },
     /**
      * 获取配额使用情况
-     * @returns 
+     * @returns
      */
     getQuotaUsed() {
         return {
@@ -102,15 +102,15 @@ const user = {
     },
 
     /**
-     * 
+     *
      * @param {Number} uid 用户ID
      * @param {String} oldPasswd 旧密码
      * @param {String} newPasswd 新密码
      * @param {String} force     强制修改
-     * @returns 
+     * @returns
      */
     modifyPasswd(uid, oldPasswd, newPasswd, force) {
-        let res = {
+        const res = {
             url: `${this.prefix}/${uid}/passwd`,
             method: 'post',
             data: {

@@ -80,127 +80,127 @@ import MduiDialog from '../../components/ui/MduiDialog.vue'
 import Theme from '../../utils/Theme'
 import MduiBtn from '../../components/ui/MduiBtn.vue'
 export default {
-  components: { Container, MduiDialog, MduiBtn },
-  data() {
-    return {
-      quota: {
-        used: 0,
-        quota: 0
-      },
-      loading: false,
-      dialog: {
-        mp: null,
-        theme: null
-      },
-      mp: {
-        op: '',
-        np: '',
-        cp: '',
-        loading: false
-      }
-    }
-  },
-  computed: {
-    avatarURL() {
-      return this.$store.state.avatarURL
+    components: { Container, MduiDialog, MduiBtn },
+    data() {
+        return {
+            quota: {
+                used: 0,
+                quota: 0
+            },
+            loading: false,
+            dialog: {
+                mp: null,
+                theme: null
+            },
+            mp: {
+                op: '',
+                np: '',
+                cp: '',
+                loading: false
+            }
+        }
     },
-    userInfo() {
-      return this.$store.getters.userInfo
+    computed: {
+        avatarURL() {
+            return this.$store.state.avatarURL
+        },
+        userInfo() {
+            return this.$store.getters.userInfo
+        },
+        avaliable() {
+            return this.quota.quota - this.quota.used
+        }
     },
-    avaliable() {
-      return this.quota.quota - this.quota.used
+    filters: {
+        fixed(input) {
+            return input.toFixed(2)
+        }
     },
-  },
-  filters: {
-    fixed(input) {
-      return input.toFixed(2)
-    }
-  },
-  mounted() {
-    if (!this.userInfo) return
-    this.$axios(apiConfig.user.getQuotaUsed()).then(e => {
-      this.quota = e.data.data
-    })
-    this.dialog.mp = new mdui.Dialog('#dialog', {closeOnConfirm: false, modal: true})
-    document.querySelector('#dialog').addEventListener('confirm.mdui.dialog', this.confirm)
-    document.querySelector('#dialog').addEventListener('cancel.mdui.dialog', () => {
-      this.mp.op = this.mp.np = this.mp.cp = ''
-    })
-    this.dialog.theme = new mdui.Dialog(this.$refs.theme.$el)
-  },
-  methods: {
+    mounted() {
+        if (!this.userInfo) return
+        this.$axios(apiConfig.user.getQuotaUsed()).then(e => {
+            this.quota = e.data.data
+        })
+        this.dialog.mp = new mdui.Dialog('#dialog', { closeOnConfirm: false, modal: true })
+        document.querySelector('#dialog').addEventListener('confirm.mdui.dialog', this.confirm)
+        document.querySelector('#dialog').addEventListener('cancel.mdui.dialog', () => {
+            this.mp.op = this.mp.np = this.mp.cp = ''
+        })
+        this.dialog.theme = new mdui.Dialog(this.$refs.theme.$el)
+    },
+    methods: {
     /**
      * 修改密码点击确定
      */
-    confirm() {
-      let openAlert = (text) => {
-        this.dialog.mp.close()
-        mdui.alert(text, () => {
-          this.openDialog()
-        })
-      }
-      let reset = () => {
-        this.mp.op = this.mp.np = this.mp.cp = ''
-        this.loading = false
-      }
-      if (this.mp.cp != this.mp.np) {
-        openAlert('新密码与确认密码不一致')
-        return
-      } else if (this.mp.cp.length < 6 || this.mp.op.length < 6) {
-        openAlert('密码太短（少于6个字符）')
-        return
-      }
-      this.loading = true
-      let conf = apiConfig.user.modifyPasswd(this.userInfo.id ,this.mp.op, this.mp.np)
-      this.$axios(conf).then(_ => {
-        reset()
-        mdui.snackbar('修改成功', {position: 'bottom'})
-        this.dialog.mp.close()
-      }).catch(e => {
-        reset()
-        openAlert(e.msg)
-      })
-    },
-    /**
+        confirm() {
+            const openAlert = (text) => {
+                this.dialog.mp.close()
+                mdui.alert(text, () => {
+                    this.openDialog()
+                })
+            }
+            const reset = () => {
+                this.mp.op = this.mp.np = this.mp.cp = ''
+                this.loading = false
+            }
+            if (this.mp.cp != this.mp.np) {
+                openAlert('新密码与确认密码不一致')
+                return
+            } else if (this.mp.cp.length < 6 || this.mp.op.length < 6) {
+                openAlert('密码太短（少于6个字符）')
+                return
+            }
+            this.loading = true
+            const conf = apiConfig.user.modifyPasswd(this.userInfo.id, this.mp.op, this.mp.np)
+            this.$axios(conf).then(_ => {
+                reset()
+                mdui.snackbar('修改成功', { position: 'bottom' })
+                this.dialog.mp.close()
+            }).catch(e => {
+                reset()
+                openAlert(e.msg)
+            })
+        },
+        /**
      * 打开修改密码对话框
      */
-    openDialog() {
-      this.dialog.mp.open()
-    },
-    /**
+        openDialog() {
+            this.dialog.mp.open()
+        },
+        /**
      * 上传用户头像
      */
-    uploadAvatar() {
-      FileUtils.openFileDialog().then(e => {
-        let file = e.item(0)
-        if (file.size > 1024*1024*3) {
-          mdui.snackbar('文件大于3MiB', {position: 'top'})
-          return
+        uploadAvatar() {
+            FileUtils.openFileDialog().then(e => {
+                const file = e.item(0)
+                if (file.size > 1024 * 1024 * 3) {
+                    mdui.snackbar('文件大于3MiB', { position: 'top' })
+                    return
+                }
+                const conf = apiConfig.user.uploadAvatar(file)
+                this.loading = true
+                this.$axios(conf).then(e => {
+                    mdui.snackbar('上传成功')
+
+                    // 更新图片显示
+                    this.$store.commit('setAvatarURL', this.avatarURL + '?' + Math.random())
+                    this.loading = false
+                }).catch(e => {
+                    this.loading = false
+                    mdui.snackbar('上传失败：' + e.msg)
+                })
+            })
+        },
+        changeTheme() {
+            this.dialog.theme.open()
+        },
+        setTheme(theme) {
+            Theme.switchTheme(theme)
+        },
+        themeConfirm() {
+            this.dialog.theme.close()
         }
-        let conf = apiConfig.user.uploadAvatar(file)
-        this.loading = true
-        this.$axios(conf).then(e => {
-          mdui.snackbar('上传成功')
-          
-          // 更新图片显示
-          this.$store.commit('setAvatarURL', this.avatarURL + '?' + Math.random() )
-          this.loading = false
-        }).catch(e => {
-          this.loading = false
-          mdui.snackbar('上传失败：' + e.msg)
-        })
-      })
-    },
-    changeTheme() {
-      this.dialog.theme.open()
-    },
-    setTheme(theme) {
-      Theme.switchTheme(theme)
-    },
-    themeConfirm() {
-      this.dialog.theme.close()
     }
-  }
 }
 </script>
 

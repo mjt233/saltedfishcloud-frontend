@@ -1,6 +1,6 @@
 <template>
-  <div 
-    class="select-area" 
+  <div
+    class="select-area"
     :style="{width:width + 'px', height: height + 'px', top: y + 'px', left: x + 'px'}"
     :class="{active: active}"
   >
@@ -24,12 +24,12 @@ export default {
         /**
          * 最大可被选择的节点深度，默认为1（即仅选择同级节点）
          */
-        'maxDepth': {
+        maxDepth: {
             type: Number,
             default: 1
         }
     },
-    data () {
+    data() {
         return {
             /**
              * 容纳选区的父元素容器，该容器是选区的直接作用对象
@@ -89,30 +89,31 @@ export default {
             selecteds: [],
             mousePositionType: 'page'
         }
-    }, mounted () {
+    },
+    mounted() {
         this.parentEl = this.$el.parentElement
-        this.parentEl.addEventListener('mousedown', e=> {
+        this.parentEl.addEventListener('mousedown', e => {
             // 记录初始x,y坐标
             this.eventEl = e.target
-            this.downX = this.eventX = this.getX(e[this.mousePositionType+'X'])
-            this.downY = this.eventY = this.getY(e[this.mousePositionType+'Y'])
+            this.downX = this.eventX = this.getX(e[this.mousePositionType + 'X'])
+            this.downY = this.eventY = this.getY(e[this.mousePositionType + 'Y'])
             this.downScrollTop = this.parentEl.scrollTop
             /**
              * 鼠标移动时的触发的函数
              * @type {Function}
              * @param {MouseEvent} ev
              */
-            let moveCallback = ev => {
+            const moveCallback = ev => {
                 // 记录最近一次鼠标事件响应的原生x,y坐标和更新滚动高度
-                this.eventX = ev[this.mousePositionType+'X']
-                this.eventY = ev[this.mousePositionType+'Y']
+                this.eventX = ev[this.mousePositionType + 'X']
+                this.eventY = ev[this.mousePositionType + 'Y']
                 this.offsetLeft = this.parentEl.offsetLeft
                 this.offsetTop = this.parentEl.offsetTop
                 this.scrollTop = this.parentEl.scrollTop
 
                 // 根据当前x,y坐标与初始x,y坐标进行大小对比决定 采用初始位置还是初始位置减去高宽的位置
-                let x = this.getX(ev[this.mousePositionType+'X'])
-                let y = this.getY(ev[this.mousePositionType+'Y'])
+                const x = this.getX(ev[this.mousePositionType + 'X'])
+                const y = this.getY(ev[this.mousePositionType + 'Y'])
                 this.moveX = x < this.downX
                 this.moveY = y < this.downY
 
@@ -124,7 +125,7 @@ export default {
                     this.active = true
                     this.selecteds = this.getSelectedElem()
                 }
-                
+
                 // 关闭文字选中
                 this.parentEl.style.userSelect = 'none'
             }
@@ -133,7 +134,7 @@ export default {
              * @type {Function}
              * @param {MouseEvent} ev
              */
-            let mouseupCallback = ev => {
+            const mouseupCallback = ev => {
                 this.parentEl.style.userSelect = ''
                 this.parentEl.removeEventListener('mousemove', moveCallback)
                 this.parentEl.removeEventListener('mouseup', mouseupCallback)
@@ -154,7 +155,7 @@ export default {
             if (this.eventX === this.downX) {
                 return 0
             }
-            let res = Math.abs(this.getX(this.eventX) - this.downX)
+            const res = Math.abs(this.getX(this.eventX) - this.downX)
             return res
         },
         /**
@@ -194,7 +195,6 @@ export default {
         absoluteTop() {
             let el = this.parentEl
             let res = 0
-            let log = []
             if (el === undefined) return 0
             while (el !== document.body) {
                 if (window.getComputedStyle(el).position !== 'static') {
@@ -211,7 +211,7 @@ export default {
          * @param {Number} rawY 事件原始Y
          * @return {Number}
          */
-        getY (rawY) {
+        getY(rawY) {
             return this.parentEl.scrollTop + rawY - DOMUtils.getAbsoluteOffsetTop(this.parentEl, document.body)
         },
         /**
@@ -219,31 +219,31 @@ export default {
          * @param {Number} rawX 事件原始X
          * @return {Number}
          */
-        getX (rawX) {
-            let res = rawX - DOMUtils.getAbsoluteOffsetLeft(this.parentEl, document.body)
+        getX(rawX) {
+            const res = rawX - DOMUtils.getAbsoluteOffsetLeft(this.parentEl, document.body)
             return res
         },
         getSelectedElem() {
             /**
              * @type {HTMLElement[]}
              */
-            let elems = this.parentEl.querySelectorAll("*[selectable]")
-            let r = []
+            const elems = this.parentEl.querySelectorAll('*[selectable]')
+            const r = []
             elems.forEach(el => {
                 /**
                  * 元素的y坐标
                  */
-                let ely = DOMUtils.getAbsoluteOffsetTop(el, this.parentEl)
+                const ely = DOMUtils.getAbsoluteOffsetTop(el, this.parentEl)
                 /**
                  * 元素的x坐标
                  */
-                let elx = DOMUtils.getAbsoluteOffsetLeft(el, this.parentEl)
+                const elx = DOMUtils.getAbsoluteOffsetLeft(el, this.parentEl)
                 if (
                     (
                         (this.downY <= ely && this.area.endY >= ely) ||
                         (this.downY >= (ely + el.offsetHeight) && this.area.endY <= (ely + el.offsetHeight)) ||
                         (this.downY >= ely && this.downY <= (ely + el.offsetHeight))
-                    ) && 
+                    ) &&
                     (
                         (this.downX <= elx && this.area.endX >= elx) ||
                         (this.downX >= (elx + el.offsetWidth) && this.area.endX <= (elx + el.offsetWidth)) ||
@@ -252,13 +252,12 @@ export default {
                 ) {
                     r.push(el)
                 }
-                
             })
             return r
         }
     },
     watch: {
-        selecteds(o,n) {
+        selecteds(o, n) {
             if (o.length != n.length) {
                 this.$emit('selectChange', this.selecteds)
             }

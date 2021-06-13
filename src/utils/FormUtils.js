@@ -7,7 +7,7 @@ const FormUtils = {
      * @param {Object} filed 附加的表单字段
      */
     jumpWithPost(url, newWindow, filed) {
-        let form = document.createElement('form')
+        const form = document.createElement('form')
         form.action = url
         form.method = 'post'
         if (newWindow) {
@@ -15,8 +15,8 @@ const FormUtils = {
         }
         for (const key in filed) {
             if (Object.hasOwnProperty.call(filed, key)) {
-                const value = filed[key];
-                let input = document.createElement('input')
+                const value = filed[key]
+                const input = document.createElement('input')
                 input.name = key
                 input.value = value
                 form.appendChild(input)

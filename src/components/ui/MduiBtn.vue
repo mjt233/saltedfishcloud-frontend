@@ -6,15 +6,15 @@
 export default {
     name: 'mduiBtn',
     props: {
-        'dense': {
+        dense: {
             type: Boolean,
             default: false
         },
-        'disabled': {
+        disabled: {
             type: Boolean,
             default: false
         },
-        'themeColor': {
+        themeColor: {
             type: Boolean,
             default: true
         }
