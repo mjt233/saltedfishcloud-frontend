@@ -1,6 +1,6 @@
-import sys from './sys'
-import debug from './debug'
-import store from './store'
+const sys = require('./sys')
+const debug = require('./debug')
+const store = require('./store')
 const admin = {
     prefix: 'admin',
     sys: sys,
@@ -8,6 +8,4 @@ const admin = {
     store: store
 }
 
-export {
-    admin
-}
+module.exports = admin

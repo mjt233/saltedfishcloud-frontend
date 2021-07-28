@@ -13,4 +13,4 @@ const store = {
         }
     }
 }
-export default store
+module.exports = store
