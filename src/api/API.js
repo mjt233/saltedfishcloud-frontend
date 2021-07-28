@@ -1,7 +1,7 @@
-const file = require('./file')
-const resource = require('./resource')
-const user = require('./user')
-const admin = require('./admin')
+import file from './file'
+import resource from './resource'
+import user from './user'
+import { admin } from './admin'
 
 /**
  * @typedef {Object} FileTransferInfo 文件复制粘贴信息
@@ -25,4 +25,4 @@ const API = {
         return this.server || location.origin
     }
 }
-module.exports = API
+export default API

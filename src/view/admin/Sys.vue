@@ -28,6 +28,13 @@
                                     <td>存储模式：{{settings.STORE_TYPE}} </td>
                                     <td><mdui-btn dense @click="switchStore">切换</mdui-btn></td>
                                 </tr>
+                                <tr>
+                                    <td>文件信息同步</td>
+                                    <td>
+                                        <mdui-btn dense @click="sync(false)">仅公共</mdui-btn>
+                                        <mdui-btn dense @click="sync(true)">所有用户</mdui-btn>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -91,6 +98,20 @@ export default {
             }, () => {}, {
                 confirmText: '已了解，确定继续',
                 cancelText: '取消'
+            })
+        },
+        sync(all = false) {
+            const msg = all ? '所有用户数据' : '公共网盘数据'
+            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入只读模式（数据检查DATA_CHECKING）`, '确认', async () => {
+                this.loading = true
+                try {
+                    await this.$axios(API.admin.store.sync(all))
+                    this.loading = false
+                    mdui.alert('同步完成')
+                } catch (e) {
+                    mdui.snackbar(e.msg)
+                    this.loading = false
+                }
             })
         }
     }
