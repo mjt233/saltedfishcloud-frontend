@@ -35,9 +35,9 @@
 </template>
 
 <script>
-import FileQueue from '../global/FileQueue'
-import '../css/FileIcon.css'
-import StringFormatter from '../utils/StringFormatter'
+import FileQueue from '@/global/FileQueue'
+import '@/css/FileIcon.css'
+import StringFormatter from '@/utils/StringFormatter'
 export default {
     name: 'FileUploadDialog',
     data() {
