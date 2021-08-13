@@ -70,4 +70,15 @@ export default {
 
 <style>
 
+.route-switch-enter-active {
+  transition: all .1s ease-in;
+}
+.route-switch-leave-active {
+  transition: all .1s ease-out;
+}
+.route-switch-enter,
+.route-switch-leave-to {
+  transform: scale(1.03);
+  filter: blur(5px);
+}
 </style>

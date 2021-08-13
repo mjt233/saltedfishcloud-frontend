@@ -14,17 +14,6 @@ export default {
 </script>
 
 <style>
-.route-switch-enter-active {
-  transition: all 0.1s ease-in;
-}
-.route-switch-leave-active {
-  transition: all 0.1s ease-out;
-}
-.route-switch-enter,
-.route-switch-leave-to {
-  transform: rotateY(10deg);
-  opacity: .9;
-}
 
 body {
   background: url("~@/assets/img/bg/bg1.jpg") no-repeat fixed center;
