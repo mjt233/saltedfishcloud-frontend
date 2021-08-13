@@ -44,10 +44,6 @@ const routeOpt = {
             name: 'my'
         },
         {
-            path: 'test',
-            component: require('../view/common/Test').default
-        },
-        {
             path: 'reg',
             component: require('../view/common/RegUser').default
         }

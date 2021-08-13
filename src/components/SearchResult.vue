@@ -5,7 +5,6 @@
             :loading="loading || d_loading"
             :fileList='res.list'
         >
-
             <!-- 文件列表标头 -->
             <div class="mdui-typo">
                 <p>当前路径：<a @click="$emit('back')">{{rootLabel}}</a> > "搜索：{{searchKey}}"</p>
@@ -41,7 +40,7 @@
 <script>
 import mdui from 'mdui'
 import StringFormatter from '../utils/StringFormatter'
-import FileList from './FileList.vue'
+import FileList from '@/components/FileList/index.vue'
 import Pager from './ui/pager.vue'
 import apiConfig from '../api/API'
 export default {
@@ -139,7 +138,7 @@ export default {
 
 }
 </script>
-<style lang="less" scoped>
+<style scoped>
 a {
     cursor: pointer;
 }
@@ -147,7 +146,4 @@ a {
     font-size: 12px;
     color: rgb(39, 39, 39);
 }
-</style>
-<style>
-
 </style>

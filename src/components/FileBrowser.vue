@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import fileList from '../components/FileList.vue'
+import fileList from '@/components/FileList/'
 import FileUtils from '../utils/FileUtils'
 import mdui from 'mdui'
 import apiConfig from '../api/API'

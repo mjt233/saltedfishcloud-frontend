@@ -63,15 +63,14 @@ import mdui from 'mdui'
 import FileBrowser from '@/components/FileBrowser.vue'
 import FileQueue from '@/global/FileQueue'
 import axios from 'axios'
-import Container from '@/components/layout/Container.vue'
-import SearchResult from '@/components/SearchResult'
+import SearchResult from '@/components/SearchResult.vue'
 import API from '@/api/API'
 import FormUtils from '@/utils/FormUtils'
 import MduiDialog from './ui/MduiDialog.vue'
-import MduiCheckbox from './ui/MduiCheckbox'
+import MduiCheckbox from './ui/MduiCheckbox.vue'
 import MduiBtn from './ui/MduiBtn.vue'
 export default {
-    components: { FileBrowser, Container, SearchResult, MduiDialog, MduiCheckbox, MduiBtn },
+    components: { FileBrowser, SearchResult, MduiDialog, MduiCheckbox, MduiBtn },
     name: 'FileHandler',
     props: {
         uid: {

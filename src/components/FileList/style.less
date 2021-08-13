@@ -1,0 +1,136 @@
+.rename-input {
+    width: 80%;
+    outline: none;
+}
+.select-panel {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 153, 255, 0.2);
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+    z-index: 10;
+    &.show {
+        opacity: 1;
+    }
+}
+a {
+    text-decoration: none;
+}
+.loading-mask {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(255, 255, 255, 0.5);
+    height: 100%;
+    width: 100%;
+    transition: all .2s;
+    &.hid {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+.file-list-container {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    opacity: 0.95;
+    width: calc(100%-20px);
+    position: relative;
+    user-select: none;
+    overflow: auto;
+    .file,.dir {
+        &:hover {background-color: rgb(233, 233, 233);}
+    }
+    .head {
+        cursor: unset;
+    }
+    &.type-table {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 120px);
+        grid-gap: 10px;
+        gap: 10px;
+        justify-content: space-evenly;
+        >.list-item {
+            width: 120px;
+            height: 120px;
+            overflow: hidden;
+            border: none !important;
+            background-size: 48px 48px;
+            background-position-x: center;
+            background-position-y: 16px;
+            padding: 0;
+            .file-size,.file-date {display: none;}
+            .file-name {
+                position: absolute;
+                display: block;
+                text-align: center;
+                bottom: 0;
+                height: 45px;
+                padding: 0;
+                width: 100%;
+            }
+            &.selected {
+                border-radius: 5px;
+            }
+        }
+    }
+    .list-item {
+        font-size: 12px;
+        color: #323d55;
+        height: 44px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 10px;
+        background-repeat: no-repeat;
+        background-position-y: 10px;
+        background-position-x: 10px;
+        background-size: 24px 24px;
+        overflow: auto;
+        // transition: all .2s;
+        cursor: pointer;
+        overflow: hidden;
+        &.selected {
+            background-color: rgb(201, 229, 248);
+        }
+        &.tool-bar {
+            background-image: url('~@/assets/img/icon/return.png');
+            background-size: 16px 16px;
+            background-position: 10px
+        }
+        >.file-name {
+            flex-grow: 6;
+            text-align: left;
+            padding-left: 35px;
+            text-overflow: ellipsis;
+            word-wrap: break-all;
+            &>span {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                overflow: hidden;
+                word-wrap: break-all;
+            }
+        }
+
+        >*{
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0 5px;
+            overflow: hidden;
+            flex-shrink: 0;
+            flex-basis: 0;
+            flex-grow: 3;
+        }
+    }
+    .list-item + .list-item {
+        border-top: solid 1px rgba(0, 0, 0, 0.05);
+    }
+}
