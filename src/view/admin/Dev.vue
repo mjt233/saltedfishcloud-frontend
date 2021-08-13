@@ -1,5 +1,5 @@
 <template>
-    <container fill class="mdui-typo" :loading="loading">
+    <container class="mdui-typo" :loading="loading">
         <h2 class="mdui-text-color-theme">开发者选项</h2>
         <mdui-hr></mdui-hr>
         <mdui-card>

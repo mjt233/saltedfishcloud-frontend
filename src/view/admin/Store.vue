@@ -1,5 +1,5 @@
 <template>
-    <container fill>
+    <container>
         <div class="mdui-container">
             <h1>存储设置</h1>
         </div>

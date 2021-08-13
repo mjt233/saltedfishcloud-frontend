@@ -1,5 +1,5 @@
 <template>
-    <container fill>
+    <container>
         <div class="mdui-container">
             <h1>安全选项</h1>
         </div>

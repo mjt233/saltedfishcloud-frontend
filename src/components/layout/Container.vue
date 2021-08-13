@@ -1,5 +1,5 @@
 <template>
-  <div class="container" :class="{'fill': fill}">
+  <div class="container">
     <div class="loading-mask" :class="{'hid':!loading}">
       <div style="position:absolute;top:0;" class="mdui-progress" >
           <div class="mdui-progress-indeterminate"></div>
@@ -18,23 +18,15 @@ export default {
         loading: {
             type: Boolean,
             defaule: false
-        },
-        fill: {
-            type: Boolean,
-            defaule: false
         }
     },
     mounted() {
         this.setHeight()
         mdui.mutation(this.$refs.spinner)
-        if (this.fill) {
-            window.addEventListener('resize', this.setHeight)
-        }
+        window.addEventListener('resize', this.setHeight)
     },
     destroyed() {
-        if (this.fill) {
-            window.removeEventListener('resize', this.setHeight)
-        }
+        window.removeEventListener('resize', this.setHeight)
     },
     methods: {
         setHeight() {
@@ -71,19 +63,12 @@ export default {
 .container {
     min-height: calc(100% - 20px);
     list-style: none;
-    padding: 0;
+    padding: 10px 20px;
     margin: 0;
-    padding:  10px;
-    width: 800px;
+    width: calc(100% - 40px);
     position: relative;
     background-color: rgba(255, 255, 255, 0.95);
     margin: 0 auto;
-    &.fill {
-      padding: 10px 20px;
-      width: calc(100% - 40px);
-      height: 100%;
-      overflow: auto;
-    }
 }
 @media screen and (max-width: 1200px){
     .container {

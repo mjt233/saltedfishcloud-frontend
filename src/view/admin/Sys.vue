@@ -1,5 +1,5 @@
 <template>
-    <container fill class="mdui-typo" :loading="loading">
+    <container class="mdui-typo" :loading="loading">
         <div class="mdui-container">
             <mdui-card style="padding-bottom: 40px">
                 <div class="mdui-col-md-6">
