@@ -83,7 +83,7 @@
                 </a>
             </li>
         </ul>
-        <ul :style="{'--item-margin': containerItemMargin}" class="list-container" ref="container" :class="`type-${type}`">
+        <ul class="list-container" ref="container" :class="`type-${type}`">
             <!-- 表头 -->
             <div class="loading-mask" :class="{'hid':!loading}">
                 <!-- <div class="mdui-spinner"></div> -->
@@ -528,15 +528,6 @@ export default {
         menu.addEventListener('close.mdui.menu', event => {
             this.menuClosing = true
         })
-        this.fn = () => {
-            this.containerItemMargin = this.getFileTableMargin() + 'px'
-            this.mobileMenu = document.documentElement.clientWidth < 640
-        }
-        this.fn()
-        window.addEventListener('resize', this.fn)
-    },
-    destroyed() {
-        window.removeEventListener('resize', this.fn)
     },
     data() {
         return {
@@ -629,11 +620,14 @@ a {
         cursor: unset;
     }
     &.type-table {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 120px);
+        grid-gap: 10px;
+        gap: 10px;
+        justify-content: space-evenly;
         >.list-item {
-            display: inline-block;
             width: 120px;
             height: 120px;
-            margin: 0 0 var(--item-margin) var(--item-margin);
             overflow: hidden;
             border: none !important;
             background-size: 48px 48px;
@@ -649,6 +643,9 @@ a {
                 height: 45px;
                 padding: 0;
                 width: 100%;
+            }
+            &.selected {
+                border-radius: 5px;
             }
         }
     }
