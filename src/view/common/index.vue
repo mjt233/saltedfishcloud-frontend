@@ -41,6 +41,7 @@ export default {
     mounted() {
         this.header = document.querySelector('header')
         this.$store.commit('setDrawer', this.$refs.drawer.getDrawerInst())
+        this.drawer = this.$refs.drawer.getDrawerInst()
         this.setAppHeight()
         if (this.$route.params.close) {
             this.drawer.close()
