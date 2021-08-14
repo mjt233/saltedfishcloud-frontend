@@ -1,10 +1,10 @@
 const { default: Vue } = require('vue')
 const { default: mdui } = require('mdui')
 const { default: axios } = require('axios')
-const { default: FileUtils } = require('../../utils/FileUtils')
+const { default: FileUtils } = require('@/utils/FileUtils')
 const { emit } = require('./QueueUtils')
 /**
- * @typedef {'add'|'pause'|'stop'|'upload'|'complete'} QueueEvent
+ * @typedef {'add'|'pause'|'stop'|'upload'|'complete'|'statusChange'} QueueEvent
  */
 
 /**
@@ -12,7 +12,7 @@ const { emit } = require('./QueueUtils')
  * @property {File} file            -   文件对象
  * @property {String} api           -   上传的API地址
  * @property {Object} params        -   上传时附带的参数
- * @property {String} status        -   状态 waiting-等待队列中 preparing-正在准备 computing-正在计算md5 uploading-正在上传 processing-服务器处理中 finish-完成
+ * @property {'waiting'|'preparing'|'computing'|'uploading'|'processing'|'finish'} status - 状态 waiting-等待队列中 preparing-正在准备 computing-正在计算md5 uploading-正在上传 processing-服务器处理中 finish-完成
  * @property {Number} prog          -   进度 -1为未开始 0为开始，100为完成
  * @property {Number} speed         -   传输速度 单位Byte/s
  * @property {String} md5           -   文件的md5值
@@ -30,7 +30,8 @@ const queueInfo = {
         pause: [],
         stop: [],
         upload: [],
-        complete: []
+        complete: [],
+        statusChange: []
     },
     /**
      * @type {FileInfo[]}
@@ -38,17 +39,32 @@ const queueInfo = {
     queue: [],
     executing: false
 }
-export default {
+Object.defineProperty(queueInfo, 'executing', {
+    old: queueInfo.executing,
+    get(v) {
+        return v
+    },
+    set(v) {
+        if (this.old != v) {
+            emit(queueInfo.eventBinding.statusChange, v)
+        }
+        this.old = v
+    }
+})
+
+const queueHandler = {
     isExecuting() {
-        return queueInfo.executing
+        return queueInfo.queue.length != 0 && queueInfo.queue[0].status != 'waiting'
     },
     /**
      * 添加一个事件绑定
      * @param {QueueEvent} event 要添加绑定事件名称
      * @param {QueueEventHandler} handler 事件回调
+     * @returns {queueHandler}
      */
     addEventHandler(event, handler) {
         queueInfo.eventBinding[event].push(handler)
+        return this
     },
     /**
      * 移除一个事件绑定
@@ -97,20 +113,16 @@ export default {
     /**
      * 开始执行上传任务队列
      * @todo 未做上传失败时的例外处理
-     * @param {Function} finish
      */
-    executeQueue(finish) {
+    executeQueue() {
         // 队列状态判断
-        if (queueInfo.executing) {
-            mdui.snackbar('已经正在上传了,剩余任务数量：' + this.queue.length)
+        if (this.isExecuting()) {
             return
         }
+
         if (queueInfo.queue.length === 0) {
-            mdui.snackbar('上传任务完成')
+            emit(queueInfo.eventBinding.complete)
             this.executing = false
-            if (finish !== undefined) {
-                finish()
-            }
             return
         }
 
@@ -128,7 +140,6 @@ export default {
             },
             error: e => {
                 mdui.alert(`${task.file.name} 为文件夹，无法上传`)
-                queueInfo.executing = false
                 this.shift()
                 this.executeQueue()
             },
@@ -183,7 +194,6 @@ export default {
                 task.status = 'finish'
                 Vue.prototype.$eventBus.$emit('uploaded', queueInfo.queue[0])
                 emit(queueInfo.eventBinding.upload, queueInfo.queue[0])
-                queueInfo.executing = false
                 this.shift()
                 this.executeQueue()
             }).catch(e => {
@@ -199,7 +209,6 @@ export default {
                         file: this.shift(),
                         error: e
                     })
-                    queueInfo.executing = false
                     this.executeQueue()
                 }, {
                     modal: true
@@ -208,3 +217,5 @@ export default {
         }
     }
 }
+
+export default queueHandler
