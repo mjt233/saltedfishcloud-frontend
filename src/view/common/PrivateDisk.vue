@@ -30,9 +30,7 @@ export default {
     },
     mounted() {
         if (this.userInfo == null) {
-            mdui.snackbar('私人网盘需要登录，请先登录', {
-                position: 'top'
-            })
+            mdui.snackbar('私人网盘需要登录，请先登录')
         }
     }
 }
