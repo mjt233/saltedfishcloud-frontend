@@ -9,6 +9,9 @@ export default {
     name: 'App',
     mounted() {
         document.querySelector('#first-load').classList.add('hid')
+        setTimeout(() => {
+            document.querySelector('#first-load').remove()
+        }, 1000)
     }
 }
 </script>
@@ -20,6 +23,9 @@ body {
   background-size: cover;
   margin: 0;
   padding: 0;
+}
+body, html {
+  overflow: hidden;
 }
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;

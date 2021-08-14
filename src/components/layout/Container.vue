@@ -18,17 +18,38 @@ export default {
         loading: {
             type: Boolean,
             defaule: false
+        },
+        fill: {
+            type: Boolean,
+            defaule: false
+        }
+    },
+    watch: {
+        fill() {
+            if (this.fill) {
+                this.addResizeEventListener()
+            }
         }
     },
     mounted() {
-        this.setHeight()
         mdui.mutation(this.$refs.spinner)
-        window.addEventListener('resize', this.setHeight)
+        if (this.fill) {
+            this.addResizeEventListener()
+        }
     },
     destroyed() {
-        window.removeEventListener('resize', this.setHeight)
+        if (this.fill) {
+            this.removeResizeEventListener()
+        }
     },
     methods: {
+        addResizeEventListener() {
+            this.setHeight()
+            window.addEventListener('resize', this.setHeight)
+        },
+        removeResizeEventListener() {
+            window.removeEventListener('resize', this.setHeight)
+        },
         setHeight() {
             const set = () => {
                 const top = DOMUtils.getAbsoluteOffsetTop(this.$el, document.body)

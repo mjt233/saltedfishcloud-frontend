@@ -17,14 +17,12 @@ import FileUploadDialog from '@/components/FileUploadDialog/index.vue'
 import Store from '@/Store'
 import API from '@/api/API'
 import Drawer from '@/components/layout/Drawer.vue'
-import Container from '@/components/layout/Container.vue'
 export default {
     name: 'index',
     components: {
         FileUploadDialog,
         SfHeader,
-        Drawer,
-        Container
+        Drawer
     },
     data() {
         return {

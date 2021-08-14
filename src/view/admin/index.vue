@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <header class="mdui-appbar mdui-appbar-fixed">
+    <div ref="root">
+        <header ref="header" class="mdui-appbar mdui-appbar-fixed">
             <div class="mdui-toolbar mdui-color-theme">
             <a @click="switchMenu" href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">menu</i></a>
             <a href="javascript:;" class="mdui-typo-title">咸鱼云后台</a>
@@ -27,7 +27,7 @@
 
 <script>
 import mdui from 'mdui'
-import AdminDrawer from '../../components/layout/AdminDrawer.vue'
+import AdminDrawer from '@/components/layout/AdminDrawer.vue'
 export default {
     components: { AdminDrawer },
     data() {
@@ -38,7 +38,8 @@ export default {
                 { name: '用户管理', icon: 'people', to: '/admin/user' },
                 { name: '系统配置', icon: 'settings_applications', to: '/admin/sys' },
                 { name: '开发者调试', icon: 'developer_board', to: '/admin/dev' }
-            ]
+            ],
+            header: null
         }
     },
     mounted() {
@@ -50,9 +51,15 @@ export default {
             })
         }
         this.drawer = new mdui.Drawer(this.$refs.drawer.$el)
+        this.header = this.$refs.header
         if (this.$route.params.close) {
             this.drawer.close()
         }
+        this.setAppHeight()
+        window.addEventListener('resize', this.setAppHeight)
+    },
+    destroyed() {
+        window.removeEventListener('resize', this.setAppHeight)
     },
     computed: {
         userInfo() {
@@ -65,6 +72,11 @@ export default {
     methods: {
         switchMenu() {
             this.drawer.toggle()
+        },
+        setAppHeight() {
+            const h = document.documentElement.clientHeight - this.header.offsetHeight + 'px'
+            this.$refs.root.style.minHeight = h
+            this.$refs.root.style.height = h
         }
     },
     watch: {
@@ -78,5 +90,4 @@ export default {
 </script>
 
 <style>
-
 </style>

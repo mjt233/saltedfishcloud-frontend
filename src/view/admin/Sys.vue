@@ -102,7 +102,7 @@ export default {
         },
         sync(all = false) {
             const msg = all ? '所有用户数据' : '公共网盘数据'
-            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入只读模式（数据检查DATA_CHECKING）`, '确认', async () => {
+            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入只读模式（数据检查DATA_CHECKING）`, '确认', async() => {
                 this.loading = true
                 try {
                     await this.$axios(API.admin.store.sync(all))
