@@ -1,70 +1,72 @@
 <template>
   <container v-if="userInfo" :loading="loading">
-      <div class="mdui-container">
-        <mdui-dialog @confirm='confirm' id="dialog" :title="'修改密码'" :loading="mp.loading">
-          <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">旧密码</label>
-            <input class="mdui-textfield-input" v-model="mp.op" type="password"/>
-          </div>
-          <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">新密码</label>
-            <input class="mdui-textfield-input" v-model="mp.np"  type="password"/>
-          </div>
-          <div class="mdui-textfield mdui-textfield-floating-label">
-            <label class="mdui-textfield-label">确认密码</label>
-            <input class="mdui-textfield-input" @keydown.enter="confirm"  v-model="mp.cp" type="password"/>
-          </div>
-        </mdui-dialog>
-        <ul class="mdui-list">
-          <!-- 头像显示 -->
-          <li class="mdui-list-item mdui-ripple">
-            <div class="mdui-list-item-content"><span>头像</span></div>
-            <div class="mdui-list-item-avatar" @click="uploadAvatar"> <img ref="img" :src="avatarURL"></div>
-          </li>
-          <li class="mdui-divider"></li>
-          <!-- 用户基本信息 -->
-          <li class="mdui-list-item mdui-ripple">
-            <div class="mdui-list-item-content"><span>用户ID</span></div>
-            <div class="mdui-list-item-text">{{userInfo.id}}</div>
-          </li>
-          <li class="mdui-list-item mdui-ripple">
-            <div class="mdui-list-item-content"><span>用户名</span></div>
-            <div class="mdui-list-item-text">{{userInfo.user}}</div>
-          </li>
-          <li class="mdui-list-item mdui-ripple">
-            <div class="mdui-list-item-content"><span>身份</span></div>
-            <div class="mdui-list-item-text">{{userInfo.type == 1 ? '管理员' : '普通用户'}}</div>
-          </li>
-          <li class="mdui-divider"></li>
-          <li class="mdui-list-item mdui-ripple" @click="openDialog">
-            <div class="mdui-list-item-content"><span>修改密码</span></div>
-          </li>
-          <li class="mdui-divider"></li>
-          <!-- 配额情况 -->
-          <li class="mdui-list-item mdui-ripple">
-            <div class="mdui-list-item-content"><span>存储使用情况</span></div>
-            <div class="mdui-list-item-text"><span>
-              <span>{{quota.used | formatSize}}/{{quota.quota | formatSize}}</span>
-              <br>
-              <progress :max="quota.quota" :value="quota.used"></progress>
-              </span></div>
-          </li>
-          <li class="mdui-divider"></li>
-          <li class="mdui-list-item mdui-ripple" @click="changeTheme">
-            <div class="mdui-list-item-content">
-              <div class="mdui-list-item-title">主题色</div>
-              <div class="mdui-list-item-text">默认（点击更改）</div>
-            </div>
-          </li>
-        </ul>
-        <mdui-dialog ref="theme" title="选择一个颜色主题" @confirm='themeConfirm'>
-          <mdui-btn :themeColor="false" class="mdui-color-pink mdui-text-color-white" @click="setTheme('pink')">少女粉</mdui-btn>
-          <mdui-btn :themeColor="false" class="mdui-color-indigo mdui-text-color-white" @click="setTheme('indigo')">经典蓝</mdui-btn>
-          <mdui-btn :themeColor="false" class="mdui-color-deep-purple mdui-text-color-white" @click="setTheme('deep-purple')">基佬紫</mdui-btn>
-          <mdui-btn :themeColor="false" class="mdui-color-deep-orange mdui-text-color-white" @click="setTheme('deep-orange')">加菲橘</mdui-btn>
-          <mdui-btn :themeColor="false" class="mdui-color-amber" @click="setTheme('amber')">咸蛋黄</mdui-btn>
-        </mdui-dialog>
-      </div>
+        <div class="mdui-container">
+            <mdui-card>
+                <mdui-dialog @confirm='confirm' id="dialog" :title="'修改密码'" :loading="mp.loading">
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                    <label class="mdui-textfield-label">旧密码</label>
+                    <input class="mdui-textfield-input" v-model="mp.op" type="password"/>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                    <label class="mdui-textfield-label">新密码</label>
+                    <input class="mdui-textfield-input" v-model="mp.np"  type="password"/>
+                    </div>
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <label class="mdui-textfield-label">确认密码</label>
+                        <input class="mdui-textfield-input" @keydown.enter="confirm"  v-model="mp.cp" type="password"/>
+                    </div>
+                </mdui-dialog>
+                <ul class="mdui-list">
+                    <!-- 头像显示 -->
+                    <li class="mdui-list-item mdui-ripple">
+                    <div class="mdui-list-item-content"><span>头像</span></div>
+                    <div class="mdui-list-item-avatar" @click="uploadAvatar"> <img ref="img" :src="avatarURL"></div>
+                    </li>
+                    <li class="mdui-divider"></li>
+                    <!-- 用户基本信息 -->
+                    <li class="mdui-list-item mdui-ripple">
+                    <div class="mdui-list-item-content"><span>用户ID</span></div>
+                    <div class="mdui-list-item-text">{{userInfo.id}}</div>
+                    </li>
+                    <li class="mdui-list-item mdui-ripple">
+                    <div class="mdui-list-item-content"><span>用户名</span></div>
+                    <div class="mdui-list-item-text">{{userInfo.user}}</div>
+                    </li>
+                    <li class="mdui-list-item mdui-ripple">
+                    <div class="mdui-list-item-content"><span>身份</span></div>
+                    <div class="mdui-list-item-text">{{userInfo.type == 1 ? '管理员' : '普通用户'}}</div>
+                    </li>
+                    <li class="mdui-divider"></li>
+                    <li class="mdui-list-item mdui-ripple" @click="openDialog">
+                    <div class="mdui-list-item-content"><span>修改密码</span></div>
+                    </li>
+                    <li class="mdui-divider"></li>
+                    <!-- 配额情况 -->
+                    <li class="mdui-list-item mdui-ripple">
+                    <div class="mdui-list-item-content"><span>存储使用情况</span></div>
+                    <div class="mdui-list-item-text"><span>
+                        <span>{{quota.used | formatSize}}/{{quota.quota | formatSize}}</span>
+                        <br>
+                        <progress :max="quota.quota" :value="quota.used"></progress>
+                        </span></div>
+                    </li>
+                    <li class="mdui-divider"></li>
+                    <li class="mdui-list-item mdui-ripple" @click="changeTheme">
+                    <div class="mdui-list-item-content">
+                        <div class="mdui-list-item-title">主题色</div>
+                        <div class="mdui-list-item-text">默认（点击更改）</div>
+                    </div>
+                    </li>
+                </ul>
+                <mdui-dialog ref="theme" title="选择一个颜色主题" @confirm='themeConfirm'>
+                    <mdui-btn :themeColor="false" class="mdui-color-pink mdui-text-color-white" @click="setTheme('pink')">少女粉</mdui-btn>
+                    <mdui-btn :themeColor="false" class="mdui-color-indigo mdui-text-color-white" @click="setTheme('indigo')">经典蓝</mdui-btn>
+                    <mdui-btn :themeColor="false" class="mdui-color-deep-purple mdui-text-color-white" @click="setTheme('deep-purple')">基佬紫</mdui-btn>
+                    <mdui-btn :themeColor="false" class="mdui-color-deep-orange mdui-text-color-white" @click="setTheme('deep-orange')">加菲橘</mdui-btn>
+                    <mdui-btn :themeColor="false" class="mdui-color-amber" @click="setTheme('amber')">咸蛋黄</mdui-btn>
+                </mdui-dialog>
+            </mdui-card>
+        </div>
   </container>
   <container v-else>
     <h3>未登录，请先登录</h3>
@@ -79,8 +81,14 @@ import FileUtils from '../../utils/FileUtils'
 import MduiDialog from '../../components/ui/MduiDialog.vue'
 import Theme from '../../utils/Theme'
 import MduiBtn from '../../components/ui/MduiBtn.vue'
+import MduiCard from '@/components/ui/MduiCard.vue'
 export default {
-    components: { Container, MduiDialog, MduiBtn },
+    components: {
+        Container,
+        MduiDialog,
+        MduiBtn,
+        MduiCard
+    },
     data() {
         return {
             quota: {
