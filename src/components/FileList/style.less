@@ -1,3 +1,6 @@
+body, html {
+    overflow: hidden;
+}
 .rename-input {
     width: 80%;
     outline: none;
@@ -43,7 +46,7 @@ a {
     width: calc(100%-20px);
     position: relative;
     user-select: none;
-    overflow: auto;
+    overflow: hidden;
     .file,.dir {
         &:hover {background-color: rgb(233, 233, 233);}
     }
@@ -109,13 +112,13 @@ a {
             text-align: left;
             padding-left: 35px;
             text-overflow: ellipsis;
-            word-wrap: break-all;
+            word-wrap: break-word;
             &>span {
                 display: -webkit-box;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 3;
                 overflow: hidden;
-                word-wrap: break-all;
+                word-wrap: break-word;
             }
         }
 

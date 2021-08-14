@@ -70,13 +70,4 @@ export default {
     background-color: rgba(255, 255, 255, 0.95);
     margin: 0 auto;
 }
-@media screen and (max-width: 1200px){
-    .container {
-      width: calc(100% - 20px);
-      &.fill {
-        width: calc(100% - 20px);
-        padding: 10px;
-      }
-    }
-}
 </style>
