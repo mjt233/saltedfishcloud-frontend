@@ -34,6 +34,9 @@ axios.interceptors.response.use(
         case 0:
             mdui.alert(conf.data.msg)
         }
+        if (conf.config.noDefaultAction) {
+            return conf
+        }
         return Promise.reject(conf.data)
     },
     err => {

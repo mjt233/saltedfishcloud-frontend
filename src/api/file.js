@@ -26,6 +26,7 @@ const file = {
      * @returns {import("_axios@0.21.1@axios").AxiosRequestConfig}
      */
     copy(uid, source, target, overwrite = true, files) {
+        if (source == '/') source = ''
         return {
             method: 'post',
             url: `/${this.prefix}/${uid}/fromPath/${source}`,
@@ -60,6 +61,7 @@ const file = {
      * @returns
      */
     getFileList(uid, path) {
+        if (path == '/') path = ''
         return {
             url: `${this.prefix}/${uid}/fileList/byPath/${path}`,
             method: 'get'
@@ -73,6 +75,7 @@ const file = {
      * @returns
      */
     mkdir(uid, path, name) {
+        if (path == '/') path = ''
         return {
             url: `${this.prefix}/${uid}/dir/${path}`,
             method: 'put',
@@ -89,6 +92,7 @@ const file = {
      * @param {String} md5 文件MD5
      */
     upload(uid, path, file, md5) {
+        if (path == '/') path = ''
         return {
             url: `${this.prefix}/${uid}/file/${path}`,
             method: 'put',
@@ -125,6 +129,7 @@ const file = {
      * @returns
      */
     rename(uid, path, oldName, newName) {
+        if (path == '/') path = ''
         return {
             url: `${this.prefix}/${uid}/name/${path}`,
             method: 'put',

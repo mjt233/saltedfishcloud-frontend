@@ -12,7 +12,7 @@
             <div class="header mdui-color-theme-200">
                 <span style="padding-left:10px;color:white">文件上传队列</span>
                 <div>
-                    <button @click="startUpload"><i class="mdui-icon material-icons">{{executing ? 'pause' : 'play_arrow'}}</i></button>
+                    <button @click="startUpload"><i class="mdui-icon material-icons">{{dialogBtnContent}}</i></button>
                     <button @click="showList = false"><i class="mdui-icon material-icons">close</i></button>
                 </div>
             </div>
@@ -40,27 +40,37 @@
 </template>
 
 <script>
-import FileQueue from '@/components/FileUploadDialog/FileQueue'
 import '@/css/FileIcon.css'
 import StringFormatter from '@/utils/StringFormatter'
 import mdui from 'mdui'
+import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQueue/FileQueueHandler'
+import { QueueStatus } from '@/service/FileUpload/FileUploadQueue/FileUploadQueueInfo'
 export default {
     name: 'FileUploadDialog',
     data() {
         return {
             fileQueue: FileQueue.getQueue(),
             showList: false,
-            executing: false
+            executing: false,
+            status: QueueStatus.EMPTY
+        }
+    },
+    computed: {
+        dialogBtnContent() {
+            if (this.status == QueueStatus.EXECUTING) {
+                return 'pause'
+            } else {
+                return 'play_arrow'
+            }
         }
     },
     mounted() {
         FileQueue.addEventHandler('statusChange', s => {
-            this.executing = s
+            this.status = s
         }).addEventHandler('add', () => {
             if (!FileQueue.isExecuting()) {
                 FileQueue.executeQueue()
                 this.showList = true
-                console.log('add and execute')
             }
         }).addEventHandler('complete', () => {
             mdui.snackbar('上传任务完成')
@@ -72,7 +82,11 @@ export default {
             return name.split('.').pop()
         },
         startUpload() {
-            FileQueue.executeQueue()
+            if (this.status === QueueStatus.EXECUTING) {
+                FileQueue.pause()
+            } else {
+                FileQueue.resume()
+            }
         },
         /**
          * @param {FileInfo} file

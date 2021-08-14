@@ -5,9 +5,20 @@ const md5 = require('js-md5')
  */
 const FileUtils = {
     /**
-     * @callback GetFileListCallback
-     * @param {FileList} filelist 文件列表
+     * 将文件按指定的块大小进行分割，文件最后一小块大小可能小于指定的块大小
+     * @param {File} file 文件
+     * @param {Number} chunkSize 每个分块的大小
+     * @returns {Generator<Blob, void, unknown>}
      */
+    * sliceFile(file, chunkSize = 1024 * 1024 * 2) {
+        const fileSize = file.size
+        let index = 0
+        while (index < fileSize) {
+            const end = index + Math.min(fileSize, chunkSize)
+            yield file.slice(index, end)
+            index = end
+        }
+    },
 
     /**
      * 打开文件选择框

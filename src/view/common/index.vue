@@ -12,7 +12,7 @@
 <script>
 import mdui from 'mdui'
 import SfHeader from '@/components/layout/SfHeader.vue'
-import FileQueue from '@/components/FileUploadDialog/FileQueue'
+import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQueue/FileQueueHandler'
 import FileUploadDialog from '@/components/FileUploadDialog/index.vue'
 import Store from '@/Store'
 import API from '@/api/API'
