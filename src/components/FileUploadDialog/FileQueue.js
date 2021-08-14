@@ -1,7 +1,11 @@
 const { default: Vue } = require('vue')
 const { default: mdui } = require('mdui')
 const { default: axios } = require('axios')
-const { default: FileUtils } = require('../utils/FileUtils')
+const { default: FileUtils } = require('../../utils/FileUtils')
+const { emit } = require('./QueueUtils')
+/**
+ * @typedef {'add'|'pause'|'stop'|'upload'|'complete'} QueueEvent
+ */
 
 /**
  * @typedef {Object} FileInfo
@@ -14,12 +18,52 @@ const { default: FileUtils } = require('../utils/FileUtils')
  * @property {String} md5           -   文件的md5值
  *
  */
-const obj = {
+
+/**
+ * @callback QueueEventHandler
+ * @param {FileInfo} e
+ */
+
+const queueInfo = {
+    eventBinding: {
+        add: [],
+        pause: [],
+        stop: [],
+        upload: [],
+        complete: []
+    },
     /**
      * @type {FileInfo[]}
      */
     queue: [],
-    executing: false,
+    executing: false
+}
+export default {
+    isExecuting() {
+        return queueInfo.executing
+    },
+    /**
+     * 添加一个事件绑定
+     * @param {QueueEvent} event 要添加绑定事件名称
+     * @param {QueueEventHandler} handler 事件回调
+     */
+    addEventHandler(event, handler) {
+        queueInfo.eventBinding[event].push(handler)
+    },
+    /**
+     * 移除一个事件绑定
+     * @param {QueueEvent} event 要添加绑定事件名称
+     * @param {QueueEventHandler} handler 事件回调
+     */
+    removeEventHandler(event, handler) {
+        let targetIndex
+        queueInfo.eventBinding[event].forEach((e, i) => {
+            if (e === handler) {
+                targetIndex = i
+            }
+        })
+        queueInfo.eventBinding[event].splice(targetIndex, 1)
+    },
     /**
      *
      * @param {Object} fileInfo
@@ -32,22 +76,23 @@ const obj = {
         fileInfo.prog = -1
         fileInfo.speed = 0
         fileInfo.params = fileInfo.params ? fileInfo.params : {}
-        this.queue.push(fileInfo)
+        queueInfo.queue.push(fileInfo)
+        emit(queueInfo.eventBinding.add, fileInfo)
     },
     shift() {
-        return this.queue.shift()
+        return queueInfo.queue.shift()
     },
     /**
      * @returns {FileInfo}
      */
     getQueue() {
-        return this.queue
+        return queueInfo.queue
     },
     /**
      * 输出当前队列信息
      */
     printInfo() {
-        console.log(this.queue)
+        console.log(queueInfo.queue)
     },
     /**
      * 开始执行上传任务队列
@@ -56,11 +101,11 @@ const obj = {
      */
     executeQueue(finish) {
         // 队列状态判断
-        if (this.executing) {
+        if (queueInfo.executing) {
             mdui.snackbar('已经正在上传了,剩余任务数量：' + this.queue.length)
             return
         }
-        if (this.queue.length === 0) {
+        if (queueInfo.queue.length === 0) {
             mdui.snackbar('上传任务完成')
             this.executing = false
             if (finish !== undefined) {
@@ -69,8 +114,8 @@ const obj = {
             return
         }
 
-        this.executing = true
-        const task = this.queue[0]
+        queueInfo.executing = true
+        const task = queueInfo.queue[0]
         task.status = 'preparing'
         FileUtils.computeMd5(task.file, {
             success: e => {
@@ -83,8 +128,8 @@ const obj = {
             },
             error: e => {
                 mdui.alert(`${task.file.name} 为文件夹，无法上传`)
-                this.executing = false
-                this.queue.shift()
+                queueInfo.executing = false
+                this.shift()
                 this.executeQueue()
             },
             prog: e => {
@@ -136,8 +181,9 @@ const obj = {
             }).then(e => {
                 // 上传成功
                 task.status = 'finish'
-                Vue.prototype.$eventBus.$emit('uploaded', this.queue[0])
-                this.executing = false
+                Vue.prototype.$eventBus.$emit('uploaded', queueInfo.queue[0])
+                emit(queueInfo.eventBinding.upload, queueInfo.queue[0])
+                queueInfo.executing = false
                 this.shift()
                 this.executeQueue()
             }).catch(e => {
@@ -153,7 +199,7 @@ const obj = {
                         file: this.shift(),
                         error: e
                     })
-                    this.executing = false
+                    queueInfo.executing = false
                     this.executeQueue()
                 }, {
                     modal: true
@@ -162,5 +208,3 @@ const obj = {
         }
     }
 }
-
-module.exports = obj

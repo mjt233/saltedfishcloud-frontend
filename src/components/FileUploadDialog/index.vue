@@ -35,9 +35,14 @@
 </template>
 
 <script>
-import FileQueue from '@/global/FileQueue'
+import FileQueue from '@/components/FileUploadDialog/FileQueue'
 import '@/css/FileIcon.css'
 import StringFormatter from '@/utils/StringFormatter'
+FileQueue.addEventHandler('add', () => {
+    if (!FileQueue.isExecuting()) {
+        FileQueue.executeQueue()
+    }
+})
 export default {
     name: 'FileUploadDialog',
     data() {

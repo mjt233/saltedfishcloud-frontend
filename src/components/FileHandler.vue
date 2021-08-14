@@ -61,7 +61,7 @@
 <script>
 import mdui from 'mdui'
 import FileBrowser from '@/components/FileBrowser.vue'
-import FileQueue from '@/global/FileQueue'
+import FileQueue from '@/components/FileUploadDialog/FileQueue'
 import axios from 'axios'
 import SearchResult from '@/components/SearchResult.vue'
 import API from '@/api/API'
