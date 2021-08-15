@@ -75,12 +75,12 @@
 
 <script>
 import mdui from 'mdui'
-import apiConfig from '../../api/API'
-import Container from '../../components/layout/Container.vue'
-import FileUtils from '../../utils/FileUtils'
-import MduiDialog from '../../components/ui/MduiDialog.vue'
-import Theme from '../../utils/Theme'
-import MduiBtn from '../../components/ui/MduiBtn.vue'
+import apiConfig from '@/api/API'
+import Container from '@/components/layout/Container.vue'
+import FileUtils from '@/utils/FileUtils'
+import MduiDialog from '@/components/ui/MduiDialog.vue'
+import Theme from '@/utils/Theme'
+import MduiBtn from '@/components/ui/MduiBtn.vue'
 import MduiCard from '@/components/ui/MduiCard.vue'
 export default {
     components: {
