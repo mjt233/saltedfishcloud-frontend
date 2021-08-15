@@ -1,5 +1,5 @@
 <template>
-    <container :loading="loading" class="mdui-typo" >
+    <container style=" overflow: auto" :loading="loading" class="mdui-typo" >
         <div class="mdui-container">
             <div class="mdui-row">
                 <div class="mdui-col-md-6">
@@ -85,11 +85,11 @@
 </template>
 
 <script>
-import API from '../../api/API'
-import Container from '../../components/layout/Container.vue'
-import MduiCard from '../../components/ui/MduiCard.vue'
+import API from '@/api/API'
+import Container from '@/components/layout/Container.vue'
+import MduiCard from '@/components/ui/MduiCard.vue'
 import * as echarts from 'echarts'
-import stringFormatter from '../../utils/StringFormatter'
+import stringFormatter from '@/utils/StringFormatter'
 import mdui from 'mdui'
 export default {
     components: { Container, MduiCard },
@@ -181,7 +181,7 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 td {
     word-break : break-all;
 }
