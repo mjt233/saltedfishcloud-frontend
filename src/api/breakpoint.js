@@ -6,12 +6,19 @@ const breakpoint = {
      * @returns {import("axios").AxiosRequestConfig}
      */
     createTask(name, size) {
+        let chunkSize = 2097152
+        if (size > 1024 * 1024 * 16) {
+            chunkSize *= 2
+        } else if (chunkSize > 1024 * 1024 * 128) {
+            chunkSize *= 8
+        }
         return {
             url: 'breakpoint',
             method: 'post',
             data: {
                 fileName: name,
-                length: size
+                length: size,
+                chunkSize: chunkSize
             },
             noDefaultAction: true
         }
