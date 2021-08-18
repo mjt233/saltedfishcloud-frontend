@@ -88,7 +88,7 @@ export default {
             }
         },
         getDrawerInst() {
-          return this.drawer
+            return this.drawer
         },
         exit() {
             this.$emit('exit')

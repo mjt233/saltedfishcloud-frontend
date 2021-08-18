@@ -63,7 +63,7 @@ export default {
                 mdui.snackbar('登录成功')
                 this.$router.push('/private')
             } catch (error) {
-
+                mdui.alert(error.msg || error)
             }
             this.loading = false
         },

@@ -19,8 +19,7 @@ const breakpoint = {
                 fileName: name,
                 length: size,
                 chunkSize: chunkSize
-            },
-            noDefaultAction: true
+            }
         }
     },
     /**

@@ -51,7 +51,7 @@ const user = {
     login(user, passwd) {
         return {
             url: this.prefix + '/token',
-            method: 'get',
+            method: 'post',
             params: {
                 user: user,
                 passwd: passwd

@@ -53,9 +53,9 @@
 
 <script>
 import fileList from '@/components/FileList/'
-import FileUtils from '../utils/FileUtils'
+import FileUtils from '@/utils/FileUtils'
 import mdui from 'mdui'
-import apiConfig from '../api/API'
+import apiConfig from '@/api/API'
 export default {
     name: 'FileBrowser',
     props: {

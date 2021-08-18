@@ -70,9 +70,9 @@
 
 <script>
 import mdui from 'mdui'
-import Container from '../../components/layout/Container.vue'
-import apiConfig from '../../api/API'
-import MduiCard from '../../components/ui/MduiCard.vue'
+import Container from '@/components/layout/Container.vue'
+import apiConfig from '@/api/API'
+import MduiCard from '@/components/ui/MduiCard.vue'
 export default {
     components: { Container, MduiCard },
     data() {
@@ -123,7 +123,6 @@ export default {
             this.loading = true
             const conf = apiConfig.user.regUser()
             conf.data = this.form
-            conf.noDefaultAction = true
             this.$axios(conf).then(() => {
                 this.loading = false
                 mdui.alert('注册成功', () => {
