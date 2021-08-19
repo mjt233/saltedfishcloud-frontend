@@ -5,7 +5,6 @@
     <transition on name="route-switch" mode="out-in">
         <router-view />
     </transition>
-    <file-upload-dialog></file-upload-dialog>
   </div>
 </template>
 
@@ -13,14 +12,12 @@
 import mdui from 'mdui'
 import SfHeader from '@/components/layout/SfHeader.vue'
 import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQueue/FileQueueHandler'
-import FileUploadDialog from '@/components/FileUploadDialog/index.vue'
 import Store from '@/Store'
 import API from '@/api/API'
 import Drawer from '@/components/layout/Drawer.vue'
 export default {
     name: 'index',
     components: {
-        FileUploadDialog,
         SfHeader,
         Drawer
     },
