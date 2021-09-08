@@ -77,6 +77,9 @@ export default {
         },
         close() {
             this.dialog.close()
+        },
+        update() {
+            this.dialog.handleUpdate()
         }
     },
     destroyed() {

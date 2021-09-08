@@ -131,7 +131,7 @@ export default {
             const conf = API.task.download.create({
                 uid: this.uid,
                 savePath: '/' + this.path,
-                url: task.url
+                ...task
             })
             this.loading = true
             try {

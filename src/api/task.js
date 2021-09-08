@@ -27,6 +27,11 @@ const task = {
                 },
                 data: opt
             }
+        },
+        getProxy() {
+            return {
+                url: `${this.prefix}/proxy`
+            }
         }
     }
 }
