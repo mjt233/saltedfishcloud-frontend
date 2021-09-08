@@ -61,6 +61,9 @@
           </li>
         </router-link>
       </ul>
+      <div class="bottom-menu" v-if="userInfo && userInfo.type == 1">
+        <a href="javascript:;" @click="toAdmin">管理员后台</a>
+      </div>
     </div>
 </template>
 
@@ -82,6 +85,10 @@ export default {
         this.drawer = new mdui.Drawer('#drawer')
     },
     methods: {
+        toAdmin() {
+            this.closeDrawer()
+            this.$router.push('/admin/overview')
+        },
         closeDrawer() {
             if (document.documentElement.offsetWidth < 1024) {
                 this.drawer.close()
@@ -97,6 +104,6 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="less" scoped>
+@import './drawerMenu.css';
 </style>
