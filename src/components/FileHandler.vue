@@ -35,7 +35,7 @@
         @createDownload='showDownload = true'
         ref='browser'
     >
-        <create-download-dialog :show.sync="showDownload" @confirm="createDownload"/>
+        <create-download-dialog v-if="modifiable" :show.sync="showDownload" @confirm="createDownload"/>
         <mdui-dialog id='attr-dialog' :title="'设置下载链接属性'" ref="dialog" @confirm='getURL'>
             <div style="margin: 20px auto; width: 90%" class="mdui-typo">
                 <span>链接有效时长：<span style="color: red;font-weight: 900" class="mdui-text-color-theme">{{link.expr == 32 ? '无限制' : link.expr + '天'}}</span></span>
