@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import API from '@/api/API'
+import API from '@/api'
 import Container from '@/components/layout/Container.vue'
 import MduiCard from '@/components/ui/MduiCard.vue'
 import * as echarts from 'echarts'

@@ -19,7 +19,7 @@
  * @property {UploadProgress} onBlockFinish
  */
 
-import API from '@/api/API'
+import API from '@/api'
 import axios from '@/axios.config'
 import FileUtils from '@/utils/FileUtils'
 import { FileSliceUploader } from '@/service/FileUpload/FileUploader/FileSliceUploader'

@@ -27,7 +27,7 @@
 <script>
 import mdui from 'mdui'
 import Container from '../../components/layout/Container.vue'
-import apiConfig from '../../api/API'
+import apiConfig from '../../api'
 import MduiCard from '../../components/ui/MduiCard.vue'
 export default {
     components: { Container, MduiCard },

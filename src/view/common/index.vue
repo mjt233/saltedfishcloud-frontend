@@ -13,7 +13,7 @@ import mdui from 'mdui'
 import SfHeader from '@/components/layout/SfHeader.vue'
 import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQueue/FileQueueHandler'
 import Store from '@/Store'
-import API from '@/api/API'
+import API from '@/api'
 import Drawer from '@/components/layout/Drawer.vue'
 export default {
     name: 'index',

@@ -46,7 +46,7 @@
 
 <script>
 import mdui from 'mdui'
-import API from '../../api/API'
+import API from '../../api'
 import Container from '../../components/layout/Container.vue'
 import MduiBtn from '../../components/ui/MduiBtn.vue'
 import MduiCard from '../../components/ui/MduiCard.vue'

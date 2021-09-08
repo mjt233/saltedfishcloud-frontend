@@ -75,7 +75,7 @@
 
 <script>
 import mdui from 'mdui'
-import apiConfig from '@/api/API'
+import apiConfig from '@/api'
 import Container from '@/components/layout/Container.vue'
 import FileUtils from '@/utils/FileUtils'
 import MduiDialog from '@/components/ui/MduiDialog.vue'

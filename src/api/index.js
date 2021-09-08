@@ -3,7 +3,7 @@ const resource = require('./resource')
 const user = require('./user')
 const admin = require('./admin')
 const breakpoint = require('./breakpoint')
-
+const task = require('./task')
 /**
  * @typedef {Object} FileTransferInfo 文件复制粘贴信息
  * @property {String} source    源文件名
@@ -20,6 +20,7 @@ const API = {
     resource: resource,
     admin: admin,
     breakpoint: breakpoint,
+    task: task,
     /**
      * 获取服务器地址，当服务器地址为空时，返回当前页面地址
      */

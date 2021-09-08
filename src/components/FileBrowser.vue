@@ -13,11 +13,12 @@
         @cut='cut'
         @copy='copy'
         @paste='paste'
+        @createDownload='$emit("createDownload")'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="`name size date return drag-select menu cut copy ${clipBoard.fileInfo.length != 0 ?  'patse' : ''}`"
+        :enable="`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`"
     >
         <div>
             <!-- 路径显示 -->
@@ -55,7 +56,7 @@
 import fileList from '@/components/FileList/'
 import FileUtils from '@/utils/FileUtils'
 import mdui from 'mdui'
-import apiConfig from '@/api/API'
+import apiConfig from '@/api'
 export default {
     name: 'FileBrowser',
     props: {
@@ -112,10 +113,15 @@ export default {
             // 访问的文件夹路径
             type: String,
             default: ''
+        },
+        modifiable: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
         return {
+            modifiAttr: 'mkdir upload copy cut create-download drag-select delete rename',
             listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}

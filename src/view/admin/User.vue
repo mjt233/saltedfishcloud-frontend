@@ -45,7 +45,7 @@
 
 <script>
 import mdui from 'mdui'
-import API from '../../api/API'
+import API from '../../api'
 import Container from '../../components/layout/Container.vue'
 import MduiCard from '../../components/ui/MduiCard.vue'
 import Pager from '../../components/ui/pager.vue'
