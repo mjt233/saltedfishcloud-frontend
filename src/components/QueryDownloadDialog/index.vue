@@ -89,29 +89,18 @@ export default {
             this.debouncer.execute(() => {
                 this.loadData(this.tab, this.page)
             })
-            // if (this.freshItv) {
-            //     clearInterval(this.freshItv)
-            //     const itv = setInterval(async() => {
-            //         this.loadData(this.tab, this.page)
-            //         this.freshItv = null
-            //         clearInterval(itv)
-            //     }, 1000)
-            //     this.freshItv = itv
-            // } else {
-            //     this.loadData(this.tab, this.page)
-            //     const itv = setInterval(() => {
-            //         this.freshItv = null
-            //         clearInterval(itv)
-            //     }, 1000)
-            //     this.freshItv = itv
-            // }
         },
         async cancel(item) {
             try {
                 this.wating = this.loading = true
                 await this.$axios(API.task.download.interruptTask(this.uid, item.id))
                 this.wating = this.loading = false
-                this.loadData(this.tab, this.page, false)
+                for (let i = 0; i < this.task.downloading.length; i++) {
+                    console.log(i)
+                    if (this.task.downloading[i].id == item.id) {
+                        this.task.downloading.splice(i, 1)
+                    }
+                }
             } catch (err) {
                 mdui.alert(err.msg)
                 this.wating = this.loading = false
