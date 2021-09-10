@@ -11,12 +11,11 @@
                         <span class="task-state" v-show="item.state !== 'DOWNLOADING'">{{item.state | state}}</span>
                     </p>
                     <p class="url"><a :href="item.url">{{item.url}}</a></p>
-                    <!-- 下载中任务的速度和大小显示 -->
-                    <p class="size" >{{item.speed | formatSize}}/s - {{item.loaded | formatSize}}，{{item.size == -1 ? '未知' : item.size | formatTotalSize}}</p>
+                    <p v-show="item.state !== 'DOWNLOADING'" class="size">{{item | sizeAndDate}}</p>
 
                     <!-- 对下载中任务显示的大小显示，进度条，取消按钮 -->
                     <template v-if="item.state === 'DOWNLOADING'">
-                        <p class="size">{{item | sizeAndDate}}</p>
+                        <p class="size" >{{item.speed | formatSize}}/s - {{item.loaded | formatSize}}，{{item.size == -1 ? '未知' : item.size | formatTotalSize}}</p>
                         <p style="height: var(--line-height)"><mdui-progress :unknow="item.size == -1" :value="(item.loaded/item.size)*100"></mdui-progress></p>
                         <mdui-btn dense :themeColor="true" @click="$emit('cancel', item)">取消</mdui-btn>
                     </template>
