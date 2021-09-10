@@ -1,5 +1,11 @@
 <template>
-    <mdui-dialog :title="'创建下载任务'" ref="dialog" @close="$emit('update:show', false)" @confirm="confirm">
+    <mdui-dialog
+        :title="'创建下载任务'"
+        ref="dialog"
+        @close="$emit('close');$emit('update:show', false)"
+        @confirm="confirm"
+        @cancel="$emit('cancel')"
+    >
         <mdui-input :placeholder="'URL(下载地址)'" v-model="task.url"></mdui-input>
         <p>使用代理节点 <mdui-switch v-model="useProxy"></mdui-switch></p>
         <div v-show="useProxy">

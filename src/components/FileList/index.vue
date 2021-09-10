@@ -25,20 +25,14 @@
         <slot></slot>
 
         <!-- 右键菜单 -->
-        <ul class="mdui-menu" style="width: 200px" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
+        <ul class="mdui-menu" style="width: 200px; user-select: none" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
             <li class="mdui-menu-item" v-if="enableMkdir">
                 <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
                     新建文件夹
                 </a>
             </li>
-            <li class="mdui-menu-item" v-if="enableCreateDownload">
-                <a href="javascript:;" @click="$emit('createDownload')">
-                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
-                    创建下载任务
-                </a>
-            </li>
-            <li class="mdui-divider" v-if="enableCreateDownload || enableMkdir"></li>
+            <li class="mdui-divider" v-if="enableMkdir"></li>
             <li class="mdui-menu-item">
                 <a href="javascript:;" @click="refresh">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">refresh</i>
@@ -77,6 +71,20 @@
                     重命名
                 </a>
             </li>
+            <li class="mdui-divider" v-if="enableCreateDownload && enableRename"></li>
+            <li class="mdui-menu-item" v-if="enableCreateDownload">
+                <a href="javascript:;" @click="$emit('createDownload')">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
+                    创建下载任务
+                </a>
+            </li>
+            <li class="mdui-menu-item" v-if="enableCreateDownload">
+                <a href="javascript:;" @click="$emit('queryDownload')">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">playlist_play</i>
+                    查看下载任务
+                </a>
+            </li>
+            <li class="mdui-divider" v-if="enableCreateDownload && fileInfo && fileInfo.size > 0"></li>
             <li v-if="fileInfo && fileInfo.size > 0" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
@@ -246,7 +254,7 @@ export default {
     },
     filters: {
         formatSize(input) {
-            return StringFormatter.formatSizeString(input)
+            return StringFormatter.toSize(input)
         }
     },
     methods: {

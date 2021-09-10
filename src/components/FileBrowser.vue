@@ -14,6 +14,7 @@
         @copy='copy'
         @paste='paste'
         @createDownload='$emit("createDownload")'
+        @queryDownload='$emit("queryDownload")'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'

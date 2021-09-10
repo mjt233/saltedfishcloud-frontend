@@ -152,7 +152,7 @@ export default {
                 tooltip: {
                     trigger: 'item',
                     formatter: (e) => {
-                        return `<span>${e.data.name}: ${stringFormatter.formatSizeString(e.data.value)}</span>`
+                        return `<span>${e.data.name}: ${stringFormatter.toSize(e.data.value)}</span>`
                     }
                 },
                 legend: {

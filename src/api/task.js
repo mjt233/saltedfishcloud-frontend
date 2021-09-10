@@ -11,6 +11,40 @@ const task = {
     download: {
         prefix: '/task/download',
         /**
+         * 中断（取消）一个下载中的任务
+         * @param {Number} uid 用户ID
+         * @param {String} taskId 任务ID
+         * @returns {import("axios").AxiosRequestConfig}
+         */
+        interruptTask(uid, taskId) {
+            return {
+                url: `${this.prefix}`,
+                method: 'delete',
+                params: {
+                    uid, taskId
+                }
+            }
+        },
+        /**
+         * 获取任务列表（包括下载中与已完成的）
+         * @param {Number} uid 用户ID
+         * @param {('DOWNLOADING'|'FINISH'|'ALL')} type 任务类型
+         * @param {Number} page 页码，从1开始
+         * @param {Number} size 每页大小
+         * @returns {import("axios").AxiosRequestConfig}
+         */
+        getTaskList(uid, type, page = 1, size = 10) {
+            return {
+                url: `${this.prefix}`,
+                params: {
+                    uid: uid,
+                    page: page,
+                    size: size,
+                    type: type
+                }
+            }
+        },
+        /**
          * 创建一个下载任务
          * @param {DownloadTaskCreateOpt} opt 任务选项
          * @returns {import("axios").AxiosRequestConfig}

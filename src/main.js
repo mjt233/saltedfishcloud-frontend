@@ -21,7 +21,7 @@ Vue.prototype.$eventBus = new Vue()
 Vue.use(VueClipboard)
 // 注册全局过滤器 格式化数字为方便阅读的存储大小表示
 Vue.filter('formatSize', e => {
-    return formatter.formatSizeString(e)
+    return formatter.toSize(e)
 })
 /* eslint-disable no-new */
 const vue = new Vue({

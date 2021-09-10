@@ -1,13 +1,13 @@
 <template>
-<div class="mdui-dialog" ref="dialog">
+<div class="mdui-dialog" ref="dialog" :style="{'border-radius': radius ? '10px' : '0'}">
     <div class="mask" v-show='loading'>
         <div class="mdui-spinner mdui-spinner-colorful" style="z-index: 8000"></div>
     </div>
-    <div class="mdui-dialog-title">{{title}}</div>
-    <div class="mdui-dialog-content"><slot></slot></div>
-    <div class="mdui-dialog-actions">
+    <div class="mdui-dialog-title" :style="contentStyle">{{title}}</div>
+    <div class="mdui-dialog-content" :style="contentStyle"><slot></slot></div>
+    <div class="mdui-dialog-actions" :style="contentStyle">
         <template v-if="!disableDefBtn">
-            <button class="mdui-btn mdui-ripple" mdui-dialog-cancel>取消</button>
+            <button class="mdui-btn mdui-ripple" mdui-dialog-cancel @click="$emit('cancel')">取消</button>
             <button class="mdui-btn mdui-ripple" @click="$emit('confirm')">确定</button>
         </template>
         <slot name="btn"></slot>
@@ -20,6 +20,14 @@ import mdui from 'mdui'
 export default {
     name: 'mdui-dialog',
     props: {
+        radius: {
+            type: Boolean,
+            default: false
+        },
+        padding: {
+            type: Number,
+            default: -1
+        },
         title: {
             type: String,
             default: '对话框'
@@ -48,6 +56,15 @@ export default {
             default: false
         }
     },
+    watch: {
+        show() {
+            if (this.show) {
+                this.dialog.close()
+            } else {
+                this.dialog.show()
+            }
+        }
+    },
     data() {
         return {
             /**
@@ -68,14 +85,39 @@ export default {
         }
         this.dialog = new mdui.Dialog(this.el, { modal: true })
         this.el.addEventListener('close.mdui.dialog', e => {
+            this.$emit('update:show', false)
             this.$emit('close', e)
         })
+        this.el.addEventListener('opened.mdui.dialog', e => {
+            this.$emit('opened')
+        })
+        this.el.addEventListener('open.mdui.dialog', e => {
+            this.$emit('open')
+        })
+        if (this.show) {
+            this.dialog.open()
+        }
+    },
+    computed: {
+        contentStyle() {
+            if (this.padding >= 0) {
+                return {
+                    padding: this.padding + 'px'
+                }
+            } else {
+                return {
+
+                }
+            }
+        }
     },
     methods: {
         open() {
+            this.$emit('update:show', true)
             this.dialog.open()
         },
         close() {
+            this.$emit('update:show', false)
             this.dialog.close()
         },
         update() {

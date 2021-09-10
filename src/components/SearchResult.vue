@@ -75,7 +75,7 @@ export default {
     },
     filters: {
         formatSize(input) {
-            return StringFormatter.formatSizeString(input)
+            return StringFormatter.toSize(input)
         }
     },
     computed: {
