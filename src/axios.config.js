@@ -27,7 +27,7 @@ axios.interceptors.response.use(
             err.msg = '网络错误'
             return Promise.reject(err)
         }
-        const status = err.status
+        const status = err.status || err.response.status
         const msg = err.response.data.msg
 
         // mdui.snackbar(`错误：${msg}`, {
@@ -37,7 +37,7 @@ axios.interceptors.response.use(
         if (status === 401) {
             Store.commit('setToken', null)
         }
-        err.msg = msg
+        err.msg = msg || err.response.data.message || parseInt(status / 100) == 5 ? '服务器错误' : '未知错误'
         return Promise.reject(err)
     }
 )

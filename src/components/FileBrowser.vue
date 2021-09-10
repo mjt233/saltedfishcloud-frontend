@@ -311,6 +311,7 @@ export default {
                         this.loading = false
                         this.fileList = e.data.data[0].concat(e.data.data[1])
                     }).catch(e => {
+                        console.log(e.msg)
                         if (e.code === 404) {
                             mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
                                 this.$router.push(location.href = '/#/' + this.prefix)
