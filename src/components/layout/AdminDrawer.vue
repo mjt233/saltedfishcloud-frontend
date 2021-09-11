@@ -1,5 +1,5 @@
 <template>
-    <mdui-drawer class="mdui-color-white">
+    <mdui-drawer class="mdui-color-white" ref="drawer">
         <mdui-list>
             <template v-for="(item, index) in menu" >
                 <template  v-if="!item.children">
@@ -22,6 +22,9 @@
                 </template>
             </template>
         </mdui-list>
+        <div class="bottom-menu">
+            <a href="javascript:;" @click="toCommon">用户前台</a>
+        </div>
     </mdui-drawer>
 </template>
 
@@ -50,14 +53,37 @@ export default {
             }
         }
     },
+    data() {
+        return {
+            drawer: null
+        }
+    },
+    mounted() {
+        this.drawer = this.$refs.drawer
+    },
     computed: {
         routePath() {
             return this.$route.path
+        }
+    },
+    methods: {
+        toCommon() {
+            this.$refs.drawer.tryClose()
+            this.$router.push('/public')
+        },
+        close() {
+            this.drawer.tryClose()
+        },
+        toggle() {
+            this.drawer.toggle()
+        },
+        open() {
+            this.drawer.open()
         }
     }
 }
 </script>
 
-<style>
-
+<style scoped>
+@import './drawerMenu.css';
 </style>

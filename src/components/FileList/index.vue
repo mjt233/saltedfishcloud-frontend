@@ -25,20 +25,21 @@
         <slot></slot>
 
         <!-- 右键菜单 -->
-        <ul class="mdui-menu" style="width: 180px" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
-            <li class="mdui-menu-item">
+        <ul class="mdui-menu" style="width: 200px; user-select: none" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
+            <li class="mdui-menu-item" v-if="enableMkdir">
                 <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
                     新建文件夹
                 </a>
             </li>
+            <li class="mdui-divider" v-if="enableMkdir"></li>
             <li class="mdui-menu-item">
                 <a href="javascript:;" @click="refresh">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">refresh</i>
                     刷新
                 </a>
             </li>
-            <li class="mdui-menu-item" @click="upload">
+            <li class="mdui-menu-item" @click="upload" v-if="enableUpload">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">file_upload</i>
                     上传
@@ -64,19 +65,33 @@
                 </a>
             </li>
             <li v-if="fileInfo" class="mdui-divider"></li>
-            <li v-if="fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="rename(fileInfo)">
+            <li v-if="enableRename && fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="rename(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">edit</i>
                     重命名
                 </a>
             </li>
+            <li class="mdui-divider" v-if="enableCreateDownload && enableRename"></li>
+            <li class="mdui-menu-item" v-if="enableCreateDownload">
+                <a href="javascript:;" @click="$emit('createDownload')">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
+                    创建下载任务
+                </a>
+            </li>
+            <li class="mdui-menu-item" v-if="enableCreateDownload">
+                <a href="javascript:;" @click="$emit('queryDownload')">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">playlist_play</i>
+                    查看下载任务
+                </a>
+            </li>
+            <li class="mdui-divider" v-if="enableCreateDownload && fileInfo && fileInfo.size > 0"></li>
             <li v-if="fileInfo && fileInfo.size > 0" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
                     获取直接
                 </a>
             </li>
-            <li v-if="fileInfo" class="mdui-menu-item" @click="deleteItem(fileInfo)">
+            <li v-if="fileInfo && enableDelete" class="mdui-menu-item" @click="deleteItem(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">delete</i>
                     删除
@@ -169,6 +184,21 @@ export default {
             default: true
         },
         enable: {
+            /**
+             * 启用的组件，可选值：
+             * name - 文件名显示
+             * size - 文件大小显示
+             * date - 文件日期显示
+             * return - 启用返回上一级
+             * menu - 启用右键菜单
+             * drag-select - 启用拖动选择
+             * cut - 启用剪切
+             * copy - 启用复制
+             * paste - 启用粘贴
+             * create-download - 启用创建下载
+             * mkdir - 启用新建文件夹
+             * upload - 启用上传
+             */
             type: String,
             default: ''
         },
@@ -179,6 +209,21 @@ export default {
         }
     },
     computed: {
+        enableRename() {
+            return this.enable.indexOf('rename') != -1
+        },
+        enableDelete() {
+            return this.enable.indexOf('delete') != -1
+        },
+        enableUpload() {
+            return this.enable.indexOf('upload') != -1
+        },
+        enableMkdir() {
+            return this.enable.indexOf('mkdir') != -1
+        },
+        enableCreateDownload() {
+            return this.enable.indexOf('create-download') != -1
+        },
         enableName() {
             return this.enable.indexOf('name') != -1
         },
@@ -209,7 +254,7 @@ export default {
     },
     filters: {
         formatSize(input) {
-            return StringFormatter.formatSizeString(input)
+            return StringFormatter.toSize(input)
         }
     },
     methods: {
@@ -421,7 +466,7 @@ export default {
                     this.targetIndex = undefined
                     this.fileInfo = null
                 }
-                document.querySelector('#menu').style.width = this.mobileMenu ? '' : '180px'
+                document.querySelector('#menu').style.width = this.mobileMenu ? '' : '200px'
                 this.$nextTick().then(() => {
                     menu.open()
                     div.remove()

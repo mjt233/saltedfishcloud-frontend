@@ -23,6 +23,7 @@
         :loadingControl="loading"
         :showToolBar="true"
         :path="path"
+        :modifiable="modifiable"
         @clickFile='clickFile'
         @dropFile='addUploadFile'
         @upload='upload'
@@ -31,8 +32,22 @@
         @rename='rename'
         @search='search'
         @getURL='openDialog'
+        @createDownload='showDownload = true'
+        @queryDownload='showQueryDownload = true'
         ref='browser'
     >
+        <create-download-dialog
+            v-if="modifiable"
+            :show.sync="showDownload"
+            @confirm="createDownload"
+            @cancel="createCancel"
+        />
+        <query-download-dialog
+            v-if="modifiable"
+            :show.sync="showQueryDownload"
+            :uid="uid"
+            @createTask="toCreate"
+        />
         <mdui-dialog id='attr-dialog' :title="'设置下载链接属性'" ref="dialog" @confirm='getURL'>
             <div style="margin: 20px auto; width: 90%" class="mdui-typo">
                 <span>链接有效时长：<span style="color: red;font-weight: 900" class="mdui-text-color-theme">{{link.expr == 32 ? '无限制' : link.expr + '天'}}</span></span>
@@ -64,13 +79,15 @@ import FileBrowser from '@/components/FileBrowser.vue'
 import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQueue/FileQueueHandler'
 import axios from 'axios'
 import SearchResult from '@/components/SearchResult.vue'
-import API from '@/api/API'
+import API from '@/api'
 import FormUtils from '@/utils/FormUtils'
 import MduiDialog from './ui/MduiDialog.vue'
 import MduiCheckbox from './ui/MduiCheckbox.vue'
 import MduiBtn from './ui/MduiBtn.vue'
+import CreateDownloadDialog from './CreateDownloadDialog.vue'
+import QueryDownloadDialog from './QueryDownloadDialog/index.vue'
 export default {
-    components: { FileBrowser, SearchResult, MduiDialog, MduiCheckbox, MduiBtn },
+    components: { FileBrowser, SearchResult, MduiDialog, MduiCheckbox, MduiBtn, CreateDownloadDialog, QueryDownloadDialog },
     name: 'FileHandler',
     props: {
         uid: {
@@ -92,6 +109,9 @@ export default {
             searchRes: [],
             searchMode: false,
             searchKey: '测试',
+            showDownload: false,
+            showQueryDownload: false,
+            toDownload: false, // 创建下载任务是否由任务列表对话框触发
             link: {
                 expr: 32,
                 preview: true,
@@ -117,6 +137,44 @@ export default {
         }
     },
     methods: {
+        createCancel() {
+            if (this.toDownload) {
+                this.toDownload = false
+                this.showQueryDownload = true
+            }
+        },
+        toCreate() {
+            this.showQueryDownload = false
+            this.showDownload = true
+            this.toDownload = true
+        },
+        async createDownload(task) {
+            this.showDownload = false
+            if (!task.url) {
+                mdui.alert('下载URL不能为空', () => {
+                    this.showDownload = true
+                })
+                return
+            }
+            const conf = API.task.download.create({
+                uid: this.uid,
+                savePath: '/' + this.path,
+                ...task
+            })
+            this.loading = true
+            try {
+                await this.$axios(conf)
+                mdui.snackbar('任务创建成功，保存位置：' + conf.data.savePath)
+                if (this.toDownload) {
+                    this.toDownload = false
+                    this.showQueryDownload = true
+                }
+            } catch (error) {
+                mdui.alert(error.msg, () => { this.showDownload = true })
+            }
+            this.loading = false
+        },
+
         onCopy(e) {
             if (e) {
                 mdui.snackbar('复制成功！')

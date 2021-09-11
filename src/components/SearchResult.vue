@@ -42,7 +42,7 @@ import mdui from 'mdui'
 import StringFormatter from '../utils/StringFormatter'
 import FileList from '@/components/FileList/index.vue'
 import Pager from './ui/pager.vue'
-import apiConfig from '../api/API'
+import apiConfig from '../api'
 export default {
     components: { FileList, Pager },
     data() {
@@ -75,7 +75,7 @@ export default {
     },
     filters: {
         formatSize(input) {
-            return StringFormatter.formatSizeString(input)
+            return StringFormatter.toSize(input)
         }
     },
     computed: {

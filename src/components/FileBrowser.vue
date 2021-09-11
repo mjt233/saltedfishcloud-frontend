@@ -13,11 +13,13 @@
         @cut='cut'
         @copy='copy'
         @paste='paste'
+        @createDownload='$emit("createDownload")'
+        @queryDownload='$emit("queryDownload")'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="`name size date return drag-select menu cut copy ${clipBoard.fileInfo.length != 0 ?  'patse' : ''}`"
+        :enable="`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`"
     >
         <div>
             <!-- 路径显示 -->
@@ -53,9 +55,9 @@
 
 <script>
 import fileList from '@/components/FileList/'
-import FileUtils from '../utils/FileUtils'
+import FileUtils from '@/utils/FileUtils'
 import mdui from 'mdui'
-import apiConfig from '../api/API'
+import apiConfig from '@/api'
 export default {
     name: 'FileBrowser',
     props: {
@@ -112,10 +114,15 @@ export default {
             // 访问的文件夹路径
             type: String,
             default: ''
+        },
+        modifiable: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
         return {
+            modifiAttr: 'mkdir upload copy cut create-download drag-select delete rename',
             listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}
@@ -304,6 +311,7 @@ export default {
                         this.loading = false
                         this.fileList = e.data.data[0].concat(e.data.data[1])
                     }).catch(e => {
+                        console.log(e.msg)
                         if (e.code === 404) {
                             mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
                                 this.$router.push(location.href = '/#/' + this.prefix)

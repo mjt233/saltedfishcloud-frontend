@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import API from '@/api/API'
+import API from '@/api'
 import Container from '@/components/layout/Container.vue'
 import MduiCard from '@/components/ui/MduiCard.vue'
 import * as echarts from 'echarts'
@@ -152,7 +152,7 @@ export default {
                 tooltip: {
                     trigger: 'item',
                     formatter: (e) => {
-                        return `<span>${e.data.name}: ${stringFormatter.formatSizeString(e.data.value)}</span>`
+                        return `<span>${e.data.name}: ${stringFormatter.toSize(e.data.value)}</span>`
                     }
                 },
                 legend: {

@@ -1,0 +1,9 @@
+.bottom-menu {
+    position: absolute;
+    bottom: 0px;
+    padding: 16px;
+}
+
+.bottom-menu a {
+    color: darkgray;
+}

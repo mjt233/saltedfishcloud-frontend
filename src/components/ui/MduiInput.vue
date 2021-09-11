@@ -57,6 +57,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+input {
+    cursor: text !important;
+}
 </style>

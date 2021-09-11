@@ -1,8 +1,7 @@
 import axios from 'axios'
 import qs from 'qs'
-import mdui from 'mdui'
 import Store from './Store'
-import apiConfig from './api/API'
+import apiConfig from './api'
 axios.defaults.baseURL = `${apiConfig.server}/api`
 axios.defaults.withCredentials = true
 axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
@@ -22,34 +21,23 @@ axios.interceptors.request.use(conf => {
 })
 // axios响应拦截器 拦截所有错误请求 默认弹框
 axios.interceptors.response.use(
-    conf => {
-        switch (conf.data.code) {
-        case 1: return conf
-        case -1:
-            Store.commit('setToken', null)
-            if (!conf.config.noDefaultAction) {
-                mdui.alert(conf.data.msg)
-            }
-            break
-        case 0:
-            mdui.alert(conf.data.msg)
-        }
-        if (conf.config.noDefaultAction) {
-            return conf
-        }
-        return Promise.reject(conf.data)
-    },
+    conf => conf,
     err => {
-        if (err.response) {
-            if (err.config.noDefaultAction) {
-                return Promise.reject(err)
-            }
-            mdui.snackbar('服务器错误', {
-                position: 'top'
-            })
-        } else {
-            mdui.alert('网络错误')
+        if (!err.response) {
+            err.msg = '网络错误'
+            return Promise.reject(err)
         }
+        const status = err.status || err.response.status
+        const msg = err.response.data.msg
+
+        // mdui.snackbar(`错误：${msg}`, {
+        //     position: 'bottom'
+        // })
+
+        if (status === 401) {
+            Store.commit('setToken', null)
+        }
+        err.msg = msg || err.response.data.message || (parseInt(status / 100) == 5 ? '服务器错误' : '未知错误')
         return Promise.reject(err)
     }
 )

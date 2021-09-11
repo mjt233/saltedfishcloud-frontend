@@ -1,12 +1,17 @@
 <template>
   <div id="app" ref="app">
+      <file-upload-dialog></file-upload-dialog>
       <router-view />
   </div>
 </template>
 
 <script>
+import FileUploadDialog from '@/components/FileUploadDialog/index.vue'
 export default {
     name: 'App',
+    components: {
+        FileUploadDialog
+    },
     mounted() {
         document.querySelector('#first-load').classList.add('hid')
         setTimeout(() => {
@@ -17,7 +22,9 @@ export default {
 </script>
 
 <style>
-
+.mdui-select-open .mdui-select-menu {
+  position: fixed;
+}
 body {
   background: url("~@/assets/img/bg/bg1.jpg") no-repeat fixed center;
   background-size: cover;

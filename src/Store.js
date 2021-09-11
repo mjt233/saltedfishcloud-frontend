@@ -1,6 +1,6 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
-import API from './api/API'
+import API from './api'
 Vue.use(Vuex)
 const Store = new Vuex.Store({
     state: {

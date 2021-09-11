@@ -9,7 +9,7 @@ import 'mdui/dist/css/mdui.css'
 import mdui from 'mdui'
 import 'default-passive-events'
 import Store from './Store'
-import apiConfig from './api/API'
+import apiConfig from './api'
 import formatter from './utils/StringFormatter'
 import Theme from './utils/Theme'
 import VueClipboard from 'vue-clipboard2'
@@ -21,7 +21,7 @@ Vue.prototype.$eventBus = new Vue()
 Vue.use(VueClipboard)
 // 注册全局过滤器 格式化数字为方便阅读的存储大小表示
 Vue.filter('formatSize', e => {
-    return formatter.formatSizeString(e)
+    return formatter.toSize(e)
 })
 /* eslint-disable no-new */
 const vue = new Vue({
@@ -33,7 +33,6 @@ const vue = new Vue({
 
 // 挂载App前 先检查登录状态和获取用户信息，以解决一些依赖用户信息的组件在页码首次被打开加载时获取用户信息异常的问题，同时也可根据用户信息的有无判断是否已登录
 const conf = apiConfig.user.getUserInfo()
-conf.noDefaultAction = true
 
 let token
 // 加载之前登陆时保存的token
@@ -44,7 +43,7 @@ if (localStorage.getItem('token')) {
 
 
 
-axios(conf, { noDefaultAction: true }).then((e) => {
+axios(conf).then((e) => {
     mdui.snackbar(`欢迎回来，${e.data.data.user}`, { position: 'bottom' })
     Store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(e.data.data.user).url}`)
     vue.$mount('#app')
