@@ -55,6 +55,9 @@ export default {
     },
     methods: {
         confirm() {
+            if (!this.useProxy) {
+                delete this.task.proxy
+            }
             this.$emit('confirm', this.task)
         }
     },
