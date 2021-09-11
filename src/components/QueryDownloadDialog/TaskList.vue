@@ -10,7 +10,7 @@
                         <!-- 已完成任务的任务状态 -->
                         <span class="task-state" v-show="item.state !== 'DOWNLOADING'">{{item.state | state}}</span>
                     </p>
-                    <p class="url"><a :href="item.url">{{item.url}}</a></p>
+                    <p class="url"><a target="_blank" :href="item.url">{{item.url}}</a></p>
                     <p v-show="item.state !== 'DOWNLOADING'" class="size">{{item | sizeAndDate}}</p>
 
                     <!-- 对下载中任务显示的大小显示，进度条，取消按钮 -->

@@ -22,7 +22,9 @@ export default {
 </script>
 
 <style>
-
+.mdui-select-open .mdui-select-menu {
+  position: fixed;
+}
 body {
   background: url("~@/assets/img/bg/bg1.jpg") no-repeat fixed center;
   background-size: cover;

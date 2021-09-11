@@ -17,5 +17,6 @@ export default {
 <style scoped>
 .mdui-icon {
     font-size: inherit;
+    user-select: none;
 }
 </style>

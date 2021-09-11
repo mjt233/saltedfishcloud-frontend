@@ -59,9 +59,9 @@ export default {
     watch: {
         show() {
             if (this.show) {
-                this.dialog.close()
+                this.open()
             } else {
-                this.dialog.show()
+                this.close()
             }
         }
     },
@@ -137,6 +137,10 @@ export default {
 </style>
 
 <style lang="less" scoped>
+.mdui-dialog {
+    user-select: none;
+    overflow: initial;
+}
 .mask {
     z-index: 7000;
     left: 0;
