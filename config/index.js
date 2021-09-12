@@ -1,9 +1,8 @@
 'use strict'
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
-
+const server = require('../src/api/server')
 const path = require('path')
-const apiConfig = require('../src/api/')
 module.exports = {
     dev: {
 
@@ -12,7 +11,7 @@ module.exports = {
         assetsPublicPath: '/',
         proxyTable: {
             '/api': {
-                target: apiConfig.proxyServer,
+                target: server.proxyServer,
                 changeOrigin: false,
                 secure: false,
                 pathRewrith: {
@@ -20,10 +19,10 @@ module.exports = {
                 }
             },
             '/download': {
-                target: apiConfig.proxyServer
+                target: server.proxyServer
             },
             '/login': {
-                target: apiConfig.proxyServer
+                target: server.proxyServer
             }
         },
 

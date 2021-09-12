@@ -1,4 +1,4 @@
-const UrlUtils = {
+const URLUtils = {
     /**
      * 只对URL的路径进行URL解码
      * @param {String} url 完整URL
@@ -14,4 +14,4 @@ const UrlUtils = {
         return path + qs
     }
 }
-module.exports = UrlUtils
+module.exports = URLUtils

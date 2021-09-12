@@ -1,4 +1,4 @@
-const UrlUtils = require('@/utils/UrlUtils')
+const URLUtils = require('@/utils/UrlUtils')
 
 /**
  * @typedef {Object} DownloadTaskCreateOpt
@@ -55,7 +55,7 @@ const task = {
             if (!opt.method) { opt.method = 'GET' }
             if (!opt.savePath) { opt.savePath = '/' }
             opt.savePath = opt.savePath.replace(/\/\/+/g, '/')
-            opt.url = UrlUtils.decodeURLPath(opt.url)
+            opt.url = URLUtils.decodeURLPath(opt.url)
             return {
                 method: 'POST',
                 url: this.prefix,
