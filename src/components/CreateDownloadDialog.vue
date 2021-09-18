@@ -38,11 +38,6 @@ export default {
         }
     },
     async mounted() {
-        if (this.show) {
-            this.proxy = (await this.$axios(API.task.download.getProxy())).data.data
-        }
-        await this.$nextTick()
-        this.select = new mdui.Select(this.$refs.proxySelect)
     },
     data() {
         return {
@@ -52,7 +47,8 @@ export default {
             },
             proxy: [],
             useProxy: false,
-            select: null
+            select: null,
+            loaded: false
         }
     },
     methods: {
@@ -61,10 +57,19 @@ export default {
                 delete this.task.proxy
             }
             this.$emit('confirm', this.task)
+        },
+        async loadProxy() {
+            this.proxy = (await this.$axios(API.task.download.getProxy())).data.data
+            await this.$nextTick()
+            this.select = new mdui.Select(this.$refs.proxySelect)
         }
     },
     watch: {
         show() {
+            if (!this.loaded) {
+                this.loadProxy()
+                this.loaded = true
+            }
             if (this.show) {
                 this.$refs.dialog.open()
             } else {

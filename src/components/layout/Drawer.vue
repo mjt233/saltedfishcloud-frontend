@@ -123,8 +123,11 @@ export default {
                     const item = a.querySelector('li')
                     this.sideBarStyle['--item-top'] = item.offsetTop + 'px'
                     this.sideBarStyle['--item-height'] = item.clientHeight + 'px'
+                    return
                 }
             }
+            this.sideBarStyle['--item-top'] = 0 + 'px'
+            this.sideBarStyle['--item-height'] = 0 + 'px'
         }
     },
     watch: {

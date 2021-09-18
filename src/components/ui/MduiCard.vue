@@ -17,7 +17,8 @@ export default {
     name: 'mduiCard',
     props: {
         avatar: {
-            type: String
+            type: String,
+            default: ''
         },
         title: {
             type: String

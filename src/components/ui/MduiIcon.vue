@@ -1,5 +1,5 @@
 <template>
-    <i class="mdui-icon material-icons">{{icon}}</i>
+    <i class="mdui-icon material-icons" :style="style">{{icon}}</i>
 </template>
 
 <script>
@@ -9,6 +9,20 @@ export default {
         icon: {
             type: String,
             default: ''
+        },
+        size: {
+            type: Number
+        }
+    },
+    computed: {
+        style() {
+            if (this.size) {
+                return {
+                    'font-size': this.size + 'px'
+                }
+            } else {
+                return {}
+            }
         }
     }
 }
