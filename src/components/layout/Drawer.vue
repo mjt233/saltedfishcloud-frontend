@@ -14,7 +14,10 @@
         </div>
       </div>
       <ul class="mdui-list" ref="drawerList">
-        <div class="side-bar  mdui-color-theme"  :style="sideBarStyle"></div>
+        <div class="side-bar"  :style="sideBarStyle">
+            <div class="side mdui-color-theme"></div>
+            <div class="bar mdui-color-theme"></div>
+        </div>
         <router-link to="/public">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300">folder</i>

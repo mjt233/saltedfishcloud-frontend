@@ -16,13 +16,19 @@
     position: absolute;
     left: 0;
     top: var(--item-top);
-    width: 3px;
+    width: 100%;
     height: var(--item-height);
     transition: all .2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
-.mdui-list .side-bar::after {
-    content: '';
+.mdui-list .side-bar .side {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+}
+.mdui-list .side-bar .bar {
     width: 100%;
     height: 100%;
-    background-color: blue;
+    opacity: .05;
 }
