@@ -64,14 +64,14 @@
                     粘贴
                 </a>
             </li>
-            <li v-if="fileInfo" class="mdui-divider"></li>
-            <li v-if="enableRename && fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="rename(fileInfo)">
+            <li v-if="fileInfo && enableRename" class="mdui-divider"></li>
+            <li v-if="enableRename " class="mdui-menu-item" @click="rename(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">edit</i>
                     重命名
                 </a>
             </li>
-            <li class="mdui-divider" v-if="enableCreateDownload && enableRename"></li>
+            <li class="mdui-divider" v-if="enableCreateDownload"></li>
             <li class="mdui-menu-item" v-if="enableCreateDownload">
                 <a href="javascript:;" @click="$emit('createDownload')">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
@@ -85,7 +85,7 @@
                 </a>
             </li>
             <li class="mdui-divider" v-if="enableCreateDownload && fileInfo && fileInfo.size > 0"></li>
-            <li v-if="fileInfo && fileInfo.size > 0" class="mdui-menu-item" @click="getURL(fileInfo)">
+            <li v-if="fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
                     获取直接
@@ -210,7 +210,7 @@ export default {
     },
     computed: {
         enableRename() {
-            return this.enable.indexOf('rename') != -1
+            return this.enable.indexOf('rename') != -1 && this.fileInfo && this.selectedEl.length <= 1
         },
         enableDelete() {
             return this.enable.indexOf('delete') != -1
