@@ -37,13 +37,13 @@
         ref='browser'
     >
         <create-download-dialog
-            v-if="modifiable"
+            v-show="modifiable"
             :show.sync="showDownload"
             @confirm="createDownload"
             @cancel="createCancel"
         />
         <query-download-dialog
-            v-if="modifiable"
+            v-show="modifiable"
             :show.sync="showQueryDownload"
             :uid="uid"
             @createTask="toCreate"

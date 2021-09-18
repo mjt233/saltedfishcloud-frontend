@@ -38,7 +38,9 @@ export default {
         }
     },
     async mounted() {
-        this.proxy = (await this.$axios(API.task.download.getProxy())).data.data
+        if (this.show) {
+            this.proxy = (await this.$axios(API.task.download.getProxy())).data.data
+        }
         await this.$nextTick()
         this.select = new mdui.Select(this.$refs.proxySelect)
     },

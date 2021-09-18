@@ -7,7 +7,7 @@
 }
 
 .route-switch-enter, .route-switch-leave-to {
-    filter: blur(3px);
+    opacity: .9;
 }
 
 .mdui-select-open .mdui-select-menu {

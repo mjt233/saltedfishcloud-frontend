@@ -13,7 +13,8 @@
           </div>
         </div>
       </div>
-      <ul class="mdui-list">
+      <ul class="mdui-list" ref="drawerList">
+        <div class="side-bar  mdui-color-theme"  :style="sideBarStyle"></div>
         <router-link to="/public">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300">folder</i>
@@ -28,7 +29,7 @@
             <div class="mdui-list-item-content">私人网盘</div>
           </li>
         </router-link>
-        <router-link to="/login" v-if="userInfo === null">
+        <router-link to="/login" v-show="!userInfo">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe7fd;</i
@@ -36,7 +37,7 @@
             <div class="mdui-list-item-content">去登录</div>
           </li>
         </router-link>
-        <router-link v-else to="/my">
+        <router-link v-show="userInfo" to="/my">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe7fd;</i
@@ -44,7 +45,7 @@
             <div class="mdui-list-item-content">个人中心</div>
           </li>
         </router-link>
-        <a v-if="userInfo !== null">
+        <a v-show="userInfo">
           <li class="mdui-list-item" @click="exit">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe879;</i
@@ -52,7 +53,7 @@
             <div class="mdui-list-item-content">退出登录</div>
           </li>
         </a>
-        <router-link v-else to="/reg">
+        <router-link v-show="!userInfo" to="/reg">
           <li class="mdui-list-item" @click="closeDrawer">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
               >&#xe7fd;</i
@@ -78,11 +79,16 @@ export default {
     },
     data() {
         return {
-            drawer: null
+            drawer: null,
+            sideBarStyle: {
+                '--item-height': 0,
+                '--item-top': 0
+            }
         }
     },
     mounted() {
         this.drawer = new mdui.Drawer('#drawer')
+        this.updateMenuSideBar()
     },
     methods: {
         toAdmin() {
@@ -99,6 +105,29 @@ export default {
         },
         exit() {
             this.$emit('exit')
+        },
+        setMenuSideBar(top, height) {
+        },
+        updateMenuSideBar() {
+            const path = this.$route.path
+            const links = this.$refs.drawerList.querySelectorAll('a')
+            for (const a of links) {
+                let link = a.getAttribute('href')
+                if (link) {
+                    link = link.substring(1)
+                }
+                if (link == path) {
+                    const item = a.querySelector('li')
+                    this.sideBarStyle['--item-top'] = item.offsetTop + 'px'
+                    this.sideBarStyle['--item-height'] = item.clientHeight + 'px'
+                }
+            }
+        }
+    },
+    watch: {
+        async $route() {
+            await this.$nextTick()
+            this.updateMenuSideBar()
         }
     }
 }

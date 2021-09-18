@@ -7,3 +7,22 @@
 .bottom-menu a {
     color: darkgray;
 }
+.mdui-list {
+    position: relative;
+}
+.mdui-list .side-bar {
+    --item-top: 0;
+    --item-height: 0;
+    position: absolute;
+    left: 0;
+    top: var(--item-top);
+    width: 3px;
+    height: var(--item-height);
+    transition: all .2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+.mdui-list .side-bar::after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    background-color: blue;
+}
