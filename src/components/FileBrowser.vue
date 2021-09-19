@@ -22,25 +22,25 @@
         :enable="`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`"
     >
         <div>
-            <!-- 路径显示 -->
-            <div v-if="showPath" class="path-handler">
-                <button @click="back" class="mdui-btn mdui-btn-icon mdui-btn-dense">
-                    <i class="mdui-icon material-icons">keyboard_backspace</i>
-                </button>
-                <ul class="path-bar mdui-typo">
-                    <li><a :href='`/#/${prefix}`'>{{rootName}}</a></li>
-                    <li v-for="(path,index) in paths" :key="index"><a :href="`/#/${prefix}/`+paths.slice(0,index+1).join('/')">{{path | urlDecode}}</a></li>
-                </ul>
-            </div>
-
-
-
+            <!-- 工具烂 -->
             <div class=" mdui-text-color-theme mdui-container-fluid">
                 <div class="mdui-row">
+                    <!-- 按钮组 -->
                     <div class="mdui-col-md-6 mdui-col-xs-12 handler-group">
-                        <mdui-btn :dense="true" v-if="modifiable" @click="upload" class="mdui-btn-raised"><mdui-icon :icon="'file_upload'"></mdui-icon><span>上传</span></mdui-btn>
-                        <mdui-btn :dense="true" v-if="modifiable" @click="createFolder" :themeColor="false"  class="mdui-btn-raised"><mdui-icon :icon="'create_new_folder'"></mdui-icon><span>新建</span></mdui-btn>
-                        <mdui-btn :dense="true" v-if="modifiable" mdui-menu="{target: '#download_menu'}" :themeColor="false" class="mdui-btn-raised"><mdui-icon :icon="'file_download'"></mdui-icon><span>离线下载</span></mdui-btn>
+                        <!-- 文件操作按钮组 -->
+                        <mdui-btn v-if="modifiable" @click="upload">
+                            <mdui-icon :icon="'file_upload'">
+                            </mdui-icon><span>上传</span>
+                        </mdui-btn>
+                        <mdui-btn v-if="modifiable" @click="createFolder" :themeColor="false" >
+                            <mdui-icon :icon="'create_new_folder'">
+                            </mdui-icon><span>新建</span>
+                        </mdui-btn>
+                        <mdui-btn v-if="modifiable" mdui-menu="{target: '#download_menu'}" :themeColor="false">
+                            <mdui-icon :icon="'file_download'">
+                            </mdui-icon><span>离线下载</span>
+                        </mdui-btn>
+                        <!-- 布局按钮组 -->
                         <div class="mdui-btn-group layout-group">
                             <button @click="listType = 'table'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'table'}">
                                 <i class="mdui-icon material-icons">apps</i>
@@ -65,11 +65,22 @@
                         </ul>
                     </div>
                     <div class=" mdui-col-md-6 mdui-col-xs-12">
-                        <div class="mdui-textfield search">
-                            <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text" class="mdui-textfield-input">
+                        <div class="search">
+                            <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text">
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 路径显示 -->
+            <div v-if="showPath" class="path-handler">
+                <button @click="back" class="mdui-btn mdui-btn-icon mdui-btn-dense">
+                    <i class="mdui-icon material-icons">keyboard_backspace</i>
+                </button>
+                <ul class="path-bar mdui-typo">
+                    <li><a :href='`/#/${prefix}`'>{{rootName}}</a></li>
+                    <li v-for="(path,index) in paths" :key="index"><a :href="`/#/${prefix}/`+paths.slice(0,index+1).join('/')">{{path | urlDecode}}</a></li>
+                </ul>
             </div>
             <mdui-hr></mdui-hr>
             <slot></slot>
@@ -489,15 +500,30 @@ export default {
     display: flex;
     align-items: center;
 }
-.handler-group > * {
-    margin-top: 16px !important;
+.handler-group {
+    padding: 0;
+    > * {
+        margin-right: 10px;
+        margin-bottom: 15px;
+    }
 }
 .search {
+    margin-bottom: 15px;
     input::placeholder {
         font-size: 12px;
     }
     input {
-        width: 360px;
+        width: 60%;
+        height: 36px;
+        outline: none;
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid darkgray;
+    }
+    @media screen and (max-width: 1024px) {
+        input {
+            width: 100%;
+        }
     }
 }
 .path-bar {

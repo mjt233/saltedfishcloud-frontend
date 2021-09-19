@@ -82,11 +82,12 @@ export default {
     }
 }
 .container {
-    min-height: calc(100% - 20px);
+    --padding: 15px;
+    min-height: calc(100% - calc( var(--padding) * 2));
     list-style: none;
-    padding: 10px 20px;
+    padding: var(--padding);
     margin: 0;
-    width: calc(100% - 40px);
+    width: calc(100% - calc( var(--padding) * 2));
     position: relative;
     background-color: rgba(255, 255, 255, 0.95);
     margin: 0 auto;
