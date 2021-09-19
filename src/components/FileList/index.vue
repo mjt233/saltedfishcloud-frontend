@@ -109,11 +109,11 @@
                 <div class="file-date" v-if="enableDate">最后修改日期</div>
                 <slot name="columnHeader"></slot>
             </li>
-            <li v-if="enableReturn && type == 'list'" class="list-item tool-bar mdui-ripple" @click="back">
+            <!-- <li v-if="enableReturn && type == 'list'" class="list-item tool-bar mdui-ripple" @click="back">
                 <div class="file-name">返回上一级</div>
                 <div class="file-size"></div>
                 <div class="file-date"></div>
-            </li>
+            </li> -->
             <!-- 文件列表本体 -->
             <li
                 style="overflow: hidden"

@@ -119,7 +119,7 @@ export default {
                 if (link) {
                     link = link.substring(1)
                 }
-                if (link == path) {
+                if (path.startsWith(link)) {
                     const item = a.querySelector('li')
                     this.sideBarStyle['--item-top'] = item.offsetTop + 'px'
                     this.sideBarStyle['--item-height'] = item.clientHeight + 'px'

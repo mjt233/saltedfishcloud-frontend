@@ -23,37 +23,64 @@
     >
         <div>
             <!-- 路径显示 -->
-            <div v-if="showPath">
-                <span style="font-size: 13px">{{pathLabel}}</span>
+            <div v-if="showPath" class="path-handler">
+                <button @click="back" class="mdui-btn mdui-btn-icon mdui-btn-dense">
+                    <i class="mdui-icon material-icons">keyboard_backspace</i>
+                </button>
                 <ul class="path-bar mdui-typo">
                     <li><a :href='`/#/${prefix}`'>{{rootName}}</a></li>
                     <li v-for="(path,index) in paths" :key="index"><a :href="`/#/${prefix}/`+paths.slice(0,index+1).join('/')">{{path | urlDecode}}</a></li>
                 </ul>
             </div>
-            <!-- 工具条 -->
-            <div class="mdui-toolbar">
-                <button @click="back" class="mdui-btn mdui-btn-icon mdui-btn-dense">
-                    <i class="mdui-icon material-icons">keyboard_backspace</i>
-                </button>
-                <div class="mdui-btn-group">
-                    <button @click="listType = 'table'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'table'}">
-                        <i class="mdui-icon material-icons">apps</i>
-                    </button>
-                    <button @click="listType = 'list'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'list'}">
-                        <i class="mdui-icon material-icons">format_align_justify</i>
-                    </button>
-                </div>
-                <div class="mdui-toolbar-spacer"></div>
-                <div class="mdui-textfield search">
-                    <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text" class="mdui-textfield-input">
+
+
+
+            <div class=" mdui-text-color-theme mdui-container-fluid">
+                <div class="mdui-row">
+                    <div class="mdui-col-md-6 mdui-col-xs-12 handler-group">
+                        <mdui-btn :dense="true" v-if="modifiable" @click="upload" class="mdui-btn-raised"><mdui-icon :icon="'file_upload'"></mdui-icon><span>上传</span></mdui-btn>
+                        <mdui-btn :dense="true" v-if="modifiable" @click="createFolder" :themeColor="false"  class="mdui-btn-raised"><mdui-icon :icon="'create_new_folder'"></mdui-icon><span>新建</span></mdui-btn>
+                        <mdui-btn :dense="true" v-if="modifiable" mdui-menu="{target: '#download_menu'}" :themeColor="false" class="mdui-btn-raised"><mdui-icon :icon="'file_download'"></mdui-icon><span>离线下载</span></mdui-btn>
+                        <div class="mdui-btn-group layout-group">
+                            <button @click="listType = 'table'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'table'}">
+                                <i class="mdui-icon material-icons">apps</i>
+                            </button>
+                            <button @click="listType = 'list'" class="mdui-btn mdui-ripple mdui-btn-icon" :class="{'mdui-btn-active': listType == 'list'}">
+                                <i class="mdui-icon material-icons">format_align_justify</i>
+                            </button>
+                        </div>
+                        <ul class="mdui-menu " id="download_menu">
+                            <li class="mdui-menu-item">
+                                <a href="javascript:;" @click="$emit('createDownload')">
+                                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
+                                    创建下载
+                                </a>
+                            </li>
+                            <li class="mdui-menu-item">
+                                <a href="javascript:;" @click="$emit('queryDownload')">
+                                    <i class="mdui-menu-item-icon mdui-icon material-icons">playlist_play</i>
+                                    查看下载
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class=" mdui-col-md-6 mdui-col-xs-12">
+                        <div class="mdui-textfield search">
+                            <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text" class="mdui-textfield-input">
+                        </div>
+                    </div>
                 </div>
             </div>
+            <mdui-hr></mdui-hr>
             <slot></slot>
         </div>
     </file-list>
 </template>
 
 <script>
+import MduiBtn from '@/components/ui/MduiBtn.vue'
+import MduiIcon from '@/components/ui/MduiIcon.vue'
+import MduiHr from '@/components/ui/MduiHr.vue'
 import fileList from '@/components/FileList/'
 import FileUtils from '@/utils/FileUtils'
 import mdui from 'mdui'
@@ -453,34 +480,24 @@ export default {
             return decodeURI(input)
         }
     },
-    components: { fileList }
+    components: { fileList, MduiBtn, MduiIcon, MduiHr }
 }
 </script>
 
 <style scope lang="less">
+.path-handler {
+    display: flex;
+    align-items: center;
+}
+.handler-group > * {
+    margin-top: 16px;
+}
 .search {
     input::placeholder {
         font-size: 12px;
     }
     input {
         width: 360px;
-    }
-}
-@media screen and (max-width: 720px) {
-    .btn-text {
-        display: none;
-    }
-    .mdui-toolbar>button {
-        width: 120px;
-    }
-    .mdui-toolbar>* {
-        margin: 0 !important;
-    }
-    .search {
-        width: 50%;
-        input {
-            width: 100%;
-        }
     }
 }
 .path-bar {
