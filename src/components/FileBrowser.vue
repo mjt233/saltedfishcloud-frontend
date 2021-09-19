@@ -503,8 +503,8 @@ export default {
 .handler-group {
     padding: 0;
     > * {
-        margin-right: 10px;
-        margin-bottom: 15px;
+        margin-right: 10px !important;
+        margin-bottom: 15px !important;
     }
 }
 .search {
