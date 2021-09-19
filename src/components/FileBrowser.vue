@@ -490,7 +490,7 @@ export default {
     align-items: center;
 }
 .handler-group > * {
-    margin-top: 16px;
+    margin-top: 16px !important;
 }
 .search {
     input::placeholder {

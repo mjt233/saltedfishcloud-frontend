@@ -170,7 +170,7 @@ export default {
     width: 32px;
     min-width: unset;
     height: 32px;
-    padding: 0;
+    padding: 0 !important;
     font-size: 15px;
 }
 .btn-tab {
