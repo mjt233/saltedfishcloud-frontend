@@ -7,7 +7,7 @@ const resource = {
      */
     downloadFileByMD5(md5, alias) {
         return {
-            url: `${this.prefix}/0/fileContentByMD5/${md5}/${alias}`
+            url: `${this.prefix}/0/fileContentByMD5/${md5}/${encodeURIComponent(alias)}`
         }
     },
     /**

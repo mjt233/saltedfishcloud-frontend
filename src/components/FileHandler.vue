@@ -247,7 +247,7 @@ export default {
             })
         },
         /**
-         * 文件被点击时执行的回调
+         * 文件浏览器列表文件被点击时执行的回调
          */
         clickFile(e) {
             const res = API.getServer() + '/api/' + API.resource.downloadFileByMD5(e.md5, e.name).url

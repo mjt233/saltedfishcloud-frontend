@@ -342,7 +342,7 @@ export default {
 
             // 刷新请求API本体动作函数
             const refresh = () => {
-                this.lastLoadPath = this.paths.join('/')
+                this.lastLoadPath = this.paths.map(e => encodeURIComponent(e)).join('/')
                 this.loading = true
                 this.$axios(apiConfig.file.getFileList(this.uid, this.lastLoadPath))
                     .then(e => {
