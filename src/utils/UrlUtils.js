@@ -11,7 +11,16 @@ const URLUtils = {
             qs = decodeURIComponent(url.substr(i))
             path = url.substr(0, i)
         }
-        return path + qs
+        const u = new URL(url)
+        path = u.pathname.split('/').map(e => decodeURIComponent(e)).join('/')
+        let host = u.hostname
+        const protocol = u.protocol
+        const port = u.port
+        if (port != 80 && port != 443) {
+            host = host + ':' + port
+        }
+        return protocol + '//' + host + path + qs
     }
 }
+
 module.exports = URLUtils
