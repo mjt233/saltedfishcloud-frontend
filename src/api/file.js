@@ -23,7 +23,7 @@ const file = {
      * @param {String} target 目标文件所在目录
      * @param {boolean} overwrite 是否覆盖原有文件
      * @param {FileTransferInfo} files 要操作的文件信息
-     * @returns {import("_axios@0.21.1@axios").AxiosRequestConfig}
+     * @returns {import("axios").AxiosRequestConfig}
      */
     copy(uid, source, target, overwrite = true, files) {
         if (source == '/') source = ''

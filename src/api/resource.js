@@ -19,7 +19,7 @@ const resource = {
      */
     downloadUseFileDC(dc, directDownload = false, name = '') {
         let baseURI = `${this.prefix}/0/fileContentByFDC/${dc}`
-        if (name !== '') baseURI += `/${name}`
+        if (name !== '') baseURI += `/${encodeURIComponent(name)}`
         if (directDownload) baseURI += '?download=true'
         return baseURI
     },
