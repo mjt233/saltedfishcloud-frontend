@@ -5,6 +5,7 @@ const admin = require('./admin')
 const breakpoint = require('./breakpoint')
 const task = require('./task')
 const server = require('./server')
+const collection = require('./collection')
 /**
  * @typedef {Object} FileTransferInfo 文件复制粘贴信息
  * @property {String} source    源文件名
@@ -19,6 +20,7 @@ const API = {
     task: task,
     server: server.server,
     proxyServer: server.proxyServer,
-    getServer: server.getServer
+    getServer: server.getServer,
+    collection: collection
 }
 module.exports = API

@@ -48,6 +48,14 @@
             <div class="mdui-list-item-content">个人中心</div>
           </li>
         </router-link>
+        <router-link v-show="userInfo" to="/box">
+          <li class="mdui-list-item" @click="closeDrawer">
+            <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
+              >&#xe5c3;</i
+            >
+            <div class="mdui-list-item-content">百宝箱</div>
+          </li>
+        </router-link>
         <a v-show="userInfo">
           <li class="mdui-list-item" @click="exit">
             <i class="mdui-list-item-avatar mdui-icon material-icons mdui-color-theme-300"
@@ -108,8 +116,6 @@ export default {
         },
         exit() {
             this.$emit('exit')
-        },
-        setMenuSideBar(top, height) {
         },
         updateMenuSideBar() {
             const path = this.$route.path
