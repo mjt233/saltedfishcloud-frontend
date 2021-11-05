@@ -1,5 +1,5 @@
 <template>
-    <mdui-card v-if="info" class="simple-collection-info">
+    <mdui-card v-if="info" class="simple-collection-info mdui-ripple">
         <p class="header">
             <span class="title">{{info.title}}</span>
             <span class="state">
@@ -44,9 +44,14 @@ export default {
 .simple-collection-info {
     display: inline-block;
     width: 280px;
+    transition: all .2s;
     // margin: 0 20px;
     p {
         margin: 0;
+    }
+    &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0px 10px 10px darkgray;
     }
     .title {
         font-size: 16px;
