@@ -1,18 +1,18 @@
 <template>
-<div class="mdui-dialog" ref="dialog" :style="{'border-radius': radius ? '10px' : '0'}">
-    <div class="mask" v-show='loading'>
-        <div class="mdui-spinner mdui-spinner-colorful" style="z-index: 8000"></div>
+    <div class="mdui-dialog" ref="dialog" :style="{'border-radius': radius ? '10px' : '0'}">
+        <div class="mask" v-show='loading'>
+            <div class="mdui-spinner mdui-spinner-colorful" style="z-index: 8000"></div>
+        </div>
+        <div class="mdui-dialog-title" :style="contentStyle">{{title}}</div>
+        <div class="mdui-dialog-content" :style="contentStyle"><slot></slot></div>
+        <div class="mdui-dialog-actions" :style="contentStyle">
+            <template v-if="!disableDefBtn">
+                <button class="mdui-btn mdui-ripple" mdui-dialog-cancel @click="$emit('cancel')">取消</button>
+                <button class="mdui-btn mdui-ripple" @click="$emit('confirm')">确定</button>
+            </template>
+            <slot name="btn"></slot>
+        </div>
     </div>
-    <div class="mdui-dialog-title" :style="contentStyle">{{title}}</div>
-    <div class="mdui-dialog-content" :style="contentStyle"><slot></slot></div>
-    <div class="mdui-dialog-actions" :style="contentStyle">
-        <template v-if="!disableDefBtn">
-            <button class="mdui-btn mdui-ripple" mdui-dialog-cancel @click="$emit('cancel')">取消</button>
-            <button class="mdui-btn mdui-ripple" @click="$emit('confirm')">确定</button>
-        </template>
-        <slot name="btn"></slot>
-    </div>
-</div>
 </template>
 
 <script>

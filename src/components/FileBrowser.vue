@@ -548,6 +548,5 @@ export default {
 }
 .list {
     margin: 0 auto;
-    opacity: .95;
 }
 </style>

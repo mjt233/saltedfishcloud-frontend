@@ -1,6 +1,6 @@
 <template>
     <container class="mdui-typo" :loading="loading">
-        <h5>文件收集</h5>
+        <h5 class="title-group"><mdui-btn @click="$router.push('/box')" :icon="'keyboard_backspace'"></mdui-btn><span>文件收集</span></h5>
         <mdui-hr></mdui-hr>
         <fill-center :width="width" :smWidth="'100%'">
             <simple-collection-info
@@ -20,9 +20,10 @@
         >
             <detail-collection-info :info="itemInfo" />
             <template slot="btn">
-                <mdui-btn style="margin:0 16px 8px 0" dense @click="showDialog=false">确定</mdui-btn>
+                <button class=" mdui-btn mdui-ripple"  @click="showDialog=false">确定</button>
             </template>
         </mdui-dialog>
+        <mdui-btn :fab="true" :fixed="true" :icon="'add'" ></mdui-btn>
     </container>
 </template>
 
@@ -114,5 +115,12 @@ export default {
     }
     width: auto;
     cursor: pointer;
+}
+.title-group {
+    display: flex;
+    align-items: center;
+    >* {
+        margin-right: 10px;
+    }
 }
 </style>
