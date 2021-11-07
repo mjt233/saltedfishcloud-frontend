@@ -109,8 +109,9 @@ const file = {
      * @param {String[]} names 文件名
      */
     delete(uid, path, names) {
+        const u = `/${this.prefix}/${uid}/content/${path}`
         return {
-            url: `${this.prefix}/${uid}/content/${path}`,
+            url: u.replace(/\/+/g, '/'),
             method: 'delete',
             data: {
                 fileName: names

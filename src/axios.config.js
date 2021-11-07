@@ -38,6 +38,9 @@ axios.interceptors.response.use(
             Store.commit('setToken', null)
         }
         err.msg = msg || err.response.data.message || (parseInt(status / 100) == 5 ? '服务器错误' : '未知错误')
+        err.toString = () => {
+            return err.msg
+        }
         return Promise.reject(err)
     }
 )

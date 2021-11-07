@@ -1,5 +1,5 @@
 <template>
-    <div class="mdui-dialog" ref="dialog" :style="{'border-radius': radius ? '10px' : '0'}">
+    <div v-if="!full" class="mdui-dialog" ref="dialog" :style="{'border-radius': radius ? '10px' : '0'}">
         <div class="mask" v-show='loading'>
             <div class="mdui-spinner mdui-spinner-colorful" style="z-index: 8000"></div>
         </div>
@@ -13,6 +13,20 @@
             <slot name="btn"></slot>
         </div>
     </div>
+    <div v-else class="full-dialog" :class="{active: show}">
+        <div class="mask" v-show='loading'>
+            <div class="mdui-spinner mdui-spinner-colorful" style="z-index: 8000"></div>
+        </div>
+        <div class="mdui-appbar">
+            <div class="mdui-toolbar mdui-color-theme">
+                <button @click="close" href="javascript:;" class="mdui-btn mdui-btn-icon">
+                    <i class="mdui-icon material-icons">close</i>
+                </button>
+                <a href="javascript:;" class="mdui-typo-headline" style="color: white">{{title}}</a>
+            </div>
+        </div>
+        <slot></slot>
+    </div>
 </template>
 
 <script>
@@ -20,6 +34,10 @@ import mdui from 'mdui'
 export default {
     name: 'mdui-dialog',
     props: {
+        full: {
+            type: Boolean,
+            default: false
+        },
         radius: {
             type: Boolean,
             default: false
@@ -77,25 +95,32 @@ export default {
             dialog: null
         }
     },
+    destroyed() {
+        if (!this.full && this.renderOnBody) {
+            document.body.removeChild(this.$el)
+        }
+    },
     mounted() {
         mdui.mutation('.mdui-spinner')
-        this.el = this.$el
-        if (this.renderOnBody) {
-            document.body.appendChild(this.el)
-        }
-        this.dialog = new mdui.Dialog(this.el, { modal: true })
-        this.el.addEventListener('close.mdui.dialog', e => {
-            this.$emit('update:show', false)
-            this.$emit('close', e)
-        })
-        this.el.addEventListener('opened.mdui.dialog', e => {
-            this.$emit('opened')
-        })
-        this.el.addEventListener('open.mdui.dialog', e => {
-            this.$emit('open')
-        })
-        if (this.show) {
-            this.dialog.open()
+        if (!this.full) {
+            this.el = this.$el
+            if (this.renderOnBody) {
+                document.body.appendChild(this.el)
+            }
+            this.dialog = new mdui.Dialog(this.el, { modal: true })
+            this.el.addEventListener('close.mdui.dialog', e => {
+                this.$emit('update:show', false)
+                this.$emit('close', e)
+            })
+            this.el.addEventListener('opened.mdui.dialog', e => {
+                this.$emit('opened')
+            })
+            this.el.addEventListener('open.mdui.dialog', e => {
+                this.$emit('open')
+            })
+            if (this.show) {
+                this.dialog.open()
+            }
         }
     },
     computed: {
@@ -114,19 +139,20 @@ export default {
     methods: {
         open() {
             this.$emit('update:show', true)
-            this.dialog.open()
+            if (!this.full) {
+                this.dialog.open()
+            }
         },
         close() {
             this.$emit('update:show', false)
-            this.dialog.close()
+            if (!this.full) {
+                this.dialog.close()
+            }
         },
         update() {
-            this.dialog.handleUpdate()
-        }
-    },
-    destroyed() {
-        if (this.renderOnBody) {
-            document.body.removeChild(this.$el)
+            if (!this.full) {
+                this.dialog.handleUpdate()
+            }
         }
     }
 }
@@ -152,5 +178,19 @@ export default {
     align-items: center;
     width: 100%;
     height: 100%;
+}
+.full-dialog {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    background-color: white;
+    top: 100vh;
+    left: 0;
+    z-index: 5001;
+    overflow: auto;
+    transition: all .35s;
+    &.active {
+        top: 0;
+    }
 }
 </style>

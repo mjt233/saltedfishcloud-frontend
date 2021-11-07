@@ -1,7 +1,15 @@
 <template>
     <div class="mdui-textfield" :class="{'mdui-textfield-floating-label': floatLabel, 'mdui-textfield-invalid': error, 'mdui-textfield-has-bottom': hasBottom}">
         <label class="mdui-textfield-label" v-if="floatLabel">{{placeholder}}</label>
-        <input class="mdui-textfield-input"
+        <input v-show="!textarea" class="mdui-textfield-input"
+            @change="$emit('change', $event.target.value)"
+            v-bind:value='value'
+            :type="type"
+            :placeholder="floatLabel ? '' : placeholder"
+            :disabled='disabled'
+            @keypress.enter="$emit('enter', $event)"
+        />
+        <textarea v-show="textarea" class="mdui-textfield-input"
             @change="$emit('change', $event.target.value)"
             v-bind:value='value'
             :type="type"
@@ -21,6 +29,10 @@ export default {
         event: 'change'
     },
     props: {
+        textarea: {
+            type: Boolean,
+            default: false
+        },
         value: {
             type: String,
             default: ''

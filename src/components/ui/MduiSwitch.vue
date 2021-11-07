@@ -1,7 +1,8 @@
 <template>
-    <label class="mdui-switch" style=" margin: 0 16px">
+    <label class="mdui-switch">
+        <span>{{label}}</span>
         <input type="checkbox"  @change="$emit('change', $event.target.checked)" v-bind:checked='checked'/>
-        <i class="mdui-switch-icon"></i>
+        <i class="mdui-switch-icon" style="margin: 0 16px"></i>
     </label>
 </template>
 

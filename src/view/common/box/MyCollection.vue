@@ -1,16 +1,21 @@
 <template>
-    <container class="mdui-typo" :loading="loading">
-        <h5 class="title-group"><mdui-btn @click="$router.push('/box')" :icon="'keyboard_backspace'"></mdui-btn><span>文件收集</span></h5>
-        <mdui-hr></mdui-hr>
-        <fill-center :width="width" :smWidth="'100%'">
-            <simple-collection-info
-                class="info-card"
-                v-for="item in collectionList"
-                :info="item"
-                :key="item.id"
-                @click.native="showDetail(item)"
-            />
-        </fill-center>
+    <container :loading="loading">
+        <div class="mdui-typo">
+            <h5 class="title-group"><mdui-btn @click="$router.push('/box')" :icon="'keyboard_backspace'"></mdui-btn><span>文件收集</span></h5>
+            <mdui-hr></mdui-hr>
+            <!-- 收集列表展示 -->
+            <fill-center :width="width" :smWidth="'100%'">
+                <simple-collection-info
+                    class="info-card"
+                    v-for="item in collectionList"
+                    :info="item"
+                    :key="item.id"
+                    @click.native="showDetail(item)"
+                />
+            </fill-center>
+        </div>
+
+        <!-- 详情展示 -->
         <mdui-dialog
             ref="dialog"
             :show.sync="showDialog"
@@ -23,7 +28,11 @@
                 <button class=" mdui-btn mdui-ripple"  @click="showDialog=false">确定</button>
             </template>
         </mdui-dialog>
-        <mdui-btn :fab="true" :fixed="true" :icon="'add'" ></mdui-btn>
+        <!-- 新建收集对话框 -->
+        <mdui-dialog full :show.sync="showAdd" :title="'创建文件收集'">
+            <collection-creator @create="startCreate" ref="creator" />
+        </mdui-dialog>
+        <mdui-btn @click="showAdd=true" :fab="true" :fixed="true" :icon="'add'" ></mdui-btn>
     </container>
 </template>
 
@@ -37,6 +46,7 @@ import FillCenter from '@/components/ui/Layout/FillCenter.vue'
 import MduiDialog from '@/components/ui/MduiDialog.vue'
 import DetailCollectionInfo from '@/components/ui/Collection/DetailCollectionInfo.vue'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
+import CollectionCreator from '@/components/ui/Collection/CollectionCreator.vue'
 
 export default {
     name: 'myCollection',
@@ -47,7 +57,8 @@ export default {
         FillCenter,
         MduiDialog,
         DetailCollectionInfo,
-        MduiBtn
+        MduiBtn,
+        CollectionCreator
     },
     computed: {
         userInfo() {
@@ -60,7 +71,8 @@ export default {
             loading: false,
             width: 300,
             showDialog: false,
-            itemInfo: undefined
+            itemInfo: undefined,
+            showAdd: false
         }
     },
     mounted() {
@@ -102,6 +114,25 @@ export default {
                     this.showDialog = true
                 }
             })
+        },
+        async startCreate(e) {
+            this.showAdd = false
+            this.loading = true
+            try {
+                if (e.separate) {
+                    await this.axios(API.file.mkdir(this.userInfo.id, e.saveNode, e.title))
+                    e.saveNode += '/' + e.title
+                }
+                const d = (await this.axios(API.resource.getNodeInfo(this.userInfo.id, e.saveNode))).data.data
+                e.saveNode = d[d.length - 1].id
+                await this.axios(API.collection.create(e))
+                mdui.snackbar('创建成功')
+            } catch (err) {
+                mdui.snackbar(err.toString())
+            } finally {
+                this.loading = false
+                this.loadInfo()
+            }
         }
     }
 
