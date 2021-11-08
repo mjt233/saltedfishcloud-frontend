@@ -58,6 +58,9 @@ export default {
             try {
                 const token = (await this.$axios(conf)).data.data
                 this.$store.commit('setToken', token)
+                const userInfo = (await this.axios(apiConfig.user.getUserInfo())).data.data
+                console.log(userInfo)
+                this.$store.commit('setUserInfo', userInfo)
                 this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(this.form.user).url}`)
                 localStorage.setItem('token', token)
                 mdui.snackbar('登录成功')
