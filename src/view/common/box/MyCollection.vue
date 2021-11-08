@@ -23,7 +23,7 @@
             :title="itemInfo ? itemInfo.title : ''"
             style="user-select: text"
         >
-            <detail-collection-info :info="itemInfo" />
+            <detail-collection-info @goto="goto" :info="itemInfo" />
             <template slot="btn">
                 <button class=" mdui-btn mdui-ripple"  @click="showDialog=false">确定</button>
             </template>
@@ -136,6 +136,12 @@ export default {
                 this.loading = false
                 this.loadInfo()
             }
+        },
+        goto(e) {
+            // this.showDialog = false
+            // await this.$nextTick()
+            // this.$router.push(e)
+            location.href = '/#' + e
         }
     }
 

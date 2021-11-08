@@ -22,7 +22,7 @@
                 </tr>
                 <tr>
                     <td>保存位置</td>
-                    <td>{{info.saveNode}}</td>
+                    <td><a href="javascript:;" @click="$emit('goto', '/private' + info.saveNode)">{{info.saveNode}}</a></td>
                 </tr>
                 <tr>
                     <td>最大收集次数</td>

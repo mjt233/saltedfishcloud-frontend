@@ -51,6 +51,7 @@
             <p class=" mdui-text-color-green"><mdui-icon  :size="80" :icon="'check'" /></p>
             <p style="font-size: 36px">提交成功</p>
             <router-link to="/">去咸鱼云首页</router-link>
+            <a href="javascript:;" @click="reset">再提交一次</a>
         </div>
     </full-container>
 </template>
@@ -117,6 +118,15 @@ export default {
             if (!this.input.name) {
                 this.input.name = e.name
             }
+        },
+        reset() {
+            this.uploading = false
+            this.prog = {
+                value: 0,
+                total: 0,
+                loaded: 0
+            }
+            this.success = false
         },
         validate() {
             if (!this.file) {
