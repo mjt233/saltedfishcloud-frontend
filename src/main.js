@@ -50,6 +50,7 @@ if (localStorage.getItem('token')) {
 
 axios(conf).then((e) => {
     mdui.snackbar(`欢迎回来，${e.data.data.user}`, { position: 'bottom' })
+    Store.commit('setUserInfo', e.data.data)
     Store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(e.data.data.user).url}`)
     vue.$mount('#app')
 }).catch(() => {

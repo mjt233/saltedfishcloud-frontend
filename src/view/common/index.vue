@@ -51,6 +51,7 @@ export default {
         exit() {
             localStorage.clear()
             Store.commit('setToken', null)
+            Store.commit('setUserInfo', null)
             Store.commit('setAvatarURL', API.getServer() + '/api/' + API.user.getAvatar().url)
             mdui.snackbar('退出成功')
             if (this.$route.name == 'privateDisk' || this.$route.name == 'my') {

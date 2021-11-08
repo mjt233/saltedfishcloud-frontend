@@ -21,17 +21,16 @@ const Store = new Vuex.Store({
 
             }
         },
+        setUserInfo(state, userInfo) {
+            state.userInfo = userInfo
+        },
         setAvatarURL(state, url) {
             state.avatarURL = url
         }
     },
     getters: {
         userInfo: state => {
-            try {
-                return JSON.parse(JSON.parse(window.atob(state.token.split('.')[1])).data)
-            } catch (error) {
-                return null
-            }
+            return state.userInfo
         }
     }
 })

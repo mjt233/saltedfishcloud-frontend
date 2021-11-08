@@ -123,6 +123,10 @@ export default {
                 mdui.alert('未选择文件')
                 return false
             }
+            if (!this.ci.field && !this.input.name) {
+                mdui.alert('文件名不得为空')
+                return false
+            }
             if (this.ci.field) {
                 if (this.ci.extPattern) {
                     const ext = FileUtils.getSuffix(this.file.name)
@@ -160,8 +164,10 @@ export default {
                         value: field.value
                     })
                 }
+                submitInfo.filename = this.file.name
+            } else {
+                submitInfo.filename = this.input.name
             }
-            submitInfo.filename = this.input.name
             const conf = API.collection.submit(this.id, this.verification, submitInfo, this.file)
             conf.onUploadProgress = e => {
                 this.prog.value = ((e.loaded / e.total) * 100).toFixed(2)
