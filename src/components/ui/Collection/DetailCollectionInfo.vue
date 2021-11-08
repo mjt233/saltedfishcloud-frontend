@@ -22,7 +22,10 @@
                 </tr>
                 <tr>
                     <td>保存位置</td>
-                    <td><a href="javascript:;" @click="$emit('goto', '/private' + info.saveNode)">{{info.saveNode}}</a></td>
+                    <td>
+                        <a v-if="info.saveNode.startsWith('/')" href="javascript:;" @click="$emit('goto', '/private' + info.saveNode)">{{info.saveNode}}</a>
+                        <span v-else>{{info.saveNode}}</span>
+                    </td>
                 </tr>
                 <tr>
                     <td>最大收集次数</td>
