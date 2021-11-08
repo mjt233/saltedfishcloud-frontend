@@ -96,6 +96,7 @@ export default {
         },
         showDetail(item) {
             this.itemInfo = item
+            this.itemInfo.link = location.origin + '/#/submit?id=' + item.id + '&verification=' + item.verification
             this.$nextTick().then(() => {
                 this.$refs.dialog.update()
                 const nid = this.itemInfo.saveNode
@@ -125,9 +126,11 @@ export default {
                 }
                 const d = (await this.axios(API.resource.getNodeInfo(this.userInfo.id, e.saveNode))).data.data
                 e.saveNode = d[d.length - 1].id
+                console.log(e)
                 await this.axios(API.collection.create(e))
                 mdui.snackbar('创建成功')
             } catch (err) {
+                this.showAdd = true
                 mdui.snackbar(err.toString())
             } finally {
                 this.loading = false

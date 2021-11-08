@@ -9,7 +9,7 @@
                     <mdui-input v-model="ci.nickname" :placeholder="'接收者署名'"></mdui-input>
                 </div>
             </div>
-            <mdui-input :placeholder="'收集说明（可多行）'" :textarea="true"></mdui-input>
+            <mdui-input v-model="ci.describe" :placeholder="'收集说明（可多行）'" :textarea="true"></mdui-input>
 
             <!-- 基本信息 -->
             <div class="detail">
@@ -226,6 +226,7 @@ export default {
             obj.allowMax = -1
             obj.saveNode = this.ci.savePath
             obj.separate = this.ci.separate
+            obj.describe = this.ci.describe
 
             if (this.ci.validity.type === 'custom') {
                 obj.expiredAt = new Date().getTime() + parseInt(this.ci.validity.value) * 24 * 60 * 60 * 1000
@@ -234,7 +235,6 @@ export default {
             } else {
                 obj.expiredAt = new Date().getTime() + parseInt(this.ci.validity.type) * 24 * 60 * 60 * 1000
             }
-            obj.descript = this.ci.describe
 
 
             if (!this.ci.useAdven) {
@@ -267,8 +267,15 @@ export default {
                 obj.pattern = this.ci.pattern
             } else if (this.ci.accept.type == 'field') {
                 obj.pattern = this.ci.pattern
-                obj.expiredAt = this.ci.extPattern
-                obj.field = this.ci.fields
+                obj.extPattern = this.ci.extPattern ? this.ci.extPattern : undefined
+                obj.field = this.ci.fields.map(obj => {
+                    if (obj.type == 'TEXT') {
+                        delete obj.options
+                    } else {
+                        delete obj.pattern
+                    }
+                    return obj
+                })
             }
 
             return obj

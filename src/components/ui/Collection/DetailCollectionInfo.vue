@@ -5,6 +5,10 @@
         <table class="mdui-table">
             <tbody>
                 <tr>
+                    <td>接收链接</td>
+                    <td><a target="_blank" :href="info.link">{{info.link}}</a></td>
+                </tr>
+                <tr>
                     <td>接收者署名</td>
                     <td>{{info.nickname}}</td>
                 </tr>
