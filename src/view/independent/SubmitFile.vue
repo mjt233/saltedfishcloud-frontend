@@ -33,8 +33,13 @@
                         <file-upload class=" mdui-center" style="width: 100%; max-width: 550px" @remove="fileRemove" @select="fileSelect"></file-upload>
                     </div>
                 </mdui-row>
+                <mdui-row v-if="uploading">
+                    <mdui-progress :value="prog.value"></mdui-progress>
+                    <p v-show="prog.value != 100">已提交：{{prog.loaded | formatSize}} 进度：{{prog.value}}%</p>
+                    <p v-show="prog.value == 100">等待服务器处理中...</p>
+                </mdui-row>
 
-                <mdui-btn @click="submit">提交文件</mdui-btn>
+                <mdui-btn @click="submit" :disabled="uploading">提交文件</mdui-btn>
                 <mdui-hr style="margin-bottom: 18px"></mdui-hr>
                 <div class="light-text">
                     <p>创建日期:{{ci.createdAt | formatDate}}</p>
@@ -61,8 +66,9 @@ import MduiBtn from '@/components/ui/MduiBtn.vue'
 import mdui from 'mdui'
 import FileUtils from '@/utils/FileUtils'
 import MduiIcon from '@/components/ui/MduiIcon.vue'
+import MduiProgress from '@/components/ui/MduiProgress.vue'
 export default {
-    components: { FullContainer, MduiHr, FileUpload, MduiInput, MduiRow, MduiBtn, MduiIcon },
+    components: { FullContainer, MduiHr, FileUpload, MduiInput, MduiRow, MduiBtn, MduiIcon, MduiProgress },
     name: 'submitFile',
     data() {
         return {
@@ -75,7 +81,13 @@ export default {
                 name: ''
             },
             file: null,
-            success: false
+            success: false,
+            uploading: false,
+            prog: {
+                value: 0,
+                total: 0,
+                loaded: 0
+            }
         }
     },
     mounted() {
@@ -141,7 +153,6 @@ export default {
             }
             const submitInfo = {}
             if (this.ci.field) {
-                submitInfo.filename = this.file.name
                 submitInfo.field = []
                 for (const field of this.ci.field) {
                     submitInfo.field.push({
@@ -149,14 +160,21 @@ export default {
                         value: field.value
                     })
                 }
-            } else {
-                submitInfo.filename = this.file.name
             }
-            this.axios(API.collection.submit(this.id, this.verification, submitInfo, this.file)).then(e => {
-                console.log(e)
+            submitInfo.filename = this.input.name
+            const conf = API.collection.submit(this.id, this.verification, submitInfo, this.file)
+            conf.onUploadProgress = e => {
+                this.prog.value = ((e.loaded / e.total) * 100).toFixed(2)
+                this.prog.total = e.total
+                this.prog.loaded = e.loaded
+            }
+            this.uploading = true
+            this.axios(conf).then(e => {
                 this.success = true
+                this.uploading = false
                 mdui.snackbar('上传成功')
             }).catch(err => {
+                this.uploading = false
                 mdui.snackbar(err.toString())
             })
         }
