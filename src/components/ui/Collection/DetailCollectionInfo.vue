@@ -24,7 +24,7 @@
                     <td>保存位置</td>
                     <td>
                         <a v-if="info.saveNode.startsWith('/')" href="javascript:;" @click="$emit('goto', '/private' + info.saveNode)">{{info.saveNode}}</a>
-                        <span v-else>{{info.saveNode}}</span>
+                        <span v-else><span class="mdui-text-color-red">{{info.savePathSnapshot}}</span>（已被删除）</span>
                     </td>
                 </tr>
                 <tr>

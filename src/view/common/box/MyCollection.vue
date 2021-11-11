@@ -107,7 +107,6 @@ export default {
                         this.itemInfo.saveNode = e.data.data
                         this.showDialog = true
                     }).catch(e => {
-                        mdui.snackbar('节点' + nid + '已丢失')
                         this.loading = false
                         this.showDialog = true
                     })
