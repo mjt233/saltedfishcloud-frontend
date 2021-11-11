@@ -36,8 +36,11 @@ axios.interceptors.response.use(
 
         if (status === 401) {
             Store.commit('setToken', null)
+            Store.commit('setUserInfo', null)
         }
         err.msg = msg || err.response.data.message || (parseInt(status / 100) == 5 ? '服务器错误' : '未知错误')
+        err.code = err.response.data.code
+        err.status = status
         err.toString = () => {
             return err.msg
         }

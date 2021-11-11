@@ -137,11 +137,12 @@ export default {
                 this.loadInfo()
             }
         },
-        goto(e) {
-            // this.showDialog = false
-            // await this.$nextTick()
-            // this.$router.push(e)
-            location.href = '/#' + e
+        async goto(e) {
+            this.showDialog = false
+            setTimeout(() => {
+                this.$router.push(e)
+            }, 100)
+            // location.href = '/#' + e
         }
     }
 
