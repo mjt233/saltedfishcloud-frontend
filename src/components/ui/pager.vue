@@ -1,59 +1,65 @@
 <template>
     <div style="position: relative;display:inline-block">
         <div class="mask" v-if="disabled"></div>
-        <ul class="page-list mdui-typo"  v-if="pageCount < 8">
+
+        <!-- 所有a标签均为点击可触发转跳的元素，span则为当前页码元素 -->
+
+
+        <ul class="page-list"  v-if="pageCount < 8">
             <li @click="jump(cur - 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_before</i></span>
             </li>
-            <li v-for="num in pageCount" :key="num">
-                <a @click="jump(num)" v-if="num != cur">{{num}}</a>
-                <span @click="jump(num)" v-else>{{num}}</span>
+            <li v-for="num in pageCount" :key="num" :class="{'mdui-color-theme': cur == num, 'mdui-text-color-theme-text': true}">
+                <span @click="jump(num)">{{num}}</span>
             </li>
             <li @click="jump(cur + 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_next</i></span>
             </li>
         </ul>
-        <ul class="page-list mdui-typo"  v-else>
+        <ul class="page-list"  v-else>
             <li @click="jump(cur - 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_before</i></span>
             </li>
             <!-- 首页常驻 -->
-            <li>
-                <a @click="jump(cur - 1)" v-if="1 != cur">1</a>
-                <span @click="jump(cur - 1)" v-else>1</span>
+            <li :class="{'mdui-color-theme': cur == 1, 'mdui-text-color-theme-text': true}">
+                <span @click="jump(1)" >1</span>
             </li>
             <!-- 首页后4个 -->
             <template v-if="cur <= 4">
-                <li v-for="num in 5" :key="num">
-                    <a @click="jump(num + 1)" v-if="(num + 1) != cur">{{num + 1}}</a>
-                    <span @click="jump(num + 1)" v-else>{{num + 1}}</span>
+                <li v-for="num in 5" :key="num" :class="{'mdui-color-theme': cur == num + 1, 'mdui-text-color-theme-text': true}">
+                    <span @click="jump(num + 1)">{{num + 1}}</span>
                 </li>
-                <li class="next" @click="jump(cur + 5)"></li>
+                <li class="next" @click="jump(cur + 5)">
+                    <mdui-icon :size="arrowSize" :icon="'fast_forward'" />
+                </li>
             </template>
 
             <!-- 中间5个 -->
             <template v-else-if="cur <= (pageCount - 4)">
-                <li class="prev" @click="jump(cur - 5)"></li>
-                <li v-for="num in 5" :key="num">
-                    <a @click="jump(cur + num - 3)" v-if="(cur + num - 3) != cur">{{cur + num - 3}}</a>
-                    <span @click="jump(cur + num - 3)" v-else>{{cur + num - 3}}</span>
+                <li class="prev" @click="jump(cur - 5)">
+                    <mdui-icon :size="arrowSize" :icon="'fast_rewind'" />
                 </li>
-                <li class="next" @click="jump(cur + 5)"></li>
+                <li v-for="num in 5" :key="num" :class="{'mdui-color-theme': cur == cur + num - 3, 'mdui-text-color-theme-text': true}">
+                    <span @click="jump(cur + num - 3)">{{cur + num - 3}}</span>
+                </li>
+                <li class="next" @click="jump(cur + 5)">
+                    <mdui-icon :size="arrowSize" :icon="'fast_forward'" />
+                </li>
             </template>
 
             <!-- 尾页前4个 -->
             <template v-else>
-                <li class="prev" @click="jump(cur - 5)"></li>
-                <li v-for="num in 4" :key="num">
-                    <a @click="jump(pageCount + num - 5)" v-if="(pageCount + num - 5) != cur">{{pageCount + num - 5}}</a>
-                    <span @click="jump(pageCount + num - 5)" v-else>{{pageCount + num - 5}}</span>
+                <li class="prev" @click="jump(cur - 5)">
+                    <mdui-icon :size="arrowSize" :icon="'fast_rewind'" />
+                </li>
+                <li v-for="num in 4" :key="num" :class="{'mdui-color-theme': cur == pageCount + num - 5, 'mdui-text-color-theme-text': true}">
+                    <span @click="jump(pageCount + num - 5)">{{pageCount + num - 5}}</span>
                 </li>
             </template>
 
             <!-- 尾页常驻 -->
-            <li>
-                <a @click="jump(pageCount)" v-if="pageCount != cur">{{pageCount}}</a>
-                <span @click="jump(pageCount)" v-else>{{pageCount}}</span>
+            <li :class="{'mdui-color-theme': cur == pageCount, 'mdui-text-color-theme-text': true}">
+                <span @click="jump(pageCount)">{{pageCount}}</span>
             </li>
             <li @click="jump(cur + 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_next</i></span>
@@ -62,7 +68,9 @@
     </div>
 </template>
 <script>
+import MduiIcon from './MduiIcon.vue'
 export default {
+    components: { MduiIcon },
     name: 'pager',
     props: {
         pageCount: {
@@ -75,12 +83,13 @@ export default {
     },
     data() {
         return {
-            cur: 1
+            cur: 1,
+            arrowSize: 16
         }
     },
     methods: {
         jump(num) {
-            if (this.disabled || num <= 0 || num > this.pageCount) {
+            if (this.cur == num || this.disabled || num <= 0 || num > this.pageCount) {
                 return
             }
             this.cur = num
@@ -115,29 +124,48 @@ export default {
     display: inline-flex;
     justify-content: center;
     cursor: pointer;
-    a,span,.prev,.next{
-        display: inline-block;
-        min-width: 15px;
-        padding: 3px;
-        text-align: center;
+    &>li {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
         user-select: none;
+        margin: 3px;
+        padding: 10px;
+        height: 12px;
+        width: 12px;
+        margin: 0 2px;
+        background-color: white;
+        box-shadow: 0 3px 3px darkgray;
+        border-radius: 4px;
+        transition: all .2s;
     }
+
     .prev,.next {
         &::after {
-            color: rgb(152, 212, 240);
             content: '..';
         }
+        >* {
+            display: none;
+        }
+        &:hover {
+            &>* {
+                display: inline;
+            }
+            &::after {
+                display: none;
+            }
+        }
     }
-    .prev:hover::after {
-        letter-spacing: -2px;
-        font-size: 14px;
-        content: '<<';
-    }
-    .next:hover::after {
-        letter-spacing: -2px;
-        font-size: 14px;
-        content: '>>';
-    }
+    // .prev:hover::after {
+    //     letter-spacing: -2px;
+    //     font-size: 14px;
+    //     content: '<<';
+    // }
+    // .next:hover::after {
+    //     letter-spacing: -2px;
+    //     font-size: 14px;
+    //     content: '>>';
+    // }
 }
 </style>
 
