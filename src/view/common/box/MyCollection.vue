@@ -41,12 +41,12 @@ import Container from '@/components/layout/Container.vue'
 import MduiHr from '@/components/ui/MduiHr.vue'
 import mdui from 'mdui'
 import API from '@/api'
-import SimpleCollectionInfo from '@/components/ui/Collection/SimpleCollectionInfo.vue'
+import SimpleCollectionInfo from '@/components/Collection/SimpleCollectionInfo.vue'
 import FillCenter from '@/components/ui/Layout/FillCenter.vue'
 import MduiDialog from '@/components/ui/MduiDialog.vue'
-import DetailCollectionInfo from '@/components/ui/Collection/DetailCollectionInfo.vue'
+import DetailCollectionInfo from '@/components/Collection/DetailCollectionInfo.vue'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
-import CollectionCreator from '@/components/ui/Collection/CollectionCreator.vue'
+import CollectionCreator from '@/components/Collection/CollectionCreator.vue'
 
 export default {
     name: 'myCollection',

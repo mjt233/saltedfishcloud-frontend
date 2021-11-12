@@ -105,7 +105,7 @@
 
 <script>
 import StringFormatter from '@/utils/StringFormatter'
-import MduiHr from '../MduiHr.vue'
+import MduiHr from '@/components/ui/MduiHr.vue'
 export default {
     components: { MduiHr },
     name: 'detailCollectionInfo',

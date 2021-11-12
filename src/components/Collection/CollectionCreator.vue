@@ -131,17 +131,17 @@
 <script>
 import MduiInput from '@/components/ui/MduiInput.vue'
 import MduiSwitch from '@/components/ui/MduiSwitch.vue'
-import MduiBtn from '../MduiBtn.vue'
-import MduiDialog from '../MduiDialog.vue'
+import MduiBtn from '@/components/ui/MduiBtn.vue'
+import MduiDialog from '@/components/ui/MduiDialog.vue'
 import FileBrowser from '@/components/FileBrowser.vue'
 import API from '@/api'
 import mdui from 'mdui'
-import MduiRow from '../MduiRow.vue'
+import MduiRow from '@/components/ui/MduiRow.vue'
 import CollectionFormField from './CollectionFormField.vue'
-import MduiHr from '../MduiHr.vue'
-import MduiCheckbox from '../MduiCheckbox.vue'
+import MduiHr from '@/components/ui/MduiHr.vue'
+import MduiCheckbox from '@/components/ui/MduiCheckbox.vue'
 import CollectionFilderEditor from './CollectionFilderEditor.vue'
-import MduiIcon from '../MduiIcon.vue'
+import MduiIcon from '@/components/ui/MduiIcon.vue'
 export default {
     name: 'collectionCreator',
     components: {

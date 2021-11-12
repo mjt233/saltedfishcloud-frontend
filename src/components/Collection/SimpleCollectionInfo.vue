@@ -18,8 +18,8 @@
 
 <script>
 import StringFormatter from '@/utils/StringFormatter'
-import MduiCard from '../MduiCard.vue'
-import MduiHr from '../MduiHr.vue'
+import MduiCard from '@/components/ui/MduiCard.vue'
+import MduiHr from '@/components/ui/MduiHr.vue'
 export default {
     components: { MduiCard, MduiHr },
     name: 'simpleCollectionInfo',

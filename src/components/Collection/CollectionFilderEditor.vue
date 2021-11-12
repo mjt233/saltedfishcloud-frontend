@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import MduiInput from '../MduiInput.vue'
+import MduiInput from '@/components/ui/MduiInput.vue'
 export default {
     components: { MduiInput },
     name: 'collectionFieldEditor',
