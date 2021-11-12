@@ -99,16 +99,31 @@ export default {
             this.itemInfo.link = location.origin + '/#/submit?id=' + item.id + '&verification=' + item.verification
             this.$nextTick().then(() => {
                 this.$refs.dialog.update()
-                const nid = this.itemInfo.saveNode
-                if (!nid.startsWith('/')) {
+                if (!this.itemInfo.hasParsed) {
                     this.loading = true
                     this.axios(API.resource.parseNodeId(this.userInfo.id, item.saveNode)).then(e => {
                         this.loading = false
+                        this.itemInfo.hasParsed = true
                         this.itemInfo.saveNode = e.data.data
                         this.showDialog = true
                     }).catch(e => {
-                        this.loading = false
-                        this.showDialog = true
+                        if (item.state == 'OPEN') {
+                            this.axios(API.collection.close(item.id)).then(() => {
+                                mdui.snackbar('该收集保存位置已被删除，收集关闭')
+                                this.itemInfo.state = 'CLOSED'
+                                this.loadInfo()
+                            }).catch(er => {
+                                mdui.snackbar(er.toString())
+                            }).finally(() => {
+                                this.itemInfo.hasParsed = true
+                                this.loading = false
+                                this.showDialog = true
+                            })
+                        } else {
+                            this.itemInfo.hasParsed = true
+                            this.loading = false
+                            this.showDialog = true
+                        }
                     })
                 } else {
                     this.showDialog = true

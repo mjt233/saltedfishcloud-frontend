@@ -88,6 +88,16 @@ const collection = {
         return {
             url: `${this.prefix}/${cid}/${verification}`
         }
+    },
+    /**
+     * 关闭收集任务，停止接收文件
+     * @param {Number} cid 收集ID
+     */
+    close(cid) {
+        return {
+            method: 'delete',
+            url: `${this.prefix}/${cid}`
+        }
     }
 }
 module.exports = collection
