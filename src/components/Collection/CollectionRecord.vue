@@ -11,7 +11,7 @@
             <mdui-btn dense @click="refresh">刷新</mdui-btn>
         </div>
         <mdui-panel>
-            <mdui-panel-item v-for="item in record" :key="item.id">
+            <mdui-panel-item v-for="item in record" :key="item.id" :headerStyle="{'overflow-x': 'auto'}">
                 <!-- 面板header -->
                 <template slot="header">
                     <!-- 文件名显示 -->
@@ -23,10 +23,14 @@
                         <mdui-icon style="border-radius: 50%; padding: 5px" class="mdui-ripple" @click.native.prevent.stop="download(item)" :icon="'file_download'"></mdui-icon>
                     </span>
                 </template>
-                <table class="mdui-table">
+                <table class="mdui-table detial-table">
                     <tr>
                         <td>MD5校验码</td>
                         <td>{{item.md5}}</td>
+                    </tr>
+                    <tr>
+                        <td>提交者</td>
+                        <td>{{item.username ? item.username : '匿名用户'}}</td>
                     </tr>
                     <tr>
                         <td>提交者IP地址</td>
@@ -110,12 +114,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 .tool-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
 }
-
+.detial-table {
+    margin-top: 26px;
+    margin-bottom: 10px;
+    td {word-break: break-all;}
+}
 </style>

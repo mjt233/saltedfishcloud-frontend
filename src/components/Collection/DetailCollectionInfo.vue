@@ -131,6 +131,9 @@ export default {
         font-size: 18px;
     }
 }
+td {
+    word-break: break-all;
+}
 </style>
 <style>
 
