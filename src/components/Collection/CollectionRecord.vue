@@ -8,7 +8,7 @@
         <mdui-hr style="margin: 6px 0 16px 0"></mdui-hr>
         <div class="tool-bar">
             <pager @change="pageChange" v-show="pageCount > 1" :pageCount="pageCount"></pager>
-            <mdui-btn dense @click="loadList">刷新</mdui-btn>
+            <mdui-btn dense @click="refresh">刷新</mdui-btn>
         </div>
         <mdui-panel>
             <mdui-panel-item v-for="item in record" :key="item.id">
@@ -52,6 +52,7 @@ import MduiIcon from '../ui/MduiIcon.vue'
 import MduiHr from '../ui/MduiHr.vue'
 import MduiLoading from '../ui/MduiLoading.vue'
 import MduiBtn from '../ui/MduiBtn.vue'
+import { Throttle } from '@/utils/EventUtils'
 export default {
     components: { pager, MduiPanelItem, MduiPanel, MduiIcon, MduiHr, MduiLoading, MduiBtn },
     name: 'collectionRecord',
@@ -66,7 +67,8 @@ export default {
             page: 1,
             size: 10,
             pageCount: 0,
-            loading: false
+            loading: false,
+            throttle: new Throttle()
         }
     },
     mounted() {
@@ -78,6 +80,9 @@ export default {
         }
     },
     methods: {
+        refresh() {
+            this.throttle.execute(this.loadList, 500)
+        },
         loadList() {
             if (!this.cid) {
                 this.record = null
