@@ -9,8 +9,8 @@
             <li @click="jump(cur - 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_before</i></span>
             </li>
-            <li v-for="num in pageCount" :key="num" :class="{'mdui-color-theme': cur == num, 'mdui-text-color-theme-text': true}">
-                <span @click="jump(num)">{{num}}</span>
+            <li @click="jump(num)" v-for="num in pageCount" :key="num" :class="{'mdui-color-theme': cur == num, 'mdui-text-color-theme-text': true}">
+                <span>{{num}}</span>
             </li>
             <li @click="jump(cur + 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_next</i></span>
@@ -21,13 +21,13 @@
                 <span><i class="mdui-icon material-icons">navigate_before</i></span>
             </li>
             <!-- 首页常驻 -->
-            <li :class="{'mdui-color-theme': cur == 1, 'mdui-text-color-theme-text': true}">
-                <span @click="jump(1)" >1</span>
+            <li @click="jump(1)"  :class="{'mdui-color-theme': cur == 1, 'mdui-text-color-theme-text': true}">
+                <span>1</span>
             </li>
             <!-- 首页后4个 -->
             <template v-if="cur <= 4">
-                <li v-for="num in 5" :key="num" :class="{'mdui-color-theme': cur == num + 1, 'mdui-text-color-theme-text': true}">
-                    <span @click="jump(num + 1)">{{num + 1}}</span>
+                <li @click="jump(num + 1)" v-for="num in 5" :key="num" :class="{'mdui-color-theme': cur == num + 1, 'mdui-text-color-theme-text': true}">
+                    <span>{{num + 1}}</span>
                 </li>
                 <li class="next" @click="jump(cur + 5)">
                     <mdui-icon :size="arrowSize" :icon="'fast_forward'" />
@@ -39,8 +39,8 @@
                 <li class="prev" @click="jump(cur - 5)">
                     <mdui-icon :size="arrowSize" :icon="'fast_rewind'" />
                 </li>
-                <li v-for="num in 5" :key="num" :class="{'mdui-color-theme': cur == cur + num - 3, 'mdui-text-color-theme-text': true}">
-                    <span @click="jump(cur + num - 3)">{{cur + num - 3}}</span>
+                <li @click="jump(cur + num - 3)" v-for="num in 5" :key="num" :class="{'mdui-color-theme': cur == cur + num - 3, 'mdui-text-color-theme-text': true}">
+                    <span>{{cur + num - 3}}</span>
                 </li>
                 <li class="next" @click="jump(cur + 5)">
                     <mdui-icon :size="arrowSize" :icon="'fast_forward'" />
@@ -52,14 +52,14 @@
                 <li class="prev" @click="jump(cur - 5)">
                     <mdui-icon :size="arrowSize" :icon="'fast_rewind'" />
                 </li>
-                <li v-for="num in 4" :key="num" :class="{'mdui-color-theme': cur == pageCount + num - 5, 'mdui-text-color-theme-text': true}">
-                    <span @click="jump(pageCount + num - 5)">{{pageCount + num - 5}}</span>
+                <li @click="jump(pageCount + num - 5)" v-for="num in 4" :key="num" :class="{'mdui-color-theme': cur == pageCount + num - 5, 'mdui-text-color-theme-text': true}">
+                    <span>{{pageCount + num - 5}}</span>
                 </li>
             </template>
 
             <!-- 尾页常驻 -->
-            <li :class="{'mdui-color-theme': cur == pageCount, 'mdui-text-color-theme-text': true}">
-                <span @click="jump(pageCount)">{{pageCount}}</span>
+            <li @click="jump(pageCount)" :class="{'mdui-color-theme': cur == pageCount, 'mdui-text-color-theme-text': true}">
+                <span>{{pageCount}}</span>
             </li>
             <li @click="jump(cur + 1)" class="arrow mdui-text-color-theme">
                 <span><i class="mdui-icon material-icons">navigate_next</i></span>
