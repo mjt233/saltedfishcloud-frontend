@@ -17,17 +17,24 @@
 
         <!-- 详情展示 -->
         <mdui-dialog
-            ref="dialog"
-            :show.sync="showDialog"
+            ref="detialDialog"
+            :show.sync="detialDialog.show"
             :disableDefBtn="true"
             :title="itemInfo ? itemInfo.title : ''"
             style="user-select: text"
+            @open="resetTab"
         >
-            <detail-collection-info @goto="goto" :info="itemInfo" />
+            <div class="mdui-tab mdui-tab-full-width" mdui-tab style=" overflow: hidden">
+                <a @click="detialDialog.tab = 1" ref="collectionTab1" href="#collection-tab1" class="mdui-ripple">基本信息</a>
+                <a @click="detialDialog.tab = 2" href="#collection-tab2" class="mdui-ripple">提交记录</a>
+            </div>
+            <detail-collection-info v-show="detialDialog.tab == 1" @goto="goto" :info="itemInfo" />
+            <collection-record v-if="itemInfo" :cid="itemInfo.id" v-show="detialDialog.tab == 2"></collection-record>
             <template slot="btn">
-                <button class=" mdui-btn mdui-ripple"  @click="showDialog=false">确定</button>
+                <button class=" mdui-btn mdui-ripple"  @click="detialDialog.show=false">确定</button>
             </template>
         </mdui-dialog>
+
         <!-- 新建收集对话框 -->
         <mdui-dialog full :show.sync="showAdd" :title="'创建文件收集'">
             <collection-creator @create="startCreate" ref="creator" />
@@ -47,6 +54,7 @@ import MduiDialog from '@/components/ui/MduiDialog.vue'
 import DetailCollectionInfo from '@/components/Collection/DetailCollectionInfo.vue'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
 import CollectionCreator from '@/components/Collection/CollectionCreator.vue'
+import CollectionRecord from '@/components/Collection/CollectionRecord.vue'
 
 export default {
     name: 'myCollection',
@@ -58,7 +66,8 @@ export default {
         MduiDialog,
         DetailCollectionInfo,
         MduiBtn,
-        CollectionCreator
+        CollectionCreator,
+        CollectionRecord
     },
     computed: {
         userInfo() {
@@ -70,7 +79,10 @@ export default {
             collectionList: [],
             loading: false,
             width: 300,
-            showDialog: false,
+            detialDialog: {
+                show: false,
+                tab: 1
+            },
             itemInfo: undefined,
             showAdd: false
         }
@@ -84,6 +96,15 @@ export default {
         this.loadInfo()
     },
     methods: {
+        /**
+         * 将收集详情对话框的标签页重置到基本信息，并更新对话框高度
+         */
+        resetTab() {
+            this.$refs.collectionTab1.click()
+            this.$nextTick().then(() => {
+                this.$refs.detialDialog.update()
+            })
+        },
         loadInfo() {
             this.loading = true
             this.axios(API.collection.getCreated()).then(e => {
@@ -98,14 +119,14 @@ export default {
             this.itemInfo = item
             this.itemInfo.link = location.origin + '/#/submit?id=' + item.id + '&verification=' + item.verification
             this.$nextTick().then(() => {
-                this.$refs.dialog.update()
+                this.$refs.detialDialog.update()
                 if (!this.itemInfo.hasParsed) {
                     this.loading = true
                     this.axios(API.resource.parseNodeId(this.userInfo.id, item.saveNode)).then(e => {
                         this.loading = false
                         this.itemInfo.hasParsed = true
                         this.itemInfo.saveNode = e.data.data
-                        this.showDialog = true
+                        this.detialDialog.show = true
                     }).catch(e => {
                         if (item.state == 'OPEN') {
                             this.axios(API.collection.close(item.id)).then(() => {
@@ -117,16 +138,16 @@ export default {
                             }).finally(() => {
                                 this.itemInfo.hasParsed = true
                                 this.loading = false
-                                this.showDialog = true
+                                this.detialDialog.show = true
                             })
                         } else {
                             this.itemInfo.hasParsed = true
                             this.loading = false
-                            this.showDialog = true
+                            this.detialDialog.show = true
                         }
                     })
                 } else {
-                    this.showDialog = true
+                    this.detialDialog.show = true
                 }
             })
         },
@@ -152,7 +173,7 @@ export default {
             }
         },
         async goto(e) {
-            this.showDialog = false
+            this.detialDialog.show = false
             setTimeout(() => {
                 this.$router.push(e)
             }, 100)

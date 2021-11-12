@@ -1,7 +1,7 @@
 <template>
     <div v-if="info" class="mdui-typo detail-collection-info">
-        <h5>基本信息</h5>
-        <mdui-hr style="margin-bottom: 24px"></mdui-hr>
+        <!-- <h5>基本信息</h5> -->
+        <mdui-hr style="margin: 6px 0 16px 0"></mdui-hr>
         <table class="mdui-table">
             <tbody>
                 <tr>

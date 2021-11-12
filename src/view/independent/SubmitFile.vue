@@ -115,9 +115,7 @@ export default {
         },
         fileSelect(e) {
             this.file = e
-            if (!this.input.name) {
-                this.input.name = e.name
-            }
+            this.input.name = e.name
         },
         reset() {
             this.uploading = false

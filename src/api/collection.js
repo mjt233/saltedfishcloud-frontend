@@ -90,6 +90,22 @@ const collection = {
         }
     },
     /**
+     * 获取收集接收到的文件记录
+     * @param {Number} cid 收集ID
+     * @param {Number} page 页数
+     * @param {Number} size 每页大小
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    getRecords(cid, page, size) {
+        return {
+            url: `${this.prefix}/record/${cid}`,
+            params: {
+                page: page,
+                size: size
+            }
+        }
+    },
+    /**
      * 关闭收集任务，停止接收文件
      * @param {Number} cid 收集ID
      */
