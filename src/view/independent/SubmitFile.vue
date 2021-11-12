@@ -1,6 +1,6 @@
 <template>
     <full-container class="mdui-typo" :maxWidth="'720px'">
-        <div v-show="!success">
+        <div v-show="!success && !closed">
             <h1 class="title">{{title}}</h1>
             <mdui-hr style="margin-bottom: 29px"></mdui-hr>
             <h4 v-show="error" style="color:red">{{error}}</h4>
@@ -47,11 +47,17 @@
                 </div>
             </div>
         </div>
-        <div v-show="success" class="success-panel">
+        <div v-show="success" class="fixed-center">
             <p class=" mdui-text-color-green"><mdui-icon  :size="80" :icon="'check'" /></p>
             <p style="font-size: 36px">提交成功</p>
             <router-link to="/">去咸鱼云首页</router-link>
             <a href="javascript:;" @click="reset">再提交一次</a>
+        </div>
+        <div v-show="closed" class="fixed-center">
+            <h1 style="display: flex; align-items: center">
+                <mdui-icon class="mdui-text-color-red" :size="38" :icon="'error'" />
+                <span>收集已停止</span>
+            </h1>
         </div>
     </full-container>
 </template>
@@ -88,7 +94,8 @@ export default {
                 value: 0,
                 total: 0,
                 loaded: 0
-            }
+            },
+            closed: false
         }
     },
     mounted() {
@@ -102,6 +109,9 @@ export default {
         this.axios(API.collection.getCollectionInfo(this.id, this.verification)).then(e => {
             this.title = '【文件收集】' + e.data.title
             this.ci = e.data
+            if (this.ci.state == 'CLOSED') {
+                this.closed = true
+            }
             this.$nextTick().then(() => {
                 mdui.mutation()
             })
@@ -228,7 +238,7 @@ export default {
         position: relative !important;
     }
 }
-.success-panel {
+.fixed-center {
     position: fixed;
     top: 0;
     left: 0;
