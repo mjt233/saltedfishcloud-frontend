@@ -1,5 +1,5 @@
 <template>
-    <div class="mask" v-show='loading'>
+    <div class="mask" :class="{active: loading}">
         <div class="mdui-spinner" style="z-index: 8000"></div>
     </div>
 </template>
@@ -21,7 +21,6 @@ export default {
 
 <style scoped>
 .mask {
-    z-index: 7000;
     left: 0;
     top: 0;
     background-color: rgba(255, 255, 255, 0.329);
@@ -31,5 +30,14 @@ export default {
     align-items: center;
     width: 100%;
     height: 100%;
+    pointer-events: none;
+    z-index: 7000;
+    opacity: 0;
+    user-select: none;
+    transition: all .2s;
+}
+.mask.active {
+    opacity: 1;
+    pointer-events: all;
 }
 </style>

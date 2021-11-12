@@ -6,7 +6,10 @@
     <div v-else>
         <mdui-loading :loading="loading"></mdui-loading>
         <mdui-hr style="margin: 6px 0 16px 0"></mdui-hr>
-        <pager style="margin-bottom: 16px" @change="pageChange" v-show="pageCount > 1" :pageCount="pageCount"></pager>
+        <div class="tool-bar">
+            <pager @change="pageChange" v-show="pageCount > 1" :pageCount="pageCount"></pager>
+            <mdui-btn dense @click="loadList">刷新</mdui-btn>
+        </div>
         <mdui-panel>
             <mdui-panel-item v-for="item in record" :key="item.id">
                 <!-- 面板header -->
@@ -48,8 +51,9 @@ import MduiPanelItem from '../ui/MduiPanelItem.vue'
 import MduiIcon from '../ui/MduiIcon.vue'
 import MduiHr from '../ui/MduiHr.vue'
 import MduiLoading from '../ui/MduiLoading.vue'
+import MduiBtn from '../ui/MduiBtn.vue'
 export default {
-    components: { pager, MduiPanelItem, MduiPanel, MduiIcon, MduiHr, MduiLoading },
+    components: { pager, MduiPanelItem, MduiPanel, MduiIcon, MduiHr, MduiLoading, MduiBtn },
     name: 'collectionRecord',
     props: {
         cid: {
@@ -101,6 +105,12 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.tool-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
 
 </style>

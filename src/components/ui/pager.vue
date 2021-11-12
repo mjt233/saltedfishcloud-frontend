@@ -133,7 +133,7 @@ export default {
         padding: 10px;
         height: 12px;
         width: 12px;
-        margin: 0 2px;
+        margin: 0 4px;
         background-color: white;
         box-shadow: 0 3px 3px darkgray;
         border-radius: 4px;
