@@ -1,6 +1,7 @@
 <template>
     <div v-if="!record || record.length == 0">
         <mdui-hr style="margin: 6px 0 16px 0"></mdui-hr>
+        <mdui-btn dense @click="refresh">刷新</mdui-btn>
         <p class="mdui-text-center light-text">没有收到文件提交，空空如也呢~o(*￣▽￣*)o</p>
     </div>
     <div v-else>

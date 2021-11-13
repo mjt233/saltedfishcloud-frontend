@@ -3,10 +3,10 @@
         <div style="padding-top: 10px" class="mdui-typo mdui-container">
             <div class=" mdui-row">
                 <div class=" mdui-col-sm-6 mdui-col-xs-12">
-                    <mdui-input :placeholder="'标题'" v-model="ci.title"></mdui-input>
+                    <mdui-input :fixedLabel="true" :floatLabel="false" :placeholder="'标题'" v-model="ci.title"></mdui-input>
                 </div>
                 <div class=" mdui-col-sm-6 mdui-col-xs-12">
-                    <mdui-input v-model="ci.nickname" :placeholder="'接收者署名'"></mdui-input>
+                    <mdui-input :fixedLabel="true"  :floatLabel="false" v-model="ci.nickname" :placeholder="'接收者署名'"></mdui-input>
                 </div>
             </div>
             <mdui-input v-model="ci.describe" :placeholder="'收集说明（可多行）'" :textarea="true"></mdui-input>
@@ -204,6 +204,8 @@ export default {
     },
     mounted() {
         mdui.mutation()
+        this.ci.nickname = this.userInfo.user
+        this.ci.separate = true
     },
     methods: {
         async buildConfigureObj() {
@@ -227,6 +229,7 @@ export default {
             obj.saveNode = this.ci.savePath
             obj.separate = this.ci.separate
             obj.describe = this.ci.describe
+            obj.allowAnonymous = !this.ci.requireLogin
 
             if (this.ci.validity.type === 'custom') {
                 obj.expiredAt = new Date().getTime() + parseInt(this.ci.validity.value) * 24 * 60 * 60 * 1000
