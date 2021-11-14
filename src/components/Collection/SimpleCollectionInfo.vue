@@ -10,7 +10,7 @@
             </span>
         </p>
         <mdui-hr style="margin-bottom: 10px"></mdui-hr>
-        <p>剩余可接受文件数：{{info.available}}</p>
+        <p>剩余可接受文件数：{{info.available == -1 ? '无限制' : info.available}}</p>
         <p class="light-text">创建日期：{{info.createdAt | date}}</p>
         <p class="light-text">过期日期：{{info.expiredAt | date}}</p>
     </mdui-card>
