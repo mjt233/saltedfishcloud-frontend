@@ -27,13 +27,13 @@
                         <span v-else><span class="mdui-text-color-red">{{info.savePathSnapshot}}</span>（已被删除）</span>
                     </td>
                 </tr>
-                <tr>
-                    <td>最大收集次数</td>
-                    <td>{{info.allowMax == -1 ? '无限制' : info.allowMax }}</td>
+                <tr v-if="info.allowMax == -1">
+                    <td>最大接收次数</td>
+                    <td>无限制</td>
                 </tr>
-                <tr>
-                    <td>剩余可接收次数</td>
-                    <td>{{info.available == -1 ? '无限制' : info.available}}</td>
+                <tr v-else>
+                    <td>接收次数</td>
+                    <td><span :class="{ 'mdui-text-color-red': info.available == 0, 'mdui-text-color-green': info.available > 0}">{{info.available}}</span>/{{info.allowMax}}</td>
                 </tr>
                 <tr>
                     <td>状态</td>
