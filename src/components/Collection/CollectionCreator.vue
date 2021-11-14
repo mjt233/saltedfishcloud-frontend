@@ -50,7 +50,7 @@
                 <collection-form-field :name="'大小限制'">
                     <select v-model="ci.maxSize.type" class="mdui-select" mdui-select style="margin-left: 26px">
                         <option value="unlimit">不受限制</option>
-                        <option value="MiG">MiB</option>
+                        <option value="MiB">MiB</option>
                         <option value="GiB">GiB</option>
                     </select>
                     <mdui-input class="small-input" v-show="ci.maxSize.type != 'unlimit'" v-model="ci.maxSize.value"></mdui-input>
@@ -218,6 +218,7 @@ export default {
             if (!this.ci.nickname) {
                 return Promise.reject(new Error('收集者署名不能为空'))
             }
+            // 基本配置信息（标题，接收者署名，默认的大小限制，默认的数量限制，保存位置，收集描述，登录要求）
             /**
              * @type {import('@/api/collection').CollectionInfo}
              */
@@ -240,12 +241,26 @@ export default {
             }
 
 
+            // 高级模式未启用时，配置流程结束
             if (!this.ci.useAdven) {
                 return obj
             }
+            console.log('高级模式')
             obj.allowMax = this.ci.allowMax == 'unlimit' ? -1 : this.ci.allowMax
             obj.allowAnonymous = !this.ci.requireLogin
+            const sizeType = this.ci.maxSize.type
+            console.log(sizeType)
+            if (sizeType == 'unlimit') {
+                obj.maxSize = -1
+            } else if (sizeType == 'GiB') {
+                obj.maxSize = this.ci.maxSize.value * 1024 * 1024 * 1024
+            } else if (sizeType == 'MiB') {
+                obj.maxSize = this.ci.maxSize.value * 1024 * 1024
+            }
+
+            // 接收约束配置
             if (this.ci.accept.type == 'type') {
+                // 类型约束
                 let ext = ''
                 if (this.ci.accept.value.video) {
                     ext += '|mp4|mpeg|avi|mov|wmv|flv|3gp'
@@ -267,8 +282,10 @@ export default {
                 }
                 obj.pattern = `\\.(${ext})$`
             } else if (this.ci.accept.type == 'regex') {
+                // 正则约束
                 obj.pattern = this.ci.pattern
             } else if (this.ci.accept.type == 'field') {
+                // 字段约束
                 obj.pattern = this.ci.pattern
                 obj.extPattern = this.ci.extPattern ? this.ci.extPattern : undefined
                 obj.field = this.ci.fields.map(obj => {
