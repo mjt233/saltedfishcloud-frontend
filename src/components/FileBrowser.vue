@@ -19,7 +19,7 @@
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`"
+        :enable="manualEnable === false ? (`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`) : manualEnable "
     >
         <div>
             <!-- 工具烂 -->
@@ -65,7 +65,7 @@
                         </ul>
                     </div>
                     <div class=" mdui-col-md-6 mdui-col-xs-12">
-                        <div class="search">
+                        <div class="search" v-show="!disableSearch">
                             <input v-model="searchName" placeholder="搜索文件 回车执行" @keydown.enter="search" type="text">
                         </div>
                     </div>
@@ -78,8 +78,10 @@
                     <i class="mdui-icon material-icons">keyboard_backspace</i>
                 </button>
                 <ul class="path-bar mdui-typo">
-                    <li><a :href='`/#/${prefix}`'>{{rootName}}</a></li>
-                    <li v-for="(path,index) in paths" :key="index"><a :href="`/#/${prefix}/`+paths.slice(0,index+1).join('/')">{{path | urlDecode}}</a></li>
+                    <li><a href="javascript:;" @click="jumpTo('/')" >{{rootName}}</a></li>
+                    <li v-for="(path,index) in paths" :key="index">
+                        <a  @click="jumpTo(paths.slice(0,index+1).join('/'))" href="javascript:;">{{path | urlDecode}}</a>
+                    </li>
                 </ul>
             </div>
             <mdui-hr></mdui-hr>
@@ -92,7 +94,7 @@
 import MduiBtn from '@/components/ui/MduiBtn.vue'
 import MduiIcon from '@/components/ui/MduiIcon.vue'
 import MduiHr from '@/components/ui/MduiHr.vue'
-import fileList from '@/components/FileList/'
+import fileList from '@/components/FileList/index.vue'
 import FileUtils from '@/utils/FileUtils'
 import mdui from 'mdui'
 import apiConfig from '@/api'
@@ -149,13 +151,27 @@ export default {
             default: 1000
         },
         path: {
-            // 访问的文件夹路径
+            // 访问的文件夹路径,支持在关闭routeMode下使用sync
             type: String,
             default: ''
+        },
+        disableSearch: {
+            type: Boolean,
+            default: false
         },
         modifiable: {
             type: Boolean,
             default: false
+        },
+        manualEnable: {
+            // 手动开启的功能，优先级最高
+            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse
+            type: [Boolean, String],
+            default: false
+        },
+        routeMode: {
+            type: Boolean,
+            default: true
         }
     },
     data() {
@@ -324,10 +340,21 @@ export default {
          */
         listClick(e) {
             if (e.type === 1) {
-                location.href += `/${encodeURIComponent(e.name)}`
+                if (this.routeMode) {
+                    location.href += `/${encodeURIComponent(e.name)}`
+                } else {
+                    this.jumpTo(this.path + '/' + e.name)
+                }
             } else {
                 e.path = this.paths
                 this.$emit('clickFile', e)
+            }
+        },
+        jumpTo(path) {
+            if (!this.routeMode) {
+                this.$emit('update:path', path.replace(/\/+/g, '/'))
+            } else {
+                location.href = ('/#/' + this.prefix + '/' + path).replace(/\//g, '/')
             }
         },
         /**
@@ -396,8 +423,12 @@ export default {
                 return
             }
             this.paths.pop()
-            location.href = `/#/${this.prefix}/${this.paths.join('/')}`
-            this.loadList()
+            if (!this.routeMode) {
+                this.jumpTo('/' + this.paths.join('/'))
+            } else {
+                location.href = `/#/${this.prefix}/${this.paths.join('/')}`
+                this.loadList()
+            }
         },
         /**
          * 点击菜单的上传按钮时触发的回调，用户选择好文件后提交一个upload事件给父组件
@@ -548,6 +579,5 @@ export default {
 }
 .list {
     margin: 0 auto;
-    opacity: .95;
 }
 </style>

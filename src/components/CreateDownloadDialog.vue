@@ -10,7 +10,7 @@
         <p>使用代理节点 <mdui-switch v-model="useProxy"></mdui-switch></p>
         <div v-show="useProxy">
             <div v-show="proxy">
-                <p>代理：
+                <p class="proxy-list">代理：
                     <select ref="proxySelect" class="mdui-select" v-model="task.proxy">
                         <option v-for="item in proxy" :value="item.name" :key="item.name">{{item.name}}</option>
                     </select>
@@ -88,5 +88,8 @@ export default {
 <style>
 .md-select option {
     appearance: none;
+}
+.proxy-list .mdui-select-open .mdui-select-menu {
+    position: fixed;
 }
 </style>

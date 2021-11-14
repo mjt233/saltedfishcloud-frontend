@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import adminRoute from './admin'
 import commonRouteOpt from './common'
+import independent from './independent'
 Vue.use(Router)
 
 /**
@@ -12,6 +13,7 @@ const option = {
 }
 option.routes.push(commonRouteOpt)
 option.routes.push(adminRoute)
+option.routes.push(independent)
 const router = new Router(option)
 
 /**

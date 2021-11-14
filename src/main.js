@@ -7,6 +7,7 @@ import axios from './axios.config'
 import VueAxios from 'vue-axios'
 import 'mdui/dist/css/mdui.css'
 import '@/css/common.css'
+import '@/css/global.css'
 import mdui from 'mdui'
 import 'default-passive-events'
 import Store from './Store'
@@ -23,6 +24,9 @@ Vue.use(VueClipboard)
 // 注册全局过滤器 格式化数字为方便阅读的存储大小表示
 Vue.filter('formatSize', e => {
     return formatter.toSize(e)
+})
+Vue.filter('formatDate', e => {
+    return formatter.toDate(e)
 })
 /* eslint-disable no-new */
 const vue = new Vue({
@@ -46,6 +50,7 @@ if (localStorage.getItem('token')) {
 
 axios(conf).then((e) => {
     mdui.snackbar(`欢迎回来，${e.data.data.user}`, { position: 'bottom' })
+    Store.commit('setUserInfo', e.data.data)
     Store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(e.data.data.user).url}`)
     vue.$mount('#app')
 }).catch(() => {

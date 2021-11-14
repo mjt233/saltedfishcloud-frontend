@@ -1,6 +1,21 @@
 const resource = {
     prefix: 'resource',
     /**
+     * 获取路径途径的节点信息
+     * @param {Number} uid 用户ID
+     * @param {String} path 路径
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    getNodeInfo(uid, path) {
+        path = path.replace(/\/+/g, '/')
+        if (path.startsWith('/')) {
+            path = path.substr(1)
+        }
+        return {
+            url: `${this.prefix}/${uid}/node/${path}`
+        }
+    },
+    /**
      * 通过MD5下载文件
      * @param {String} md5 文件MD5
      * @param {String} alias 文件重命名

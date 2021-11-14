@@ -5,6 +5,14 @@ const md5 = require('js-md5')
  */
 const FileUtils = {
     /**
+     * 获取文件后缀名
+     * @param {String} name 文件名
+     * @returns {String} 文件名后缀名，若无后缀名则返回原文件名
+     */
+    getSuffix(name) {
+        return name.split('.').pop()
+    },
+    /**
      * 将文件按指定的块大小进行分割，文件最后一小块大小可能小于指定的块大小
      * @param {File} file 文件
      * @param {Number} chunkSize 每个分块的大小

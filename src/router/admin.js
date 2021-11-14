@@ -39,7 +39,7 @@ const adminRoute = {
             component: dev
         },
         {
-            path: '/**',
+            path: '/admin',
             component: welcome
         }
     ]

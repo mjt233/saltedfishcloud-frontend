@@ -7,11 +7,8 @@
 }
 
 .route-switch-enter, .route-switch-leave-to {
-    opacity: .9;
-}
-
-.mdui-select-open .mdui-select-menu {
-    position: fixed;
+    /* opacity: .9; */
+    /* transform: rotate(1deg); */
 }
 
 body {

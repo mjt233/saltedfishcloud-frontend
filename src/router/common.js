@@ -4,7 +4,7 @@ import common from '../view/common'
 import welcome from '../view/common/Welcome'
 
 /**
- * @type {import('_vue-router@3.5.1@vue-router/types/router').RouteConfig}
+ * @type {import('vue-router').RouteConfig}
  */
 const routeOpt = {
     path: '/',
@@ -46,6 +46,14 @@ const routeOpt = {
         {
             path: 'reg',
             component: require('../view/common/RegUser').default
+        },
+        {
+            path: '/box',
+            component: require('@/view/common/box').default
+        },
+        {
+            path: '/box/collection',
+            component: require('@/view/common/box/MyCollection').default
         }
     ]
 }
