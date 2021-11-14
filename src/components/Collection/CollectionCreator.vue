@@ -248,14 +248,20 @@ export default {
             console.log('高级模式')
             obj.allowMax = this.ci.allowMax == 'unlimit' ? -1 : this.ci.allowMax
             obj.allowAnonymous = !this.ci.requireLogin
+
+            // 配置文件大小约束
             const sizeType = this.ci.maxSize.type
-            console.log(sizeType)
             if (sizeType == 'unlimit') {
                 obj.maxSize = -1
             } else if (sizeType == 'GiB') {
                 obj.maxSize = this.ci.maxSize.value * 1024 * 1024 * 1024
             } else if (sizeType == 'MiB') {
                 obj.maxSize = this.ci.maxSize.value * 1024 * 1024
+            }
+
+            if (sizeType != 'unlimit' && this.ci.maxSize.value <= 0) {
+                mdui.alert('文件大小不合法，不得小于0')
+                throw new Error('文件大小不合法，不得小于0')
             }
 
             // 接收约束配置

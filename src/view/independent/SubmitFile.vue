@@ -74,6 +74,7 @@ import mdui from 'mdui'
 import FileUtils from '@/utils/FileUtils'
 import MduiIcon from '@/components/ui/MduiIcon.vue'
 import MduiProgress from '@/components/ui/MduiProgress.vue'
+import StringFormatter from '@/utils/StringFormatter'
 export default {
     components: { FullContainer, MduiHr, FileUpload, MduiInput, MduiRow, MduiBtn, MduiIcon, MduiProgress },
     name: 'submitFile',
@@ -87,6 +88,9 @@ export default {
             input: {
                 name: ''
             },
+            /**
+             * @type {File}
+             */
             file: null,
             success: false,
             uploading: false,
@@ -165,6 +169,11 @@ export default {
                 }
             } else if (this.ci.pattern && !this.input.name.match(this.ci.pattern)) {
                 mdui.alert('文件名' + this.input.name + '不被允许。<br>文件名约束正则：' + this.ci.pattern)
+                return false
+            }
+
+            if (this.ci.maxSize > 0 && this.file.size > this.ci.maxSize) {
+                mdui.alert(`当前文件大小：${StringFormatter.toSize(this.file.size)}<br>限制的大小：${StringFormatter.toSize(this.ci.maxSize)}`, '文件过大')
                 return false
             }
             return true
