@@ -76,8 +76,10 @@ const file = {
      */
     mkdir(uid, path, name) {
         if (path == '/') path = ''
+        let url = `${this.prefix}/${uid}/dir/${path}`
+        url = url.replace(/\/\/+/, '/')
         return {
-            url: `${this.prefix}/${uid}/dir/${path}`,
+            url: url,
             method: 'put',
             data: {
                 name: name
