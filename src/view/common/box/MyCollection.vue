@@ -1,6 +1,6 @@
 <template>
     <container :loading="loading">
-        <div class="mdui-typo">
+        <div>
             <h5 class="title-group"><mdui-btn @click="$router.push('/box')" :icon="'keyboard_backspace'"></mdui-btn><span>文件收集</span></h5>
             <mdui-hr></mdui-hr>
             <!-- 收集列表展示 -->
@@ -10,7 +10,10 @@
                     v-for="item in collectionList"
                     :info="item"
                     :key="item.id"
-                    @click.native="showDetail(item)"
+                    @showDetail="showDetail(item)"
+                    @stop="stop"
+                    @open="open"
+                    @delete="del"
                 />
             </fill-center>
         </div>
@@ -96,6 +99,42 @@ export default {
         this.loadInfo()
     },
     methods: {
+        async del(e) {
+            try {
+                this.loading = true
+                await this.axios(API.collection.delete(e))
+                await this.loadInfo()
+                mdui.snackbar('已删除')
+            } catch (e) {
+                mdui.snackbar(e.toString())
+            } finally {
+                this.loading = false
+            }
+        },
+        async open(e) {
+            try {
+                this.loading = true
+                await this.axios(API.collection.open(e))
+                await this.loadInfo()
+                mdui.snackbar('已开启')
+            } catch (e) {
+                mdui.snackbar(e.toString())
+            } finally {
+                this.loading = false
+            }
+        },
+        async stop(e) {
+            try {
+                this.loading = true
+                await this.axios(API.collection.close(e))
+                await this.loadInfo()
+                mdui.snackbar('已关闭')
+            } catch (e) {
+                mdui.snackbar(e.toString())
+            } finally {
+                this.loading = false
+            }
+        },
         /**
          * 将收集详情对话框的标签页重置到基本信息，并更新对话框高度
          */
@@ -105,15 +144,17 @@ export default {
                 this.$refs.detialDialog.update()
             })
         },
-        loadInfo() {
-            this.loading = true
-            this.axios(API.collection.getCreated()).then(e => {
+        async loadInfo() {
+            try {
+                this.loading = true
+                const e = await this.axios(API.collection.getCreated())
                 this.collectionList = e.data
-                this.loading = false
-            }).catch(e => {
+            } catch (e) {
                 console.log(e)
                 mdui.alert(e.msg)
-            })
+            } finally {
+                this.loading = false
+            }
         },
         showDetail(item) {
             this.itemInfo = item

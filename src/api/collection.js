@@ -111,6 +111,22 @@ const collection = {
      */
     close(cid) {
         return {
+            method: 'put',
+            url: `${this.prefix}/${cid}/state/CLOSED`
+        }
+    },
+    /**
+     * 重新开启收集任务（若未过期）
+     * @param {Number} cid 收集ID
+     */
+    open(cid) {
+        return {
+            method: 'put',
+            url: `${this.prefix}/${cid}/state/OPEN`
+        }
+    },
+    delete(cid) {
+        return {
             method: 'delete',
             url: `${this.prefix}/${cid}`
         }
