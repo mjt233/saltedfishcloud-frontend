@@ -15,6 +15,7 @@
         @paste='paste'
         @createDownload='$emit("createDownload")'
         @queryDownload='$emit("queryDownload")'
+        @share='$emit("share", { resource: $event, path: paths })'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'

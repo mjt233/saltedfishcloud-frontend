@@ -6,14 +6,14 @@ import independent from './independent'
 Vue.use(Router)
 
 /**
- * @type {import('_vue-router@3.5.1@vue-router/types/router').RouterOptions}
+ * @type {import('vue-router').RouterOptions}
  */
 const option = {
     routes: []
 }
 option.routes.push(commonRouteOpt)
 option.routes.push(adminRoute)
-option.routes.push(independent)
+independent.forEach(e => { option.routes.push(e) })
 const router = new Router(option)
 
 /**

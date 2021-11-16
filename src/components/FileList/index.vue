@@ -84,7 +84,13 @@
                     查看下载任务
                 </a>
             </li>
-            <li class="mdui-divider" v-if="enableCreateDownload && fileInfo && fileInfo.size > 0"></li>
+            <li class="mdui-divider" v-if="enableCreateDownload && fileInfo"></li>
+            <li v-if="fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="createShare(fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">share</i>
+                    分享
+                </a>
+            </li>
             <li v-if="fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
@@ -258,6 +264,9 @@ export default {
         }
     },
     methods: {
+        createShare(e) {
+            this.$emit('share', e)
+        },
         copy(e) {
             if (this.selectedEl.length != 0) {
                 this.$emit('copy', this.selectedEl.map(e => e.querySelector('.file-name').innerText))
