@@ -2,6 +2,7 @@
     <div class="mdui-textfield" :class="{'mini': mini, 'mdui-textfield-floating-label': floatLabel, 'mdui-textfield-invalid': error, 'mdui-textfield-has-bottom': hasBottom}">
         <label class="mdui-textfield-label" v-if="floatLabel || fixedLabel">{{placeholder}}</label>
         <input v-show="!textarea" class="mdui-textfield-input"
+            :autocomplete="autocomplete ? 'on' : type == 'password' ? 'new-password' : 'off'"
             @input="input"
             @change="input"
             v-bind:value='value'
@@ -13,6 +14,7 @@
             ref="input"
         />
         <textarea v-show="textarea" class="mdui-textfield-input"
+            :autocomplete="autocomplete ? 'on' : type == 'password' ? 'new-password' : 'off'"
             @input="input"
             v-bind:value='value'
             :type="type"
@@ -34,6 +36,10 @@ export default {
         event: 'change'
     },
     props: {
+        autocomplete: {
+            type: Boolean,
+            default: true
+        },
         fixedLabel: {
             type: Boolean,
             default: false

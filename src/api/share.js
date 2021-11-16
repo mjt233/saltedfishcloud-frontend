@@ -19,6 +19,21 @@ const share = {
             method: 'post',
             data: config
         })
+    },
+    /**
+     * 获取资源分享基本信息
+     * @param {String} sid 分享ID
+     * @param {String} verification 分享校验码
+     * @param {String=} extractCode 资源提取码
+     * @returns {import('axios').AxiosRequestConfig}
+     */
+    getBaseShareInfo(sid, verification, extractCode) {
+        const params = {}
+        if (extractCode) { params.code = extractCode }
+        return {
+            url: `${this.prefix}/${sid}/${verification}`,
+            params: params
+        }
     }
 }
 
