@@ -6,7 +6,6 @@
         @drop.native="drop"
         @contextmenu.native="showMenu"
         ref="list"
-        style="overflow:auto;height:0px"
         @click.native="containerClick"
     >
         <!-- 以下为绝对定位图层 -->
@@ -157,7 +156,7 @@
                 <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
                 <slot name="columnItem" v-bind:item="item"></slot>
             </li>
-            <li v-if="fileList.length==0" >
+            <li v-if="fileList.length==0" style="list-style-type: none" >
                 <p style="text-align: center">空空如也</p>
             </li>
         </ul>

@@ -104,11 +104,11 @@
         <!-- 查看创建的分享 -->
         <mdui-dialog :title="'分享成功'" ref="shareInfo" :show.sync="shareDialog.showInfo" :disableDefBtn="true">
             <div v-if="shareDialog.shareInfo">
-                <p>分享链接：{{shareDialog.shareInfo.link}}</p>
+                <p>分享链接：<span style="user-select: text">{{shareDialog.shareInfo.link}}</span></p>
                 <p v-if="shareDialog.shareInfo.needExtractCode">提取码：{{shareDialog.shareInfo.extractCode}}</p>
             </div>
             <template slot="btn" v-if="shareDialog.shareInfo">
-                <mdui-btn :themeColor="false" v-clipboard:copy="shareDialog.shareInfo.copyText" @click="onCopy(true)">复制链接</mdui-btn>
+                <mdui-btn :themeColor="false" v-clipboard:copy="shareDialog.shareInfo.copyText" @click="onCopy(true)">复制</mdui-btn>
                 <mdui-btn :themeColor="false" @click="shareDialog.showInfo = false">确定</mdui-btn>
             </template>
         </mdui-dialog>
@@ -234,7 +234,7 @@ export default {
                 const data = e.data.data
                 this.shareDialog.show = false
                 this.shareDialog.shareInfo = data
-                this.shareDialog.shareInfo.link = `${location.origin}/s/${data.id}/${data.verification}`
+                this.shareDialog.shareInfo.link = `${location.origin}/#/s/${data.id}/${data.verification}`
                 this.shareDialog.shareInfo.copyText = `呐呐呐(。・∀・)ノ，我用咸鱼云向你分享了文件：${data.name}\n链接：${this.shareDialog.shareInfo.link}`
                 if (data.needExtractCode) this.shareDialog.shareInfo.copyText += `\n提取码：${data.extractCode}`
                 this.shareDialog.showInfo = true

@@ -8,7 +8,7 @@ const { useJsonBody } = require('@/utils/FormUtils/CommonFormUtils')
  * @property {Number=} expiredAt 到期日期的unix时间戳
  */
 const share = {
-    prefix: 'share',
+    prefix: '/share',
     /**
      * 创建分享
      * @param {CreateShareConfig} config 创建配置
@@ -33,6 +33,46 @@ const share = {
         return {
             url: `${this.prefix}/${sid}/${verification}`,
             params: params
+        }
+    },
+    /**
+     * 浏览分享目录
+     * @param {Number} sid 收集ID
+     * @param {String} verification 校验码
+     * @param {String} extractCode 提取码
+     */
+    browseDirShare(sid, verification, extractCode, path) {
+        path = path.split('/').map(e => encodeURIComponent(e)).join('/')
+        let url = `${this.prefix}/view/${sid}/${verification}/${path}`
+        url = url.replace(/\/\/+/, '/')
+        return {
+            url: url,
+            params: {
+                code: extractCode
+            }
+        }
+    },
+    /**
+     *
+     * @param {Number} sid 分享ID
+     * @param {String} verification 分享校验码
+     * @param {String} code 提取码
+     * @param {String} path 资源所在路径
+     * @param {String} name 文件名
+     * @returns
+     */
+    getFileContent(sid, verification, code, path, name) {
+        path = path.split('/').map(e => encodeURIComponent(e)).join('/')
+        if (name) name = encodeURIComponent(name)
+        return {
+            url: `${this.prefix}/resource`,
+            params: {
+                sid: sid,
+                verification: verification,
+                code: code,
+                path: path,
+                name: name
+            }
         }
     }
 }
