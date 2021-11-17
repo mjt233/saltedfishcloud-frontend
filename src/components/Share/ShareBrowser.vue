@@ -8,7 +8,22 @@
         <mdui-loading :loading="loading"></mdui-loading>
         <div class="mdui-container">
             <mdui-row v-if="shareInfo.type == 'FILE'">
-                <h3>分享的是文件</h3>
+                <mdui-row class=" mdui-valign share-file-view">
+                    <mdui-col md=1>
+                        <i class="file-icon file" :class="'type-' + fileExt"></i>
+                    </mdui-col>
+                    <mdui-col xs=9>
+                        <mdui-row>
+                            <p>文件名：{{shareInfo.name}}</p>
+                        </mdui-row>
+                        <mdui-row>
+                            <p class=" light-text">大小：{{shareInfo.size | formatSize}}</p>
+                        </mdui-row>
+                    </mdui-col>
+                </mdui-row>
+                <mdui-row class="download-btn-group">
+                    <mdui-btn @click="$emit('download', shareInfo)"><mdui-icon :icon="'file_download'"/>立即下载</mdui-btn>
+                </mdui-row>
             </mdui-row>
             <mdui-row v-if="shareInfo.type == 'DIR'">
                 <mdui-row class="mdui-typo path-control" :class="{'sticky': sticky === '' || sticky}">
@@ -37,8 +52,10 @@ import API from '@/api'
 import FileList from '../FileList/FileList.vue'
 import MduiRow from '../ui/MduiRow.vue'
 import mdui from 'mdui'
+import MduiBtn from '../ui/MduiBtn.vue'
+import MduiIcon from '../ui/MduiIcon.vue'
 export default {
-    components: { FileList, MduiRow },
+    components: { FileList, MduiRow, MduiBtn, MduiIcon },
     name: 'shareBrowser',
     props: ['shareInfo', 'extractCode', 'sticky'],
     data() {
@@ -52,6 +69,9 @@ export default {
     computed: {
         path() {
             return '/' + this.paths.join('/')
+        },
+        fileExt() {
+            return this.shareInfo ? this.shareInfo.name.split('.').pop() : ''
         }
     },
     mounted() {
@@ -59,6 +79,7 @@ export default {
     },
     methods: {
         loadList() {
+            if (this.shareInfo.type == 'FILE') return
             this.loading = true
             const conf = API.share.browseDirShare(this.shareInfo.id, this.shareInfo.verification, this.extractCode, this.path)
             this.curIndex = this.paths.length - 1
@@ -135,5 +156,20 @@ export default {
 .path-control a {
     position: relative;
     display: inline-block;
+}
+.file-icon {
+    --size: 32px;
+    width: var(--size);
+    height: var(--size);
+    background-size: var(--size) var(--size);
+    background-position: center;
+    background-repeat: no-repeat;
+    display: inline-block;
+}
+.share-file-view p {
+    margin: 0;
+}
+.download-btn-group {
+    margin-top: 12px;
 }
 </style>

@@ -89,7 +89,9 @@ const share = {
      * @returns
      */
     getFileContent(sid, verification, code, path, name) {
-        path = path.split('/').map(e => encodeURIComponent(e)).join('/')
+        if (this.path) {
+            path = path.split('/').map(e => encodeURIComponent(e)).join('/')
+        }
         if (name) name = encodeURIComponent(name)
         return {
             url: `${this.prefix}/resource`,

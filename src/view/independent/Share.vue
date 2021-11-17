@@ -9,7 +9,8 @@
             :extractCode="extractCode"
             @clickFile="clickFile"
             sticky
-            style="height: calc(100vh - 96px); overflow: auto"
+            @download="downloadFile"
+            :style="browserStyle"
         />
     </full-container>
 </template>
@@ -45,12 +46,29 @@ export default {
         this.verification = this.$route.params.verification
         this.loadInfo()
     },
+    computed: {
+        browserStyle() {
+            if (this.shareInfo) {
+                if (this.shareInfo.type == 'DIR') {
+                    return 'height: calc(100vh - 96px); overflow: auto'
+                }
+            }
+            return ''
+        }
+    },
     methods: {
-        clickFile(e) {
-            const req = API.share.getFileContent(this.shareInfo.id, this.verification, this.extractCode, e.path, e.file.name)
+        /**
+         * 下载文件
+         * @param {Object=} e 包含path和name属性的对象（仅当分享类型为目录时使用），path - 文件所在目录，name - 文件名
+         */
+        downloadFile(e) {
+            const req = API.share.getFileContent(this.shareInfo.id, this.verification, this.extractCode, e.path, e.file ? e.file.name : undefined)
             const params = qs.stringify(req.params)
             const url = req.url + '?' + params
             window.open(location.origin + this.axios.defaults.baseURL + url)
+        },
+        clickFile(e) {
+            this.downloadFile(e)
         },
         loadInfo() {
             this.loading = true
