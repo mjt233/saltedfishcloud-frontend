@@ -104,8 +104,8 @@
         <!-- 查看创建的分享 -->
         <mdui-dialog :title="'分享成功'" ref="shareInfo" :show.sync="shareDialog.showInfo" :disableDefBtn="true">
             <div v-if="shareDialog.shareInfo">
-                <p>分享链接：<span style="user-select: text">{{shareDialog.shareInfo.link}}</span></p>
-                <p v-if="shareDialog.shareInfo.needExtractCode">提取码：{{shareDialog.shareInfo.extractCode}}</p>
+                <p>分享链接：<span  class="mdui-typo" style="user-select: text"><a target="_blank" :href="shareDialog.shareInfo.link">{{shareDialog.shareInfo.link}}</a></span></p>
+                <p style="user-select: text" v-if="shareDialog.shareInfo.needExtractCode">提取码：{{shareDialog.shareInfo.extractCode}}</p>
             </div>
             <template slot="btn" v-if="shareDialog.shareInfo">
                 <mdui-btn :themeColor="false" v-clipboard:copy="shareDialog.shareInfo.copyText" @click="onCopy(true)">复制</mdui-btn>
