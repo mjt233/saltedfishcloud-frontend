@@ -88,7 +88,7 @@ const user = {
      */
     getAvatar(username) {
         return {
-            url: this.prefix + '/avatar/' + username || ''
+            url: this.prefix + '/avatar' + (username ? `/${username}` : '')
         }
     },
     /**
