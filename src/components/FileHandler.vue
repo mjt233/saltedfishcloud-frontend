@@ -234,9 +234,8 @@ export default {
                 const data = e.data.data
                 this.shareDialog.show = false
                 this.shareDialog.shareInfo = data
-                this.shareDialog.shareInfo.link = `${location.origin}/#/s/${data.id}/${data.verification}`
-                this.shareDialog.shareInfo.copyText = `呐呐呐(。・∀・)ノ，我用咸鱼云向你分享了文件：${data.name}\n链接：${this.shareDialog.shareInfo.link}`
-                if (data.needExtractCode) this.shareDialog.shareInfo.copyText += `\n提取码：${data.extractCode}`
+                this.shareDialog.shareInfo.link = StringUtils.generateShareLink(data)
+                this.shareDialog.shareInfo.copyText = StringUtils.generateShareText(data)
                 this.shareDialog.showInfo = true
             }).catch(err => {
                 mdui.snackbar(err.toString())

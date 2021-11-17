@@ -16,7 +16,17 @@
         <div class="mdui-typo">
             <p>分享链接：<a target="_blank" :href="shareLink">{{shareLink}}</a></p>
             <p v-if="shareInfo.validateSuccess">{{shareInfo.extractCode ? '提取码：' + shareInfo.extractCode : '未设置提取码'}}</p>
-            <mdui-btn @click="deleteShare" :themeColor="false" class=" mdui-valign mdui-color-red" dense><mdui-icon :size="18" :icon="'delete_forever'"></mdui-icon>取消分享</mdui-btn>
+            <mdui-row class="share-handler-group">
+                <mdui-btn @click="deleteShare" :themeColor="false" class=" mdui-valign mdui-color-red" dense><mdui-icon :size="18" :icon="'delete_forever'"></mdui-icon>取消分享</mdui-btn>
+                <mdui-btn
+                    class=" mdui-valign"
+                    dense
+                    v-clipboard:copy="copyText"
+                    @click="onCopy(true)"
+                >
+                    <mdui-icon :size="18" :icon="'content_copy'" />复制文字
+                </mdui-btn>
+            </mdui-row>
         </div>
     </mdui-panel-item>
 </template>
@@ -26,6 +36,7 @@ import mdui from 'mdui'
 import MduiBtn from '../ui/MduiBtn.vue'
 import MduiIcon from '../ui/MduiIcon.vue'
 import MduiPanelItem from '../ui/MduiPanelItem.vue'
+import StringUtils from '@/utils/StringUtils'
 
 export default {
     components: { MduiPanelItem, MduiBtn, MduiIcon },
@@ -48,6 +59,9 @@ export default {
         },
         shareLink() {
             return `${location.origin}/#/s/${this.shareInfo.id}/${this.shareInfo.verification}`
+        },
+        copyText() {
+            return StringUtils.generateShareText(this.shareInfo)
         }
     },
     methods: {
@@ -55,6 +69,9 @@ export default {
             mdui.confirm('确定要取消分享吗？该操作无法撤销', '取消确认', () => {
                 this.$emit('deleteShare', this.shareInfo)
             })
+        },
+        onCopy() {
+            mdui.snackbar('复制成功！')
         }
     }
 }
@@ -85,5 +102,9 @@ export default {
     @media (max-width: 640px) {
         display: none;
     }
+}
+.share-handler-group > button.mdui-btn {
+    margin-top: 4px;
+    display: inline-flex !important;
 }
 </style>
