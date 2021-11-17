@@ -7,6 +7,9 @@
                 <square-item :title="'文件收集'" @click.native="$router.push('/box/collection')">
                     <i class="mdui-icon material-icons big-icon mdui-text-color-theme-400">archive</i>
                 </square-item>
+                <square-item :title="'我的分享'" @click.native="$router.push('/box/share')">
+                    <i class="mdui-icon material-icons big-icon mdui-text-color-theme-400">share</i>
+                </square-item>
             </square-item-list>
         </mdui-card>
     </container>

@@ -54,6 +54,10 @@ const routeOpt = {
         {
             path: '/box/collection',
             component: require('@/view/common/box/MyCollection').default
+        },
+        {
+            path: '/box/share',
+            component: require('@/view/common/box/MyShare').default
         }
     ]
 }

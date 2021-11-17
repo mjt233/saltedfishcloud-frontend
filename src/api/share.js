@@ -9,6 +9,33 @@ const { useJsonBody } = require('@/utils/FormUtils/CommonFormUtils')
  */
 const share = {
     prefix: '/share',
+
+    /**
+     * 删除一个分享
+     * @param {Number} sid 分享ID
+     */
+    deleteShare(sid) {
+        return {
+            url: `${this.prefix}/${sid}`,
+            method: 'delete'
+        }
+    },
+    /**
+     * 获取用户的分享列表
+     * @param {Number} uid 用户ID
+     * @param {Number=} page 页码，从1开始，默认1
+     * @param {Number=} size 每页大小，最小5，默认10
+     * @returns {import('axios').AxiosRequestConfig}
+     */
+    getShareList(uid, page = 1, size = 10) {
+        return {
+            url: `${this.prefix}/user${uid ? '/' + uid : ''}`,
+            params: {
+                page: page,
+                size: size
+            }
+        }
+    },
     /**
      * 创建分享
      * @param {CreateShareConfig} config 创建配置
