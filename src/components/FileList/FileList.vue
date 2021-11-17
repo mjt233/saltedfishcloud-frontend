@@ -84,7 +84,7 @@
                 </a>
             </li>
             <li class="mdui-divider" v-if="enableCreateDownload && fileInfo"></li>
-            <li v-if="fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="createShare(fileInfo)">
+            <li v-if="enableShare && fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="createShare(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">share</i>
                     分享
@@ -200,6 +200,7 @@ export default {
              * cut - 启用剪切
              * copy - 启用复制
              * paste - 启用粘贴
+             * share - 文件分享
              * create-download - 启用创建下载
              * mkdir - 启用新建文件夹
              * upload - 启用上传
@@ -214,6 +215,9 @@ export default {
         }
     },
     computed: {
+        enableShare() {
+            return this.enable.indexOf('share') != -1
+        },
         enableRename() {
             return this.enable.indexOf('rename') != -1 && this.fileInfo && this.selectedEl.length <= 1
         },

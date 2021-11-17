@@ -20,7 +20,7 @@
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="manualEnable === false ? (`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`) : manualEnable "
+        :enable="enableFeature"
     >
         <div>
             <!-- 工具烂 -->
@@ -166,7 +166,7 @@ export default {
         },
         manualEnable: {
             // 手动开启的功能，优先级最高
-            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse
+            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse share
             type: [Boolean, String],
             default: false
         },
@@ -220,6 +220,24 @@ export default {
         })
     },
     computed: {
+        enableFeature() {
+            let feature = ''
+            if (this.manualEnable) {
+                feature = this.manualEnable
+            } else {
+                feature = 'name size date return menu'
+                if (this.clipBoard.fileInfo.length != 0) {
+                    feature += ' patse'
+                }
+                if (this.modifiable) {
+                    feature += this.modifiAttr
+                    if (this.uid != 0) {
+                        feature += ' share'
+                    }
+                }
+            }
+            return feature
+        },
         /**
          * @return {String} 当前页面的取列表API地址
          */
