@@ -42,7 +42,8 @@ export default {
     },
     computed: {
         defaultLoginLogo() {
-            return `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar().url}`
+            const url = `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar().url}`
+            return url
         }
     },
     methods: {

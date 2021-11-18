@@ -26,6 +26,22 @@ function jumpWithPost(url, newWindow, filed) {
     document.body.removeChild(form)
 }
 
+/**
+ * 标记axios请求配置使用json请求
+ * @param {import("axios").AxiosRequestConfig} config axios配置
+ */
+function useJsonBody(config) {
+    if (!config.headers) {
+        config.headers = {
+            'Content-Type': 'application/json'
+        }
+    } else {
+        config.headers['Content-Type'] = 'application/json'
+    }
+    return config
+}
+
 export {
-    jumpWithPost
+    jumpWithPost,
+    useJsonBody
 }

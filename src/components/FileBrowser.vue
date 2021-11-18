@@ -15,11 +15,12 @@
         @paste='paste'
         @createDownload='$emit("createDownload")'
         @queryDownload='$emit("queryDownload")'
+        @share='$emit("share", { resource: $event, path: paths })'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
-        :enable="manualEnable === false ? (`name size date return menu ${clipBoard.fileInfo.length != 0 ?  'patse' : ''} ${modifiable ? modifiAttr:''}`) : manualEnable "
+        :enable="enableFeature"
     >
         <div>
             <!-- 工具烂 -->
@@ -94,7 +95,7 @@
 import MduiBtn from '@/components/ui/MduiBtn.vue'
 import MduiIcon from '@/components/ui/MduiIcon.vue'
 import MduiHr from '@/components/ui/MduiHr.vue'
-import fileList from '@/components/FileList/index.vue'
+import fileList from '@/components/FileList/FileList.vue'
 import FileUtils from '@/utils/FileUtils'
 import mdui from 'mdui'
 import apiConfig from '@/api'
@@ -165,7 +166,7 @@ export default {
         },
         manualEnable: {
             // 手动开启的功能，优先级最高
-            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse
+            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse share
             type: [Boolean, String],
             default: false
         },
@@ -219,6 +220,24 @@ export default {
         })
     },
     computed: {
+        enableFeature() {
+            let feature = ''
+            if (this.manualEnable) {
+                feature = this.manualEnable
+            } else {
+                feature = 'name size date return menu'
+                if (this.clipBoard.fileInfo.length != 0) {
+                    feature += ' patse'
+                }
+                if (this.modifiable) {
+                    feature += this.modifiAttr
+                    if (this.uid != 0) {
+                        feature += ' share'
+                    }
+                }
+            }
+            return feature
+        },
         /**
          * @return {String} 当前页面的取列表API地址
          */

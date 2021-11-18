@@ -15,6 +15,11 @@ import apiConfig from './api'
 import formatter from './utils/StringFormatter'
 import Theme from './utils/Theme'
 import VueClipboard from 'vue-clipboard2'
+import * as MduiComponents from './mdui.js'
+Object.keys(MduiComponents).forEach(e => {
+    Vue.component(e, MduiComponents[e])
+})
+Vue.prototype.fmtDate = formatter.toDate
 Vue.config.productionTip = false
 Vue.use(VueAxios, axios)
 Vue.prototype.$axios = axios

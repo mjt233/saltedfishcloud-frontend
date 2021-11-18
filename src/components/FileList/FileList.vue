@@ -6,7 +6,6 @@
         @drop.native="drop"
         @contextmenu.native="showMenu"
         ref="list"
-        style="overflow:auto;height:0px"
         @click.native="containerClick"
     >
         <!-- 以下为绝对定位图层 -->
@@ -84,7 +83,13 @@
                     查看下载任务
                 </a>
             </li>
-            <li class="mdui-divider" v-if="enableCreateDownload && fileInfo && fileInfo.size > 0"></li>
+            <li class="mdui-divider" v-if="enableCreateDownload && fileInfo"></li>
+            <li v-if="enableShare && fileInfo && selectedEl.length <= 1" class="mdui-menu-item" @click="createShare(fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">share</i>
+                    分享
+                </a>
+            </li>
             <li v-if="fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
@@ -151,7 +156,7 @@
                 <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
                 <slot name="columnItem" v-bind:item="item"></slot>
             </li>
-            <li v-if="fileList.length==0" >
+            <li v-if="fileList.length==0" style="list-style-type: none" >
                 <p style="text-align: center">空空如也</p>
             </li>
         </ul>
@@ -195,6 +200,7 @@ export default {
              * cut - 启用剪切
              * copy - 启用复制
              * paste - 启用粘贴
+             * share - 文件分享
              * create-download - 启用创建下载
              * mkdir - 启用新建文件夹
              * upload - 启用上传
@@ -209,6 +215,9 @@ export default {
         }
     },
     computed: {
+        enableShare() {
+            return this.enable.indexOf('share') != -1
+        },
         enableRename() {
             return this.enable.indexOf('rename') != -1 && this.fileInfo && this.selectedEl.length <= 1
         },
@@ -258,6 +267,9 @@ export default {
         }
     },
     methods: {
+        createShare(e) {
+            this.$emit('share', e)
+        },
         copy(e) {
             if (this.selectedEl.length != 0) {
                 this.$emit('copy', this.selectedEl.map(e => e.querySelector('.file-name').innerText))

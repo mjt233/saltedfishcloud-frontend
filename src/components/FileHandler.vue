@@ -32,6 +32,7 @@
         @rename='rename'
         @search='search'
         @getURL='openDialog'
+        @share='openShareDialog'
         @createDownload='showDownload = true'
         @queryDownload='showQueryDownload = true'
         ref='browser'
@@ -48,6 +49,7 @@
             :uid="uid"
             @createTask="toCreate"
         />
+        <!-- 创建直链对话框 -->
         <mdui-dialog id='attr-dialog' :title="'设置下载链接属性'" ref="dialog" @confirm='getURL'>
             <div style="margin: 20px auto; width: 90%" class="mdui-typo">
                 <span>链接有效时长：<span style="color: red;font-weight: 900" class="mdui-text-color-theme">{{link.expr == 32 ? '无限制' : link.expr + '天'}}</span></span>
@@ -58,6 +60,8 @@
                 <p class="mdui-text-color-theme-300">注意：若原文件位置改变，重命名或删除链接将失效</p>
             </div>
         </mdui-dialog>
+
+        <!-- 直链展示对话框 -->
         <mdui-dialog disableDefBtn :title="'下载链接'" ref="linkResDialog">
             <div style="margin: 20px auto; width: 90%">
                 <a target="_blank" :href="link.res" style="word-break: break-all">{{link.res}}</a>
@@ -65,6 +69,47 @@
             <template v-slot:btn>
                 <mdui-btn v-clipboard:copy="link.res" @click="onCopy(true)" :themeColor="false">复制链接</mdui-btn>
                 <mdui-btn @click="$refs.linkResDialog.close()" :themeColor="false">关闭</mdui-btn>
+            </template>
+        </mdui-dialog>
+
+        <!-- 创建分享 -->
+        <mdui-dialog :title="`分享文件：${shareDialog.info ? shareDialog.info.resource.name : ''}`" ref="shareDialog" :show.sync="shareDialog.show" @confirm="createShare">
+            <mdui-loading :loading="shareDialog.loading"></mdui-loading>
+            <div style="overflow: hidden">
+                <mdui-row>
+                    <mdui-col :xs="12">
+                        <span>
+                            <label>有效期：</label><mdui-select v-model="shareDialog.date"  fixed :options="shareDialog.options"></mdui-select>
+                        </span>
+                    </mdui-col>
+                    <mdui-col :xs="12">
+                        <span>
+                            <label>提取码：</label>
+                            <mdui-input
+                                style="padding-right: 50px;top: 12px"
+                                :maxLength="16"
+                                v-model="shareDialog.code"
+                                :floatLabel="false"
+                                :placeholder="'可选，最长16个字符'"
+                                ref="codeInput"
+                                mini
+                            />
+                            <mdui-btn :themeColor="false" dense @click="randomCode">随机生成</mdui-btn>
+                        </span>
+                    </mdui-col>
+                </mdui-row>
+            </div>
+        </mdui-dialog>
+
+        <!-- 查看创建的分享 -->
+        <mdui-dialog :title="'分享成功'" ref="shareInfo" :show.sync="shareDialog.showInfo" :disableDefBtn="true">
+            <div v-if="shareDialog.shareInfo">
+                <p>分享链接：<span  class="mdui-typo" style="user-select: text"><a target="_blank" :href="shareDialog.shareInfo.link">{{shareDialog.shareInfo.link}}</a></span></p>
+                <p style="user-select: text" v-if="shareDialog.shareInfo.needExtractCode">提取码：{{shareDialog.shareInfo.extractCode}}</p>
+            </div>
+            <template slot="btn" v-if="shareDialog.shareInfo">
+                <mdui-btn :themeColor="false" v-clipboard:copy="shareDialog.shareInfo.copyText" @click="onCopy(true)">复制</mdui-btn>
+                <mdui-btn :themeColor="false" @click="shareDialog.showInfo = false">确定</mdui-btn>
             </template>
         </mdui-dialog>
     </file-browser>
@@ -86,8 +131,14 @@ import MduiCheckbox from './ui/MduiCheckbox.vue'
 import MduiBtn from './ui/MduiBtn.vue'
 import CreateDownloadDialog from './CreateDownloadDialog.vue'
 import QueryDownloadDialog from './QueryDownloadDialog/index.vue'
+import MduiSelect from './ui/MduiSelect.vue'
+import MduiInput from './ui/MduiInput.vue'
+import MduiRow from './ui/MduiRow.vue'
+import MduiCol from './ui/MduiCol.vue'
+import StringUtils from '@/utils/StringUtils'
+import MduiLoading from './ui/MduiLoading.vue'
 export default {
-    components: { FileBrowser, SearchResult, MduiDialog, MduiCheckbox, MduiBtn, CreateDownloadDialog, QueryDownloadDialog },
+    components: { FileBrowser, SearchResult, MduiDialog, MduiCheckbox, MduiBtn, CreateDownloadDialog, QueryDownloadDialog, MduiSelect, MduiInput, MduiCol, MduiRow, MduiLoading },
     name: 'FileHandler',
     props: {
         uid: {
@@ -117,6 +168,21 @@ export default {
                 preview: true,
                 info: {},
                 res: ''
+            },
+            shareDialog: {
+                info: null,
+                show: false,
+                showInfo: false,
+                loading: false,
+                shareInfo: null,
+                code: '',
+                date: '1',
+                options: [
+                    { value: 1, label: '1天' },
+                    { value: 7, label: '7天' },
+                    { value: 30, label: '30天' },
+                    { value: -1, label: '永久' }
+                ]
             }
         }
     },
@@ -137,17 +203,76 @@ export default {
         }
     },
     methods: {
+        /**
+         * 生成随机提取码
+         */
+        async randomCode() {
+            this.shareDialog.code = StringUtils.getRandomStr(4, { withNumber: true })
+            await this.$nextTick()
+            this.$refs.codeInput.focus()
+        },
+        /**
+         * 创建分享
+         */
+        createShare() {
+            /**
+             * 请求配置
+             * @type {import('@/api/share').CreateShareConfig}
+             */
+            const config = {
+                path: '/' + this.shareDialog.info.path.join('/'),
+                name: this.shareDialog.info.resource.name
+            }
+            if (parseInt(this.shareDialog.date) > 0) {
+                config.expiredAt = new Date().getTime() + parseInt(this.shareDialog.date) * 24 * 60 * 60 * 1000
+            }
+            config.extractCode = this.shareDialog.code || null
+            const req = API.share.createShare(config)
+            this.shareDialog.loading = true
+
+            this.axios(req).then(e => {
+                const data = e.data.data
+                this.shareDialog.show = false
+                this.shareDialog.shareInfo = data
+                this.shareDialog.shareInfo.link = StringUtils.generateShareLink(data)
+                this.shareDialog.shareInfo.copyText = StringUtils.generateShareText(data)
+                this.shareDialog.showInfo = true
+            }).catch(err => {
+                mdui.snackbar(err.toString())
+            }).finally(() => {
+                this.shareDialog.loading = false
+            })
+        },
+        /**
+         * 打开创建分享对话框
+         */
+        async openShareDialog(e) {
+            this.shareDialog.info = e
+            this.shareDialog.code = ''
+            this.shareDialog.show = true
+            await this.$nextTick()
+            this.$refs.codeInput.focus()
+        },
+        /**
+         * 取消创建离线下载
+         */
         createCancel() {
             if (this.toDownload) {
                 this.toDownload = false
                 this.showQueryDownload = true
             }
         },
+        /**
+         * 从查询离线下载对话框切换到创建下载对话框
+         */
         toCreate() {
             this.showQueryDownload = false
             this.showDownload = true
             this.toDownload = true
         },
+        /**
+         * 创建下载任务
+         */
         async createDownload(task) {
             this.showDownload = false
             if (!task.url) {
@@ -174,7 +299,9 @@ export default {
             }
             this.loading = false
         },
-
+        /**
+         * 复制直链
+         */
         onCopy(e) {
             if (e) {
                 mdui.snackbar('复制成功！')
@@ -182,7 +309,9 @@ export default {
                 mdui.snackbar('复制失败！')
             }
         },
-
+        /**
+         * 获取文件直链
+         */
         async getURL() {
             const e = (await this.$axios(
                 API.resource.getFileDC(this.uid,
@@ -204,10 +333,16 @@ export default {
             // mdui.alert(content)
             this.$refs.linkResDialog.open()
         },
+        /**
+         * 打开创建直链对话框
+         */
         openDialog(info) {
             this.link.info = info
             this.$refs.dialog.open()
         },
+        /**
+         * 搜索框中的文件被点击时，打开下载
+         */
         fileClick(path) {
             const url = (API.server || location.origin) + '/api/' + API.file.getContent(this.uid, path).url.replace(/\/+/g, '/')
             FormUtils.jumpWithPost(url, true, {
@@ -215,6 +350,7 @@ export default {
             })
         },
         /**
+         * 搜索框中的目录被点击时，打开网盘目录对应的视图
          * @param {String} path
          */
         dirClick(path) {
@@ -222,10 +358,16 @@ export default {
             this.searchMode = false
             location.href = `/#/${this.viewRouteName}` + path
         },
+        /**
+         * 设置搜索选项
+         */
         search(key) {
             this.searchMode = !this.searchMode
             this.searchKey = key
         },
+        /**
+         * 对文件进行重命名
+         */
         rename(info) {
             if (!this.modifiable) {
                 mdui.alert('无权操作')

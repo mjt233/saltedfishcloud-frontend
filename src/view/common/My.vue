@@ -19,36 +19,37 @@
                 <ul class="mdui-list">
                     <!-- 头像显示 -->
                     <li class="mdui-list-item mdui-ripple">
-                    <div class="mdui-list-item-content"><span>头像</span></div>
-                    <div class="mdui-list-item-avatar" @click="uploadAvatar"> <img ref="img" :src="avatarURL"></div>
+                        <div class="mdui-list-item-content"><span>头像</span></div>
+                        <div class="mdui-list-item-avatar" @click="uploadAvatar"> <img ref="img" :src="avatarURL"></div>
                     </li>
                     <li class="mdui-divider"></li>
                     <!-- 用户基本信息 -->
                     <li class="mdui-list-item mdui-ripple">
-                    <div class="mdui-list-item-content"><span>用户ID</span></div>
-                    <div class="mdui-list-item-text">{{userInfo.id}}</div>
+                        <div class="mdui-list-item-content"><span>用户ID</span></div>
+                        <div class="mdui-list-item-text">{{userInfo.id}}</div>
                     </li>
                     <li class="mdui-list-item mdui-ripple">
-                    <div class="mdui-list-item-content"><span>用户名</span></div>
-                    <div class="mdui-list-item-text">{{userInfo.user}}</div>
+                        <div class="mdui-list-item-content"><span>用户名</span></div>
+                        <div class="mdui-list-item-text">{{userInfo.user}}</div>
                     </li>
                     <li class="mdui-list-item mdui-ripple">
-                    <div class="mdui-list-item-content"><span>身份</span></div>
-                    <div class="mdui-list-item-text">{{userInfo.type == 1 ? '管理员' : '普通用户'}}</div>
+                        <div class="mdui-list-item-content"><span>身份</span></div>
+                        <div class="mdui-list-item-text">{{userInfo.type == 1 ? '管理员' : '普通用户'}}</div>
                     </li>
                     <li class="mdui-divider"></li>
                     <li class="mdui-list-item mdui-ripple" @click="openDialog">
-                    <div class="mdui-list-item-content"><span>修改密码</span></div>
+                        <div class="mdui-list-item-content"><span>修改密码</span></div>
                     </li>
                     <li class="mdui-divider"></li>
                     <!-- 配额情况 -->
                     <li class="mdui-list-item mdui-ripple">
-                    <div class="mdui-list-item-content"><span>存储使用情况</span></div>
-                    <div class="mdui-list-item-text"><span>
-                        <span>{{quota.used | formatSize}}/{{quota.quota | formatSize}}</span>
-                        <br>
-                        <progress :max="quota.quota" :value="quota.used"></progress>
-                        </span></div>
+                        <div class="mdui-list-item-content"><span>存储使用情况</span></div>
+                            <div class="mdui-list-item-text"><span>
+                                <span>{{quota.used | formatSize}}/{{quota.quota | formatSize}}</span>
+                                <br>
+                                <progress :max="quota.quota" :value="quota.used"></progress>
+                            </span>
+                        </div>
                     </li>
                     <li class="mdui-divider"></li>
                     <li class="mdui-list-item mdui-ripple" @click="changeTheme">

@@ -21,6 +21,24 @@ const StringUtils = {
             res += pattern.charAt(index)
         }
         return res
+    },
+    /**
+     * 生成分享文本
+     * @param {Object} shareInfo 分享信息对象
+     * @returns {String}
+     */
+    generateShareText(shareInfo) {
+        let res = `呐呐呐(。・∀・)ノ，我用咸鱼云向你分享了文件：${shareInfo.name}\n链接：${this.generateShareLink(shareInfo)}`
+        if (shareInfo.needExtractCode) res += `\n提取码（区分大小写）：${shareInfo.extractCode}\n`
+        return res
+    },
+    /**
+     * 生成分享链接
+     * @param {Object} shareInfo 分享信息对象
+     * @returns {String}
+     */
+    generateShareLink(shareInfo) {
+        return `${location.origin}/#/s/${shareInfo.id}/${shareInfo.verification}`
     }
 
 }

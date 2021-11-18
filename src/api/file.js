@@ -94,6 +94,7 @@ const file = {
      * @param {String} md5 文件MD5
      */
     upload(uid, path, file, md5) {
+        path = path.split('/').map(e => encodeURIComponent(e)).join('/')
         if (path == '/') path = ''
         return {
             url: `${this.prefix}/${uid}/file/${path}`,

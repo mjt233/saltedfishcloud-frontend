@@ -22,7 +22,7 @@
                 <button @click="close" href="javascript:;" class="mdui-btn mdui-btn-icon">
                     <i class="mdui-icon material-icons">close</i>
                 </button>
-                <a href="javascript:;" class="mdui-typo-headline" style="color: white">{{title}}</a>
+                <a href="javascript:;" class="mdui-typo-headline" style="color: white; font-size: 1.3rem">{{title}}</a>
             </div>
         </div>
         <slot></slot>
