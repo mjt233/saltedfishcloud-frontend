@@ -7,7 +7,9 @@
     >
         <mdui-loading :loading="loading"></mdui-loading>
         <div class="mdui-container">
+            <!-- 分享类型为文件的视图 -->
             <mdui-row v-if="shareInfo.type == 'FILE'">
+                <!-- 两列，左边文件图标，右边文件信息 -->
                 <mdui-row class=" mdui-valign share-file-view">
                     <mdui-col md=1>
                         <i class="file-icon file" :class="'type-' + fileExt"></i>
@@ -21,10 +23,12 @@
                         </mdui-row>
                     </mdui-col>
                 </mdui-row>
+                <!-- 下载/预览按钮 -->
                 <mdui-row class="download-btn-group">
                     <mdui-btn @click="$emit('download', shareInfo)"><mdui-icon :icon="'file_download'"/>立即下载</mdui-btn>
                 </mdui-row>
             </mdui-row>
+            <!-- 分享类型为目录的视图 -->
             <mdui-row v-if="shareInfo.type == 'DIR'">
                 <mdui-row class="mdui-typo path-control" :class="{'sticky': sticky === '' || sticky}">
                     <ul>
