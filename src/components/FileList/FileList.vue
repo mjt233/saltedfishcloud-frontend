@@ -7,6 +7,7 @@
         @contextmenu.native="showMenu"
         ref="list"
         @click.native="containerClick"
+        style="overflow:auto;height:0px"
     >
         <!-- 以下为绝对定位图层 -->
         <select-area

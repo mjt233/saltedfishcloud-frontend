@@ -39,6 +39,13 @@ const StringUtils = {
      */
     generateShareLink(shareInfo) {
         return `${location.origin}/#/s/${shareInfo.id}/${shareInfo.verification}`
+    },
+    /**
+     * 对URL字符串的每个节点进行一次URL编码转换
+     * @param {String} input 表示资源路径的字符串
+     */
+    encodeURLPath(input) {
+        return input.split('/').map(e => encodeURIComponent(e)).join('/')
     }
 
 }
