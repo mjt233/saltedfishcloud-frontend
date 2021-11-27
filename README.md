@@ -80,3 +80,13 @@
     2. 直接与后端打包  
         1. 将编译后产生的`dist`下的内容复制到后端项目的`/src/main/resources/static/`下  
         2. 依照[后端项目](https://gitee.com/xiaotao233/saltedfishcloud-backend)打包和运行步骤执行即可
+
+
+## 部分前端界面展示
+### 文件列表
+![](./docs/img/2021-11-27-14-58-36.png)
+![](./docs/img/2021-11-27-15-04-13.png)
+![](./docs/img/2021-11-27-15-27-19.png)
+![](./docs/img/屏幕截图%202021-11-27%20150700.jpg)
+![](./docs/img/2021-11-27-15-11-33.png)
+![](./docs/img/2021-11-27-15-12-45.png)
