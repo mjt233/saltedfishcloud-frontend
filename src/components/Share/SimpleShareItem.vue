@@ -8,7 +8,7 @@
                 </div>
                 <div class="share-item-date light-text">
                     到期日期：
-                    <span v-if="shareInfo.expiredAt">{{shareInfo.expiredAt | formatDate}}</span>
+                    <span v-if="shareInfo.expiredAt" :class="{'mdui-text-color-red': isExpired(shareInfo.expiredAt)}">{{shareInfo.expiredAt | formatDate}}</span>
                     <span v-else>永久</span>
                 </div>
             </div>
@@ -72,6 +72,10 @@ export default {
         },
         onCopy() {
             mdui.snackbar('复制成功！')
+        },
+        isExpired(dateStr) {
+            const date = new Date(dateStr)
+            return date.getTime() < new Date().getTime()
         }
     }
 }
