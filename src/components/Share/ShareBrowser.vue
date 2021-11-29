@@ -41,7 +41,7 @@
                     </ul>
                 </mdui-row>
                 <file-list
-                    style="padding-top: 0"
+                    style="padding-top: 0;height: auto"
                     :fileList="filelist"
                     :enable="'name size date return'"
                     @clickItem="clickItem"
