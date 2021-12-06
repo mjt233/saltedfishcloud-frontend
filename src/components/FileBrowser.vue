@@ -102,17 +102,6 @@ import apiConfig from '@/api'
 import { FileQueueHandler } from '@/service/FileUpload/FileUploadQueue'
 import StringUtils from '@/utils/StringUtils'
 
-// 响应文件上传队列操作器的upload事件函数，用于文件上传完成后自动刷新
-const handleAutoRefresh = e => {
-    // 上传完成的文件路径与当前正在浏览的路径相同时刷新
-    const uploadApi = e.api.replace(/\/+$/g, '')
-    const currentApi = StringUtils.encodeURLPath(
-        this.fullApi.replace(/\/+$/g, '')
-    )
-    if (uploadApi == currentApi) {
-        this.loadList()
-    }
-}
 export default {
     name: 'FileBrowser',
     props: {
@@ -226,10 +215,10 @@ export default {
         /**
          * 捕获到上传完成事件时自动刷新文件列表
          */
-        FileQueueHandler.addEventHandler('upload', handleAutoRefresh)
+        FileQueueHandler.addEventHandler('upload', this.handleAutoRefresh)
     },
     destroyed() {
-        FileQueueHandler.removeEventHandler('upload', handleAutoRefresh)
+        FileQueueHandler.removeEventHandler('upload', this.handleAutoRefresh)
     },
     computed: {
         enableFeature() {
@@ -258,6 +247,18 @@ export default {
         }
     },
     methods: {
+
+        // 响应文件上传队列操作器的upload事件函数，用于文件上传完成后自动刷新
+        handleAutoRefresh(e) {
+            // 上传完成的文件路径与当前正在浏览的路径相同时刷新
+            const uploadApi = e.api.replace(/\/+$/g, '')
+            const currentApi = StringUtils.encodeURLPath(
+                this.fullApi.replace(/\/+$/g, '')
+            )
+            if (uploadApi == currentApi) {
+                this.loadList()
+            }
+        },
         paste() {
             // 判断当前目录是否存在同名文件或目录
             const curNameMap = new Map(this.fileList.map(e => [e.name, 1]))
@@ -421,7 +422,6 @@ export default {
 
             // 调用限频，防止刷新被按爆或大量小文件上传触发极频繁的自动刷新
             const strPath = this.paths.join('/')
-            console.log({ strPath: strPath, lastloadPath: this.lastLoadPath })
             if (strPath !== this.lastLoadPath) {
                 refresh()
                 return
