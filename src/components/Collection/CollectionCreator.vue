@@ -107,24 +107,12 @@
         <mdui-dialog :show.sync="showCreateField" :title="'新建字段'" @confirm="addField">
             <collection-filder-editor ref="createFieldEditor"></collection-filder-editor>
         </mdui-dialog>
-
-        <mdui-dialog full :show.sync="showBrowser" :title="'选择保存位置'" :loading="loading">
-            <file-browser
-                :uid="userInfo.id"
-                :showToolBar="false"
-                :showPath="true"
-                :manualEnable="'mkdir name size date menu toolbar delete'"
-                :routeMode="false"
-                :path.sync="browserPath"
-                :disableSearch="true"
-                :rootName="userInfo.user + '的私人网盘'"
-                ref="browser"
-                @createFolder="createFolder"
-                @delete="deleteItem"
-                @getURL='getURL'
-            />
-            <mdui-btn @click="ci.savePath = browserPath; showBrowser = false" :hid="!showBrowser" :fab="true" :fixed="true" :icon="'check'"></mdui-btn>
-        </mdui-dialog>
+        <file-selector
+            :show.sync="showBrowser"
+            :uid="userInfo.id"
+            :username="userInfo.user"
+            @confirm="ci.savePath = $event"
+        />
     </div>
 </template>
 
@@ -133,8 +121,6 @@ import MduiInput from '@/components/ui/MduiInput.vue'
 import MduiSwitch from '@/components/ui/MduiSwitch.vue'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
 import MduiDialog from '@/components/ui/MduiDialog.vue'
-import FileBrowser from '@/components/FileBrowser.vue'
-import API from '@/api'
 import mdui from 'mdui'
 import MduiRow from '@/components/ui/MduiRow.vue'
 import CollectionFormField from './CollectionFormField.vue'
@@ -142,6 +128,7 @@ import MduiHr from '@/components/ui/MduiHr.vue'
 import MduiCheckbox from '@/components/ui/MduiCheckbox.vue'
 import CollectionFilderEditor from './CollectionFilderEditor.vue'
 import MduiIcon from '@/components/ui/MduiIcon.vue'
+import FileSelector from '../FileSelector.vue'
 export default {
     name: 'collectionCreator',
     components: {
@@ -149,13 +136,13 @@ export default {
         MduiSwitch,
         MduiBtn,
         MduiDialog,
-        FileBrowser,
         MduiRow,
         CollectionFormField,
         MduiHr,
         MduiCheckbox,
         CollectionFilderEditor,
-        MduiIcon
+        MduiIcon,
+        FileSelector
     },
     computed: {
         userInfo() {
@@ -303,19 +290,7 @@ export default {
                     return obj
                 })
             }
-
             return obj
-        },
-        createFolder(e) {
-            console.log(e)
-            this.loading = true
-            this.axios(API.file.mkdir(this.userInfo.id, '/' + e.path.join('/'), e.name)).then(e => {
-                this.loading = false
-                console.log(this.$refs.browser.loadList())
-            }).catch(e => {
-                this.loading = false
-                mdui.snackbar(e.msg)
-            })
         },
         async create() {
             try {
@@ -328,22 +303,6 @@ export default {
                 this.loading = false
                 mdui.snackbar(err.toString())
             }
-        },
-        deleteItem(e) {
-            const names = []
-            e.forEach(el => names.push(el.name))
-            const conf = API.file.delete(this.userInfo.id, '/' + this.browserPath, names)
-            this.loading = true
-            this.axios(conf).then(() => {
-                this.loading = false
-                this.$refs.browser.loadList()
-            }).catch(err => {
-                this.loading = false
-                mdui.alert(err.msg)
-            })
-        },
-        getURL() {
-            mdui.snackbar('不支持的操作')
         },
         addField() {
             const info = this.$refs.createFieldEditor.getFieldInfo()
