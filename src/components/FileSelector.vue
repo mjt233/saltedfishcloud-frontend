@@ -1,5 +1,5 @@
 <template>
-    <mdui-dialog full :show.sync="showDialog" :title="'选择保存位置'" :loading="loading">
+    <mdui-dialog full :show.sync="showDialog" :title="title" :loading="loading">
         <file-browser
             :uid="uid"
             :showToolBar="false"
@@ -32,6 +32,10 @@ export default {
         },
         show: {
             type: Boolean
+        },
+        title: {
+            type: String,
+            default: '选择位置'
         }
     },
     data() {

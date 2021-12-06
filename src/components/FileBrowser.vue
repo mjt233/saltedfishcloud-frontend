@@ -16,6 +16,7 @@
         @createDownload='$emit("createDownload")'
         @queryDownload='$emit("queryDownload")'
         @share='$emit("share", { resource: $event, path: paths })'
+        @unzip='showSelector = true;unzipName = $event.name'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
@@ -87,6 +88,7 @@
             </div>
             <mdui-hr></mdui-hr>
             <slot></slot>
+            <file-selector v-if="enableUnzip" :uid="uid" :show.sync="showSelector" :username="''" @confirm="unzip" :title="'选择解压目录'"></file-selector>
         </div>
     </file-list>
 </template>
@@ -101,6 +103,7 @@ import mdui from 'mdui'
 import apiConfig from '@/api'
 import { FileQueueHandler } from '@/service/FileUpload/FileUploadQueue'
 import StringUtils from '@/utils/StringUtils'
+import FileSelector from './FileSelector.vue'
 
 export default {
     name: 'FileBrowser',
@@ -176,11 +179,16 @@ export default {
         routeMode: {
             type: Boolean,
             default: true
+        },
+        enableUnzip: {
+            type: Boolean
         }
     },
     data() {
         return {
-            modifiAttr: 'mkdir upload copy cut create-download drag-select delete rename',
+            unzipName: '',
+            showSelector: false,
+            modifiAttr: 'mkdir upload copy cut create-download drag-select delete rename unzip',
             listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}
@@ -247,7 +255,19 @@ export default {
         }
     },
     methods: {
-
+        unzip(e) {
+            const conf = apiConfig.file.unzip(this.uid, this.path, this.unzipName, e)
+            mdui.confirm('如果目标位置存在同名文件，将会被覆盖，是否继续？', '注意', () => {
+                this.loading = true
+                this.axios(conf).then(() => {
+                    mdui.snackbar('解压完成')
+                }).catch(e => {
+                    mdui.snackbar(e.toString())
+                }).finally(() => {
+                    this.loading = false
+                })
+            })
+        },
         // 响应文件上传队列操作器的upload事件函数，用于文件上传完成后自动刷新
         handleAutoRefresh(e) {
             // 上传完成的文件路径与当前正在浏览的路径相同时刷新
@@ -554,7 +574,7 @@ export default {
             return decodeURI(input)
         }
     },
-    components: { fileList, MduiBtn, MduiIcon, MduiHr }
+    components: { fileList, MduiBtn, MduiIcon, MduiHr, FileSelector }
 }
 </script>
 

@@ -35,6 +35,7 @@
         @share='openShareDialog'
         @createDownload='showDownload = true'
         @queryDownload='showQueryDownload = true'
+        :enableUnzip="modifiable"
         ref='browser'
     >
         <create-download-dialog

@@ -25,7 +25,7 @@
         <slot></slot>
 
         <!-- 右键菜单 -->
-        <ul class="mdui-menu" style="width: 200px; user-select: none" id="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
+        <ul class="mdui-menu" style="width: 200px; user-select: none" ref="menu" :class="{'mdui-menu-cascade': !mobileMenu}">
             <li class="mdui-menu-item" v-if="enableMkdir">
                 <a href="javascript:;" class="mdui-ripple" @click="createFolder">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">create_new_folder</i>
@@ -46,6 +46,12 @@
                 </a>
             </li>
             <li v-if="(fileInfo && (enableCut || enableCopy)) || enablePaste"  class="mdui-divider"></li>
+            <li v-if="enableUnzip && fileInfo && !fileInfo.dir && selectedEl.length <= 1 && fileInfo.name.endsWith('.zip')" class="mdui-menu-item" @click="$emit('unzip', fileInfo)">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">unarchive</i>
+                    解压文件
+                </a>
+            </li>
             <li v-if="fileInfo && enableCopy" class="mdui-menu-item" @click="copy(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">content_copy</i>
@@ -260,6 +266,9 @@ export default {
         },
         enablePaste() {
             return this.enable.indexOf('patse') != -1
+        },
+        enableUnzip() {
+            return this.enable.indexOf('unzip') != -1
         }
     },
     filters: {
@@ -455,7 +464,7 @@ export default {
                 container.appendChild(div)
 
                 // 实例化菜单对象并打开，打开后用于定位的div可移除
-                const menu = new mdui.Menu(div, '#menu', {
+                const menu = new mdui.Menu(div, this.$refs.menu, {
                     gutter: 0,
                     fixed: true
                 })
@@ -463,7 +472,8 @@ export default {
                 if (target !== null && !target.classList.contains('empty')) {
                     //  找出右键触发位置的项目所在的索引，以便从文件列表(this.fileList)中取出对应的文件信息
                     let index = 0
-                    this.$el.querySelectorAll('.file,.dir').forEach((e, i) => {
+                    this.$refs.container.querySelectorAll('.file,.dir').forEach((e, i) => {
+                        // debugger
                         if (e == target) {
                             index = i
                         }
@@ -479,7 +489,7 @@ export default {
                     this.targetIndex = undefined
                     this.fileInfo = null
                 }
-                document.querySelector('#menu').style.width = this.mobileMenu ? '' : '200px'
+                this.$refs.menu.style.width = this.mobileMenu ? '' : '200px'
                 this.$nextTick().then(() => {
                     menu.open()
                     div.remove()
@@ -579,7 +589,7 @@ export default {
     },
     mounted() {
         this.containerEl = this.$refs.container
-        const menu = document.querySelector('#menu')
+        const menu = this.$refs.menu
         menu.addEventListener('closed.mdui.menu', event => {
             this.menuClosing = false
         })
