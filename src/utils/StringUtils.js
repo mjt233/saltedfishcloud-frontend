@@ -45,7 +45,7 @@ const StringUtils = {
      * @param {String} input 表示资源路径的字符串
      */
     encodeURLPath(input) {
-        return input.split('/').map(e => encodeURIComponent(e)).join('/')
+        return input.split('/').map(e => encodeURIComponent(e)).join('/').replace(/\/\/+/g, '/')
     }
 
 }

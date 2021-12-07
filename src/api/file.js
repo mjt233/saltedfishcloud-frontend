@@ -1,3 +1,5 @@
+const StringUtils = require('@/utils/StringUtils')
+
 const file = {
     prefix: 'diskFile',
     /**
@@ -151,6 +153,24 @@ const file = {
     getContent(uid, filePath) {
         return {
             url: `${this.prefix}/${uid}/content/${filePath}`
+        }
+    },
+    /**
+     * 解压文件
+     * @param {Number} uid 用户ID
+     * @param {String} path 压缩文件所在目录
+     * @param {String} name 压缩文件名
+     * @param {String} dest 解压位置
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    unzip(uid, path, name, dest) {
+        return {
+            url: StringUtils.encodeURLPath(`${this.prefix}/${uid}/extractArchive/${path}`),
+            method: 'post',
+            data: {
+                name: name,
+                dest
+            }
         }
     }
 }
