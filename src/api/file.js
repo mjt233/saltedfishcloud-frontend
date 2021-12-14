@@ -12,6 +12,31 @@ const StringUtils = require('@/utils/StringUtils')
 const file = {
     prefix: 'diskFile',
     /**
+     * 下载打包的资源
+     * @param {Number} uid 用户ID
+     * @param {String} wid 打包标识符
+     * @param {String} alias 别名
+     * @returns {import('axios').AxiosRequestConfig}
+     */
+    downloadWrap(uid, wid, alias) {
+        return {
+            url: `/${this.prefix}/${uid}/wrap/${wid}${alias ? '/' + alias : ''}`
+        }
+    },
+    /**
+     * 创建打包下载标识符
+     * @param {Number} uid 用户ID
+     * @param {FileTransferObj} fileTransferObj 文件操作对象，dest不要求
+     * @returns {import('axios').AxiosRequestConfig}
+     */
+    createWrap(uid, fileTransferObj) {
+        return useJsonBody({
+            url: `/${this.prefix}/${uid}/wrap`,
+            method: 'post',
+            data: fileTransferObj
+        })
+    },
+    /**
      * 在网盘中创建压缩文件
      * @param {Number} uid 用户ID
      * @param {FileTransferObj} fileTransferObj 文件操作对象

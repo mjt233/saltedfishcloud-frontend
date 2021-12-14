@@ -24,6 +24,7 @@
         :showToolBar="true"
         :path="path"
         :modifiable="modifiable"
+        @wrapDownload='wrapDownload'
         @clickFile='clickFile'
         @dropFile='addUploadFile'
         @upload='upload'
@@ -206,6 +207,24 @@ export default {
         }
     },
     methods: {
+        async wrapDownload(e) {
+            try {
+                this.loading = true
+                const wid = (await this.axios(API.file.createWrap(this.uid, e))).data.data
+                let alias = e.source.split('/').pop()
+                if (alias) {
+                    alias += '_打包下载.zip'
+                }
+                const url = (this.axios.defaults.baseURL + '/' + API.file.downloadWrap(this.uid, wid, alias).url).replace(/\/\/+/, '/')
+                setTimeout(() => {
+                    window.open(url)
+                }, 200)
+            } catch (err) {
+                mdui.snackbar(err.toString())
+            } finally {
+                this.loading = false
+            }
+        },
         compress(e) {
             const conf = API.file.compress(this.uid, e)
             this.loading = true

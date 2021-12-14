@@ -13,6 +13,7 @@
         @cut='cut'
         @copy='copy'
         @paste='paste'
+        @wrapDownload='$emit("wrapDownload", { filenames: $event, source: "/" + paths.join("/") })'
         @createDownload='$emit("createDownload")'
         @queryDownload='$emit("queryDownload")'
         @compress='compress.showSelector = true;compress.filenames = $event'

@@ -52,6 +52,12 @@
                     解压文件
                 </a>
             </li>
+            <li v-if="enableCompress && selectedEl.length > 1" class="mdui-menu-item" @click="wrapDownload">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
+                    打包下载
+                </a>
+            </li>
             <li v-if="enableCompress && fileInfo" class="mdui-menu-item" @click="compress">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">archive</i>
@@ -314,6 +320,9 @@ export default {
         },
         back() {
             this.$emit('back')
+        },
+        wrapDownload() {
+            this.$emit('wrapDownload', this.selectedEl.map(e => e.querySelector('.file-name').innerText))
         },
         compress() {
             const files = this.selectedEl.map(e => e.querySelector('.file-name').innerText)
