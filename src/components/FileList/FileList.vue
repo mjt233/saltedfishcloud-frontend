@@ -52,6 +52,12 @@
                     解压文件
                 </a>
             </li>
+            <li v-if="enableCompress && fileInfo" class="mdui-menu-item" @click="compress">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">archive</i>
+                    压缩
+                </a>
+            </li>
             <li v-if="fileInfo && enableCopy" class="mdui-menu-item" @click="copy(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">content_copy</i>
@@ -269,6 +275,9 @@ export default {
         },
         enableUnzip() {
             return this.enable.indexOf('unzip') != -1
+        },
+        enableCompress() {
+            return this.enable.indexOf('compress') != -1
         }
     },
     filters: {
@@ -305,6 +314,13 @@ export default {
         },
         back() {
             this.$emit('back')
+        },
+        compress() {
+            const files = this.selectedEl.map(e => e.querySelector('.file-name').innerText)
+            this.$emit('compress', files)
+        },
+        getSelectedFiles() {
+
         },
         /**
          * 列表项目被点击时触发的回调

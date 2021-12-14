@@ -1,7 +1,29 @@
+const { useJsonBody } = require('@/utils/FormUtils/CommonFormUtils')
 const StringUtils = require('@/utils/StringUtils')
+
+/**
+ * @typedef {Object} FileTransferObj
+ * @property {String} source 文件所在目录
+ * @property {String[]} filenames 被操作的多个文件
+ * @property {String} dest  要保存到的位置
+ */
+
 
 const file = {
     prefix: 'diskFile',
+    /**
+     * 在网盘中创建压缩文件
+     * @param {Number} uid 用户ID
+     * @param {FileTransferObj} fileTransferObj 文件操作对象
+     * @returns {import('axios').AxiosRequestConfig}
+     */
+    compress(uid, fileTransferObj) {
+        return useJsonBody({
+            url: `/${this.prefix}/${uid}/compress`,
+            method: 'post',
+            data: fileTransferObj
+        })
+    },
     /**
      * 搜索文件
      * @param {String} uid 用户ID

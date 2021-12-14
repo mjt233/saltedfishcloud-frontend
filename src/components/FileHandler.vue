@@ -35,7 +35,9 @@
         @share='openShareDialog'
         @createDownload='showDownload = true'
         @queryDownload='showQueryDownload = true'
+        @compress='compress'
         :enableUnzip="modifiable"
+        :enableCompress="modifiable"
         ref='browser'
     >
         <create-download-dialog
@@ -204,6 +206,18 @@ export default {
         }
     },
     methods: {
+        compress(e) {
+            const conf = API.file.compress(this.uid, e)
+            this.loading = true
+            this.axios(conf).then(e => {
+                mdui.snackbar('创建成功')
+                this.$refs.browser.loadList()
+            }).catch(e => {
+                mdui.alert(e.toString())
+            }).finally(e => {
+                this.loading = false
+            })
+        },
         /**
          * 生成随机提取码
          */
