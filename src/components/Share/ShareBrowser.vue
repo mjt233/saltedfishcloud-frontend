@@ -43,7 +43,9 @@
                 <file-list
                     style="padding-top: 0;height: auto"
                     :fileList="filelist"
-                    :enable="'name size date return'"
+                    :disableGetlink="true"
+                    :disableRefresh="true"
+                    :enable="'name size date return menu select'"
                     @clickItem="clickItem"
                 />
             </mdui-row>

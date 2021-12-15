@@ -33,7 +33,7 @@
                 </a>
             </li>
             <li class="mdui-divider" v-if="enableMkdir"></li>
-            <li class="mdui-menu-item">
+            <li class="mdui-menu-item" v-if="!disableRefresh">
                 <a href="javascript:;" @click="refresh">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">refresh</i>
                     刷新
@@ -52,7 +52,7 @@
                     解压文件
                 </a>
             </li>
-            <li v-if="enableCompress && selectedEl.length > 1" class="mdui-menu-item" @click="wrapDownload">
+            <li v-if="enableWrap && selectedEl.length > 1" class="mdui-menu-item" @click="wrapDownload">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
                     打包下载
@@ -109,7 +109,7 @@
                     分享
                 </a>
             </li>
-            <li v-if="fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
+            <li v-if="!disableGetlink && fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
                     获取直链
@@ -191,9 +191,18 @@ import selectArea from '@/components/ui/SelectArea.vue'
 import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
 export default {
-    components: { Container, selectArea },
+    components: {
+        Container,
+        selectArea
+    },
     name: 'FileList',
     props: {
+        disableRefresh: {
+            type: Boolean
+        },
+        disableGetlink: {
+            type: Boolean
+        },
         fileList: {
             type: [Array],
             default: () => { return [] }
@@ -223,6 +232,8 @@ export default {
              * create-download - 启用创建下载
              * mkdir - 启用新建文件夹
              * upload - 启用上传
+             * compress - 启用压缩
+             * warp - 启用打包下载
              */
             type: String,
             default: ''
@@ -284,6 +295,12 @@ export default {
         },
         enableCompress() {
             return this.enable.indexOf('compress') != -1
+        },
+        enableWrap() {
+            return this.enable.indexOf('wrap') != -1
+        },
+        enableSelect() {
+            return this.enable.indexOf('select') != -1
         }
     },
     filters: {

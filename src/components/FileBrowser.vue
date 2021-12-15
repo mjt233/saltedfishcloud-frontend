@@ -206,7 +206,7 @@ export default {
             },
             unzipName: '',
             showSelector: false,
-            modifiAttr: 'compress mkdir upload copy cut create-download drag-select delete rename unzip',
+            modifiAttr: 'compress mkdir upload copy cut create-download drag-select delete rename unzip wrap',
             listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}
