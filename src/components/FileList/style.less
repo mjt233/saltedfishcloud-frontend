@@ -57,7 +57,7 @@ a {
     position: relative;
     user-select: none;
     overflow: hidden;
-    .file,.dir {
+    .file-list-item {
         &:hover {background-color: rgb(233, 233, 233);}
     }
     .head {
@@ -117,12 +117,29 @@ a {
             background-size: 16px 16px;
             background-position: 10px
         }
+        >.file-select {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            flex-grow: 1;
+            width: 48px;
+            .mdui-checkbox-icon {
+                left: 9px;
+            }
+        }
         >.file-name {
+            --icon-offset-x: 0px;
+            --icon-offset-y: 0px;
             flex-grow: 6;
             text-align: left;
             padding-left: 35px;
             text-overflow: ellipsis;
             word-wrap: break-word;
+            background-repeat: no-repeat;
+            background-position-y: calc(10px + var(--icon-offset-y));
+            //background-position-x: calc(10px + var(--icon-offset-x));
+            background-size: 24px 24px;
             &>span {
                 display: -webkit-box;
                 -webkit-box-orient: vertical;

@@ -45,7 +45,7 @@
                     :fileList="filelist"
                     :disableGetlink="true"
                     :disableRefresh="true"
-                    :enable="'name size date return menu select'"
+                    :enable="'name size date return select'"
                     @clickItem="clickItem"
                 />
             </mdui-row>

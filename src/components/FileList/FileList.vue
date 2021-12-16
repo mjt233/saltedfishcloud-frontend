@@ -128,6 +128,9 @@
                 <!-- <div class="mdui-spinner"></div> -->
             </div>
             <li class="list-item head" v-if="type == 'list'">
+                <div class="file-select" v-if="enableSelect">
+                    <mdui-checkbox :checked="checkSelectStatus" @change="checkAllChange"></mdui-checkbox>
+                </div>
                 <div class="file-name" v-if="enableName">文件名</div>
                 <div class="file-size" v-if="enableSize">大小</div>
                 <div class="file-date" v-if="enableDate">最后修改日期</div>
@@ -149,9 +152,13 @@
                 @dragenter="dragenter"
                 @drop="drop"
                 selectable
-                class="list-item mdui-ripple" :class="item.dir ? 'dir' : `file type-${item.suffix}` "
+                class="list-item mdui-ripple file-list-item"
+                :class="(type == 'table' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '') + (item.selected ? 'selected': '')"
             >
-                <div class="file-name" v-if="enableName">
+                <div v-if="enableSelect" class="file-select">
+                    <mdui-checkbox @click.native.stop="" v-model="item.selected"></mdui-checkbox>
+                </div>
+                <div class="file-name" v-if="enableName" :class="type == 'list' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '' ">
                     <input
                         v-if="index == targetIndex && statu == 'rename' && type == 'list'"
                         class="rename-input"
@@ -190,10 +197,12 @@ import mdui from 'mdui'
 import selectArea from '@/components/ui/SelectArea.vue'
 import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
+import MduiCheckbox from '../ui/MduiCheckbox.vue'
 export default {
     components: {
         Container,
-        selectArea
+        selectArea,
+        MduiCheckbox
     },
     name: 'FileList',
     props: {
@@ -245,6 +254,19 @@ export default {
         }
     },
     computed: {
+        checkSelectStatus() {
+            const selectedCnt = this.fileList.filter(e => e.selected).length
+            if (selectedCnt == 0) {
+                // 无选择
+                return 0
+            } else if (selectedCnt == this.fileList.length) {
+                // 全选
+                return 1
+            } else {
+                // 选一半
+                return 2
+            }
+        },
         enableShare() {
             return this.enable.indexOf('share') != -1
         },
@@ -300,7 +322,7 @@ export default {
             return this.enable.indexOf('wrap') != -1
         },
         enableSelect() {
-            return this.enable.indexOf('select') != -1
+            return this.enable.split(' ').includes('select')
         }
     },
     filters: {
@@ -309,6 +331,15 @@ export default {
         }
     },
     methods: {
+        checkAllChange(e) {
+            let res = false
+            if (this.checkSelectStatus == 2 || this.checkSelectStatus == 0) {
+                res = true
+            }
+            this.fileList.forEach(e => {
+                e.selected = res
+            })
+        },
         createShare(e) {
             this.$emit('share', e)
         },
@@ -602,6 +633,10 @@ export default {
          * 重置已选元素为空
          */
         resetSelect() {
+            // 复选框模式下忽略拖拽选择的重置
+            if (this.enableSelect) {
+                return
+            }
             this.selectedEl = []
             this.$el.querySelectorAll('*[selectable]').forEach(item => item.classList.remove('selected'))
         },
