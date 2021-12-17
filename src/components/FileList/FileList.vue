@@ -129,7 +129,7 @@
             </div>
             <li class="list-item head" v-if="type == 'list'">
                 <div class="file-select" v-if="enableSelect">
-                    <mdui-checkbox :checked="checkSelectStatus" @change="checkAllChange"></mdui-checkbox>
+                    <mdui-checkbox ref="checkAllBox" v-model="checkAllStatus" @change="checkAllChange"></mdui-checkbox>
                 </div>
                 <div class="file-name" v-if="enableName">文件名</div>
                 <div class="file-size" v-if="enableSize">大小</div>
@@ -156,7 +156,7 @@
                 :class="(type == 'table' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '') + (item.selected ? 'selected': '')"
             >
                 <div v-if="enableSelect" class="file-select">
-                    <mdui-checkbox @click.native.stop="" v-model="item.selected"></mdui-checkbox>
+                    <mdui-checkbox @change="updateCheckAll" v-model="item.selected"></mdui-checkbox>
                 </div>
                 <div class="file-name" v-if="enableName" :class="type == 'list' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '' ">
                     <input
@@ -254,19 +254,6 @@ export default {
         }
     },
     computed: {
-        checkSelectStatus() {
-            const selectedCnt = this.fileList.filter(e => e.selected).length
-            if (selectedCnt == 0) {
-                // 无选择
-                return 0
-            } else if (selectedCnt == this.fileList.length) {
-                // 全选
-                return 1
-            } else {
-                // 选一半
-                return 2
-            }
-        },
         enableShare() {
             return this.enable.indexOf('share') != -1
         },
@@ -331,15 +318,6 @@ export default {
         }
     },
     methods: {
-        checkAllChange(e) {
-            let res = false
-            if (this.checkSelectStatus == 2 || this.checkSelectStatus == 0) {
-                res = true
-            }
-            this.fileList.forEach(e => {
-                e.selected = res
-            })
-        },
         createShare(e) {
             this.$emit('share', e)
         },
@@ -662,6 +640,27 @@ export default {
             const elCnt = parseInt(this.containerEl.offsetWidth / 125)
             const space = this.containerEl.offsetWidth - elCnt * 125
             return space / (elCnt)
+        },
+        updateCheckAll() {
+            const selectedCnt = this.fileList.filter(e => e.selected).length
+            if (selectedCnt == 0) {
+                // 无选择
+                this.$refs.checkAllBox.setIndeterminate(false)
+                this.checkAllStatus = false
+            } else if (selectedCnt == this.fileList.length) {
+                // 全选
+                this.$refs.checkAllBox.setIndeterminate(false)
+                this.checkAllStatus = true
+            } else {
+                // 部分选
+                this.$refs.checkAllBox.setIndeterminate(true)
+            }
+        },
+        checkAllChange(e) {
+            this.fileList.forEach(item => {
+                item.selected = e
+            })
+            this.checkAllStatus = e
         }
     },
     mounted() {
@@ -676,6 +675,10 @@ export default {
     },
     data() {
         return {
+            /**
+             * 是否全选 - 控制全选选择框
+             */
+            checkAllStatus: false,
             /**
              * 是否启用移动端菜单
              */
