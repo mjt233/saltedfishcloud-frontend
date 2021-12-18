@@ -21,7 +21,7 @@ const share = {
     createWrap(sid, verification, code, fileTransferObj) {
         return useJsonBody({
             method: 'post',
-            url: `${this.prefix}/warp/${sid}/${verification}`,
+            url: `${this.prefix}/wrap/${sid}/${verification}`,
             params: {
                 code: code
             },
