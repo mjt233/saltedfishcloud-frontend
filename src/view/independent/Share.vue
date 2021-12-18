@@ -13,7 +13,7 @@
             @selectChange="selectChange"
             :style="browserStyle"
         />
-        <mdui-btn @click="wrapDownload" :fixed="true" :fab="true" :hid="selectInfo.files.length == 0" :icon="'file_download'"></mdui-btn>
+        <mdui-btn class="download-btn"  @click="wrapDownload" :fab="true" :hid="selectInfo.files.length == 0" :icon="'file_download'"></mdui-btn>
     </full-container>
 </template>
 
@@ -66,6 +66,13 @@ export default {
     },
     methods: {
         wrapDownload() {
+            if (this.selectInfo.files.length == 1 && !this.selectInfo.files[0].dir) {
+                this.downloadFile({
+                    path: this.selectInfo.path,
+                    file: this.selectInfo.files[0].name
+                })
+                return
+            }
             this.loading = true
             const conf = API.share.createWrap(this.sid, this.verification, this.extractCode, {
                 source: this.selectInfo.path,
@@ -73,7 +80,12 @@ export default {
             })
             this.axios(conf)
                 .then(e => {
-                    const url = this.axios.defaults.baseURL + '/' + (API.file.downloadWrap(e.data.data, this.shareInfo.name + '.zip').url)
+                    let alias = this.selectInfo.path.split('/').pop().replace(/^\s+/, '')
+                    if (alias === '') {
+                        alias = this.shareInfo.name
+                    }
+                    console.log(alias)
+                    const url = this.axios.defaults.baseURL + '/' + (API.file.downloadWrap(e.data.data, alias + '_打包.zip').url)
                     window.open(url)
                 }).catch(e => {
                     mdui.snackbar(e.toString())
@@ -137,5 +149,10 @@ export default {
 }
 .input-field {
     padding: 20px 0;
+}
+.download-btn {
+    position: absolute;
+    bottom: 48px;
+    right: 48px;
 }
 </style>

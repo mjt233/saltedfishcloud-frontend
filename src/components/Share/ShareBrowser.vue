@@ -45,7 +45,7 @@
                     :fileList="filelist"
                     :disableGetlink="true"
                     :disableRefresh="true"
-                    :enable="'name size date return select'"
+                    :enable="'name size return select'"
                     @clickItem="clickItem"
                     @selectChange="selectChange"
                 />
