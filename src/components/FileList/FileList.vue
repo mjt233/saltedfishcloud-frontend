@@ -153,10 +153,10 @@
                 @drop="drop"
                 selectable
                 class="list-item mdui-ripple file-list-item"
-                :class="(type == 'table' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '') + (item.selected ? 'selected': '')"
+                :class="(type == 'table' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '') + (checkList[index] ? 'selected': '')"
             >
                 <div v-if="enableSelect" class="file-select">
-                    <mdui-checkbox @change="updateCheckAll" v-model="item.selected"></mdui-checkbox>
+                    <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
                 </div>
                 <div class="file-name" v-if="enableName" :class="type == 'list' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '' ">
                     <input
@@ -353,9 +353,6 @@ export default {
         compress() {
             const files = this.selectedEl.map(e => e.querySelector('.file-name').innerText)
             this.$emit('compress', files)
-        },
-        getSelectedFiles() {
-
         },
         /**
          * 列表项目被点击时触发的回调
@@ -642,7 +639,7 @@ export default {
             return space / (elCnt)
         },
         updateCheckAll() {
-            const selectedCnt = this.fileList.filter(e => e.selected).length
+            const selectedCnt = this.fileList.filter((e, i) => this.checkList[i]).length
             if (selectedCnt == 0) {
                 // 无选择
                 this.$refs.checkAllBox.setIndeterminate(false)
@@ -655,12 +652,34 @@ export default {
                 // 部分选
                 this.$refs.checkAllBox.setIndeterminate(true)
             }
+            this.emitSelectChange()
         },
+        /**
+         * 全选选择框更改事件
+         */
         checkAllChange(e) {
-            this.fileList.forEach(item => {
-                item.selected = e
-            })
+            const list = this.checkList
+            for (let i = 0; i < list.length; i++) {
+                list[i] = e
+            }
             this.checkAllStatus = e
+            this.emitSelectChange()
+        },
+        /**
+         * 触发一次选择更改
+         */
+        emitSelectChange() {
+            const files = this.getSelectFiles()
+            if (files.length != this.lastChangeLen) {
+                this.lastChangeLen = files
+                this.$emit('selectChange', files)
+            }
+        },
+        /**
+         * 获取已选择的文件名
+         */
+        getSelectFiles() {
+            return this.fileList.filter((e, i) => this.checkList[i])
         }
     },
     mounted() {
@@ -675,6 +694,8 @@ export default {
     },
     data() {
         return {
+            lastChangeLen: 0,
+            checkList: [],
             /**
              * 是否全选 - 控制全选选择框
              */
@@ -709,6 +730,19 @@ export default {
              * @type {HTMLElement[]}
              */
             selectedEl: []
+        }
+    },
+    watch: {
+        fileList() {
+            const list = []
+            this.fileList.forEach(e => {
+                list.push(false)
+            })
+            this.checkList = list
+
+            this.emitSelectChange()
+            this.$refs.checkAllBox.setIndeterminate(false)
+            this.checkAllStatus = false
         }
     }
 }

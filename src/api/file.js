@@ -13,14 +13,13 @@ const file = {
     prefix: 'diskFile',
     /**
      * 下载打包的资源
-     * @param {Number} uid 用户ID
      * @param {String} wid 打包标识符
      * @param {String} alias 别名
      * @returns {import('axios').AxiosRequestConfig}
      */
-    downloadWrap(uid, wid, alias) {
+    downloadWrap(wid, alias) {
         return {
-            url: `/${this.prefix}/${uid}/wrap/${wid}${alias ? '/' + alias : ''}`
+            url: `/${this.prefix}/0/wrap/${wid}${alias ? '/' + alias : ''}`
         }
     },
     /**

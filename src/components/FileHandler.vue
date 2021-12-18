@@ -215,7 +215,7 @@ export default {
                 if (alias) {
                     alias += '_打包下载.zip'
                 }
-                const url = (this.axios.defaults.baseURL + '/' + API.file.downloadWrap(this.uid, wid, alias).url).replace(/\/\/+/, '/')
+                const url = (this.axios.defaults.baseURL + '/' + API.file.downloadWrap(wid, alias).url).replace(/\/\/+/, '/')
                 setTimeout(() => {
                     window.open(url)
                 }, 200)

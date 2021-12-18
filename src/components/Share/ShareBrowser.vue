@@ -47,6 +47,7 @@
                     :disableRefresh="true"
                     :enable="'name size date return select'"
                     @clickItem="clickItem"
+                    @selectChange="selectChange"
                 />
             </mdui-row>
         </div>
@@ -84,6 +85,12 @@ export default {
         this.loadList()
     },
     methods: {
+        selectChange(e) {
+            this.$emit('selectChange', {
+                path: this.path,
+                files: e
+            })
+        },
         loadList() {
             if (this.shareInfo.type == 'FILE') return
             this.loading = true
