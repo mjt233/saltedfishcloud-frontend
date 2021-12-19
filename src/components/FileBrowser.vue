@@ -460,7 +460,11 @@ export default {
                         console.log(e.msg)
                         if (e.code === 404) {
                             mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
-                                this.$router.push(location.href = '/#/' + this.prefix)
+                                if (this.routeMode) {
+                                    this.$router.push(location.href = '/#/' + this.prefix)
+                                } else {
+                                    this.$emit('update:path', '/')
+                                }
                             })
                         } else if (e.code !== -1) {
                             mdui.alert(e.msg)
