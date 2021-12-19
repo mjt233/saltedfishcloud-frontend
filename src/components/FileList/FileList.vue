@@ -741,7 +741,9 @@ export default {
             this.checkList = list
 
             this.emitSelectChange()
-            this.$refs.checkAllBox.setIndeterminate(false)
+            if (this.enableSelect) {
+                this.$refs.checkAllBox.setIndeterminate(false)
+            }
             this.checkAllStatus = false
         }
     }
