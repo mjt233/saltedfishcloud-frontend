@@ -69,7 +69,9 @@ export default {
             if (this.selectInfo.files.length == 1 && !this.selectInfo.files[0].dir) {
                 this.downloadFile({
                     path: this.selectInfo.path,
-                    file: this.selectInfo.files[0].name
+                    file: {
+                        name: this.selectInfo.files[0].name
+                    }
                 })
                 return
             }
