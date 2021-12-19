@@ -576,7 +576,7 @@ export default {
          * 菜单“新建文件夹”被点击时触发的回调
          */
         createFolder() {
-            mdui.prompt('文件夹名', text => {
+            const inst = mdui.prompt('文件夹名', text => {
                 if (this.fileList.filter(item => item.name === text).length !== 0) {
                     mdui.alert('文件名冲突')
                 } else {
@@ -588,6 +588,7 @@ export default {
             }, () => {}, {
                 defaultValue: '新建文件夹'
             })
+            inst.$element[0].querySelector('input').select()
         }
     },
     watch: {
