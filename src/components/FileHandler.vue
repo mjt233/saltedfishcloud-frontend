@@ -24,6 +24,7 @@
         :showToolBar="true"
         :path="path"
         :modifiable="modifiable"
+        @wrapDownload='wrapDownload'
         @clickFile='clickFile'
         @dropFile='addUploadFile'
         @upload='upload'
@@ -35,7 +36,9 @@
         @share='openShareDialog'
         @createDownload='showDownload = true'
         @queryDownload='showQueryDownload = true'
+        @compress='compress'
         :enableUnzip="modifiable"
+        :enableCompress="modifiable"
         ref='browser'
     >
         <create-download-dialog
@@ -204,6 +207,36 @@ export default {
         }
     },
     methods: {
+        async wrapDownload(e) {
+            try {
+                this.loading = true
+                const wid = (await this.axios(API.file.createWrap(this.uid, e))).data.data
+                let alias = e.source.split('/').pop()
+                if (alias) {
+                    alias += '_打包下载.zip'
+                }
+                const url = (this.axios.defaults.baseURL + '/' + API.file.downloadWrap(wid, alias).url).replace(/\/\/+/, '/')
+                setTimeout(() => {
+                    window.open(url)
+                }, 200)
+            } catch (err) {
+                mdui.snackbar(err.toString())
+            } finally {
+                this.loading = false
+            }
+        },
+        compress(e) {
+            const conf = API.file.compress(this.uid, e)
+            this.loading = true
+            this.axios(conf).then(e => {
+                mdui.snackbar('创建成功')
+                this.$refs.browser.loadList()
+            }).catch(e => {
+                mdui.alert(e.toString())
+            }).finally(e => {
+                this.loading = false
+            })
+        },
         /**
          * 生成随机提取码
          */

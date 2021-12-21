@@ -13,8 +13,10 @@
         @cut='cut'
         @copy='copy'
         @paste='paste'
+        @wrapDownload='$emit("wrapDownload", { filenames: $event, source: "/" + paths.join("/") })'
         @createDownload='$emit("createDownload")'
         @queryDownload='$emit("queryDownload")'
+        @compress='compress.showSelector = true;compress.filenames = $event'
         @share='$emit("share", { resource: $event, path: paths })'
         @unzip='showSelector = true;unzipName = $event.name'
         :type='listType'
@@ -89,6 +91,15 @@
             <mdui-hr></mdui-hr>
             <slot></slot>
             <file-selector v-if="enableUnzip" :uid="uid" :show.sync="showSelector" :username="''" @confirm="unzip" :title="'选择解压目录'"></file-selector>
+            <file-selector
+                v-if="enableCompress"
+                :uid="uid"
+                :show.sync="compress.showSelector"
+                :username="''"
+                @confirm="saveCompress"
+                :title="'选择保存位置'"
+            >
+            </file-selector>
         </div>
     </file-list>
 </template>
@@ -182,13 +193,20 @@ export default {
         },
         enableUnzip: {
             type: Boolean
+        },
+        enableCompress: {
+            type: Boolean
         }
     },
     data() {
         return {
+            compress: {
+                showSelector: false,
+                filenames: ''
+            },
             unzipName: '',
             showSelector: false,
-            modifiAttr: 'mkdir upload copy cut create-download drag-select delete rename unzip',
+            modifiAttr: 'compress mkdir upload copy cut create-download drag-select delete rename unzip wrap',
             listType: 'table',
             /**
              * @type {Type.ServerRawFileInfo[]}
@@ -255,6 +273,17 @@ export default {
         }
     },
     methods: {
+        saveCompress(e) {
+            mdui.prompt('压缩包文件名（自带.zip）', '请输入创建的压缩包文件名', name => {
+                this.$emit('compress', {
+                    source: '/' + this.paths.join('/'),
+                    filenames: this.compress.filenames,
+                    dest: (e + '/' + name).replace(/\/\/+/, '/') + '.zip'
+                })
+            }, _ => {}, {
+                defaultValue: this.paths.length == 0 ? '新建压缩包' : this.paths[this.paths.length - 1]
+            })
+        },
         unzip(e) {
             const conf = apiConfig.file.unzip(this.uid, this.path, this.unzipName, e)
             mdui.confirm('如果目标位置存在同名文件，将会被覆盖，是否继续？', '注意', () => {
@@ -431,7 +460,11 @@ export default {
                         console.log(e.msg)
                         if (e.code === 404) {
                             mdui.alert(`请求的路径<strong>${'/' + this.paths.join('/')}</strong>不存在,即将返回根目录`, () => {
-                                this.$router.push(location.href = '/#/' + this.prefix)
+                                if (this.routeMode) {
+                                    this.$router.push(location.href = '/#/' + this.prefix)
+                                } else {
+                                    this.$emit('update:path', '/')
+                                }
                             })
                         } else if (e.code !== -1) {
                             mdui.alert(e.msg)
@@ -543,7 +576,7 @@ export default {
          * 菜单“新建文件夹”被点击时触发的回调
          */
         createFolder() {
-            mdui.prompt('文件夹名', text => {
+            const inst = mdui.prompt('文件夹名', text => {
                 if (this.fileList.filter(item => item.name === text).length !== 0) {
                     mdui.alert('文件名冲突')
                 } else {
@@ -555,6 +588,7 @@ export default {
             }, () => {}, {
                 defaultValue: '新建文件夹'
             })
+            inst.$element[0].querySelector('input').select()
         }
     },
     watch: {

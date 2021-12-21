@@ -33,7 +33,7 @@
                 </a>
             </li>
             <li class="mdui-divider" v-if="enableMkdir"></li>
-            <li class="mdui-menu-item">
+            <li class="mdui-menu-item" v-if="!disableRefresh">
                 <a href="javascript:;" @click="refresh">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">refresh</i>
                     刷新
@@ -50,6 +50,18 @@
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">unarchive</i>
                     解压文件
+                </a>
+            </li>
+            <li v-if="enableWrap && selectedEl.length > 1" class="mdui-menu-item" @click="wrapDownload">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
+                    打包下载
+                </a>
+            </li>
+            <li v-if="enableCompress && fileInfo" class="mdui-menu-item" @click="compress">
+                <a href="javascript:;" class="mdui-ripple">
+                    <i class="mdui-menu-item-icon mdui-icon material-icons">archive</i>
+                    压缩
                 </a>
             </li>
             <li v-if="fileInfo && enableCopy" class="mdui-menu-item" @click="copy(fileInfo)">
@@ -97,7 +109,7 @@
                     分享
                 </a>
             </li>
-            <li v-if="fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
+            <li v-if="!disableGetlink && fileInfo && fileInfo.size > 0 && selectedEl.length == 1" class="mdui-menu-item" @click="getURL(fileInfo)">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">link</i>
                     获取直链
@@ -116,6 +128,9 @@
                 <!-- <div class="mdui-spinner"></div> -->
             </div>
             <li class="list-item head" v-if="type == 'list'">
+                <div class="file-select" v-if="enableSelect">
+                    <mdui-checkbox ref="checkAllBox" v-model="checkAllStatus" @change="checkAllChange"></mdui-checkbox>
+                </div>
                 <div class="file-name" v-if="enableName">文件名</div>
                 <div class="file-size" v-if="enableSize">大小</div>
                 <div class="file-date" v-if="enableDate">最后修改日期</div>
@@ -137,9 +152,13 @@
                 @dragenter="dragenter"
                 @drop="drop"
                 selectable
-                class="list-item mdui-ripple" :class="item.dir ? 'dir' : `file type-${item.suffix}` "
+                class="list-item mdui-ripple file-list-item"
+                :class="(type == 'table' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '') + (checkList[index] ? 'selected': '')"
             >
-                <div class="file-name" v-if="enableName">
+                <div v-if="enableSelect" class="file-select">
+                    <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
+                </div>
+                <div class="file-name" v-if="enableName" :class="type == 'list' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '' ">
                     <input
                         v-if="index == targetIndex && statu == 'rename' && type == 'list'"
                         class="rename-input"
@@ -178,10 +197,21 @@ import mdui from 'mdui'
 import selectArea from '@/components/ui/SelectArea.vue'
 import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
+import MduiCheckbox from '../ui/MduiCheckbox.vue'
 export default {
-    components: { Container, selectArea },
+    components: {
+        Container,
+        selectArea,
+        MduiCheckbox
+    },
     name: 'FileList',
     props: {
+        disableRefresh: {
+            type: Boolean
+        },
+        disableGetlink: {
+            type: Boolean
+        },
         fileList: {
             type: [Array],
             default: () => { return [] }
@@ -211,6 +241,8 @@ export default {
              * create-download - 启用创建下载
              * mkdir - 启用新建文件夹
              * upload - 启用上传
+             * compress - 启用压缩
+             * warp - 启用打包下载
              */
             type: String,
             default: ''
@@ -269,6 +301,15 @@ export default {
         },
         enableUnzip() {
             return this.enable.indexOf('unzip') != -1
+        },
+        enableCompress() {
+            return this.enable.indexOf('compress') != -1
+        },
+        enableWrap() {
+            return this.enable.indexOf('wrap') != -1
+        },
+        enableSelect() {
+            return this.enable.split(' ').includes('select')
         }
     },
     filters: {
@@ -305,6 +346,13 @@ export default {
         },
         back() {
             this.$emit('back')
+        },
+        wrapDownload() {
+            this.$emit('wrapDownload', this.selectedEl.map(e => e.querySelector('.file-name').innerText))
+        },
+        compress() {
+            const files = this.selectedEl.map(e => e.querySelector('.file-name').innerText)
+            this.$emit('compress', files)
         },
         /**
          * 列表项目被点击时触发的回调
@@ -560,6 +608,10 @@ export default {
          * 重置已选元素为空
          */
         resetSelect() {
+            // 复选框模式下忽略拖拽选择的重置
+            if (this.enableSelect) {
+                return
+            }
             this.selectedEl = []
             this.$el.querySelectorAll('*[selectable]').forEach(item => item.classList.remove('selected'))
         },
@@ -585,6 +637,49 @@ export default {
             const elCnt = parseInt(this.containerEl.offsetWidth / 125)
             const space = this.containerEl.offsetWidth - elCnt * 125
             return space / (elCnt)
+        },
+        updateCheckAll() {
+            const selectedCnt = this.fileList.filter((e, i) => this.checkList[i]).length
+            if (selectedCnt == 0) {
+                // 无选择
+                this.$refs.checkAllBox.setIndeterminate(false)
+                this.checkAllStatus = false
+            } else if (selectedCnt == this.fileList.length) {
+                // 全选
+                this.$refs.checkAllBox.setIndeterminate(false)
+                this.checkAllStatus = true
+            } else {
+                // 部分选
+                this.$refs.checkAllBox.setIndeterminate(true)
+            }
+            this.emitSelectChange()
+        },
+        /**
+         * 全选选择框更改事件
+         */
+        checkAllChange(e) {
+            const list = this.checkList
+            for (let i = 0; i < list.length; i++) {
+                list[i] = e
+            }
+            this.checkAllStatus = e
+            this.emitSelectChange()
+        },
+        /**
+         * 触发一次选择更改
+         */
+        emitSelectChange() {
+            const files = this.getSelectFiles()
+            if (files.length != this.lastChangeLen) {
+                this.lastChangeLen = files
+                this.$emit('selectChange', files)
+            }
+        },
+        /**
+         * 获取已选择的文件名
+         */
+        getSelectFiles() {
+            return this.fileList.filter((e, i) => this.checkList[i])
         }
     },
     mounted() {
@@ -599,6 +694,12 @@ export default {
     },
     data() {
         return {
+            lastChangeLen: 0,
+            checkList: [],
+            /**
+             * 是否全选 - 控制全选选择框
+             */
+            checkAllStatus: false,
             /**
              * 是否启用移动端菜单
              */
@@ -629,6 +730,21 @@ export default {
              * @type {HTMLElement[]}
              */
             selectedEl: []
+        }
+    },
+    watch: {
+        fileList() {
+            const list = []
+            this.fileList.forEach(e => {
+                list.push(false)
+            })
+            this.checkList = list
+
+            this.emitSelectChange()
+            if (this.enableSelect) {
+                this.$refs.checkAllBox.setIndeterminate(false)
+            }
+            this.checkAllStatus = false
         }
     }
 }

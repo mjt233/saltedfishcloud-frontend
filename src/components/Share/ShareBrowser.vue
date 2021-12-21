@@ -43,8 +43,11 @@
                 <file-list
                     style="padding-top: 0;height: auto"
                     :fileList="filelist"
-                    :enable="'name size date return'"
+                    :disableGetlink="true"
+                    :disableRefresh="true"
+                    :enable="'name size return select'"
                     @clickItem="clickItem"
+                    @selectChange="selectChange"
                 />
             </mdui-row>
         </div>
@@ -82,6 +85,12 @@ export default {
         this.loadList()
     },
     methods: {
+        selectChange(e) {
+            this.$emit('selectChange', {
+                path: this.path,
+                files: e
+            })
+        },
         loadList() {
             if (this.shareInfo.type == 'FILE') return
             this.loading = true

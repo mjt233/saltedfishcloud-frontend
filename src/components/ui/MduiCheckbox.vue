@@ -1,6 +1,6 @@
 <template>
-    <label class="mdui-checkbox">
-        <input type="checkbox" @change="$emit('change', $event.target.checked)" v-bind:checked='checked'>
+    <label class="mdui-checkbox" @click.stop="">
+        <input ref="inst" type="checkbox" @change="$emit('change', $event.target.checked)" v-bind:checked='checked'>
         <i class="mdui-checkbox-icon"></i>
         {{label}}
     </label>
@@ -20,7 +20,17 @@ export default {
             default: ''
         },
         checked: {
-            type: Boolean
+            type: [Boolean, String, Number]
+        }
+    },
+    data() {
+        return {
+            val: 0
+        }
+    },
+    methods: {
+        setIndeterminate(val) {
+            this.$refs.inst.indeterminate = val
         }
     }
 }

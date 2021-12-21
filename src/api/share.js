@@ -11,6 +11,24 @@ const share = {
     prefix: '/share',
 
     /**
+     * 在分享资源中创建多文件打包下载
+     * @param {Number} sid 分析ID
+     * @param {String} verification 分析校验码
+     * @param {String} code 分析提取码
+     * @param {import('./file').FileTransferObj} fileTransferObj
+     * @returns {import('axios').AxiosRequestConfig}
+     */
+    createWrap(sid, verification, code, fileTransferObj) {
+        return useJsonBody({
+            method: 'post',
+            url: `${this.prefix}/wrap/${sid}/${verification}`,
+            params: {
+                code: code
+            },
+            data: fileTransferObj
+        })
+    },
+    /**
      * 删除一个分享
      * @param {Number} sid 分享ID
      */
