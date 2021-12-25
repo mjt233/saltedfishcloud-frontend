@@ -86,8 +86,8 @@ export default {
                     if (alias === '') {
                         alias = this.shareInfo.name
                     }
-                    console.log(alias)
-                    const url = this.axios.defaults.baseURL + '/' + (API.file.downloadWrap(e.data.data, alias + '_打包.zip').url)
+                    const base = this.axios.defaults.baseURL.replace(/\/+$/, '')
+                    const url = base + (API.file.downloadWrap(e.data.data, alias + '_打包.zip').url)
                     window.open(url)
                 }).catch(e => {
                     mdui.snackbar(e.toString())
