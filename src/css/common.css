@@ -34,6 +34,18 @@ a {
     text-decoration: none;
 }
 
+.all-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.v-center {
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+}
+
 *::-webkit-scrollbar {
     width: 5px;
 }
