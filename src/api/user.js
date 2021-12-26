@@ -1,6 +1,27 @@
 const user = {
     prefix: 'user',
     /**
+     * 获取邮箱注册验证码
+     * @param {String} email 接收的邮箱
+     */
+    getEmailRegCode(email) {
+        return {
+            url: `${this.prefix}/regcode`,
+            data: {
+                email: email
+            },
+            method: 'post'
+        }
+    },
+    /**
+     * 获取系统开放的注册类型
+     */
+    getRegType() {
+        return {
+            url: `${this.prefix}/regType`
+        }
+    },
+    /**
      * 设置用户的类型
      * @param {Number} uid      目标用户ID
      * @param {Boolean} isAdmin 是否设为管理员
