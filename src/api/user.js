@@ -1,6 +1,38 @@
 const user = {
     prefix: 'user',
     /**
+     * 发送重置密码邮箱验证码
+     * @param {String} account 用户名或邮箱
+     * @param {String} code 验证码
+     * @param {String} password 新密码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    resetPassword(account, code, password) {
+        return {
+            url: `${this.prefix}/resetPassword`,
+            data: {
+                account: account,
+                code: code,
+                password: password
+            },
+            method: 'post'
+        }
+    },
+    /**
+     * 发送重置密码邮箱验证码
+     * @param {String} account 用户名或邮箱
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    sendResetPasswordEmail(account) {
+        return {
+            url: `${this.prefix}/sendResetPasswordEmail`,
+            data: {
+                account: account
+            },
+            method: 'post'
+        }
+    },
+    /**
      * 获取邮箱注册验证码
      * @param {String} email 接收的邮箱
      */
