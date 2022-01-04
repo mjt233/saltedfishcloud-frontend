@@ -264,6 +264,8 @@ export default {
                 this.settings.MAIL_PROPERTIES = JSON.parse(rawData)
                 this.dialogMailProperties = JSON.parse(rawData)
             }
+            this.settings.ENABLE_EMAIL_REG = this.settings.ENABLE_EMAIL_REG == 'true'
+            this.settings.ENABLE_REG_CODE = this.settings.ENABLE_REG_CODE == 'true'
             this.loading = false
         },
         async loadProxy() {
