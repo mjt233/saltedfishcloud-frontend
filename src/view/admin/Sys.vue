@@ -69,14 +69,12 @@
                             <mdui-col :md="6" :sm="12">
                                 称呼：{{settings.MAIL_PROPERTIES.alias}}
                             </mdui-col>
-                            <mdui-col :md="12" style="margin: 18px 0">
-                                <mdui-btn dense @click="showMailConfig = true">配置</mdui-btn>
-                            </mdui-col>
                         </mdui-card>
                     </div>
                     <div v-else>
                         <p style="margin-bottom: 14px">未配置</p>
                     </div>
+                    <mdui-btn dense @click="showMailConfig = true">配置</mdui-btn>
                     <!-- 配置信息修改对话框 -->
                     <mdui-dialog @confirm="updateMailProperties" :title="'配置发信服务器'" :show.sync="showMailConfig">
                         <h4 class="mdui-text-color-theme">服务器配置</h4>
