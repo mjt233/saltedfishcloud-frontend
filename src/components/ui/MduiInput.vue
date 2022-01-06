@@ -1,7 +1,7 @@
 <template>
-    <div class="mdui-textfield" :class="{'mini': mini, 'mdui-textfield-floating-label': floatLabel, 'mdui-textfield-invalid': error, 'mdui-textfield-has-bottom': hasBottom}">
+    <div class="mdui-textfield" :class="{'mini': mini, 'mdui-textfield-floating-label': floatLabel && !validateError && value.length <= 0, 'mdui-textfield-invalid': isError, 'mdui-textfield-has-bottom': hasBottom}">
         <label class="mdui-textfield-label" v-if="floatLabel || fixedLabel">{{placeholder}}</label>
-        <input v-show="!textarea" class="mdui-textfield-input"
+        <input v-if="!textarea" class="mdui-textfield-input"
             :autocomplete="autocomplete ? 'on' : type == 'password' ? 'new-password' : 'off'"
             @input="input"
             @change="input"
@@ -13,7 +13,7 @@
             :maxlength="maxLength"
             ref="input"
         />
-        <textarea v-show="textarea" class="mdui-textfield-input"
+        <textarea v-else class="mdui-textfield-input"
             :autocomplete="autocomplete ? 'on' : type == 'password' ? 'new-password' : 'off'"
             @input="input"
             v-bind:value='value'
@@ -24,11 +24,12 @@
             @keypress.enter="$emit('enter', $event)"
             ref="textarea"
         />
-        <div class="mdui-textfield-error" v-if="error">{{errorMsg}}</div>
+        <div class="mdui-textfield-error">{{errorMsg}}</div>
     </div>
 </template>
 
 <script>
+import mdui from 'mdui'
 export default {
     name: 'mduiInput',
     model: {
@@ -36,6 +37,13 @@ export default {
         event: 'change'
     },
     props: {
+        /**
+         * 校验器，当数据不符合校验器规则时显示错误信息
+         * 校验器为一个函数，参数1接收当前的内容，返回true验证通过，false验证不通过
+         */
+        validator: {
+            type: Function
+        },
         autocomplete: {
             type: Boolean,
             default: true
@@ -87,9 +95,28 @@ export default {
 
         }
     },
+    computed: {
+        isError() {
+            return this.error || this.validateError
+        }
+    },
+    data() {
+        return {
+            validateError: false,
+            inputCnt: 0,
+            forceFixedLabel: false
+        }
+    },
     methods: {
         input(e) {
+            if (this.validator && this.inputCnt > 0) {
+                const err = this.validator(e.target.value) == false
+                if (err != this.validateError) {
+                    this.validateError = err
+                }
+            }
             this.$emit('change', e.target.value)
+            this.inputCnt++
         },
         focus() {
             if (this.textarea) {

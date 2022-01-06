@@ -6,7 +6,7 @@
         :class="classObj"
         type="button"
     >
-        <i v-show="icon" class="mdui-icon material-icons">{{icon}}</i>
+        <i v-show="icon" class="mdui-icon material-icons" :style="{'font-size': iconSize + 'px'}">{{icon}}</i>
         <slot></slot>
     </button>
 </template>
@@ -15,6 +15,10 @@
 export default {
     name: 'mduiBtn',
     props: {
+        iconSize: {
+            type: Number,
+            default: 24
+        },
         dense: {
             // 紧凑按钮
             type: Boolean,
