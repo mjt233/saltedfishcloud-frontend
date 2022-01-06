@@ -16,6 +16,28 @@
                         <input class="mdui-textfield-input" @keydown.enter="confirm"  v-model="mp.cp" type="password"/>
                     </div>
                 </mdui-dialog>
+
+                <!-- 绑定邮箱对话框 -->
+                <mdui-dialog :loading="loading" ref="mailDialog" style="max-width: 480px" :show.sync="showBindMail" :title="'绑定新邮箱'" :disableDefBtn="true">
+                    <div v-show="bindMailStep == 1">
+                        <div style="display:flex; align-items: center">
+                            <mdui-input :placeholder="'请输入旧邮箱验证码'" style="flex: 1" v-model="originMailCode"></mdui-input>
+                            <mdui-count-down-btn @click="sendOriginCode" :themeColor="false" style="width: 108px">发送验证码</mdui-count-down-btn>
+                        </div>
+                        <mdui-btn @click="nextStep(2)" style="width: 100%">下一步</mdui-btn>
+                    </div>
+                    <div v-show="bindMailStep == 2">
+                        <div style="display:flex; align-items: center">
+                            <mdui-input :validator="mailValidator" ref="newMailInput" :placeholder="'请输入新邮箱地址'" style="flex: 1" v-model="newMail" :errorMsg="'邮箱格式不正确'"></mdui-input>
+                            <mdui-count-down-btn @click="sendNewCode" :themeColor="false" style="width: 108px">发送验证码</mdui-count-down-btn>
+                        </div>
+                        <mdui-input v-model="newMailCode" :placeholder="'请输入验证码'"></mdui-input>
+                        <mdui-btn @click="bindNewMail" style="width: 100%">绑定</mdui-btn>
+                    </div>
+                    <template slot="btn">
+                        <mdui-btn :themeColor="false" @click="showBindMail = false">取消</mdui-btn>
+                    </template>
+                </mdui-dialog>
                 <ul class="mdui-list">
                     <!-- 头像显示 -->
                     <li class="mdui-list-item mdui-ripple">
@@ -31,6 +53,16 @@
                     <li class="mdui-list-item mdui-ripple">
                         <div class="mdui-list-item-content"><span>用户名</span></div>
                         <div class="mdui-list-item-text">{{userInfo.user}}</div>
+                    </li>
+                    <li class="mdui-list-item mdui-ripple">
+                        <div class="mdui-list-item-content"><span>邮箱</span></div>
+                        <div class="mdui-list-item-text mdui-typo" style="opacity: 1">
+                            <span v-if="userInfo.email">
+                                <span style="opacity: 0.54">{{userInfo.email}}</span>
+                                <mdui-btn @click="startBindMail" :icon="'edit'" dense :iconSize="16" :themeColor="false"></mdui-btn>
+                            </span>
+                            <a href="javascript:;" @click="startBindMail" v-else>绑定邮箱</a>
+                        </div>
                     </li>
                     <li class="mdui-list-item mdui-ripple">
                         <div class="mdui-list-item-content"><span>身份</span></div>
@@ -83,12 +115,17 @@ import MduiDialog from '@/components/ui/MduiDialog.vue'
 import Theme from '@/utils/Theme'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
 import MduiCard from '@/components/ui/MduiCard.vue'
+import MduiInput from '@/components/ui/MduiInput.vue'
+import MduiCountDownBtn from '@/components/ui/MduiCountDownBtn.vue'
+import StringValidator from '@/utils/StringValidator'
 export default {
     components: {
         Container,
         MduiDialog,
         MduiBtn,
-        MduiCard
+        MduiCard,
+        MduiInput,
+        MduiCountDownBtn
     },
     data() {
         return {
@@ -106,7 +143,12 @@ export default {
                 np: '',
                 cp: '',
                 loading: false
-            }
+            },
+            showBindMail: false,
+            bindMailStep: 1,
+            originMailCode: '',
+            newMailCode: '',
+            newMail: ''
         }
     },
     computed: {
@@ -138,9 +180,76 @@ export default {
         this.dialog.theme = new mdui.Dialog(this.$refs.theme.$el)
     },
     methods: {
-    /**
-     * 修改密码点击确定
-     */
+        async bindNewMail() {
+            this.loading = true
+            try {
+                await this.axios(apiConfig.user.bindNewEmail(this.newMail, this.originMailCode, this.newMailCode))
+                const token = (await this.axios(apiConfig.user.updateToken())).data.data
+                this.$store.commit('setToken', token)
+                const userInfo = (await this.axios(apiConfig.user.getUserInfo())).data.data
+                this.$store.commit('setUserInfo', userInfo)
+                this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(this.form.user).url}`)
+                localStorage.setItem('token', token)
+                this.loading = false
+                this.showBindMail = false
+                mdui.alert('新邮箱绑定成功')
+            } catch (e) {
+                this.loading = false
+                this.showBindMail = false
+                mdui.alert(e.toString(), () => {
+                    this.showBindMail = true
+                })
+            }
+        },
+        nextStep(step) {
+            if (step == 2) {
+                this.loading = true
+                this.axios(apiConfig.user.verifyEmail(this.originMailCode)).then(() => {
+                    this.loading = false
+                    this.bindMailStep = 2
+                    this.$nextTick().then(this.$refs.mailDialog.update)
+                }).catch(e => {
+                    this.showBindMail = false
+                    this.loading = false
+                    mdui.alert(e.toString(), () => {
+                        this.showBindMail = true
+                    })
+                })
+            }
+        },
+        sendOriginCode(e) {
+            this.loading = true
+            this.axios(apiConfig.user.sendVerifyEmail()).then(e => {
+                e()
+                this.loading = false
+            }).catch(e => {
+                mdui.alert(e.toString())
+                this.loading = false
+            })
+        },
+        mailValidator(e) {
+            return StringValidator.isEmail(e)
+        },
+        startBindMail() {
+            this.bindMailStep = 1
+            this.originMailCode = ''
+            this.newMailCode = ''
+            this.newMail = ''
+            this.showBindMail = true
+        },
+        /**
+         * 向新邮箱发送验证码
+         */
+        sendNewCode(e) {
+            if (this.$refs.newMailInput.isError) {
+                return
+            }
+            e()
+            console.log('sendNewCode')
+        },
+        /**
+        * 修改密码点击确定
+        */
         confirm() {
             const openAlert = (text) => {
                 this.dialog.mp.close()
@@ -171,14 +280,14 @@ export default {
             })
         },
         /**
-     * 打开修改密码对话框
-     */
+        * 打开修改密码对话框
+        */
         openDialog() {
             this.dialog.mp.open()
         },
         /**
-     * 上传用户头像
-     */
+        * 上传用户头像
+        */
         uploadAvatar() {
             FileUtils.openFileDialog().then(e => {
                 const file = e.item(0)

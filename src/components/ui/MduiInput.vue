@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import mdui from 'mdui'
 export default {
     name: 'mduiInput',
     model: {

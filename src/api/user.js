@@ -1,6 +1,57 @@
 const user = {
     prefix: 'user',
     /**
+     * 更新token
+     */
+    updateToken() {
+        return {
+            url: `${this.prefix}/updateToken`,
+            method: 'post'
+        }
+    },
+    /**
+     * 绑定新邮箱
+     * @param {String} newEmail 新邮箱
+     * @param {String} originCode 旧邮箱验证码，若先前未绑定邮箱则不需要
+     * @param {String} newCode 新邮箱验证码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    bindNewEmail(newEmail, originCode, newCode) {
+        return {
+            url: `${this.prefix}/newMail`,
+            method: 'post',
+            data: {
+                email: newEmail,
+                originCode: originCode,
+                newCode: newCode
+            }
+        }
+    },
+    /**
+     * 用于验证旧邮箱的验证码是否正确
+     * @param {String} code 验证码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    verifyEmail(code) {
+        return {
+            url: `${this.prefix}/verifyEmail`,
+            method: 'post',
+            data: {
+                code: code
+            }
+        }
+    },
+    /**
+     * 发送用于验证旧邮箱的验证码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    sendVerifyEmail() {
+        return {
+            url: `${this.prefix}/sendVerifyEmail`,
+            method: 'post'
+        }
+    },
+    /**
      * 发送重置密码邮箱验证码
      * @param {String} account 用户名或邮箱
      * @param {String} code 验证码
