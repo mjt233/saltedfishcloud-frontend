@@ -118,6 +118,7 @@ import MduiCard from '@/components/ui/MduiCard.vue'
 import MduiInput from '@/components/ui/MduiInput.vue'
 import MduiCountDownBtn from '@/components/ui/MduiCountDownBtn.vue'
 import StringValidator from '@/utils/StringValidator'
+import GlobalHandler from '@/GlobalHandler'
 export default {
     components: {
         Container,
@@ -284,6 +285,9 @@ export default {
                 reset()
                 mdui.snackbar('修改成功', { position: 'bottom' })
                 this.dialog.mp.close()
+                setTimeout(() => {
+                    GlobalHandler.logout(this)
+                }, 300)
             }).catch(e => {
                 reset()
                 openAlert(e.msg)

@@ -9,12 +9,10 @@
 </template>
 
 <script>
-import mdui from 'mdui'
 import SfHeader from '@/components/layout/SfHeader.vue'
 import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQueue/FileQueueHandler'
-import Store from '@/Store'
-import API from '@/api'
 import Drawer from '@/components/layout/Drawer.vue'
+import GlobalHandler from '@/GlobalHandler.js'
 export default {
     name: 'index',
     components: {
@@ -49,14 +47,7 @@ export default {
             this.$refs.root.style.height = h
         },
         exit() {
-            localStorage.clear()
-            Store.commit('setToken', null)
-            Store.commit('setUserInfo', null)
-            Store.commit('setAvatarURL', API.getServer() + '/api/' + API.user.getAvatar().url)
-            mdui.snackbar('退出成功')
-            if (this.$route.name == 'privateDisk' || this.$route.name == 'my') {
-                this.$router.push('/login')
-            }
+            GlobalHandler.logout(this)
             if (document.documentElement.clientWidth < 1024) {
                 this.drawer.close()
             }
