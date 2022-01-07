@@ -13,7 +13,7 @@
             <div v-else>
                 <div class="mdui-tab mdui-tab-full-width" mdui-tab>
                     <a class="mdui-ripple" @click="allowRegType.regcode && setRegType(1)" :disabled="!allowRegType.regcode">邀请码</a>
-                    <a class="mdui-ripple" @click="allowRegType.email && setRegType(2)" :disabled="!allowRegType.email">邮箱验证</a>
+                    <a ref="emailRegister" class="mdui-ripple" @click="allowRegType.email && setRegType(2)" :disabled="!allowRegType.email">邮箱验证</a>
                 </div>
                 <form class="panel mdui-typo" ref="form">
                     <div class="item">
@@ -44,7 +44,7 @@
                             />
                             <div class="mdui-textfield-error">请输入邮箱</div>
                         </div>
-                        <mdui-btn type="button" v-if="regType == 2" dense accent @click="getEmailCode" :disabled="mailBtnInfo.disabled">{{mailBtnInfo.text}}</mdui-btn>
+                        <mdui-count-down-btn type="button" v-if="regType == 2" dense accent @click="getEmailCode">{{mailBtnInfo.text}}</mdui-count-down-btn>
                     </div>
                     <div class="item">
                     <div class="mdui-textfield input">
@@ -106,8 +106,14 @@ import Container from '@/components/layout/Container.vue'
 import apiConfig from '@/api'
 import MduiCard from '@/components/ui/MduiCard.vue'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
+import MduiCountDownBtn from '@/components/ui/MduiCountDownBtn.vue'
 export default {
-    components: { Container, MduiCard, MduiBtn },
+    components: {
+        Container,
+        MduiCard,
+        MduiBtn,
+        MduiCountDownBtn
+    },
     data() {
         return {
             form: {
@@ -144,7 +150,8 @@ export default {
                 this.allowRegType = e.data.data
                 this.loading = false
                 if (!this.allowRegType.regcode) {
-                    this.setRegType(2)
+                    // this.setRegType(2)
+                    this.$refs.emailRegister.click()
                 }
             }).catch(e => {
                 this.loading = false
@@ -156,14 +163,15 @@ export default {
         }
     },
     methods: {
-        getEmailCode() {
+        getEmailCode(e) {
             this.errorFlag.email = this.form.email.match(/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/) == null
             if (this.errorFlag.email) {
                 mdui.snackbar('邮箱地址格式不合法')
                 return
             }
             this.loading = true
-            this.axios(apiConfig.user.getEmailRegCode(this.form.email)).then(e => {
+            this.axios(apiConfig.user.getEmailRegCode(this.form.email)).then(() => {
+                e()
                 mdui.snackbar(`验证码已发送到${this.form.email}`)
                 this.mailBtnInfo.text = 60
                 this.mailBtnInfo.disabled = true
