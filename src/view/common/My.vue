@@ -21,10 +21,10 @@
                 <mdui-dialog :loading="loading" ref="mailDialog" style="max-width: 480px" :show.sync="showBindMail" :title="'绑定新邮箱'" :disableDefBtn="true">
                     <div v-show="bindMailStep == 1">
                         <div style="display:flex; align-items: center">
-                            <mdui-input :placeholder="'请输入旧邮箱验证码'" style="flex: 1" v-model="originMailCode"></mdui-input>
-                            <mdui-count-down-btn @click="sendOriginCode" :themeColor="false" style="width: 108px">发送验证码</mdui-count-down-btn>
+                            <mdui-input v-show="showInoutOriginCode" :placeholder="'请输入旧邮箱验证码'" style="flex: 1" v-model="originMailCode"></mdui-input>
+                            <mdui-count-down-btn @click="sendOriginCode" :themeColor="!showInoutOriginCode" :style="{ width: !showInoutOriginCode ? '100%' : '108px'}">发送验证码</mdui-count-down-btn>
                         </div>
-                        <mdui-btn @click="nextStep(2)" style="width: 100%">下一步</mdui-btn>
+                        <mdui-btn @click="nextStep(2)" style="width: 100%" v-show="showInoutOriginCode">下一步</mdui-btn>
                     </div>
                     <div v-show="bindMailStep == 2">
                         <div style="display:flex; align-items: center">
@@ -149,7 +149,8 @@ export default {
             bindMailStep: 1,
             originMailCode: '',
             newMailCode: '',
-            newMail: ''
+            newMail: '',
+            showInoutOriginCode: false
         }
     },
     computed: {
@@ -223,6 +224,10 @@ export default {
             this.axios(apiConfig.user.sendVerifyEmail()).then(() => {
                 e()
                 this.loading = false
+                this.showInoutOriginCode = true
+                setTimeout(() => {
+                    this.$nextTick().then(this.$refs.mailDialog.update)
+                }, 120)
             }).catch(e => {
                 mdui.alert(e.toString())
                 this.loading = false
