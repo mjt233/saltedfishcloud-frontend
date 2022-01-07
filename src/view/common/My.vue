@@ -186,10 +186,10 @@ export default {
                 await this.axios(apiConfig.user.bindNewEmail(this.newMail, this.originMailCode, this.newMailCode))
                 const token = (await this.axios(apiConfig.user.updateToken())).data.data
                 this.$store.commit('setToken', token)
+                localStorage.setItem('token', token)
                 const userInfo = (await this.axios(apiConfig.user.getUserInfo())).data.data
                 this.$store.commit('setUserInfo', userInfo)
-                this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(this.form.user).url}`)
-                localStorage.setItem('token', token)
+                this.$store.commit('setAvatarURL', `${apiConfig.getServer()}/api/${apiConfig.user.getAvatar(userInfo.user).url}`)
                 this.loading = false
                 this.showBindMail = false
                 mdui.alert('新邮箱绑定成功')
@@ -219,7 +219,7 @@ export default {
         },
         sendOriginCode(e) {
             this.loading = true
-            this.axios(apiConfig.user.sendVerifyEmail()).then(e => {
+            this.axios(apiConfig.user.sendVerifyEmail()).then(() => {
                 e()
                 this.loading = false
             }).catch(e => {
@@ -228,7 +228,7 @@ export default {
             })
         },
         mailValidator(e) {
-            return StringValidator.isEmail(e)
+            return e && e.length > 0 && StringValidator.isEmail(e)
         },
         startBindMail() {
             this.bindMailStep = 1
@@ -241,11 +241,21 @@ export default {
          * 向新邮箱发送验证码
          */
         sendNewCode(e) {
-            if (this.$refs.newMailInput.isError) {
+            if (!this.$refs.newMailInput.validate()) {
+                mdui.snackbar('邮箱格式不正确')
                 return
             }
-            e()
-            console.log('sendNewCode')
+            this.loading = true
+            this.axios(apiConfig.user.sendBindEmail(this.newMail)).then(() => {
+                e()
+                this.loading = false
+            }).catch(err => {
+                this.loading = false
+                this.showBindMail = false
+                mdui.alert(err.toString(), () => {
+                    this.showBindMail = true
+                })
+            })
         },
         /**
         * 修改密码点击确定

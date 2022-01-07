@@ -107,6 +107,13 @@ export default {
         }
     },
     methods: {
+        validate() {
+            if (this.validator) {
+                return this.validator(this.value)
+            } else {
+                return true
+            }
+        },
         input(e) {
             if (this.validator && this.inputCnt > 0) {
                 const err = this.validator(e.target.value) == false

@@ -1,7 +1,22 @@
 const user = {
     prefix: 'user',
     /**
+     * 发送绑定新邮箱的验证码
+     * @param {String} email 接收验证码的新邮箱
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    sendBindEmail(email) {
+        return {
+            url: `${this.prefix}/sendBindEmail`,
+            data: {
+                email: email
+            },
+            method: 'post'
+        }
+    },
+    /**
      * 更新token
+     * @returns {import("axios").AxiosRequestConfig}
      */
     updateToken() {
         return {
