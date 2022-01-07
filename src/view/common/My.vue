@@ -238,10 +238,14 @@ export default {
         },
         startBindMail() {
             this.bindMailStep = 1
+            if (!this.userInfo.email || this.userInfo.email.length == 0) {
+                this.bindMailStep = 2
+            }
             this.originMailCode = ''
             this.newMailCode = ''
             this.newMail = ''
             this.showBindMail = true
+            this.$nextTick(this.$refs.mailDialog.update)
         },
         /**
          * 向新邮箱发送验证码
