@@ -18,7 +18,7 @@
                 </mdui-dialog>
 
                 <!-- 绑定邮箱对话框 -->
-                <mdui-dialog :loading="loading" ref="mailDialog" style="max-width: 480px" :show.sync="showBindMail" :title="'绑定新邮箱'" :disableDefBtn="true">
+                <mdui-dialog :loading="loading" ref="mailDialog" style="max-width: 480px" :show.sync="showBindMail" :title="'绑定邮箱'" :disableDefBtn="true">
                     <div v-show="bindMailStep == 1">
                         <div style="display:flex; align-items: center">
                             <mdui-input v-show="showInoutOriginCode" :placeholder="'请输入旧邮箱验证码'" style="flex: 1" v-model="originMailCode"></mdui-input>

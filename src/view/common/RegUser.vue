@@ -31,8 +31,8 @@
                         <div class="mdui-textfield-error">用户名不能少于2个字符</div>
                     </div>
                     </div>
-                    <div class="item">
-                        <div class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.email}">
+                    <div class="item" style="display:flex; align-items: center;">
+                        <div style="flex:1" class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.email}">
                             <label class="mdui-textfield-label">Email（必填）</label>
                             <input
                                 v-model="form.email"
@@ -45,6 +45,19 @@
                             <div class="mdui-textfield-error">请输入邮箱</div>
                         </div>
                         <mdui-count-down-btn type="button" v-if="regType == 2" dense accent @click="getEmailCode">{{mailBtnInfo.text}}</mdui-count-down-btn>
+                    </div>
+                    <div class="item">
+                    <div class="mdui-textfield input">
+                        <label class="mdui-textfield-label">{{codeName}}（必填）</label>
+                        <input
+                            autocomplete="1"
+                            v-model="form.regcode"
+                            class="mdui-textfield-input"
+                            :placeholder="'请输入' + codeName"
+                            required
+                        />
+                        <div class="mdui-textfield-error">请输入{{codeName}}</div>
+                    </div>
                     </div>
                     <div class="item">
                     <div class="mdui-textfield input">
@@ -75,19 +88,6 @@
                             @keyup="errorFlag.confirm = form.passwd !== form.confirm"
                         />
                         <div class="mdui-textfield-error">两次密码不一致</div>
-                    </div>
-                    </div>
-                    <div class="item">
-                    <div class="mdui-textfield input">
-                        <label class="mdui-textfield-label">{{codeName}}（必填）</label>
-                        <input
-                            autocomplete="1"
-                            v-model="form.regcode"
-                            class="mdui-textfield-input"
-                            :placeholder="'请输入' + codeName"
-                            required
-                        />
-                        <div class="mdui-textfield-error">请输入{{codeName}}</div>
                     </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
