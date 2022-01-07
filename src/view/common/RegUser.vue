@@ -31,7 +31,7 @@
                         <div class="mdui-textfield-error">用户名不能少于2个字符</div>
                     </div>
                     </div>
-                    <div class="item" style="display:flex; align-items: center;">
+                    <div class="item" style="display:flex; align-items: center;" v-show="regType == 2">
                         <div style="flex:1" class="mdui-textfield input" :class="{'mdui-textfield-invalid': errorFlag.email}">
                             <label class="mdui-textfield-label">Email（必填）</label>
                             <input
@@ -44,11 +44,11 @@
                             />
                             <div class="mdui-textfield-error">请输入邮箱</div>
                         </div>
-                        <mdui-count-down-btn type="button" v-if="regType == 2" dense accent @click="getEmailCode">{{mailBtnInfo.text}}</mdui-count-down-btn>
+                        <mdui-count-down-btn type="button" dense accent @click="getEmailCode">{{mailBtnInfo.text}}</mdui-count-down-btn>
                     </div>
-                    <div class="item">
+                    <div class="item" v-if="regType == 2">
                     <div class="mdui-textfield input">
-                        <label class="mdui-textfield-label">{{codeName}}（必填）</label>
+                        <label class="mdui-textfield-label">邮箱验证码（必填）</label>
                         <input
                             autocomplete="1"
                             v-model="form.regcode"
@@ -56,7 +56,7 @@
                             :placeholder="'请输入' + codeName"
                             required
                         />
-                        <div class="mdui-textfield-error">请输入{{codeName}}</div>
+                        <div class="mdui-textfield-error">请输入邮箱验证码</div>
                     </div>
                     </div>
                     <div class="item">
@@ -90,6 +90,17 @@
                         <div class="mdui-textfield-error">两次密码不一致</div>
                     </div>
                     </div>
+                    <div class="mdui-textfield input" v-if="regType == 1">
+                        <label class="mdui-textfield-label">邀请码（必填）</label>
+                        <input
+                            autocomplete="1"
+                            v-model="form.regcode"
+                            class="mdui-textfield-input"
+                            :placeholder="'请输入' + codeName"
+                            required
+                        />
+                        <div class="mdui-textfield-error">请输入邀请码</div>
+                    </div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <mdui-btn type="button" @click="reg" accent dense>注册</mdui-btn>
                         <router-link to="/login">已有账号？(点我登录)</router-link>
@@ -107,6 +118,7 @@ import apiConfig from '@/api'
 import MduiCard from '@/components/ui/MduiCard.vue'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
 import MduiCountDownBtn from '@/components/ui/MduiCountDownBtn.vue'
+import StringValidator from '@/utils/StringValidator'
 export default {
     components: {
         Container,
@@ -150,7 +162,6 @@ export default {
                 this.allowRegType = e.data.data
                 this.loading = false
                 if (!this.allowRegType.regcode) {
-                    // this.setRegType(2)
                     this.$refs.emailRegister.click()
                 }
             }).catch(e => {
@@ -195,6 +206,8 @@ export default {
          */
         setRegType(mode) {
             this.regType = mode
+            this.form.regcode = ''
+            this.form.email = ''
             if (mode == 1) {
                 this.codeName = '注册邀请码'
             } else {
@@ -206,14 +219,13 @@ export default {
             this.errorFlag.passwd = this.form.passwd.length < 6
             this.errorFlag.confirm = this.form.passwd !== this.form.confirm
             this.errorFlag.regcode = this.form.regcode.length === 0
-            this.errorFlag.email = this.form.email.match(/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/) == null
+            this.errorFlag.email = !StringValidator.isEmail(this.form.email)
             for (const key in this.errorFlag) {
-                if (Object.hasOwnProperty.call(this.errorFlag, key)) {
-                    const el = this.errorFlag[key]
-                    // 存在不通过的表项直接返回false
-                    if (el) {
-                        return false
-                    }
+                const el = this.errorFlag[key]
+                // 存在不通过的表项直接返回false
+                if (el) {
+                    if (this.regType == 1 && key == 'email') continue
+                    return false
                 }
             }
             // 若全通过 返回true
