@@ -1,6 +1,6 @@
 <template>
   <container v-if="userInfo" :loading="loading">
-        <div class="mdui-container">
+        <div class="mdui-container" style="max-width: 680px">
             <mdui-card>
                 <mdui-dialog @confirm='confirm' id="dialog" :title="'修改密码'" :loading="mp.loading">
                     <div class="mdui-textfield mdui-textfield-floating-label">
