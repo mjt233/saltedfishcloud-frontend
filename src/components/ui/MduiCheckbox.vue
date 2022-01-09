@@ -1,8 +1,8 @@
 <template>
     <label class="mdui-checkbox" @click.stop="">
         <input ref="inst" type="checkbox" @change="$emit('change', $event.target.checked)" v-bind:checked='checked'>
-        <i class="mdui-checkbox-icon"></i>
-        {{label}}
+        <i class="mdui-checkbox-icon" style="padding:"></i>
+        <span>{{label}}</span>
     </label>
 </template>
 
@@ -36,6 +36,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+span {
+    margin-right: 32px;
+}
+</style>
 
+
+<style>
+.mdui-checkbox {
+    padding-left: 32px
+}
 </style>

@@ -4,8 +4,9 @@
         :disabled = 'disabled'
         class="mdui-btn mdui-ripple"
         :class="classObj"
+        type="button"
     >
-        <i v-show="icon" class="mdui-icon material-icons">{{icon}}</i>
+        <i v-show="icon" class="mdui-icon material-icons" :style="{'font-size': iconSize + 'px'}">{{icon}}</i>
         <slot></slot>
     </button>
 </template>
@@ -14,6 +15,10 @@
 export default {
     name: 'mduiBtn',
     props: {
+        iconSize: {
+            type: Number,
+            default: 24
+        },
         dense: {
             // 紧凑按钮
             type: Boolean,
@@ -46,7 +51,13 @@ export default {
         },
         hid: {
             // 固定状态下隐藏
-            typeo: Boolean,
+            type: Boolean,
+            default: false
+        },
+        accent: {
+
+            // 亮色主题色
+            type: Boolean,
             default: false
         }
     },
@@ -54,11 +65,12 @@ export default {
         classObj() {
             return {
                 'mdui-btn-dense': this.dense,
-                'mdui-color-theme': this.themeColor,
+                'mdui-color-theme': this.themeColor && !this.accent,
                 'mdui-btn-icon': this.icon && !this.fab,
                 'mdui-fab-fixed': this.fixed,
                 'mdui-fab-hide': this.hid,
-                'mdui-fab': this.fab
+                'mdui-fab': this.fab,
+                'mdui-color-theme-accent': this.themeColor && this.accent
             }
         }
     }

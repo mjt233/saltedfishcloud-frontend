@@ -8,7 +8,7 @@
             <input v-model="form.user" :disabled="loading" class="mdui-textfield-input" type="text" required/>
             <div class="mdui-textfield-error">用户名不能为空</div>
           </div>
-          <router-link to="/reg" tabindex="-1" href="javascript:;" @click="tips" class="link">去注册</router-link>
+          <router-link to="/reg" tabindex="-1" href="javascript:;" class="link">去注册</router-link>
         </div>
         <div class="item">
           <div class="mdui-textfield mdui-textfield-floating-label input">
@@ -16,7 +16,7 @@
             <input ref="passwd" autocomplete="1" v-model="form.passwd" class="mdui-textfield-input" type="password" pattern="^.*(?=.{6,}).*$" required/>
             <div class="mdui-textfield-error">密码至少 6 位</div>
           </div>
-          <a tabindex="-1" href="javascript:;" @click="tips"  class="link">忘记密码?</a>
+          <router-link tabindex="-1" to="/forgot"  class="link">忘记密码?</router-link>
         </div>
         <button ref="btn" :disabled="loading" @click="login" class="mdui-btn mdui-color-theme-accent mdui-ripple">登录</button>
       </form>

@@ -39,6 +39,10 @@ const routeOpt = {
             component: require('../view/common/Login').default
         },
         {
+            path: 'forgot',
+            component: require('../view/common/Forgot').default
+        },
+        {
             path: 'my',
             component: require('../view/common/My').default,
             name: 'my'

@@ -166,7 +166,7 @@
                         @keyup.enter="resetFileInfo"
                     />
                     <textarea
-                        style="border-radius: 0; resize:none"
+                        style="border-radius: 0; resize:none; height: 32px"
                         rows="3"
                         v-if="index == targetIndex && statu == 'rename' && type == 'table'"
                         class="rename-input"
@@ -516,7 +516,6 @@ export default {
                     gutter: 0,
                     fixed: true
                 })
-
                 if (target !== null && !target.classList.contains('empty')) {
                     //  找出右键触发位置的项目所在的索引，以便从文件列表(this.fileList)中取出对应的文件信息
                     let index = 0
@@ -566,7 +565,8 @@ export default {
 
             this.$nextTick().then(() => {
                 const tagName = this.type == 'table' ? 'textarea' : 'input'
-                const input = this.$refs.list.$el.querySelectorAll('.file,.dir')[this.targetIndex].querySelector(tagName)
+                const els = this.$refs.container.querySelectorAll('.file,.dir')
+                const input = els[this.targetIndex].querySelector(tagName)
                 input.focus()
                 input.select()
             })

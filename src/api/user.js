@@ -1,6 +1,125 @@
 const user = {
     prefix: 'user',
     /**
+     * 发送绑定新邮箱的验证码
+     * @param {String} email 接收验证码的新邮箱
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    sendBindEmail(email) {
+        return {
+            url: `${this.prefix}/sendBindEmail`,
+            data: {
+                email: email
+            },
+            method: 'post'
+        }
+    },
+    /**
+     * 更新token
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    updateToken() {
+        return {
+            url: `${this.prefix}/updateToken`,
+            method: 'post'
+        }
+    },
+    /**
+     * 绑定新邮箱
+     * @param {String} newEmail 新邮箱
+     * @param {String} originCode 旧邮箱验证码，若先前未绑定邮箱则不需要
+     * @param {String} newCode 新邮箱验证码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    bindNewEmail(newEmail, originCode, newCode) {
+        return {
+            url: `${this.prefix}/newMail`,
+            method: 'post',
+            data: {
+                email: newEmail,
+                originCode: originCode,
+                newCode: newCode
+            }
+        }
+    },
+    /**
+     * 用于验证旧邮箱的验证码是否正确
+     * @param {String} code 验证码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    verifyEmail(code) {
+        return {
+            url: `${this.prefix}/verifyEmail`,
+            method: 'post',
+            data: {
+                code: code
+            }
+        }
+    },
+    /**
+     * 发送用于验证旧邮箱的验证码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    sendVerifyEmail() {
+        return {
+            url: `${this.prefix}/sendVerifyEmail`,
+            method: 'post'
+        }
+    },
+    /**
+     * 发送重置密码邮箱验证码
+     * @param {String} account 用户名或邮箱
+     * @param {String} code 验证码
+     * @param {String} password 新密码
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    resetPassword(account, code, password) {
+        return {
+            url: `${this.prefix}/resetPassword`,
+            data: {
+                account: account,
+                code: code,
+                password: password
+            },
+            method: 'post'
+        }
+    },
+    /**
+     * 发送重置密码邮箱验证码
+     * @param {String} account 用户名或邮箱
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    sendResetPasswordEmail(account) {
+        return {
+            url: `${this.prefix}/sendResetPasswordEmail`,
+            data: {
+                account: account
+            },
+            method: 'post'
+        }
+    },
+    /**
+     * 获取邮箱注册验证码
+     * @param {String} email 接收的邮箱
+     */
+    getEmailRegCode(email) {
+        return {
+            url: `${this.prefix}/regcode`,
+            data: {
+                email: email
+            },
+            method: 'post'
+        }
+    },
+    /**
+     * 获取系统开放的注册类型
+     */
+    getRegType() {
+        return {
+            url: `${this.prefix}/regType`
+        }
+    },
+    /**
      * 设置用户的类型
      * @param {Number} uid      目标用户ID
      * @param {Boolean} isAdmin 是否设为管理员

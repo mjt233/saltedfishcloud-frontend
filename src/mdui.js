@@ -7,6 +7,7 @@ import MduiLoading from '@/components/ui/MduiLoading'
 import MduiHr from '@/components/ui/MduiHr'
 import MduiDialog from '@/components/ui/MduiDialog'
 import FileBrowser from '@/components/FileBrowser'
+import Container from '@/components/layout/Container'
 export {
     MduiBtn,
     MduiCard,
@@ -16,5 +17,7 @@ export {
     MduiLoading,
     MduiHr,
     MduiDialog,
-    FileBrowser
+    FileBrowser,
+    Container
+
 }

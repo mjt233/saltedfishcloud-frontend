@@ -10,11 +10,18 @@
                             <tbody>
                                 <tr>
                                     <td>注册邀请码：{{settings.REG_CODE}} </td>
-                                    <td><mdui-btn dense @click="setConfig('注册邀请码','修改注册邀请码', 'REG_CODE')">修改</mdui-btn></td>
+                                    <td><mdui-btn dense @click="inputConfig('注册邀请码','修改注册邀请码', 'REG_CODE')">修改</mdui-btn></td>
+                                </tr>
+                                <tr>
+                                    <td>注册机制</td>
+                                    <td>
+                                        <mdui-checkbox @change="setConfig('ENABLE_REG_CODE', $event)" v-model="settings.ENABLE_REG_CODE" :label="'注册邀请码注册'"></mdui-checkbox>
+                                        <mdui-checkbox @change="setConfig('ENABLE_EMAIL_REG', $event)" v-model="settings.ENABLE_EMAIL_REG" :label="'邮箱注册'"></mdui-checkbox>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>同步延迟：{{settings.SYNC_DELAY}} 分</td>
-                                    <td><mdui-btn dense @click="setConfig('同步延迟','修改同步延迟，单位为分钟', 'SYNC_DELAY')">修改</mdui-btn></td>
+                                    <td><mdui-btn dense @click="inputConfig('同步延迟','修改同步延迟，单位为分钟', 'SYNC_DELAY')">修改</mdui-btn></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -41,6 +48,91 @@
                         </table>
                     </div>
                 </div>
+                <!-- 发信服务器配置 -->
+                <mdui-col :md="12">
+                    <h3 class="mdui-text-color-theme">发信服务器</h3>
+                    <!-- 配置信息显示 -->
+                    <div v-if="settings.MAIL_PROPERTIES">
+                        <mdui-card>
+                            <mdui-col :md="6" :sm="12">
+                                发信协议：{{settings.MAIL_PROPERTIES.protocol}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                发信服务器地址：{{settings.MAIL_PROPERTIES.host}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                发信用户名：{{settings.MAIL_PROPERTIES.username}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                发信地址：{{settings.MAIL_PROPERTIES.from}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                称呼：{{settings.MAIL_PROPERTIES.alias}}
+                            </mdui-col>
+                        </mdui-card>
+                    </div>
+                    <div v-else>
+                        <p style="margin-bottom: 14px">未配置</p>
+                    </div>
+                    <mdui-btn dense @click="showMailConfig = true">配置</mdui-btn>
+                    <!-- 配置信息修改对话框 -->
+                    <mdui-dialog @confirm="updateMailProperties" :title="'配置发信服务器'" :show.sync="showMailConfig">
+                        <h4 class="mdui-text-color-theme">服务器配置</h4>
+                        <mdui-hr></mdui-hr>
+                        <mdui-col :md="6" :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label">发信协议</label>
+                                <mdui-select :fixed="true" :options="[{value: 'smtp', label: 'smtp'}]" v-model="dialogMailProperties.protocol"></mdui-select>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label">服务器端口</label>
+                                <mdui-input v-model="dialogMailProperties.port"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div class="v-center">
+                                <label class="form-label">发信服务器</label>
+                                <mdui-input v-model="dialogMailProperties.host"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :xs="12">
+                            <h4 class="mdui-text-color-theme">账号配置</h4>
+                            <mdui-hr></mdui-hr>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div class="v-center">
+                                <label class="form-label">发信地址</label>
+                                <mdui-input v-model="dialogMailProperties.from"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div class="v-center">
+                                <label class="form-label">发信人称呼</label>
+                                <mdui-input v-model="dialogMailProperties.alias"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div class="v-center">
+                                <label class="form-label">用户名</label>
+                                <mdui-input v-model="dialogMailProperties.username"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div class="v-center">
+                                <label class="form-label">密码</label>
+                                <mdui-input :type="'password'" v-model="dialogMailProperties.password"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div class="v-center">
+                                <label class="form-label">回信地址</label>
+                                <mdui-input v-model="dialogMailProperties.reply"></mdui-input>
+                            </div>
+                        </mdui-col>
+                    </mdui-dialog>
+                </mdui-col>
                 <!-- 代理节点 -->
                 <div class="mdui-col-md-12">
                     <mdui-dialog :loading="proxyLoading" :title="dialogTitle" :show.sync="showProxyDialog" @confirm="doProxyConfirm">
@@ -80,12 +172,15 @@ import MduiHr from '@/components/ui/MduiHr.vue'
 import MduiIcon from '@/components/ui/MduiIcon.vue'
 import MduiDialog from '@/components/ui/MduiDialog.vue'
 import ProxyInfoEditor from '@/components/proxy/ProxyInfoEditor.vue'
+import MduiCheckbox from '@/components/ui/MduiCheckbox.vue'
+import MduiCol from '@/components/ui/MduiCol.vue'
+import MduiInput from '@/components/ui/MduiInput.vue'
+import MduiSelect from '@/components/ui/MduiSelect.vue'
 export default {
-    components: { Container, MduiCard, MduiBtn, MduiHr, MduiIcon, MduiDialog, ProxyInfoEditor },
+    components: { Container, MduiCard, MduiBtn, MduiHr, MduiIcon, MduiDialog, ProxyInfoEditor, MduiCheckbox, MduiCol, MduiInput, MduiSelect },
     data() {
         return {
-            settings: {
-            },
+            settings: {},
             loading: false,
             proxy: [],
             showProxyDialog: false,
@@ -93,7 +188,11 @@ export default {
             dialogTitle: '修改代理信息',
             dialogMode: 'update',
             oldProxyName: '',
-            proxyLoading: false
+            proxyLoading: false,
+            showMailConfig: false,
+            dialogMailProperties: {
+                protocol: 'smtp'
+            }
         }
     },
     mounted() {
@@ -160,6 +259,13 @@ export default {
             const data = (await this.$axios(API.admin.sys.getAllConfig())).data.data
             await this.loadProxy()
             this.settings = data
+            if (this.settings.MAIL_PROPERTIES) {
+                const rawData = this.settings.MAIL_PROPERTIES
+                this.settings.MAIL_PROPERTIES = JSON.parse(rawData)
+                this.dialogMailProperties = JSON.parse(rawData)
+            }
+            this.settings.ENABLE_EMAIL_REG = this.settings.ENABLE_EMAIL_REG == 'true'
+            this.settings.ENABLE_REG_CODE = this.settings.ENABLE_REG_CODE == 'true'
             this.loading = false
         },
         async loadProxy() {
@@ -170,17 +276,35 @@ export default {
                 mdui.alert(e.msg)
             }
         },
-        setConfig(title, describe, key) {
+        /**
+         * 直接设置修改配置
+         * @param {String} key 配置名
+         * @param {String} val 配置值
+         */
+        setConfig(key, val) {
+            this.loading = true
+            this.$axios(API.admin.sys.setConfig(key, val)).then(() => {
+                this.loading = false
+                mdui.snackbar('修改成功')
+                if (key == 'MAIL_PROPERTIES') {
+                    this.settings[key] = JSON.parse(JSON.stringify(this.dialogMailProperties))
+                } else {
+                    this.settings[key] = val
+                }
+            }).catch((e) => {
+                this.loading = false
+                mdui.alert(e.toString())
+            })
+        },
+        /**
+         * 打开输入确认对话框修改配置
+         * @param {String} title 标题
+         * @param {String} describe 描述
+         * @param {String} key 配置名
+         */
+        inputConfig(title, describe, key) {
             mdui.prompt(describe, title, e => {
-                this.loading = true
-                this.$axios(API.admin.sys.setConfig(key, e)).then(() => {
-                    this.loading = false
-                    mdui.snackbar('修改成功')
-                    this.settings[key] = e
-                }).catch((e) => {
-                    this.loading = false
-                    mdui.alert(e.msg)
-                })
+                this.setConfig(key, e)
             }, () => {}, { defaultValue: this.settings[key] })
         },
         switchStore() {
@@ -214,6 +338,10 @@ export default {
                     this.loading = false
                 }
             })
+        },
+        updateMailProperties() {
+            this.setConfig('MAIL_PROPERTIES', encodeURIComponent(JSON.stringify(this.dialogMailProperties)))
+            this.showMailConfig = false
         }
     }
 }
@@ -232,5 +360,10 @@ export default {
         }
     }
     &:hover .op { display: inline-block;}
+}
+.form-label {
+    width: 80px;
+    padding-right: 12px;
+    text-align: right;
 }
 </style>

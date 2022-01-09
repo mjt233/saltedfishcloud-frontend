@@ -1,5 +1,5 @@
 <template>
-    <div style="height: 100%; opacity: .95">
+    <div style="height: 100%;">
         <file-list
             :enableDragSelect="false"
             :loading="loading || d_loading"
@@ -9,6 +9,7 @@
             <div class="mdui-typo">
                 <p>当前路径：<a @click="$emit('back')">{{rootLabel}}</a> > "搜索：{{searchKey}}"</p>
             </div>
+            <!-- 顶部分页器 -->
             <div style="display:flex;justify-content: center;">
                 <pager :disabled="d_loading" :pageCount="res.pages" @change="doSearch"></pager>
             </div>
@@ -21,7 +22,7 @@
 
             <!-- 表格数据列 -->
             <template v-slot:columnItem="props">
-                <div @click="clickFile(props.item)" class="file-name">{{props.item.name}}</div>
+                <div @click="clickFile(props.item)" class="file-name" :class="props.item.dir ? 'dir' : `file type-${props.item.suffix}`">{{props.item.name}}</div>
                 <div @click="clickFile(props.item)" v-if="props.item.size > 0">{{props.item.size | formatSize}}</div>
                 <div @click="clickFile(props.item)" v-else>-</div>
                 <div class="mdui-typo">
