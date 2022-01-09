@@ -11,22 +11,25 @@
                     <table class="mdui-table mdui-table-hoverable" style="min-width: 600px;">
                         <thead>
                             <tr>
-                                <td style="width: 120px">#</td>
-                                <td style="width: 120px">用户名</td>
+                                <td style="width: 64px">id</td>
+                                <td style="width: 210px">用户名</td>
                                 <td style="width: 120px">空间配额</td>
+                                <td>邮箱</td>
                                 <td>操作</td>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="user in users.list" :key="user.id">
                                 <td>{{user.id}}</td>
-                                <td>{{user.user}}</td>
-                                <td>{{user.quota}}GiB</td>
                                 <td>
-                                    <button v-if="user.type == 0"  @click="setAdmin(user, true)" class="mdui-btn mdui-btn-dense mdui-color-theme">授予管理</button>
-                                    <button v-else  @click="setAdmin(user, false)" class="mdui-btn mdui-btn-dense mdui-color-pink-300 mdui-text-color-white">撤销管理</button>
-                                    <button class="mdui-btn mdui-btn-dense mdui-color-theme" @click="openDialog(user)">重置密码</button>
-                                    <!-- <mdui-checkbox label="管理员" :checked="user.type == 1" @change="setAdmin(user, $event)"></mdui-checkbox> -->
+                                    <div class="usernama-info"><img class="avatar" :src="getAvatarUrl(user.user)" >{{user.user}}</div>
+                                </td>
+                                <td>{{user.quota}}GiB</td>
+                                <td>{{user.email || '未设置'}}</td>
+                                <td>
+                                    <mdui-btn style="margin: 3px 0" v-if="user.type == 0" @click="setAdmin(user, true)" dense>授予管理</mdui-btn>
+                                    <mdui-btn style="margin: 3px 0" v-else @click="setAdmin(user, false)" dense :themeColor="false" class="mdui-color-pink-300 mdui-text-color-white">撤销管理</mdui-btn>
+                                    <button style="margin: 3px 0" class="mdui-btn mdui-btn-dense mdui-color-theme" @click="openDialog(user)">重置密码</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -51,8 +54,9 @@ import MduiCard from '../../components/ui/MduiCard.vue'
 import Pager from '../../components/ui/pager.vue'
 import MduiDialog from '../../components/ui/MduiDialog.vue'
 import MduiInput from '../../components/ui/MduiInput.vue'
+import MduiBtn from '@/components/ui/MduiBtn.vue'
 export default {
-    components: { Container, MduiCard, Pager, MduiDialog, MduiInput },
+    components: { Container, MduiCard, Pager, MduiDialog, MduiInput, MduiBtn },
     data() {
         return {
             loading: false,
@@ -78,6 +82,12 @@ export default {
         this.dialog = new mdui.Dialog(this.$refs.dialog.$el)
     },
     methods: {
+        getAvatarUrl(username) {
+            const base = this.axios.defaults.baseURL
+            const api = API.user.getAvatar(username).url
+            const url = base + ((base.endsWith('/') || api.startsWith('/')) ? '' : '/') + api
+            return url
+        },
         async loadUser(page = 1) {
             this.loading = true
             try {
@@ -144,6 +154,19 @@ export default {
     }
 }
 </script>
+
+<style lang="less" scoped>
+.usernama-info {
+    display: flex;
+    align-items: center;
+    .avatar {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+        object-fit: cover;
+    }
+}
+</style>
 
 <style>
 
