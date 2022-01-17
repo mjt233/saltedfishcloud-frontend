@@ -50,10 +50,11 @@
                 </div>
                 <!-- 发信服务器配置 -->
                 <mdui-col :md="12">
+                    <mdui-hr class="tab-hr"></mdui-hr>
                     <h3 class="mdui-text-color-theme">发信服务器</h3>
                     <!-- 配置信息显示 -->
                     <div v-if="settings.MAIL_PROPERTIES">
-                        <mdui-card>
+                        <mdui-card class="properties-card">
                             <mdui-col :md="6" :sm="12">
                                 发信协议：{{settings.MAIL_PROPERTIES.protocol}}
                             </mdui-col>
@@ -76,25 +77,25 @@
                     </div>
                     <mdui-btn dense @click="showMailConfig = true">配置</mdui-btn>
                     <!-- 配置信息修改对话框 -->
-                    <mdui-dialog @confirm="updateMailProperties" :title="'配置发信服务器'" :show.sync="showMailConfig">
+                    <mdui-dialog @confirm="updateProperties('MAIL_PROPERTIES');showMailConfig = false" :title="'配置发信服务器'" :show.sync="showMailConfig">
                         <h4 class="mdui-text-color-theme">服务器配置</h4>
                         <mdui-hr></mdui-hr>
                         <mdui-col :md="6" :xs="12">
                             <div style="height: 80px; " class="v-center">
                                 <label class="form-label">发信协议</label>
-                                <mdui-select :fixed="true" :options="[{value: 'smtp', label: 'smtp'}]" v-model="dialogMailProperties.protocol"></mdui-select>
+                                <mdui-select :fixed="true" :options="[{value: 'smtp', label: 'smtp'}]" v-model="dialog_MAIL_PROPERTIES.protocol"></mdui-select>
                             </div>
                         </mdui-col>
                         <mdui-col :md="6" :xs="12">
                             <div style="height: 80px; " class="v-center">
                                 <label class="form-label">服务器端口</label>
-                                <mdui-input v-model="dialogMailProperties.port"></mdui-input>
+                                <mdui-input v-model="dialog_MAIL_PROPERTIES.port"></mdui-input>
                             </div>
                         </mdui-col>
                         <mdui-col :md="6" :xs="12">
                             <div class="v-center">
                                 <label class="form-label">发信服务器</label>
-                                <mdui-input v-model="dialogMailProperties.host"></mdui-input>
+                                <mdui-input v-model="dialog_MAIL_PROPERTIES.host"></mdui-input>
                             </div>
                         </mdui-col>
                         <mdui-col :xs="12">
@@ -104,31 +105,98 @@
                         <mdui-col :md="6" :xs="12">
                             <div class="v-center">
                                 <label class="form-label">发信地址</label>
-                                <mdui-input v-model="dialogMailProperties.from"></mdui-input>
+                                <mdui-input v-model="dialog_MAIL_PROPERTIES.from"></mdui-input>
                             </div>
                         </mdui-col>
                         <mdui-col :md="6" :xs="12">
                             <div class="v-center">
                                 <label class="form-label">发信人称呼</label>
-                                <mdui-input v-model="dialogMailProperties.alias"></mdui-input>
+                                <mdui-input v-model="dialog_MAIL_PROPERTIES.alias"></mdui-input>
                             </div>
                         </mdui-col>
                         <mdui-col :md="6" :xs="12">
                             <div class="v-center">
                                 <label class="form-label">用户名</label>
-                                <mdui-input v-model="dialogMailProperties.username"></mdui-input>
+                                <mdui-input v-model="dialog_MAIL_PROPERTIES.username"></mdui-input>
                             </div>
                         </mdui-col>
                         <mdui-col :md="6" :xs="12">
                             <div class="v-center">
                                 <label class="form-label">密码</label>
-                                <mdui-input :type="'password'" v-model="dialogMailProperties.password"></mdui-input>
+                                <mdui-input :type="'password'" v-model="dialog_MAIL_PROPERTIES.password"></mdui-input>
                             </div>
                         </mdui-col>
                         <mdui-col :md="6" :xs="12">
                             <div class="v-center">
                                 <label class="form-label">回信地址</label>
-                                <mdui-input v-model="dialogMailProperties.reply"></mdui-input>
+                                <mdui-input v-model="dialog_MAIL_PROPERTIES.reply"></mdui-input>
+                            </div>
+                        </mdui-col>
+                    </mdui-dialog>
+                </mdui-col>
+
+                <!-- FTP服务器配置 -->
+                <mdui-col :md="12">
+                    <mdui-hr class="tab-hr"></mdui-hr>
+                    <h3 class="mdui-text-color-theme">FTP服务配置</h3>
+                    <!-- 配置信息显示 -->
+                    <div v-if="settings.FTP_PROPERTIES">
+                        <mdui-card class="properties-card">
+                            <mdui-col :md="6" :sm="12">
+                                状态：{{settings.FTP_PROPERTIES.ftpEnable ? '启用' : '关闭'}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                主控制端口：{{settings.FTP_PROPERTIES.controlPort}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                监听地址：{{settings.FTP_PROPERTIES.listenAddr}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                被动传输端口范围：{{settings.FTP_PROPERTIES.passivePort}}
+                            </mdui-col>
+                            <mdui-col :md="6" :sm="12">
+                                被动传输地址：{{settings.FTP_PROPERTIES.passiveAddr}}
+                            </mdui-col>
+                        </mdui-card>
+                    </div>
+                    <div v-else>
+                        <p style="margin-bottom: 14px">未配置</p>
+                    </div>
+                    <mdui-btn dense @click="showFtpConfig = true">配置</mdui-btn>
+                    <!-- 配置信息修改对话框 -->
+                    <mdui-dialog @confirm="updateProperties('FTP_PROPERTIES'); showFtpConfig = false" :title="'配置FTP服务器'" :show.sync="showFtpConfig">
+                        <h4 class="mdui-text-color-theme">基本配置</h4>
+                        <mdui-hr></mdui-hr>
+                        <mdui-col :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label">开启FTP</label>
+                                <mdui-switch v-model="dialog_FTP_PROPERTIES.ftpEnable"></mdui-switch>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label">主控制端口</label>
+                                <mdui-input v-model="dialog_FTP_PROPERTIES.controlPort"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label">监听地址</label>
+                                <mdui-input v-model="dialog_FTP_PROPERTIES.listenAddr"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <h4 class="mdui-text-color-theme">被动模式</h4>
+                        <mdui-hr></mdui-hr>
+                        <mdui-col :md="6" :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label" style="width: 96px">被动传输地址</label>
+                                <mdui-input v-model="dialog_FTP_PROPERTIES.passiveAddr"></mdui-input>
+                            </div>
+                        </mdui-col>
+                        <mdui-col :md="6" :xs="12">
+                            <div style="height: 80px; " class="v-center">
+                                <label class="form-label" style="width: 96px">被动传输端口</label>
+                                <mdui-input v-model="dialog_FTP_PROPERTIES.passivePort"></mdui-input>
                             </div>
                         </mdui-col>
                     </mdui-dialog>
@@ -138,6 +206,7 @@
                     <mdui-dialog :loading="proxyLoading" :title="dialogTitle" :show.sync="showProxyDialog" @confirm="doProxyConfirm">
                         <proxy-info-editor ref="proxyEditor" v-model="dialogProxy"></proxy-info-editor>
                     </mdui-dialog>
+                    <mdui-hr class="tab-hr"></mdui-hr>
                     <h3 class="mdui-text-color-theme">代理节点</h3>
                     <div>
                         <mdui-btn :dense="true" @click.native="setProxyDialog({port:1080, type: 'SOCKS', name: '新节点', address: '127.0.0.1'}, '新建代理', 'create')">添加</mdui-btn>
@@ -176,8 +245,9 @@ import MduiCheckbox from '@/components/ui/MduiCheckbox.vue'
 import MduiCol from '@/components/ui/MduiCol.vue'
 import MduiInput from '@/components/ui/MduiInput.vue'
 import MduiSelect from '@/components/ui/MduiSelect.vue'
+import MduiSwitch from '@/components/ui/MduiSwitch.vue'
 export default {
-    components: { Container, MduiCard, MduiBtn, MduiHr, MduiIcon, MduiDialog, ProxyInfoEditor, MduiCheckbox, MduiCol, MduiInput, MduiSelect },
+    components: { Container, MduiCard, MduiBtn, MduiHr, MduiIcon, MduiDialog, ProxyInfoEditor, MduiCheckbox, MduiCol, MduiInput, MduiSelect, MduiSwitch },
     data() {
         return {
             settings: {},
@@ -190,9 +260,11 @@ export default {
             oldProxyName: '',
             proxyLoading: false,
             showMailConfig: false,
-            dialogMailProperties: {
+            dialog_MAIL_PROPERTIES: {
                 protocol: 'smtp'
-            }
+            },
+            dialog_FTP_PROPERTIES: {},
+            showFtpConfig: false
         }
     },
     mounted() {
@@ -259,11 +331,12 @@ export default {
             const data = (await this.$axios(API.admin.sys.getAllConfig())).data.data
             await this.loadProxy()
             this.settings = data
-            if (this.settings.MAIL_PROPERTIES) {
-                const rawData = this.settings.MAIL_PROPERTIES
-                this.settings.MAIL_PROPERTIES = JSON.parse(rawData)
-                this.dialogMailProperties = JSON.parse(rawData)
-            }
+            Object.keys(this.settings).forEach(key => {
+                if (key.endsWith('_PROPERTIES')) {
+                    this['dialog_' + key] = JSON.parse(this.settings[key])
+                    this.settings[key] = JSON.parse(this.settings[key])
+                }
+            })
             this.settings.ENABLE_EMAIL_REG = this.settings.ENABLE_EMAIL_REG == 'true'
             this.settings.ENABLE_REG_CODE = this.settings.ENABLE_REG_CODE == 'true'
             this.loading = false
@@ -286,8 +359,8 @@ export default {
             this.$axios(API.admin.sys.setConfig(key, val)).then(() => {
                 this.loading = false
                 mdui.snackbar('修改成功')
-                if (key == 'MAIL_PROPERTIES') {
-                    this.settings[key] = JSON.parse(JSON.stringify(this.dialogMailProperties))
+                if (key.endsWith('_PROPERTIES')) {
+                    this.settings[key] = JSON.parse(decodeURIComponent(val))
                 } else {
                     this.settings[key] = val
                 }
@@ -339,9 +412,12 @@ export default {
                 }
             })
         },
-        updateMailProperties() {
-            this.setConfig('MAIL_PROPERTIES', encodeURIComponent(JSON.stringify(this.dialogMailProperties)))
-            this.showMailConfig = false
+        /**
+         * 更新Properties类型的配置
+         * @param {String} name 配置名
+         */
+        updateProperties(name) {
+            this.setConfig(name, encodeURIComponent(JSON.stringify(this['dialog_' + name])))
         }
     }
 }
@@ -360,6 +436,12 @@ export default {
         }
     }
     &:hover .op { display: inline-block;}
+}
+.properties-card {
+    padding-bottom: 12px;
+}
+.tab-hr {
+    margin-top: 24px;
 }
 .form-label {
     width: 80px;
