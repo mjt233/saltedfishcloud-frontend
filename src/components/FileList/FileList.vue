@@ -519,8 +519,7 @@ export default {
                 if (target !== null && !target.classList.contains('empty')) {
                     //  找出右键触发位置的项目所在的索引，以便从文件列表(this.fileList)中取出对应的文件信息
                     let index = 0
-                    this.$refs.container.querySelectorAll('.file,.dir').forEach((e, i) => {
-                        // debugger
+                    this.$refs.container.querySelectorAll('[selectable]').forEach((e, i) => {
                         if (e == target) {
                             index = i
                         }
