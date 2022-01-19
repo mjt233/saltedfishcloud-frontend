@@ -5,6 +5,7 @@ import Vue from 'vue'
 import mdui from 'mdui'
 import axios from 'axios'
 import FileUtils from '@/utils/FileUtils'
+import API from '@/api'
 
 
 /**
@@ -113,6 +114,7 @@ const queueHandler = {
     /**
      * 开始执行上传任务队列
      * @todo 未做上传失败时的例外处理
+     * @todo 使用责任链模式处理发送前后动作
      */
     executeQueue() {
         // 正在执行任务时忽略本次（若任务被暂停需要使用resume方法）
@@ -130,37 +132,26 @@ const queueHandler = {
         const task = queueInfo.queue[0]
         task.status = 'preparing'
         queueInfo.status = QueueStatus.EXECUTING
-        // 先初始化上传器
-        const uploader = new FileSliceUploader({
-            file: task.file,
-            onUploadProgress: e => {
-                const curr = new Date()
-                const speed = (e.loaded - task.lastRecord.loaded) * 1000 / (curr - task.lastRecord.date)
-                if (speed > 0) {
-                    task.speed = speed
-                }
-                task.prog = (e.loaded / e.total) * 100
-                task.lastRecord = {
-                    date: curr,
-                    loaded: e.loaded
-                }
-                if (task.prog == 100) {
-                    task.status = 'processing'
-                }
-            },
-            onPause() {
-                emit(queueInfo.eventBinding.paused)
-                queueInfo.status = QueueStatus.PAUSED
-            }
-        })
-        queueInfo.uploader = uploader
+        const successCallback = () => {
+            queueInfo.uploader = null
+            Vue.prototype.$eventBus.$emit('uploaded', queueInfo.queue[0])
+            emit(queueInfo.eventBinding.upload, queueInfo.queue[0])
+            this.shift()
+            this.executeQueue()
+        }
         FileUtils.computeMd5(task.file, {
             success: e => {
-                setTimeout(() => {
+                setTimeout(async() => {
                     task.status = 'ready'
                     task.prog = 0
                     task.md5 = e
-                    uploadHandler()
+                    const quickSaveRes = await axios(API.file.quickSave(task.uid, task.path, task.file.name, task.md5))
+                    if (quickSaveRes.data.code == 200) {
+                        successCallback()
+                        console.log('秒传')
+                    } else {
+                        uploadHandler()
+                    }
                 }, 100)
             },
             error: e => {
@@ -179,6 +170,28 @@ const queueHandler = {
          * 上传动作函数
          */
         const uploadHandler = async() => {
+            queueInfo.uploader = new FileSliceUploader({
+                file: task.file,
+                onUploadProgress: e => {
+                    const curr = new Date()
+                    const speed = (e.loaded - task.lastRecord.loaded) * 1000 / (curr - task.lastRecord.date)
+                    if (speed > 0) {
+                        task.speed = speed
+                    }
+                    task.prog = (e.loaded / e.total) * 100
+                    task.lastRecord = {
+                        date: curr,
+                        loaded: e.loaded
+                    }
+                    if (task.prog == 100) {
+                        task.status = 'processing'
+                    }
+                },
+                onPause() {
+                    emit(queueInfo.eventBinding.paused)
+                    queueInfo.status = QueueStatus.PAUSED
+                }
+            })
             // 构造表单参数
             const fd = new FormData()
             fd.append('md5', task.md5)
@@ -195,18 +208,14 @@ const queueHandler = {
                 date: new Date(),
                 loaded: 0
             }
-            const taskId = await uploader.ready()
-            uploader.start()
-            await uploader.wait()
+            const taskId = await queueInfo.uploader.ready()
+            queueInfo.uploader.start()
+            await queueInfo.uploader.wait()
             try {
                 await axios.put(`${task.api}?breakpoint_id=${taskId}`, fd)
                 // 上传成功
                 task.status = 'finish'
-                queueInfo.uploader = null
-                Vue.prototype.$eventBus.$emit('uploaded', queueInfo.queue[0])
-                emit(queueInfo.eventBinding.upload, queueInfo.queue[0])
-                this.shift()
-                this.executeQueue()
+                successCallback()
             } catch (e) {
                 queueInfo.uploader = null
                 const msg = `

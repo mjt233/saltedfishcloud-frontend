@@ -12,6 +12,24 @@ const StringUtils = require('@/utils/StringUtils')
 const file = {
     prefix: 'diskFile',
     /**
+     * 文件快速保存（秒传）
+     * @param {Number} uid 用户ID
+     * @param {String} path 文件保存的目录
+     * @param {String} name 文件名
+     * @param {String} md5 文件MD5
+     */
+    quickSave(uid, path, name, md5) {
+        return {
+            url: `${this.prefix}/${uid}/quickSave`,
+            method: 'post',
+            data: {
+                path: path,
+                name: name,
+                md5: md5
+            }
+        }
+    },
+    /**
      * 下载打包的资源
      * @param {String} wid 打包标识符
      * @param {String} alias 别名

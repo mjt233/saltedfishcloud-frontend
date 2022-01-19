@@ -445,7 +445,8 @@ export default {
                 FileQueue.addFile({
                     api: API.file.upload(this.uid, fileInfo.path.join('/')).url,
                     file: file,
-                    path: fileInfo.path
+                    path: fileInfo.path,
+                    uid: this.uid
                 })
             }
         },
@@ -463,7 +464,9 @@ export default {
                 const conf = API.file.upload(this.uid, info.path.join('/'))
                 FileQueue.addFile({
                     api: conf.url,
-                    file: file
+                    file: file,
+                    uid: this.uid,
+                    path: '/' + info.path.join('/')
                 })
             }
         },
