@@ -6,6 +6,7 @@ import mdui from 'mdui'
 import axios from 'axios'
 import FileUtils from '@/utils/FileUtils'
 import API from '@/api'
+import { getChunkSize } from '@/utils/FileUtils/sliceFile'
 
 
 /**
@@ -172,6 +173,7 @@ const queueHandler = {
         const uploadHandler = async() => {
             queueInfo.uploader = new FileSliceUploader({
                 file: task.file,
+                chunckSize: getChunkSize(task.file.size),
                 onUploadProgress: e => {
                     const curr = new Date()
                     const speed = (e.loaded - task.lastRecord.loaded) * 1000 / (curr - task.lastRecord.date)

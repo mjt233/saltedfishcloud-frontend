@@ -89,7 +89,7 @@ class FileSliceUploaderExecutor {
 
         // 初始化Promise，创建断点续传任务和获取ID，任务初始化完成后Promise为resolve
         this.ready = new Promise((resolve, reject) => {
-            axios(API.breakpoint.createTask(file.name, file.size)).then(e => {
+            axios(API.breakpoint.createTask(file.name, file.size, chunckSize)).then(e => {
                 this.taskId = e.data.taskId
                 resolve(this.taskId)
             }).catch(reject)
