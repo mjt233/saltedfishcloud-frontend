@@ -7,7 +7,7 @@
                     <span>用户总数：{{users.total}}，共{{users.pages}}页</span>
                     <pager @change="loadUser" :pageCount="users.pages"></pager>
                 </div>
-                <div class="mdui-table-fluid">
+                <div class="mdui-table-fluid user-table">
                     <table class="mdui-table mdui-table-hoverable" style="min-width: 600px;">
                         <thead>
                             <tr>
@@ -165,6 +165,9 @@ export default {
         margin-right: 12px;
         object-fit: cover;
     }
+}
+.user-table {
+    margin-top: 12px;
 }
 </style>
 
