@@ -3,8 +3,8 @@
         <h2 class="mdui-text-color-theme">开发者选项</h2>
         <mdui-hr></mdui-hr>
         <mdui-card>
-            <h4 class="mdui-text-color-theme">只读模式：{{devData.read_only_level || '关闭'}}</h4>
-            <p class="mdui-text-color-pink">警告：只读模式可保护文件资源不被更改，但开启只读模式会导致一些任务无法执行，咸鱼云的文件系统无法进行增、删、改、查，手动关闭由系统自动开启的只读模式可能会导致文件系统数据损坏或丢失，非开发者慎用该功能</p>
+            <h4 class="mdui-text-color-theme">保护模式：{{devData.read_only_level || '关闭'}}</h4>
+            <p class="mdui-text-color-pink">警告：保护模式可保护文件资源不被更改，但开启保护模式会导致一些任务无法执行，咸鱼云的文件系统无法进行增、删、改、查，手动关闭由系统自动开启的保护模式可能会导致文件系统数据损坏或丢失，非开发者慎用该功能</p>
             <mdui-btn :disabled="devData.read_only_level == null" dense @click="setReadOnlyLevel(null)">关闭</mdui-btn>
             <mdui-btn :disabled="devData.read_only_level != null" dense @click="setReadOnlyLevel('DATA_MOVING')">DATA_MOVING</mdui-btn>
             <mdui-btn :disabled="devData.read_only_level != null" dense @click="setReadOnlyLevel('DATA_CHECKING')">DATA_CHECKING</mdui-btn>
@@ -48,7 +48,7 @@ export default {
             this.loading = true
             try {
                 await this.$axios(API.admin.debug.setReadOnlyLevel(level))
-                mdui.snackbar('只读模式已切换到：' + (level == null ? '关闭' : level))
+                mdui.snackbar('保护模式已切换到：' + (level == null ? '关闭' : level))
                 this.devData.read_only_level = level
             } catch (error) {
                 mdui.alert('切换失败：' + error.msg)
