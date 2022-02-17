@@ -10,7 +10,7 @@
                                 <tbody>
                                     <tr>
                                         <td>存储模式</td>
-                                        <td>{{store.state.store_type}}</td>
+                                        <td>{{store.state.store_mode}}</td>
                                     </tr>
                                     <tr>
                                         <td>只读模式</td>
