@@ -93,9 +93,9 @@ export default {
             try {
                 const data = (await this.$axios(API.user.getUserList(page))).data.data
                 this.users = data
+                this.loading = false
             } catch (e) {
                 mdui.alert(e.msg)
-            } finally {
                 this.loading = false
             }
         },

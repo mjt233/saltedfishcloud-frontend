@@ -50,12 +50,12 @@ export default {
                 await this.$axios(API.admin.debug.setReadOnlyLevel(level))
                 mdui.snackbar('保护模式已切换到：' + (level == null ? '关闭' : level))
                 this.devData.read_only_level = level
+                this.loading = false
             } catch (error) {
                 mdui.alert('切换失败：' + error.msg)
                 setTimeout(() => {
                     this.loadData()
                 }, 100)
-            } finally {
                 this.loading = false
             }
         }

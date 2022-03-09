@@ -105,9 +105,9 @@ export default {
                 await this.axios(API.collection.delete(e))
                 await this.loadInfo()
                 mdui.snackbar('已删除')
+                this.loading = false
             } catch (e) {
                 mdui.snackbar(e.toString())
-            } finally {
                 this.loading = false
             }
         },
@@ -116,11 +116,11 @@ export default {
                 this.loading = true
                 await this.axios(API.collection.open(e))
                 await this.loadInfo()
+                this.loading = false
                 mdui.snackbar('已开启')
             } catch (e) {
-                mdui.snackbar(e.toString())
-            } finally {
                 this.loading = false
+                mdui.snackbar(e.toString())
             }
         },
         async stop(e) {
@@ -128,11 +128,11 @@ export default {
                 this.loading = true
                 await this.axios(API.collection.close(e))
                 await this.loadInfo()
+                this.loading = false
                 mdui.snackbar('已关闭')
             } catch (e) {
-                mdui.snackbar(e.toString())
-            } finally {
                 this.loading = false
+                mdui.snackbar(e.toString())
             }
         },
         /**
@@ -149,11 +149,11 @@ export default {
                 this.loading = true
                 const e = await this.axios(API.collection.getCreated())
                 this.collectionList = e.data
+                this.loading = false
             } catch (e) {
+                this.loading = false
                 console.log(e)
                 mdui.alert(e.msg)
-            } finally {
-                this.loading = false
             }
         },
         showDetail(item) {
@@ -174,9 +174,11 @@ export default {
                                 mdui.snackbar('该收集保存位置已被删除，收集关闭')
                                 this.itemInfo.state = 'CLOSED'
                                 this.loadInfo()
+                                this.itemInfo.hasParsed = true
+                                this.loading = false
+                                this.detialDialog.show = true
                             }).catch(er => {
                                 mdui.snackbar(er.toString())
-                            }).finally(() => {
                                 this.itemInfo.hasParsed = true
                                 this.loading = false
                                 this.detialDialog.show = true
@@ -205,12 +207,13 @@ export default {
                 console.log(e)
                 await this.axios(API.collection.create(e))
                 mdui.snackbar('创建成功')
-            } catch (err) {
-                this.showAdd = true
-                mdui.snackbar(err.toString())
-            } finally {
                 this.loading = false
                 this.loadInfo()
+            } catch (err) {
+                this.showAdd = true
+                this.loading = false
+                this.loadInfo()
+                mdui.snackbar(err.toString())
             }
         },
         async goto(e) {

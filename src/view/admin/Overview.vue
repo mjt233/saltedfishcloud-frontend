@@ -127,9 +127,9 @@ export default {
                 const data = (await this.$axios(API.admin.sys.getOverviewInfo())).data.data
                 this.store.state = data.store
                 this.code = data.invite_reg_code
+                this.loading = false
             } catch (error) {
                 mdui.alert(error.msg)
-            } finally {
                 this.loading = false
             }
             echarts.init(this.$refs.user).setOption(this.generateChartOption('用户数据根硬盘', '占用', [
