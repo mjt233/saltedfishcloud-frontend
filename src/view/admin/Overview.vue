@@ -13,7 +13,7 @@
                                         <td>{{store.state.store_mode}}</td>
                                     </tr>
                                     <tr>
-                                        <td>只读模式</td>
+                                        <td>保护模式</td>
                                         <td>{{store.state.read_only | decodeReadOnly}}</td>
                                     </tr>
                                     <tr>

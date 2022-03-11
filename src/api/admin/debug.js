@@ -6,8 +6,8 @@ const debug = {
         }
     },
     /**
-     * 设置系统只读级别
-     * @param {String} level 只读级别，可选null, DATA_MOVING,DATA_CHECKING
+     * 设置系统保护级别
+     * @param {String} level 保护级别，可选null, DATA_MOVING,DATA_CHECKING
      */
     setReadOnlyLevel(level) {
         return {

@@ -20,8 +20,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>同步延迟：{{settings.SYNC_INTERVAL}} 分</td>
-                                    <td><mdui-btn dense @click="inputConfig('同步延迟','修改同步延迟，单位为分钟', 'SYNC_INTERVAL')">修改</mdui-btn></td>
+                                    <td>自动同步间隔：{{settings.SYNC_INTERVAL == -1 ? '关闭' : settings.SYNC_INTERVAL + '分'}}</td>
+                                    <td><mdui-btn dense @click="inputConfig('自动同步间隔','修改自动同步间隔，单位为分钟，-1关闭', 'SYNC_INTERVAL')">修改</mdui-btn></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -400,7 +400,7 @@ export default {
         },
         sync(all = false) {
             const msg = all ? '所有用户数据' : '公共网盘数据'
-            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入只读模式（数据检查DATA_CHECKING）`, '确认', async() => {
+            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入保护模式（数据检查DATA_CHECKING）`, '确认', async() => {
                 this.loading = true
                 try {
                     await this.$axios(API.admin.store.sync(all))
