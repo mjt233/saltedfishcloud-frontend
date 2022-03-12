@@ -52,7 +52,7 @@
                     解压文件
                 </a>
             </li>
-            <li v-if="enableWrap && selectedEl.length > 1" class="mdui-menu-item" @click="wrapDownload">
+            <li v-if="(enableWrap && selectedEl.length > 1) || (fileInfo && fileInfo.dir)" class="mdui-menu-item" @click="wrapDownload">
                 <a href="javascript:;" class="mdui-ripple">
                     <i class="mdui-menu-item-icon mdui-icon material-icons">file_download</i>
                     打包下载
