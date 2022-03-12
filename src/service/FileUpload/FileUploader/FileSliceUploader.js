@@ -2,6 +2,7 @@ import API from '@/api'
 import FileUtils from '@/utils/FileUtils'
 import axios from 'axios'
 
+
 /**
  * @typedef {Object} FileSliceUploadOpt
  * @property {File} file 文件
@@ -89,7 +90,7 @@ class FileSliceUploaderExecutor {
 
         // 初始化Promise，创建断点续传任务和获取ID，任务初始化完成后Promise为resolve
         this.ready = new Promise((resolve, reject) => {
-            axios(API.breakpoint.createTask(file.name, file.size)).then(e => {
+            axios(API.breakpoint.createTask(file.name, file.size, chunckSize)).then(e => {
                 this.taskId = e.data.taskId
                 resolve(this.taskId)
             }).catch(reject)
@@ -116,10 +117,11 @@ class FileSliceUploaderExecutor {
 
     async upload() {
         let fileData
-        while ((fileData = nextFileSlice(this.generator, this.sliceMultipie))) {
+        while ((fileData = nextFileSlice(this.generator, this.sliceMultipie + 1))) {
             // 重置分块记录
             this.chunkRecord.loaded = 0
             this.chunkRecord.total = fileData.size
+
             // 生成分块范围字符串
             const part = getPartNum(this.startNum, this.sliceMultipie, this.chunkCount)
             const conf = API.breakpoint.uploadPart(this.taskId, fileData, part)
@@ -127,13 +129,20 @@ class FileSliceUploaderExecutor {
                 this.chunkRecord.loaded = e.loaded
                 this.emit()
             }
+
+            // 等待暂停恢复
             await this.canContinue()
+
+            // 开始上传
             const start = Date.now()
             await axios(conf)
             this.emit(true)
-            const executeTime = Date.now() - start
-            this.startNum += this.sliceMultipie
 
+            // 更新断点起始位置
+            this.startNum += (this.sliceMultipie + 1)
+
+            // 根据上次断点数据的上传时间
+            const executeTime = Date.now() - start
             if (executeTime < 1500 || executeTime > 5000) {
                 this.sliceMultipie = Math.ceil(1500 / (executeTime / this.sliceMultipie))
             }

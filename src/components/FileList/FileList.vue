@@ -173,7 +173,7 @@
                         v-model="newName"
                         @keyup.enter="resetFileInfo"
                     />
-                    <span v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
+                    <span class="mdui-text-truncate" v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
                 </div>
                 <template v-if="enableSize">
                     <div class="file-size" v-if="item.dir">-</div>

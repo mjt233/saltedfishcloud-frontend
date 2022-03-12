@@ -5,13 +5,7 @@ const breakpoint = {
      * @param {Number} size 文件大小
      * @returns {import("axios").AxiosRequestConfig}
      */
-    createTask(name, size) {
-        let chunkSize = 2097152
-        if (size > 1024 * 1024 * 16) {
-            chunkSize *= 2
-        } else if (chunkSize > 1024 * 1024 * 128) {
-            chunkSize *= 8
-        }
+    createTask(name, size, chunkSize) {
         return {
             url: 'breakpoint',
             method: 'post',

@@ -97,9 +97,9 @@ export default {
             this.axios(API.collection.getRecords(this.cid, this.page, this.size)).then(e => {
                 this.record = e.data.data.content
                 this.pageCount = e.data.data.totalPage
+                this.loading = false
             }).catch(e => {
                 mdui.snackbar(e.toString())
-            }).finally(() => {
                 this.loading = false
             })
         },

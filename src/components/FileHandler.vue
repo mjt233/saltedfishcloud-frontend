@@ -219,9 +219,9 @@ export default {
                 setTimeout(() => {
                     window.open(url)
                 }, 200)
+                this.loading = false
             } catch (err) {
                 mdui.snackbar(err.toString())
-            } finally {
                 this.loading = false
             }
         },
@@ -231,9 +231,9 @@ export default {
             this.axios(conf).then(e => {
                 mdui.snackbar('创建成功')
                 this.$refs.browser.loadList()
+                this.loading = false
             }).catch(e => {
                 mdui.alert(e.toString())
-            }).finally(e => {
                 this.loading = false
             })
         },
@@ -271,10 +271,10 @@ export default {
                 this.shareDialog.shareInfo.link = StringUtils.generateShareLink(data)
                 this.shareDialog.shareInfo.copyText = StringUtils.generateShareText(data)
                 this.shareDialog.showInfo = true
-            }).catch(err => {
-                mdui.snackbar(err.toString())
-            }).finally(() => {
                 this.shareDialog.loading = false
+            }).catch(err => {
+                this.shareDialog.loading = false
+                mdui.snackbar(err.toString())
             })
         },
         /**
@@ -445,7 +445,8 @@ export default {
                 FileQueue.addFile({
                     api: API.file.upload(this.uid, fileInfo.path.join('/')).url,
                     file: file,
-                    path: fileInfo.path
+                    path: fileInfo.path,
+                    uid: this.uid
                 })
             }
         },
@@ -463,7 +464,9 @@ export default {
                 const conf = API.file.upload(this.uid, info.path.join('/'))
                 FileQueue.addFile({
                     api: conf.url,
-                    file: file
+                    file: file,
+                    uid: this.uid,
+                    path: '/' + info.path.join('/')
                 })
             }
         },

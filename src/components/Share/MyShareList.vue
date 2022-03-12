@@ -49,10 +49,10 @@ export default {
                 this.shareList = e.data.data.content
                 this.pageCount = e.data.data.totalPage
                 this.$emit('load')
-            }).catch(err => {
-                mdui.snackbar(err.toString())
-            }).finally(() => {
                 this.loading = false
+            }).catch(err => {
+                this.loading = false
+                mdui.snackbar(err.toString())
             })
         },
         pageChange(e) {

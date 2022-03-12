@@ -14,3 +14,17 @@ export function * sliceFile(file, chunkSize = 1024 * 1024 * 2) {
         index = end
     }
 }
+
+/**
+ * 根据文件大小生成合适的分块大小
+ * @param {Number} size 文件大小
+ */
+export function getChunkSize(size) {
+    let chunkSize = 2097152
+    if (size > 1024 * 1024 * 16) {
+        chunkSize *= 2
+    } else if (chunkSize > 1024 * 1024 * 128) {
+        chunkSize *= 8
+    }
+    return chunkSize
+}

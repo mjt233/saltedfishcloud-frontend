@@ -20,8 +20,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>同步延迟：{{settings.SYNC_DELAY}} 分</td>
-                                    <td><mdui-btn dense @click="inputConfig('同步延迟','修改同步延迟，单位为分钟', 'SYNC_DELAY')">修改</mdui-btn></td>
+                                    <td>自动同步间隔：{{settings.SYNC_INTERVAL == -1 ? '关闭' : settings.SYNC_INTERVAL + '分'}}</td>
+                                    <td><mdui-btn dense @click="inputConfig('自动同步间隔','修改自动同步间隔，单位为分钟，-1关闭', 'SYNC_INTERVAL')">修改</mdui-btn></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -34,7 +34,7 @@
                         <table class="mdui-table" v-if="settings">
                             <tbody>
                                 <tr>
-                                    <td>存储模式：{{settings.STORE_TYPE}} </td>
+                                    <td>存储模式：{{settings.STORE_MODE}} </td>
                                     <td><mdui-btn dense @click="switchStore">切换</mdui-btn></td>
                                 </tr>
                                 <tr>
@@ -381,13 +381,13 @@ export default {
             }, () => {}, { defaultValue: this.settings[key] })
         },
         switchStore() {
-            const val = this.settings.STORE_TYPE == 'RAW' ? 'UNIQUE' : 'RAW'
+            const val = this.settings.STORE_MODE == 'RAW' ? 'UNIQUE' : 'RAW'
             mdui.confirm(`即将切换到<strong class=" mdui-text-color-theme-a700">${val}</strong>模式<br>切换过程中会消耗大量服务器资源，可能需要耗费大量时间（取决于文件大小和数量，硬盘IO性能）<br>切换期间文件系统将被锁定，确定要继续吗？`, '警告', () => {
                 this.loading = true
                 const start = new Date().getSeconds()
-                this.$axios(API.admin.sys.setConfig('STORE_TYPE', val)).then(e => {
+                this.$axios(API.admin.sys.setConfig('STORE_MODE', val)).then(e => {
                     mdui.alert('切换完成，耗时' + (new Date().getSeconds() - start) + '秒')
-                    this.settings.STORE_TYPE = val
+                    this.settings.STORE_MODE = val
                     this.loading = false
                 }).catch(e => {
                     this.loading = false
@@ -400,7 +400,7 @@ export default {
         },
         sync(all = false) {
             const msg = all ? '所有用户数据' : '公共网盘数据'
-            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入只读模式（数据检查DATA_CHECKING）`, '确认', async() => {
+            mdui.confirm(`要立即执行${msg}吗？，同步期间系统会进入保护模式（数据检查DATA_CHECKING）`, '确认', async() => {
                 this.loading = true
                 try {
                     await this.$axios(API.admin.store.sync(all))

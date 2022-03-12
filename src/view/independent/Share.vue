@@ -89,9 +89,9 @@ export default {
                     const base = this.axios.defaults.baseURL.replace(/\/+$/, '')
                     const url = base + (API.file.downloadWrap(e.data.data, alias + '_打包.zip').url)
                     window.open(url)
+                    this.loading = false
                 }).catch(e => {
                     mdui.snackbar(e.toString())
-                }).finally(_ => {
                     this.loading = false
                 })
         },
@@ -121,12 +121,12 @@ export default {
                 data.verification = this.verification
                 this.shareInfo = data
                 this.shareInfo.imgUrl = this.axios.defaults.baseURL + '/' + API.user.getAvatar(e.data.data.username).url
+                this.loading = false
             }).catch(e => {
                 if (e.status == 404) {
                     this.notfound = true
                 }
                 mdui.snackbar(e.toString())
-            }).finally(() => {
                 this.loading = false
             })
         },

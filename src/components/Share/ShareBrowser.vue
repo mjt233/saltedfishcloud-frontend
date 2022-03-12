@@ -99,9 +99,9 @@ export default {
             this.axios(conf).then(e => {
                 const list = e.data.data.flat()
                 this.filelist = list
+                this.loading = false
             }).catch(err => {
                 mdui.snackbar(err.toString())
-            }).finally(() => {
                 this.loading = false
             })
         },

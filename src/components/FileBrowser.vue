@@ -290,9 +290,9 @@ export default {
                 this.loading = true
                 this.axios(conf).then(() => {
                     mdui.snackbar('解压完成')
+                    this.loading = false
                 }).catch(e => {
                     mdui.snackbar(e.toString())
-                }).finally(() => {
                     this.loading = false
                 })
             })
