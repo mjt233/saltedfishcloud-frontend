@@ -99,17 +99,21 @@ export default {
                 mdui.alert(e.msg)
             })
         },
-        clickFile(info) {
-            this.d_loading = true
-
-            this.parseNode(this.uid, info.dir ? info.md5 : info.node).then(e => {
-                this.d_loading = false
-                if (info.dir) {
-                    this.$emit('clickDir', e)
-                } else {
-                    this.$emit('clickFile', `${e}/${info.name}`)
+        async clickFile(info) {
+            if (!info.dir) {
+                this.$emit('clickFile', info)
+            } else {
+                this.d_loading = true
+                try {
+                    const path = await this.parseNode(this.uid, info.dir ? info.md5 : info.node)
+                    info.path = path
+                    this.$emit('clickDir', path)
+                    this.d_loading = false
+                } catch (err) {
+                    mdui.alert(err.toString())
                 }
-            }).catch(this.d_loading = false)
+                this.d_loading = false
+            }
         },
         clickPath(info) {
             this.d_loading = true
