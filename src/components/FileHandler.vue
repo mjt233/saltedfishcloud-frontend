@@ -129,7 +129,6 @@ import { FileQueueHandler as FileQueue } from '@/service/FileUpload/FileUploadQu
 import axios from 'axios'
 import SearchResult from '@/components/SearchResult.vue'
 import API from '@/api'
-import FormUtils from '@/utils/FormUtils'
 import MduiDialog from './ui/MduiDialog.vue'
 import MduiCheckbox from './ui/MduiCheckbox.vue'
 import MduiBtn from './ui/MduiBtn.vue'
@@ -377,17 +376,15 @@ export default {
         /**
          * 搜索框中的文件被点击时，打开下载
          */
-        fileClick(path) {
-            const url = (API.server || location.origin) + '/api/' + API.file.getContent(this.uid, path).url.replace(/\/+/g, '/')
-            FormUtils.jumpWithPost(url, true, {
-                Token: this.token
-            })
+        fileClick(fileInfo) {
+            const url = (API.server || location.origin) + '/api/' + API.resource.downloadFileByMD5(fileInfo.md5, fileInfo.name).url.replace(/\/+/g, '/')
+            window.open(url, '_blank')
         },
         /**
          * 搜索框中的目录被点击时，打开网盘目录对应的视图
-         * @param {String} path
          */
-        dirClick(path) {
+        dirClick(dirInfo) {
+            let path = dirInfo.path
             path = path.split('/').map(encodeURIComponent).join('/')
             this.searchMode = false
             location.href = `/#/${this.viewRouteName}` + path
