@@ -107,7 +107,7 @@ export default {
                 try {
                     const path = await this.parseNode(this.uid, info.dir ? info.md5 : info.node)
                     info.path = path
-                    this.$emit('clickDir', path)
+                    this.$emit('clickDir', info)
                     this.d_loading = false
                 } catch (err) {
                     mdui.alert(err.toString())
