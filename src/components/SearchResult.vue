@@ -26,7 +26,7 @@
                 <div @click="clickFile(props.item)" v-if="props.item.size > 0">{{props.item.size | formatSize}}</div>
                 <div @click="clickFile(props.item)" v-else>-</div>
                 <div class="mdui-typo">
-                    <a @click="clickPath(props.item.node)" href="javascript:;">{{props.item.parent || '/'}}</a>
+                    <a @click="clickPath(props.item)" href="javascript:;">{{props.item.parent || '/'}}</a>
                 </div>
             </template>
 
@@ -115,14 +115,16 @@ export default {
                 this.d_loading = false
             }
         },
-        clickPath(info) {
+        async clickPath(info) {
             this.d_loading = true
-
-            // 获取文件搜索结果中的节点ID所对应的用户路径，通过jump事件将数据提交给父组件
-            this.parseNode(this.uid, info).then(e => {
+            try {
+                const path = await this.parseNode(this.uid, info.node)
+                info.path = path
+                this.$emit('clickDir', info)
+            } catch (err) {
+                mdui.alert(err.toString())
                 this.d_loading = false
-                this.$emit('clickDir', e)
-            }).catch(this.d_loading = false)
+            }
         },
         parseNode(uid, nodeId) {
             return new Promise((resolve, reject) => {
