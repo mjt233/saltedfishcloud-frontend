@@ -29,7 +29,7 @@ export default {
     },
     methods: {
         updateSrc() {
-            this.imgSrc = this.axios.defaults.baseURL + '/' + API.resource.getThumbnail(this.md5).url + '?' + (Math.random() * 1000).toFixed(0)
+            this.imgSrc = this.axios.defaults.baseURL + '/' + API.resource.getThumbnail(this.md5).url
         }
     },
     watch: {
