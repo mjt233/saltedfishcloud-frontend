@@ -63,12 +63,27 @@ a {
     .head {
         cursor: unset;
     }
+    .file-thumb {
+        position: absolute;
+        pointer-events: none;
+        top: 0px;
+        left: 0px;
+        width: 32px;
+    }
     &.type-table {
         display: grid;
         grid-template-columns: repeat(auto-fill, 120px);
         grid-gap: 10px;
         gap: 10px;
         justify-content: space-evenly;
+        .file-thumb {
+            position: absolute;
+            top: 16px;
+            left: 0px;
+            width: 80%;
+            height: 48px;
+            margin: 0 4%;
+        }
         >.list-item {
             width: 120px;
             height: 120px;

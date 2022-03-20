@@ -1,6 +1,16 @@
 const resource = {
     prefix: 'resource',
     /**
+     * 获取文件资源的jpg缩略图
+     * @param {String} md5 文件资源的md5
+     * @returns {import("axios").AxiosRequestConfig}
+     */
+    getThumbnail(md5) {
+        return {
+            url: `${this.prefix}/114514/thumbnail/${md5}`
+        }
+    },
+    /**
      * 获取路径途径的节点信息
      * @param {Number} uid 用户ID
      * @param {String} path 路径

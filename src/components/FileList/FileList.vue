@@ -142,6 +142,7 @@
                 <div class="file-date"></div>
             </li> -->
             <!-- 文件列表本体 -->
+            <!-- 表格模式图标在这里 -->
             <li
                 style="overflow: hidden"
                 v-for="(item, index) in fileList"
@@ -153,12 +154,16 @@
                 @drop="drop"
                 selectable
                 class="list-item mdui-ripple file-list-item"
-                :class="(type == 'table' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '') + (checkList[index] ? 'selected': '')"
+                :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
             >
+                <file-thumb @error="$set(item, 'thumbError', true)" :md5="item.md5" v-show="!item.thumbError" v-if="showThumb(item)" class="file-thumb"></file-thumb>
+                <!-- 列表模式文件多选框 -->
                 <div v-if="enableSelect" class="file-select">
                     <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
                 </div>
-                <div class="file-name" v-if="enableName" :class="type == 'list' ? (item.dir ? 'dir' : `file type-${item.suffix}`) : '' ">
+                <!-- 文件名与列表图标 -->
+                <div class="file-name" v-if="enableName" :class="type == 'list' ? getFileItemIconClass(item) : '' ">
+                    <!-- 文件重命名输入框 -->
                     <input
                         v-if="index == targetIndex && statu == 'rename' && type == 'list'"
                         class="rename-input"
@@ -173,13 +178,16 @@
                         v-model="newName"
                         @keyup.enter="resetFileInfo"
                     />
+                    <!-- 文件名 -->
                     <span class="mdui-text-truncate" v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
                 </div>
+                <!-- 列表模式文件大小 -->
                 <template v-if="enableSize">
                     <div class="file-size" v-if="item.dir">-</div>
                     <div class="file-size" v-else>{{item.size | formatSize}}</div>
                 </template>
                 <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
+                <!-- 自定义插槽 -->
                 <slot name="columnItem" v-bind:item="item"></slot>
             </li>
             <li v-if="fileList.length==0" style="list-style-type: none" >
@@ -198,11 +206,13 @@ import selectArea from '@/components/ui/SelectArea.vue'
 import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
 import MduiCheckbox from '../ui/MduiCheckbox.vue'
+import FileThumb from './FileThumb.vue'
 export default {
     components: {
         Container,
         selectArea,
-        MduiCheckbox
+        MduiCheckbox,
+        FileThumb
     },
     name: 'FileList',
     props: {
@@ -318,6 +328,21 @@ export default {
         }
     },
     methods: {
+        getFileItemIconClass(item) {
+            if (item.loadedThumb) {
+                return ''
+            } else {
+                return item.dir ? 'dir' : `file type-${item.suffix}`
+            }
+        },
+        showThumb(item) {
+            const haveThumbnailType = [
+                'jpg', 'png', 'jpeg', 'webp', 'gif'
+            ]
+            return !item.dir && haveThumbnailType.find(t => {
+                return item.name.endsWith(`.${t}`)
+            })
+        },
         createShare(e) {
             this.$emit('share', e)
         },
