@@ -329,7 +329,7 @@ export default {
     },
     methods: {
         getFileItemIconClass(item) {
-            if (item.loadedThumb) {
+            if (!item.thumbError) {
                 return ''
             } else {
                 return item.dir ? 'dir' : `file type-${item.suffix}`
