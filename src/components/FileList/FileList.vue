@@ -157,7 +157,7 @@
                 :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
             >
                 <!-- 文件预览图 -->
-                <file-thumb @load="item.thumbLoad = true" @error="item.thumbError = true" :md5="item.md5" v-show="!item.thumbError" v-if="showThumb(item)" class="file-thumb"></file-thumb>
+                <file-thumb @load="$set(item, 'thumbLoad', true)" @error="$set(item, 'thumbError', true)" :md5="item.md5" v-show="!item.thumbError" v-if="showThumb(item)" class="file-thumb"></file-thumb>
                 <!-- 列表模式文件多选框 -->
                 <div v-if="enableSelect" class="file-select">
                     <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
@@ -330,7 +330,7 @@ export default {
     },
     methods: {
         getFileItemIconClass(item) {
-            if (this.showThumb(item) && !item.thumbError && item.thumbLoad) {
+            if (this.showThumb(item) && item.thumbLoad) {
                 return ''
             } else {
                 return item.dir ? 'dir' : `file type-${item.suffix}`
