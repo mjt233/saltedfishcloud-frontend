@@ -7,6 +7,7 @@ const task = require('./task')
 const server = require('./server')
 const collection = require('./collection')
 const share = require('./share')
+const sys = require('./sys')
 /**
  * @typedef {Object} FileTransferInfo 文件复制粘贴信息
  * @property {String} source    源文件名
@@ -22,6 +23,7 @@ const API = {
     server: server.server,
     proxyServer: server.proxyServer,
     share: share,
+    sys: sys,
     getServer: server.getServer,
     collection: collection
 }

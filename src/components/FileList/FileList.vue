@@ -153,6 +153,7 @@
                 @dragenter="dragenter"
                 @drop="drop"
                 selectable
+                ref="filesItem"
                 class="list-item mdui-ripple file-list-item"
                 :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
             >
@@ -161,7 +162,14 @@
                     <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
                 </div>
                 <!-- 文件预览图 -->
-                <file-thumb @load="$set(item, 'thumbLoad', true)" @error="$set(item, 'thumbError', true)" :md5="item.md5" v-show="!item.thumbError" v-if="showThumb(item)" class="file-thumb" :class="{ 'select-thumb': enableSelect }"></file-thumb>
+                <file-thumb
+                    @load="$set(item, 'thumbLoad', true)"
+                    @error="$set(item, 'thumbError', true);$set(item, 'thumbLoad', false)"
+                    :md5="item.md5" v-show="!item.thumbError"
+                    :name="item.name"
+                    v-if="canLoadThumb(item)" class="file-thumb"
+                    :class="{ 'select-thumb': enableSelect }"
+                />
                 <!-- 文件名与列表图标 -->
                 <div class="file-name" v-if="enableName" :class="type == 'list' ? getFileItemIconClass(item) : '' ">
                     <!-- 文件重命名输入框 -->
@@ -330,18 +338,16 @@ export default {
     },
     methods: {
         getFileItemIconClass(item) {
-            if (this.showThumb(item) && item.thumbLoad) {
+            if (this.canLoadThumb(item) && (item.thumbLoad || !item.thumbError)) {
                 return ''
             } else {
                 return item.dir ? 'dir' : `file type-${item.suffix}`
             }
         },
-        showThumb(item) {
-            const haveThumbnailType = [
-                'jpg', 'png', 'jpeg', 'webp', 'gif'
-            ]
+        canLoadThumb(item) {
+            const haveThumbnailType = window.feature.thumbType
             return !item.dir && haveThumbnailType.find(t => {
-                return item.name.endsWith(`.${t}`)
+                return item.name.toLowerCase().endsWith(`.${t}`)
             })
         },
         createShare(e) {
@@ -589,11 +595,14 @@ export default {
             this.newName = fileInfo.name
 
             this.$nextTick().then(() => {
-                const tagName = this.type == 'table' ? 'textarea' : 'input'
-                const els = this.$refs.container.querySelectorAll('.file,.dir')
-                const input = els[this.targetIndex].querySelector(tagName)
-                input.focus()
-                input.select()
+                const liElement = this.$refs.filesItem[this.targetIndex]
+                /**
+                 * @type {HTMLInputElement}
+                 */
+                const el = liElement.querySelector('.rename-input')
+                const end = fileInfo.name.lastIndexOf('.')
+                el.focus()
+                el.setSelectionRange(0, end == -1 ? fileInfo.name.length : end)
             })
         },
         createFolder() {

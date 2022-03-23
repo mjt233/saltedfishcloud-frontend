@@ -64,5 +64,11 @@ axios(conf).then((e) => {
     console.log('未登录')
     vue.$mount('#app')
 })
+
+axios(apiConfig.sys.getFeature()).then(e => {
+    window.feature = e.data
+}).catch(e => {
+    mdui.snackbar('获取系统特性失败：' + e.toString())
+})
 Theme.loadTheme()
 window.vue = vue
