@@ -3,11 +3,12 @@ const resource = {
     /**
      * 获取文件资源的jpg缩略图
      * @param {String} md5 文件资源的md5
+     * @param {String} type 源资源类型（拓展名）
      * @returns {import("axios").AxiosRequestConfig}
      */
-    getThumbnail(md5) {
+    getThumbnail(md5, type) {
         return {
-            url: `${this.prefix}/114514/thumbnail/${md5}`
+            url: `${this.prefix}/114514/thumbnail/${md5}?type=${type}`
         }
     },
     /**

@@ -15,10 +15,11 @@
             @selectStart="selectStart"
             @selectChange="selectChange"
             v-if="enableDragSelect"
-        >
+        />
 
-        </select-area>
-        <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
+
+        <div ref="menuAnchor" style="position:fixed"></div>
+        <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading || !this.renderList">
             <div class="mdui-progress-indeterminate"></div>
         </div>
         <!-- 以上为绝对定位图层 -->
@@ -122,80 +123,92 @@
                 </a>
             </li>
         </ul>
-        <ul class="file-list-container" ref="container" :class="`type-${type}`">
-            <!-- 表头 -->
-            <div class="loading-mask" :class="{'hid':!loading}">
-                <!-- <div class="mdui-spinner"></div> -->
-            </div>
-            <li class="list-item head" v-if="type == 'list'">
-                <div class="file-select" v-if="enableSelect">
-                    <mdui-checkbox ref="checkAllBox" v-model="checkAllStatus" @change="checkAllChange"></mdui-checkbox>
+        <template style="pointer-events: none;">
+            <ul class="file-list-container" ref="container" :class="`type-${type}`">
+                <!-- 表头 -->
+                <div class="loading-mask" :class="{'hid':!loading}">
+                    <!-- <div class="mdui-spinner"></div> -->
                 </div>
-                <div class="file-name" v-if="enableName">文件名</div>
-                <div class="file-size" v-if="enableSize">大小</div>
-                <div class="file-date" v-if="enableDate">最后修改日期</div>
-                <slot name="columnHeader"></slot>
-            </li>
-            <!-- <li v-if="enableReturn && type == 'list'" class="list-item tool-bar mdui-ripple" @click="back">
-                <div class="file-name">返回上一级</div>
-                <div class="file-size"></div>
-                <div class="file-date"></div>
-            </li> -->
-            <!-- 文件列表本体 -->
-            <!-- 表格模式图标在这里 -->
-            <li
-                style="overflow: hidden"
-                v-for="(item, index) in fileList"
-                v-bind:key="index"
-                @click="click(item, index, $event)"
-                @dragleave="dragLeave"
-                @dragover="dragover"
-                @dragenter="dragenter"
-                @drop="drop"
-                selectable
-                class="list-item mdui-ripple file-list-item"
-                :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
-            >
-                <!-- 列表模式文件多选框 -->
-                <div v-if="enableSelect" class="file-select">
-                    <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
-                </div>
-                <!-- 文件预览图 -->
-                <file-thumb @load="$set(item, 'thumbLoad', true)" @error="$set(item, 'thumbError', true)" :md5="item.md5" v-show="!item.thumbError" v-if="showThumb(item)" class="file-thumb" :class="{ 'select-thumb': enableSelect }"></file-thumb>
-                <!-- 文件名与列表图标 -->
-                <div class="file-name" v-if="enableName" :class="type == 'list' ? getFileItemIconClass(item) : '' ">
-                    <!-- 文件重命名输入框 -->
-                    <input
-                        v-if="index == targetIndex && statu == 'rename' && type == 'list'"
-                        class="rename-input"
-                        v-model="newName"
-                        @keyup.enter="resetFileInfo"
-                    />
-                    <textarea
-                        style="border-radius: 0; resize:none; height: 32px"
-                        rows="3"
-                        v-if="index == targetIndex && statu == 'rename' && type == 'table'"
-                        class="rename-input"
-                        v-model="newName"
-                        @keyup.enter="resetFileInfo"
-                    />
-                    <!-- 文件名 -->
-                    <span class="mdui-text-truncate" v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
-                </div>
-                <!-- 列表模式文件大小 -->
-                <template v-if="enableSize">
-                    <div class="file-size" v-if="item.dir">-</div>
-                    <div class="file-size" v-else>{{item.size | formatSize}}</div>
+                <li class="list-item head" v-if="type == 'list'">
+                    <div class="file-select" v-if="enableSelect">
+                        <mdui-checkbox ref="checkAllBox" v-model="checkAllStatus" @change="checkAllChange"></mdui-checkbox>
+                    </div>
+                    <div class="file-name" v-if="enableName">文件名</div>
+                    <div class="file-size" v-if="enableSize">大小</div>
+                    <div class="file-date" v-if="enableDate">最后修改日期</div>
+                    <slot name="columnHeader"></slot>
+                </li>
+                <!-- <li v-if="enableReturn && type == 'list'" class="list-item tool-bar mdui-ripple" @click="back">
+                    <div class="file-name">返回上一级</div>
+                    <div class="file-size"></div>
+                    <div class="file-date"></div>
+                </li> -->
+                <!-- 文件列表本体 -->
+                <!-- 表格模式图标在这里 -->
+                <template v-if="renderList">
+                    <li
+                        style="overflow: hidden"
+                        v-for="(item, index) in fileList"
+                        v-bind:key="index"
+                        @click="click(item, index, $event)"
+                        @dragleave="dragLeave"
+                        @dragover="dragover"
+                        @dragenter="dragenter"
+                        @drop="drop"
+                        selectable
+                        ref="filesItem"
+                        class="list-item mdui-ripple file-list-item"
+                        :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
+                    >
+                        <!-- 列表模式文件多选框 -->
+                        <div v-if="enableSelect" class="file-select">
+                            <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
+                        </div>
+                        <!-- 文件预览图 -->
+                        <file-thumb
+                            @load="$set(item, 'thumbLoad', true);$set(item, 'thumbError', false);"
+                            @error="$set(item, 'thumbError', true);$set(item, 'thumbLoad', false)"
+                            :md5="item.md5" v-show="!item.thumbError"
+                            :name="item.name"
+                            v-if="canLoadThumb(item)" class="file-thumb"
+                            :class="{ 'select-thumb': enableSelect }"
+                        />
+                        <!-- 文件名与列表图标 -->
+                        <div class="file-name" v-if="enableName" :class="type == 'list' ? getFileItemIconClass(item) : '' ">
+                            <!-- 文件重命名输入框 -->
+                            <input
+                                v-if="index == targetIndex && statu == 'rename' && type == 'list'"
+                                class="rename-input"
+                                v-model="newName"
+                                @keyup.enter="resetFileInfo"
+                            />
+                            <textarea
+                                style="border-radius: 0; resize:none; height: 32px"
+                                rows="3"
+                                v-if="index == targetIndex && statu == 'rename' && type == 'table'"
+                                class="rename-input"
+                                v-model="newName"
+                                @keyup.enter="resetFileInfo"
+                            />
+                            <!-- 文件名 -->
+                            <span class="mdui-text-truncate" v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
+                        </div>
+                        <!-- 列表模式文件大小 -->
+                        <template v-if="enableSize">
+                            <div class="file-size" v-if="item.dir">-</div>
+                            <div class="file-size" v-else>{{item.size | formatSize}}</div>
+                        </template>
+                        <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
+                        <!-- 自定义插槽 -->
+                        <slot name="columnItem" v-bind:item="item"></slot>
+                    </li>
                 </template>
-                <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
-                <!-- 自定义插槽 -->
-                <slot name="columnItem" v-bind:item="item"></slot>
-            </li>
-            <li v-if="fileList.length==0" style="list-style-type: none" >
-                <p style="text-align: center">空空如也</p>
-            </li>
-        </ul>
-        <slot name="footer"></slot>
+                <li v-if="fileList.length==0" style="list-style-type: none" >
+                    <p style="text-align: center">空空如也</p>
+                </li>
+            </ul>
+            <slot name="footer"></slot>
+        </template>
     </container>
 </template>
 
@@ -208,6 +221,7 @@ import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
 import MduiCheckbox from '../ui/MduiCheckbox.vue'
 import FileThumb from './FileThumb.vue'
+import { Debouncer } from '@/utils/EventUtils'
 export default {
     components: {
         Container,
@@ -330,18 +344,16 @@ export default {
     },
     methods: {
         getFileItemIconClass(item) {
-            if (this.showThumb(item) && item.thumbLoad) {
+            if (this.canLoadThumb(item) && (item.thumbLoad || !item.thumbError)) {
                 return ''
             } else {
                 return item.dir ? 'dir' : `file type-${item.suffix}`
             }
         },
-        showThumb(item) {
-            const haveThumbnailType = [
-                'jpg', 'png', 'jpeg', 'webp', 'gif'
-            ]
+        canLoadThumb(item) {
+            const haveThumbnailType = window.feature.thumbType
             return !item.dir && haveThumbnailType.find(t => {
-                return item.name.endsWith(`.${t}`)
+                return item.name.toLowerCase().endsWith(`.${t}`)
             })
         },
         createShare(e) {
@@ -513,7 +525,7 @@ export default {
         /**
          * @param {MouseEvent} e
          */
-        showMenu(e) {
+        async showMenu(e) {
             this.resetFileInfo()
             this.preventAction(e)
             if (!this.enableMenu) {
@@ -528,58 +540,48 @@ export default {
             if (target !== null && target.classList.contains('tool-bar')) {
                 return
             }
-            const show = () => {
-                // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
-                const div = document.createElement('div')
-                div.style.position = 'fixed'
-                div.style.top = e.pageY + 'px'
-                div.style.left = e.pageX + 'px'
-                const container = this.$refs.list.$el
-                container.appendChild(div)
-
-                // 实例化菜单对象并打开，打开后用于定位的div可移除
-                const menu = new mdui.Menu(div, this.$refs.menu, {
-                    gutter: 0,
-                    fixed: true
-                })
-                if (target !== null && !target.classList.contains('empty')) {
-                    //  找出右键触发位置的项目所在的索引，以便从文件列表(this.fileList)中取出对应的文件信息
-                    let index = 0
-                    this.$refs.container.querySelectorAll('[selectable]').forEach((e, i) => {
-                        if (e == target) {
-                            index = i
-                        }
-                    })
-                    this.fileInfo = this.fileList[index]
-                    this.targetIndex = index
-
-                    //  若触发右键的元素是未选中状态，则重置选中状态同时只选择该元素
-                    if (!target.classList.contains('selected')) {
-                        this.selectChange([target])
+            // 先创建一个div插入到鼠标点击位置，利用该div作为mdui菜单的触发位置锚点
+            const div = this.$refs.menuAnchor
+            div.style.top = e.pageY + 'px'
+            div.style.left = e.pageX + 'px'
+            // 实例化菜单对象并打开，打开后用于定位的div可移除
+            const menu = new mdui.Menu(div, this.$refs.menu, {
+                gutter: 0,
+                fixed: true
+            })
+            if (target !== null && !target.classList.contains('empty')) {
+                //  找出右键触发位置的项目所在的索引，以便从文件列表(this.fileList)中取出对应的文件信息
+                let index = 0
+                this.$refs.container.querySelectorAll('[selectable]').forEach((e, i) => {
+                    if (e == target) {
+                        index = i
                     }
-                } else {
-                    this.targetIndex = undefined
-                    this.fileInfo = null
-                }
-                this.$refs.menu.style.width = this.mobileMenu ? '' : '200px'
-                this.$nextTick().then(() => {
-                    menu.open()
-                    div.remove()
                 })
-            }
-            if (this.menuClosing) {
-                setTimeout(() => {
-                    show()
-                }, 250)
+                this.fileInfo = this.fileList[index]
+                this.targetIndex = index
+
+                //  若触发右键的元素是未选中状态，则重置选中状态同时只选择该元素
+                if (!target.classList.contains('selected')) {
+                    this.selectChange([target])
+                }
             } else {
-                show()
+                this.targetIndex = undefined
+                this.fileInfo = null
             }
+            // 等待上次关闭
+            await this.menuCloseControl.promiseObj
+            await this.$nextTick()
+            this.$refs.menu.style.width = this.mobileMenu ? '' : '200px'
+            menu.open()
         },
         upload() {
             this.$emit('upload')
         },
         refresh() {
-            this.$emit('refresh')
+            this.renderList = false
+            this.$nextTick().then(_ => {
+                this.$emit('refresh')
+            })
         },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
@@ -589,11 +591,14 @@ export default {
             this.newName = fileInfo.name
 
             this.$nextTick().then(() => {
-                const tagName = this.type == 'table' ? 'textarea' : 'input'
-                const els = this.$refs.container.querySelectorAll('.file,.dir')
-                const input = els[this.targetIndex].querySelector(tagName)
-                input.focus()
-                input.select()
+                const liElement = this.$refs.filesItem[this.targetIndex]
+                /**
+                 * @type {HTMLInputElement}
+                 */
+                const el = liElement.querySelector('.rename-input')
+                const end = fileInfo.name.lastIndexOf('.')
+                el.focus()
+                el.setSelectionRange(0, end == -1 ? fileInfo.name.length : end)
             })
         },
         createFolder() {
@@ -705,20 +710,41 @@ export default {
          */
         getSelectFiles() {
             return this.fileList.filter((e, i) => this.checkList[i])
+        },
+        doRenderList() {
+            this.renderList = true
         }
     },
     mounted() {
         this.containerEl = this.$refs.container
         const menu = this.$refs.menu
-        menu.addEventListener('closed.mdui.menu', event => {
-            this.menuClosing = false
+        menu.addEventListener('closed.mdui.menu', async event => {
+            await this.$nextTick()
+            this.menuCloseControl.resolveFn()
         })
-        menu.addEventListener('close.mdui.menu', event => {
-            this.menuClosing = true
+        menu.addEventListener('close.mdui.menu', async event => {
+            await this.menuCloseControl.promiseObj
+            this.menuCloseControl.promiseObj = new Promise((res, rej) => {
+                this.menuCloseControl.resolveFn = res
+            })
         })
     },
     data() {
         return {
+            menuCloseControl: {
+                /**
+                 * 能让promiseObj转为resolved状态的函数
+                 * @param {Function}
+                 */
+                resolveFn: null,
+                /**
+                 * @type {Promise}
+                 */
+                promiseObj: Promise.resolve()
+            },
+            // 是否渲染该组件，通常用于切换以实现刷新
+            renderList: true,
+            renderDebouncer: new Debouncer(),
             lastChangeLen: 0,
             checkList: [],
             /**
@@ -759,17 +785,21 @@ export default {
     },
     watch: {
         fileList() {
-            const list = []
-            this.fileList.forEach(e => {
-                list.push(false)
-            })
-            this.checkList = list
+            this.renderDebouncer.execute(() => {
+                this.renderList = true
+                // 重置多选
+                const list = []
+                this.fileList.forEach(e => {
+                    list.push(false)
+                })
+                this.checkList = list
 
-            this.emitSelectChange()
-            if (this.enableSelect) {
-                this.$refs.checkAllBox.setIndeterminate(false)
-            }
-            this.checkAllStatus = false
+                this.emitSelectChange()
+                if (this.enableSelect) {
+                    this.$refs.checkAllBox.setIndeterminate(false)
+                }
+                this.checkAllStatus = false
+            }, 50)
         }
     }
 }
