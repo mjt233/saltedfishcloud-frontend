@@ -26,6 +26,12 @@ export default {
          */
         name: {
             type: String
+        },
+        /**
+         * 检测到变化时刷新的属性
+         */
+        watchAttr: {
+            type: Object
         }
     },
     data() {
@@ -36,11 +42,11 @@ export default {
     },
     mounted() {
         this.updateSrc()
-        this.$refs.img.addEventListener('error', () => {
+        this.$refs.img.addEventListener('error', async() => {
             this.imgSrc = null
             this.$emit('error', this.md5)
         })
-        this.$refs.img.addEventListener('load', () => {
+        this.$refs.img.addEventListener('load', async() => {
             this.$emit('load', this.md5)
         })
     },
@@ -48,12 +54,6 @@ export default {
         updateSrc() {
             const resourceType = (this.type ? this.type : this.name.split('.').pop()).toLowerCase()
             this.imgSrc = this.axios.defaults.baseURL + '/' + API.resource.getThumbnail(this.md5, resourceType).url
-        },
-        refresh() {
-            this.show = false
-            this.$nextTick().then(_ => {
-                this.show = true
-            })
         }
     },
     watch: {
