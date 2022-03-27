@@ -22,7 +22,7 @@
 
             <!-- 表格数据列 -->
             <template v-slot:columnItem="props">
-                <div @click="clickFile(props.item)" class="file-name" :class="props.item.dir ? 'dir' : `file type-${props.item.suffix}`">{{props.item.name}}</div>
+                <div @click="clickFile(props.item)" class="file-name">{{props.item.name}}</div>
                 <div @click="clickFile(props.item)" v-if="props.item.size > 0">{{props.item.size | formatSize}}</div>
                 <div @click="clickFile(props.item)" v-else>-</div>
                 <div class="mdui-typo">

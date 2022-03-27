@@ -78,7 +78,7 @@ const mapper = [
     },
     {
         accept: ['apk'],
-        iconName: 'apk',
+        iconName: 'android',
         descript: '安卓安装包'
     }
 ]
