@@ -171,6 +171,7 @@
                             :md5="item.md5"
                             :showThumb="true"
                             class="item-icon"
+                            :class="{'item-icon-left': enableSelect}"
                         />
                         <!-- 文件名与列表图标 -->
                         <div class="file-name" v-if="enableName">
