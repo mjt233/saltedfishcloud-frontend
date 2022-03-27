@@ -1,13 +1,11 @@
 <template>
-    <div>
-        <img v-show="imgSrc" :src="imgSrc" ref="img" class="img" v-if="show" />
-    </div>
+    <img v-show="imgSrc" :src="imgSrc" ref="img" v-if="show" />
 </template>
 
 <script>
 import API from '@/api'
 export default {
-    name: 'file-thumb',
+    name: 'fileThumb',
     props: {
         /**
          * 文件资源的MD5
@@ -63,11 +61,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-.img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-</style>

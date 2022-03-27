@@ -19,7 +19,7 @@
 
 
         <div ref="menuAnchor" style="position:fixed"></div>
-        <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading || !this.renderList">
+        <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
         <!-- 以上为绝对定位图层 -->
@@ -145,11 +145,11 @@
                 </li> -->
                 <!-- 文件列表本体 -->
                 <!-- 表格模式图标在这里 -->
-                <template v-if="renderList">
+                <template>
                     <li
                         style="overflow: hidden"
                         v-for="(item, index) in fileList"
-                        v-bind:key="index"
+                        v-bind:key="item.name + item.md5"
                         @click="click(item, index, $event)"
                         @dragleave="dragLeave"
                         @dragover="dragover"
@@ -158,23 +158,22 @@
                         selectable
                         ref="filesItem"
                         class="list-item mdui-ripple file-list-item"
-                        :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
+                        :class="{'selected': checkList[index] }"
                     >
                         <!-- 列表模式文件多选框 -->
                         <div v-if="enableSelect" class="file-select">
                             <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
                         </div>
                         <!-- 文件预览图 -->
-                        <file-thumb
-                            @load="$set(item, 'thumbLoad', true);$set(item, 'thumbError', false);"
-                            @error="$set(item, 'thumbError', true);$set(item, 'thumbLoad', false)"
-                            :md5="item.md5" v-show="!item.thumbError"
-                            :name="item.name"
-                            v-if="canLoadThumb(item)" class="file-thumb"
-                            :class="{ 'select-thumb': enableSelect }"
+                        <file-icon
+                            :dir="item.dir"
+                            :fileName="item.name"
+                            :md5="item.md5"
+                            :showThumb="true"
+                            class="item-icon"
                         />
                         <!-- 文件名与列表图标 -->
-                        <div class="file-name" v-if="enableName" :class="type == 'list' ? getFileItemIconClass(item) : '' ">
+                        <div class="file-name" v-if="enableName">
                             <!-- 文件重命名输入框 -->
                             <input
                                 v-if="index == targetIndex && statu == 'rename' && type == 'list'"
@@ -220,14 +219,14 @@ import selectArea from '@/components/ui/SelectArea.vue'
 import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
 import MduiCheckbox from '../ui/MduiCheckbox.vue'
-import FileThumb from './FileThumb.vue'
 import { Debouncer } from '@/utils/EventUtils'
+import FileIcon from '../FileIcon/FileIcon.vue'
 export default {
     components: {
         Container,
         selectArea,
         MduiCheckbox,
-        FileThumb
+        FileIcon
     },
     name: 'FileList',
     props: {
@@ -351,7 +350,10 @@ export default {
             }
         },
         canLoadThumb(item) {
-            const haveThumbnailType = window.feature.thumbType
+            let haveThumbnailType = []
+            if (window.feature) {
+                haveThumbnailType = window.feature.thumbType
+            }
             return !item.dir && haveThumbnailType.find(t => {
                 return item.name.toLowerCase().endsWith(`.${t}`)
             })
@@ -578,10 +580,7 @@ export default {
             this.$emit('upload')
         },
         refresh() {
-            this.renderList = false
-            this.$nextTick().then(_ => {
-                this.$emit('refresh')
-            })
+            this.$emit('refresh')
         },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
@@ -710,9 +709,6 @@ export default {
          */
         getSelectFiles() {
             return this.fileList.filter((e, i) => this.checkList[i])
-        },
-        doRenderList() {
-            this.renderList = true
         }
     },
     mounted() {
@@ -742,9 +738,7 @@ export default {
                  */
                 promiseObj: Promise.resolve()
             },
-            // 是否渲染该组件，通常用于切换以实现刷新
-            renderList: true,
-            renderDebouncer: new Debouncer(),
+            debouncer: new Debouncer(),
             lastChangeLen: 0,
             checkList: [],
             /**
@@ -785,8 +779,7 @@ export default {
     },
     watch: {
         fileList() {
-            this.renderDebouncer.execute(() => {
-                this.renderList = true
+            this.debouncer.execute(() => {
                 // 重置多选
                 const list = []
                 this.fileList.forEach(e => {
