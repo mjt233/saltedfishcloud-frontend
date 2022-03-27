@@ -119,6 +119,7 @@ const selectConfig = {
 }
 
 /**
+ * 缓存文件类型与规则对象的映射关系
  * @type {Map<String, IconRule>}
  */
 const cacheMap = new Map()
@@ -128,9 +129,6 @@ mapper.forEach(item => {
     })
 })
 const provider = {
-    /**
-     * 文件类型为key，相匹配的文件图标映射规则对象为value
-     */
     cacheMap: cacheMap,
     /**
      * 文件图标资源选择配置
