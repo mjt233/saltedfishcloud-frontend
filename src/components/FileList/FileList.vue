@@ -147,7 +147,6 @@
                 <!-- 表格模式图标在这里 -->
                 <template>
                     <li
-                        style="overflow: hidden"
                         v-for="(item, index) in fileList"
                         v-bind:key="item.name + item.md5"
                         @click="click(item, index, $event)"
