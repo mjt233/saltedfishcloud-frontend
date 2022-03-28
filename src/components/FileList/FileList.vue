@@ -7,6 +7,7 @@
         @contextmenu.native="showMenu"
         ref="list"
         @click.native="containerClick"
+        @mousedown.native="closeMenu"
         style="overflow:auto;height:0px"
     >
         <!-- 以下为绝对定位图层 -->
@@ -179,7 +180,7 @@
                                 v-if="index == targetIndex && statu == 'rename' && type == 'list'"
                                 class="rename-input"
                                 v-model="newName"
-                                @keyup.enter="resetFileInfo"
+                                @keyup.enter="resetRenameInfo"
                             />
                             <textarea
                                 style="border-radius: 0; resize:none; height: 32px"
@@ -187,7 +188,7 @@
                                 v-if="index == targetIndex && statu == 'rename' && type == 'table'"
                                 class="rename-input"
                                 v-model="newName"
-                                @keyup.enter="resetFileInfo"
+                                @keyup.enter="resetRenameInfo"
                             />
                             <!-- 文件名 -->
                             <span class="mdui-text-truncate" v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
@@ -342,6 +343,12 @@ export default {
         }
     },
     methods: {
+        closeMenu(e) {
+            // 当鼠标点击菜单区域外的东西时，关闭菜单
+            if (this.menu && !DOMUtils.getElParentByClass(e.target, 'mdui-menu')) {
+                this.menu.close()
+            }
+        },
         getFileItemIconClass(item) {
             if (this.canLoadThumb(item) && (item.thumbLoad || !item.thumbError)) {
                 return ''
@@ -425,7 +432,7 @@ export default {
                 this.$emit('clickItem', item); break
             case 'rename':
                 if (index !== this.targetIndex) {
-                    this.resetFileInfo()
+                    this.resetRenameInfo()
                 }
                 break
             case 'select':
@@ -440,8 +447,9 @@ export default {
          */
         containerClick(e) {
             try {
-                if (e.target == this.$refs.list.$el) {
-                    this.resetFileInfo()
+                // 当点击的元素是文件列表ul元素 或 点击的是容器空白区域，就重置文件重命名相关信息
+                if (e.target == this.$refs.list.$el || e.target == this.$refs.container) {
+                    this.resetRenameInfo()
                 }
 
                 //
@@ -463,7 +471,7 @@ export default {
         /**
          * 重置当前的文件信息，若文件处于编辑状态 则会触发文件重命名事件
          */
-        resetFileInfo() {
+        resetRenameInfo() {
             if (this.statu === 'rename') {
                 const info = {
                     old: this.fileList[this.targetIndex].name,
@@ -527,7 +535,7 @@ export default {
          * @param {MouseEvent} e
          */
         async showMenu(e) {
-            this.resetFileInfo()
+            this.resetRenameInfo()
             this.preventAction(e)
             if (!this.enableMenu) {
                 return
@@ -563,7 +571,7 @@ export default {
 
                 //  若触发右键的元素是未选中状态，则重置选中状态同时只选择该元素
                 if (!target.classList.contains('selected')) {
-                    this.selectChange([target])
+                    this.selectChange([target], e)
                 }
             } else {
                 this.targetIndex = undefined
@@ -574,6 +582,7 @@ export default {
             await this.$nextTick()
             this.$refs.menu.style.width = this.mobileMenu ? '' : '200px'
             menu.open()
+            this.menu = menu
         },
         upload() {
             this.$emit('upload')
@@ -782,7 +791,12 @@ export default {
              * 被选中的元素
              * @type {HTMLElement[]}
              */
-            selectedEl: []
+            selectedEl: [],
+            /**
+             * 菜单实例
+             * @type {Mdui.Menu}
+             */
+            menu: null
         }
     },
     watch: {
