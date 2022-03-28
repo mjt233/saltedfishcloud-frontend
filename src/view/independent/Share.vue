@@ -69,9 +69,7 @@ export default {
             if (this.selectInfo.files.length == 1 && !this.selectInfo.files[0].dir) {
                 this.downloadFile({
                     path: this.selectInfo.path,
-                    file: {
-                        name: this.selectInfo.files[0].name
-                    }
+                    name: this.selectInfo.files[0].name
                 })
                 return
             }
@@ -103,13 +101,16 @@ export default {
          * @param {Object=} e 包含path和name属性的对象（仅当分享类型为目录时使用），path - 文件所在目录，name - 文件名
          */
         downloadFile(e) {
-            const req = API.share.getFileContent(this.shareInfo.id, this.verification, this.extractCode, e.path, e.file ? e.file.name : undefined)
+            const req = API.share.getFileContent(this.shareInfo.id, this.verification, this.extractCode, e.path, e.name)
             const params = qs.stringify(req.params)
             const url = req.url + '?' + params
             window.open(location.origin + this.axios.defaults.baseURL + url)
         },
         clickFile(e) {
-            this.downloadFile(e)
+            this.downloadFile({
+                path: e.path,
+                name: e.file.name
+            })
         },
         loadInfo() {
             this.loading = true
