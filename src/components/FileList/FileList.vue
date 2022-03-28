@@ -405,18 +405,17 @@ export default {
 
             //  按住Ctrl单击文件
             if (e.ctrlKey) {
-                const el = document.querySelectorAll('.dir,.file')[index]
+                const el = this.$refs.filesItem[index]
                 const t = this.selectedEl
-                let index2 = 0
 
                 //  切换选中状态
                 if (el.classList.contains('selected')) {
-                    t.forEach((elem, i) => { if (elem == el) index2 = i })
-                    t.splice(index2, 1)
+                    t.splice(t.findIndex(item => item == el), 1)
+                    el.classList.remove('selected')
                 } else {
                     t.push(el)
                 }
-                this.selectChange(t)
+                this.selectChange(t, e)
                 return
             }
 
@@ -456,7 +455,7 @@ export default {
                 // eslint-disable-next-line no-empty
                 if ((e.ctrlKey && DOMUtils.getElParentByClass(e.target, 'list-item')) || this.selecting) {
 
-                } else {
+                } else if (!e.ctrlKey) {
                     this.resetSelect()
                 }
             } catch (error) { }
@@ -606,9 +605,12 @@ export default {
         /**
          * 选择结束时触发的selectEnd回调
          * @param {HTMLElement[]} elems
+         * @param {MouseEvent} ev 鼠标抬起事件
          */
-        selected(elems) {
-            this.resetSelect()
+        selected(elems, ev) {
+            if (!ev.ctrlKey) {
+                this.resetSelect()
+            }
             this.selectedEl = elems
             elems.forEach(item => item.classList.add('selected'))
             setTimeout(() => {
@@ -619,18 +621,24 @@ export default {
         /**
          * 鼠标选区触发selectChange时的回调
          * @param {HTMLElement[]} elems
+         * @param {MouseEvent} ev 触发开始选取的第一个鼠标事件
          */
-        selectChange(elems) {
-            this.resetSelect()
+        selectChange(elems, ev) {
+            if (!ev.ctrlKey) {
+                this.resetSelect()
+            }
             this.selectedEl = elems
             elems.forEach(item => item.classList.add('selected'))
         },
         /**
          * 鼠标选区触发selectStart时的回调
+         * @param {MouseEvent} e 鼠标事件
          */
-        selectStart() {
+        selectStart(e) {
             this.statu = 'select'
-            this.resetSelect()
+            if (!e.ctrlKey) {
+                this.resetSelect()
+            }
             this.selecting = true
         },
         /**
