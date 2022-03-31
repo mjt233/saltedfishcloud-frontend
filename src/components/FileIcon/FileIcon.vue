@@ -1,6 +1,7 @@
 <template>
     <div class="file-icon" v-if="renderIcon">
         <file-thumb
+            class="file-icon-entry"
             v-if="showThumb && canLoadThumbnail"
             v-show="!showCommon"
             @error="showCommon = true"
@@ -10,11 +11,13 @@
             :type="type"
         />
         <common-file-icon
+            class="file-icon-entry"
             v-show="showCommon || dir"
             :fileName="fileName"
             :type="type"
             :dir="dir"
         />
+        <i v-show="showPlayIcon" class="mdui-icon material-icons play-icon">play_circle_outline</i>
     </div>
 </template>
 
@@ -80,6 +83,11 @@ export default {
             return !this.isDir && haveThumbnailType.find(t => {
                 return this.fileName.toLowerCase().endsWith(`.${t}`)
             })
+        },
+        showPlayIcon() {
+            const mediaType = ['mp4', 'mp3', 'flac']
+            const type = this.type || this.fileName.toLowerCase().split('.').pop()
+            return mediaType.includes(type)
         }
     },
     methods: {
@@ -104,16 +112,24 @@ export default {
 
 <style lang="less" scoped>
 .file-icon {
-    display: inline-block;
+    display: inline-flex;
     position: relative;
     pointer-events: none;
-    &>* {
+    justify-content: center;
+    &>.file-icon-entry {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         object-fit: contain;
+    }
+    .play-icon {
+        position: relative;
+        font-size: 32px;
+        color: white;
+        text-shadow: 2px 2px 5px rgb(0, 0, 0);
+        opacity: .9;
     }
 }
 </style>
