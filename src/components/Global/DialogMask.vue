@@ -38,7 +38,7 @@ export default {
 <style lang="less" scoped>
 .global-mask-container {
     position: fixed;
-    z-index: 114514;
+    z-index: 1000;
     top: 0;
     left: 0;
     width: calc(100vw - 40px);
