@@ -8,6 +8,7 @@ import MduiHr from '@/components/ui/MduiHr'
 import MduiDialog from '@/components/ui/MduiDialog'
 import FileBrowser from '@/components/FileBrowser'
 import Container from '@/components/layout/Container'
+import DialogMask from '@/components/Global/DialogMask'
 export {
     MduiBtn,
     MduiCard,
@@ -18,6 +19,6 @@ export {
     MduiHr,
     MduiDialog,
     FileBrowser,
-    Container
-
+    Container,
+    DialogMask
 }

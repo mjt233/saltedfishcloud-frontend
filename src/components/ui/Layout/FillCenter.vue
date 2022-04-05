@@ -7,6 +7,16 @@
 <script>
 export default {
     props: {
+        /**
+         * 列间隔
+         */
+        colGap: {
+            type: [Number, String],
+            default: 0
+        },
+        /**
+         * 元素宽度
+         */
         width: {
             type: Number,
             default: 320
@@ -24,7 +34,8 @@ export default {
         containerStyle() {
             return {
                 '--width': this.width + 'px',
-                '--sm-width': this.smWidth ? this.smWidth : (this.width + 'px')
+                '--sm-width': this.smWidth ? this.smWidth : (this.width + 'px'),
+                '--grid-column-gap': this.colGap + 'px'
             }
         },
         containerClass() {

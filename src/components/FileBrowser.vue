@@ -273,6 +273,9 @@ export default {
         }
     },
     methods: {
+        getFileList() {
+            return this.fileList
+        },
         saveCompress(e) {
             mdui.prompt('压缩包文件名（自带.zip）', '请输入创建的压缩包文件名', name => {
                 this.$emit('compress', {

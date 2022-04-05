@@ -17,7 +17,7 @@
             :type="type"
             :dir="dir"
         />
-        <i v-show="showPlayIcon" class="mdui-icon material-icons play-icon">play_circle_outline</i>
+        <i v-show="showPlayIcon" class="mdui-icon material-icons play-icon" :style="{ fontSize: playIconSize }" @click.stop="clickIcon">play_circle_filled</i>
     </div>
 </template>
 
@@ -58,6 +58,10 @@ export default {
          */
         dir: {
             type: Boolean
+        },
+        playIconSize: {
+            type: String,
+            default: '32px'
         }
     },
     data() {
@@ -129,7 +133,7 @@ export default {
         font-size: 32px;
         color: white;
         text-shadow: 2px 2px 5px rgb(0, 0, 0);
-        opacity: .9;
+        opacity: .75;
     }
 }
 </style>

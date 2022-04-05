@@ -140,6 +140,8 @@ import MduiRow from './ui/MduiRow.vue'
 import MduiCol from './ui/MduiCol.vue'
 import StringUtils from '@/utils/StringUtils'
 import MduiLoading from './ui/MduiLoading.vue'
+import SfcUtils from '@/utils/SfcUtils'
+import GlobalAttr from '@/GlobalAttr'
 export default {
     components: { FileBrowser, SearchResult, MduiDialog, MduiCheckbox, MduiBtn, CreateDownloadDialog, QueryDownloadDialog, MduiSelect, MduiInput, MduiCol, MduiRow, MduiLoading },
     name: 'FileHandler',
@@ -423,8 +425,12 @@ export default {
          * 文件浏览器列表文件被点击时执行的回调
          */
         clickFile(e) {
-            const res = API.getServer() + '/api/' + API.resource.downloadFileByMD5(e.md5, e.name).url
-            window.open(res)
+            if (GlobalAttr.isImage(e.name)) {
+                SfcUtils.previewImage(this.$refs.browser.getFileList(), e)
+            } else {
+                const res = API.getServer() + '/api/' + API.resource.downloadFileByMD5(e.md5, e.name).url
+                window.open(res)
+            }
         },
         /**
          * 有文件被拖到文件列表时执行的回调

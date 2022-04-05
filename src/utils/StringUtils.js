@@ -46,6 +46,17 @@ const StringUtils = {
      */
     encodeURLPath(input) {
         return input.split('/').map(e => encodeURIComponent(e)).join('/').replace(/\/\/+/g, '/')
+    },
+    /**
+     * 将多个路径拼接为一个路径（自动添加/或不添加/）
+     * @param  {...String} path 待拼接的路径
+     */
+    appendPath(...path) {
+        let res = ''
+        path.forEach(e => {
+            res += res.endsWith('/') ? e : (e.startsWith('/') ? e : ('/' + e))
+        })
+        return res
     }
 
 }
