@@ -2,7 +2,6 @@
     <dialog-mask
         class="image-previewer"
         @close="$emit('close')"
-        @keydown.native="keypress"
     >
         <div class="image-container">
             <img :src="imgSrc" ref="img" class="main-image">
@@ -16,9 +15,9 @@
                 </div>
             </div>
         </div>
-        <div class="thumb-bar thumb-bar-left">
+        <div class="thumb-bar thumb-bar-left" ref="thumbBar">
             <fill-center :width="160" style="width: 100%;margin-top: 20px">
-                <div v-for="(file, index) in imgList" :key="file.name" class="thumb-bar-item" @click="showImage(index)">
+                <div v-for="(file, index) in imgList" ref="imgThumb" :key="file.name" class="thumb-bar-item" @click="showImage(index)">
                     <file-icon class="item-thumb" :class="{'active': index == activeIdx}" :md5="file.md5" :fileName="file.name" :dir="false" :showThumb="true" />
                     <span class="item-name mdui-text-truncate">{{file.name}}</span>
                 </div>
@@ -58,7 +57,23 @@ export default {
             })
         }
     },
+    mounted() {
+        document.body.addEventListener('keydown', this.keydownCallback)
+    },
+    destroyed() {
+        document.body.removeEventListener('keydown', this.keydownCallback)
+    },
     methods: {
+        /**
+         * @param {KeyboardEvent} e
+         */
+        keydownCallback(e) {
+            if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
+                this.back()
+            } else if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
+                this.forward()
+            }
+        },
         showImage(index) {
             const file = this.imgList[index]
             const conf = API.resource.downloadFileByMD5(file.md5, file.name)
@@ -66,15 +81,25 @@ export default {
             this.imgSrc = url
             this.activeIdx = index
             this.resetImgSize()
+            this.updateBarScrollTop()
+        },
+        updateBarScrollTop() {
+            /**
+             * @type {HTMLElement}
+             */
+            const thumb = this.$refs.imgThumb[this.activeIdx]
+            /**
+             * @type {HTMLElement}
+             */
+            const bar = this.$refs.thumbBar
+
+            bar.scrollTop = thumb.offsetTop - (bar.clientHeight / 2 - thumb.clientHeight / 2)
         },
         getImgList() {
             return this.imgList
         },
         resetImgSize() {
             this.$refs.img.removeAttribute('style')
-        },
-        keypress(e) {
-            console.log(e)
         },
         forward() {
             if (this.activeIdx < (this.imgList.length - 1)) {
@@ -147,6 +172,7 @@ export default {
         height: 100%;
         width: 210px;
         overflow: auto;
+        scroll-behavior:smooth;
 
         // 窄屏列表栏变成在底部
         @media screen and (max-width: 1024px) {
