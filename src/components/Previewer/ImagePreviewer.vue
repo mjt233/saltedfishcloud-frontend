@@ -77,7 +77,7 @@ export default {
         showImage(index) {
             const file = this.imgList[index]
             const conf = API.resource.downloadFileByMD5(file.md5, file.name)
-            const url = API.getServer() + StringUtils.appendPath(this.axios.defaults.baseURL || '', conf.url)
+            const url = StringUtils.appendPath(this.axios.defaults.baseURL || '', conf.url)
             this.imgSrc = url
             this.activeIdx = index
             this.resetImgSize()

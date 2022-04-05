@@ -54,6 +54,10 @@ const StringUtils = {
     appendPath(...path) {
         let res = ''
         path.forEach(e => {
+            if (res.length == 0) {
+                res += e
+                return
+            }
             res += res.endsWith('/') ? e : (e.startsWith('/') ? e : ('/' + e))
         })
         return res
