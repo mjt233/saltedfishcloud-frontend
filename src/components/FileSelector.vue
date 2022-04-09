@@ -36,7 +36,15 @@ export default {
         title: {
             type: String,
             default: '选择位置'
+        },
+        path: {
+            // 初始路径
+            type: String,
+            default: '/'
         }
+    },
+    beforeMount() {
+        this.browserPath = this.path
     },
     data() {
         return {
@@ -51,6 +59,9 @@ export default {
         },
         showDialog(n, o) {
             this.$emit('update:show', n)
+            if (n == false) {
+                this.$emit('close')
+            }
         }
     },
     methods: {

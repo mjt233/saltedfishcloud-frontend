@@ -16,15 +16,16 @@
         @wrapDownload='$emit("wrapDownload", { filenames: $event, source: "/" + paths.join("/") })'
         @createDownload='$emit("createDownload")'
         @queryDownload='$emit("queryDownload")'
-        @compress='compress.showSelector = true;compress.filenames = $event'
+        @compress='handleCompress'
         @share='$emit("share", { resource: $event, path: paths })'
-        @unzip='showSelector = true;unzipName = $event.name'
+        @unzip='unzip'
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
         :file-list="fileList"
         :enable="enableFeature"
     >
+        <!-- @compress='compress.showSelector = true;compress.filenames = $event' -->
         <div>
             <!-- 工具烂 -->
             <div class=" mdui-text-color-theme mdui-container-fluid">
@@ -90,16 +91,14 @@
             </div>
             <mdui-hr></mdui-hr>
             <slot></slot>
-            <file-selector v-if="enableUnzip" :uid="uid" :show.sync="showSelector" :username="''" @confirm="unzip" :title="'选择解压目录'"></file-selector>
-            <file-selector
-                v-if="enableCompress"
+            <!-- <file-selector
+                v-if="enableUnzip"
                 :uid="uid"
-                :show.sync="compress.showSelector"
+                :show.sync="showSelector"
                 :username="''"
-                @confirm="saveCompress"
-                :title="'选择保存位置'"
-            >
-            </file-selector>
+                @confirm="unzip"
+                :title="'选择解压目录'"
+            /> -->
         </div>
     </file-list>
 </template>
@@ -114,7 +113,7 @@ import mdui from 'mdui'
 import apiConfig from '@/api'
 import { FileQueueHandler } from '@/service/FileUpload/FileUploadQueue'
 import StringUtils from '@/utils/StringUtils'
-import FileSelector from './FileSelector.vue'
+import SfcUtils from '@/utils/SfcUtils'
 
 export default {
     name: 'FileBrowser',
@@ -200,12 +199,6 @@ export default {
     },
     data() {
         return {
-            compress: {
-                showSelector: false,
-                filenames: ''
-            },
-            unzipName: '',
-            showSelector: false,
             modifiAttr: 'compress mkdir upload copy cut create-download drag-select delete rename unzip wrap',
             listType: 'table',
             /**
@@ -273,30 +266,43 @@ export default {
         }
     },
     methods: {
+        handleCompress(names) {
+            console.log(this.path)
+            SfcUtils.selectFile({
+                uid: this.uid,
+                title: '选择保存位置',
+                path: this.path
+            }).then(selectPath => {
+                mdui.prompt('压缩包文件名（自带.zip）', '请输入创建的压缩包文件名', name => {
+                    this.$emit('compress', {
+                        source: '/' + this.paths.join('/'),
+                        filenames: names,
+                        dest: (selectPath + '/' + name).replace(/\/\/+/, '/') + '.zip'
+                    })
+                }, _ => {}, {
+                    defaultValue: this.paths.length == 0 ? '新建压缩包' : this.paths[this.paths.length - 1]
+                })
+            }).catch(_ => _) // 取消选择
+        },
         getFileList() {
             return this.fileList
         },
-        saveCompress(e) {
-            mdui.prompt('压缩包文件名（自带.zip）', '请输入创建的压缩包文件名', name => {
-                this.$emit('compress', {
-                    source: '/' + this.paths.join('/'),
-                    filenames: this.compress.filenames,
-                    dest: (e + '/' + name).replace(/\/\/+/, '/') + '.zip'
-                })
-            }, _ => {}, {
-                defaultValue: this.paths.length == 0 ? '新建压缩包' : this.paths[this.paths.length - 1]
-            })
-        },
         unzip(e) {
-            const conf = apiConfig.file.unzip(this.uid, this.path, this.unzipName, e)
-            mdui.confirm('如果目标位置存在同名文件，将会被覆盖，是否继续？', '注意', () => {
-                this.loading = true
-                this.axios(conf).then(() => {
-                    mdui.snackbar('解压完成')
-                    this.loading = false
-                }).catch(e => {
-                    mdui.snackbar(e.toString())
-                    this.loading = false
+            SfcUtils.selectFile({
+                title: '选择解压位置',
+                uid: this.uid,
+                path: this.path
+            }).then(selectPath => {
+                const conf = apiConfig.file.unzip(this.uid, this.path, e.name, selectPath)
+                mdui.confirm('如果目标位置存在同名文件，将会被覆盖，是否继续？', '注意', () => {
+                    this.loading = true
+                    this.axios(conf).then(() => {
+                        mdui.snackbar('解压完成')
+                        this.loading = false
+                    }).catch(e => {
+                        mdui.snackbar(e.toString())
+                        this.loading = false
+                    })
                 })
             })
         },
@@ -611,7 +617,7 @@ export default {
             return decodeURI(input)
         }
     },
-    components: { fileList, MduiBtn, MduiIcon, MduiHr, FileSelector }
+    components: { fileList, MduiBtn, MduiIcon, MduiHr }
 }
 </script>
 
