@@ -7,6 +7,7 @@ import Vue from 'vue'
  * @property {String=} username 用户名
  * @property {String=} title 对话框标题
  * @property {String=} path 初始路径
+ * @property {Function} fileFilter 文件信息过滤器
  *
  */
 
@@ -24,7 +25,8 @@ export default function selectFile(param) {
             uid: param.uid || 0,
             username: param.username || '',
             title: param.title || '选择文件',
-            path: param.path || '/'
+            path: param.path || '/',
+            fileFilter: param.fileFilter
         }
         if (!componentProps.path.startsWith('/')) {
             componentProps.path = '/' + componentProps.path

@@ -22,7 +22,7 @@
         :type='listType'
         :loading="loading || loadingControl"
         :showToolBar='showToolBar'
-        :file-list="fileList"
+        :file-list="filteredFileList"
         :enable="enableFeature"
     >
         <!-- @compress='compress.showSelector = true;compress.filenames = $event' -->
@@ -91,14 +91,6 @@
             </div>
             <mdui-hr></mdui-hr>
             <slot></slot>
-            <!-- <file-selector
-                v-if="enableUnzip"
-                :uid="uid"
-                :show.sync="showSelector"
-                :username="''"
-                @confirm="unzip"
-                :title="'选择解压目录'"
-            /> -->
         </div>
     </file-list>
 </template>
@@ -118,6 +110,12 @@ import SfcUtils from '@/utils/SfcUtils'
 export default {
     name: 'FileBrowser',
     props: {
+        fileFilter: {
+            /**
+             * 文件列表过滤器，参数为单个文件信息，当返回true时文件才会显示
+             */
+            type: Function
+        },
         uid: {
             /**
              * 用户ID
@@ -240,6 +238,13 @@ export default {
         FileQueueHandler.removeEventHandler('upload', this.handleAutoRefresh)
     },
     computed: {
+        filteredFileList() {
+            if (this.fileFilter) {
+                return this.fileList.filter(this.fileFilter)
+            } else {
+                return this.fileList
+            }
+        },
         enableFeature() {
             let feature = ''
             if (this.manualEnable) {
@@ -271,7 +276,8 @@ export default {
             SfcUtils.selectFile({
                 uid: this.uid,
                 title: '选择保存位置',
-                path: this.path
+                path: this.path,
+                fileFilter: f => f.dir
             }).then(selectPath => {
                 mdui.prompt('压缩包文件名（自带.zip）', '请输入创建的压缩包文件名', name => {
                     this.$emit('compress', {
@@ -291,7 +297,8 @@ export default {
             SfcUtils.selectFile({
                 title: '选择解压位置',
                 uid: this.uid,
-                path: this.path
+                path: this.path,
+                fileFilter: f => f.dir
             }).then(selectPath => {
                 const conf = apiConfig.file.unzip(this.uid, this.path, e.name, selectPath)
                 mdui.confirm('如果目标位置存在同名文件，将会被覆盖，是否继续？', '注意', () => {

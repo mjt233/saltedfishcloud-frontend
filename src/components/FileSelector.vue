@@ -9,6 +9,7 @@
             :path.sync="browserPath"
             :disableSearch="true"
             :rootName="username ? username + '的私人网盘' : '网盘'"
+            :fileFilter="fileFilter"
             ref="browser"
             @createFolder="createFolder"
             @delete="deleteItem"
@@ -41,6 +42,12 @@ export default {
             // 初始路径
             type: String,
             default: '/'
+        },
+        fileFilter: {
+            /**
+             * 过滤文件数组显示的文件
+             */
+            type: Function
         }
     },
     beforeMount() {
