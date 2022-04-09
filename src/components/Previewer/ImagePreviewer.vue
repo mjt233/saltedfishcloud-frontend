@@ -4,6 +4,7 @@
         @close="$emit('close')"
     >
         <div class="image-container">
+            <mdui-loading :loading="loading"></mdui-loading>
             <img :src="imgSrc" ref="img" class="main-image">
 
             <!-- 图片后退/前进预览 -->
@@ -33,8 +34,9 @@ import FillCenter from '../ui/Layout/FillCenter.vue'
 import API from '@/api'
 import StringUtils from '@/utils/StringUtils'
 import mdui from 'mdui'
+import MduiLoading from '../ui/MduiLoading.vue'
 export default {
-    components: { FileIcon, FillCenter },
+    components: { FileIcon, FillCenter, MduiLoading },
     name: 'ImagePreviewer',
     props: {
         fileList: {
@@ -44,7 +46,8 @@ export default {
     data() {
         return {
             imgSrc: '',
-            activeIdx: null
+            activeIdx: null,
+            loading: true
         }
     },
     computed: {
@@ -59,6 +62,10 @@ export default {
     },
     mounted() {
         document.body.addEventListener('keydown', this.keydownCallback)
+        this.$refs.img.addEventListener('load', () => {
+            this.loading = false
+            console.log('load')
+        })
     },
     destroyed() {
         document.body.removeEventListener('keydown', this.keydownCallback)
@@ -75,13 +82,17 @@ export default {
             }
         },
         showImage(index) {
+            this.loading = true
             const file = this.imgList[index]
             const conf = API.resource.downloadFileByMD5(file.md5, file.name)
             const url = StringUtils.appendPath(this.axios.defaults.baseURL || '', conf.url)
-            this.imgSrc = url
-            this.activeIdx = index
-            this.resetImgSize()
-            this.updateBarScrollTop()
+            this.imgSrc = null
+            this.$nextTick(() => {
+                this.imgSrc = url
+                this.activeIdx = index
+                this.resetImgSize()
+                this.updateBarScrollTop()
+            })
         },
         updateBarScrollTop() {
             /**

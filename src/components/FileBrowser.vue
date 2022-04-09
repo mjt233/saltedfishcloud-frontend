@@ -25,7 +25,6 @@
         :file-list="filteredFileList"
         :enable="enableFeature"
     >
-        <!-- @compress='compress.showSelector = true;compress.filenames = $event' -->
         <div>
             <!-- 工具烂 -->
             <div class=" mdui-text-color-theme mdui-container-fluid">
