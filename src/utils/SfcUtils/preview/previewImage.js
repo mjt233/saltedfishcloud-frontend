@@ -32,7 +32,7 @@ export default function previewImage(fileList, selectFile) {
     if (selectFile) {
         const previewer = vm.$children[0]
         const idx = previewer.getImgList().findIndex(e => {
-            return e.name == selectFile.name && e.node == selectFile.node
+            return e.name == selectFile.name
         })
         previewer.showImage(idx)
     }

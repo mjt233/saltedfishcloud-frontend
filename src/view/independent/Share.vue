@@ -12,6 +12,7 @@
             @download="downloadFile"
             @selectChange="selectChange"
             :style="browserStyle"
+            ref="browser"
         />
         <mdui-btn class="download-btn"  @click="wrapDownload" :fab="true" :hid="selectInfo.files.length == 0" :icon="'file_download'"></mdui-btn>
     </full-container>
@@ -26,6 +27,8 @@ import ShareExtractor from '@/components/Share/ShareExtractor.vue'
 import ShareBrowser from '@/components/Share/ShareBrowser.vue'
 import qs from 'qs'
 import MduiBtn from '@/components/ui/MduiBtn.vue'
+import GlobalAttr from '@/GlobalAttr'
+import SfcUtils from '@/utils/SfcUtils'
 export default {
     components: {
         FullContainer,
@@ -101,6 +104,10 @@ export default {
          * @param {Object=} e 包含path和name属性的对象（仅当分享类型为目录时使用），path - 文件所在目录，name - 文件名
          */
         downloadFile(e) {
+            if(this.shareInfo.type != 'FILE' && GlobalAttr.isImage(e.name)) {
+                SfcUtils.previewImage(this.$refs.browser.getFileList(), e)
+                return
+            }
             const req = API.share.getFileContent(this.shareInfo.id, this.verification, this.extractCode, e.path, e.name)
             const params = qs.stringify(req.params)
             const url = req.url + '?' + params

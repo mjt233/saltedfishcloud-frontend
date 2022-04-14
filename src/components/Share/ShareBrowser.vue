@@ -91,6 +91,9 @@ export default {
                 files: e
             })
         },
+        getFileList() {
+            return this.shareInfo.type == 'FILE' ? [this.shareInfo] : this.filelist
+        },
         loadList() {
             if (this.shareInfo.type == 'FILE') return
             this.loading = true
