@@ -27,7 +27,32 @@ const StringFormatter = {
      */
     toDate(inputDate) {
         const date = new Date(inputDate)
-        return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+        var month = date.getMonth() + 1
+        var day = date.getDate()
+        return `${date.getFullYear()}-${this.fillLength(month, 2)}-${this.fillLength(day, 2)} ${this.fillLength(date.getHours(),2)}:${this.fillLength(date.getMinutes(), 2)}`
+    },
+    /**
+     * 将字符串填充至指定长度
+     * @param {String|Number} str 待处理的字符串
+     * @param {Number} len 目标长度
+     * @param {'left'|'right'} position 占位字符填充位置
+     * @param {String} char 占位字符
+     */
+    fillLength(str, len, position = 'left', char = '0') {
+        const input = '' + str
+        if (input.length >= len) {
+            return str
+        }
+        const fillLength = len - input.length
+        let fillBody = ''
+        for(let i = 0; i < fillLength; i++) {
+            fillBody += char
+        }
+        if (position == 'left') {
+            return fillBody + input
+        } else {
+            return input + fillBody
+        }
     }
 }
 module.exports = StringFormatter

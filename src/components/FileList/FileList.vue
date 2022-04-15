@@ -136,7 +136,7 @@
                     </div>
                     <div class="file-name" v-if="enableName">文件名</div>
                     <div class="file-size" v-if="enableSize">大小</div>
-                    <div class="file-date" v-if="enableDate">最后修改日期</div>
+                    <!-- <div class="file-date" v-if="enableDate">创建日期</div> -->
                     <slot name="columnHeader"></slot>
                 </li>
                 <!-- 文件列表本体 -->
@@ -193,7 +193,7 @@
                             <div class="file-size" v-if="item.dir">-</div>
                             <div class="file-size" v-else>{{item.size | formatSize}}</div>
                         </template>
-                        <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
+                        <!-- <div class="file-date" v-if="enableDate">{{item.createdAt | formatDate}}</div> -->
                         <!-- 自定义插槽 -->
                         <slot name="columnItem" v-bind:item="item"></slot>
                     </li>
