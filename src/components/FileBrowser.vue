@@ -179,7 +179,7 @@ export default {
         },
         manualEnable: {
             // 手动开启的功能，优先级最高
-            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse share
+            // 可用：mkdir upload copy cut create-download drag-select delete rename name size date return menu patse share wrap
             type: [Boolean, String],
             default: false
         },
@@ -249,7 +249,7 @@ export default {
             if (this.manualEnable) {
                 feature = this.manualEnable
             } else {
-                feature = 'name size date return menu'
+                feature = 'name size date return menu drag-select wrap'
                 if (this.clipBoard.fileInfo.length != 0) {
                     feature += ' patse'
                 }
