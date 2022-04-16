@@ -108,6 +108,7 @@
             <collection-filder-editor ref="createFieldEditor"></collection-filder-editor>
         </mdui-dialog>
         <file-selector
+            :fileFilter="function(e) { return e.dir }"
             :show.sync="showBrowser"
             :uid="userInfo.id"
             :username="userInfo.user"

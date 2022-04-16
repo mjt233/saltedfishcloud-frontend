@@ -29,7 +29,7 @@ const StringFormatter = {
         const date = new Date(inputDate)
         var month = date.getMonth() + 1
         var day = date.getDate()
-        return `${date.getFullYear()}-${this.fillLength(month, 2)}-${this.fillLength(day, 2)} ${this.fillLength(date.getHours(),2)}:${this.fillLength(date.getMinutes(), 2)}`
+        return `${date.getFullYear()}-${StringFormatter.fillLength(month, 2)}-${StringFormatter.fillLength(day, 2)} ${StringFormatter.fillLength(date.getHours(),2)}:${StringFormatter.fillLength(date.getMinutes(), 2)}`
     },
     /**
      * 将字符串填充至指定长度
