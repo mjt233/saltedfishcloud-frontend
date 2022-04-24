@@ -1,5 +1,6 @@
 <template>
     <dialog-mask
+        ref="dialog"
         class="image-previewer"
         @close="$emit('close')"
     >
@@ -71,14 +72,19 @@ export default {
         document.body.removeEventListener('keydown', this.keydownCallback)
     },
     methods: {
+        toClose() {
+            this.$refs.dialog.toClose()
+        },
         /**
          * @param {KeyboardEvent} e
          */
         keydownCallback(e) {
-            if (e.key == 'ArrowLeft' || e.key == 'ArrowUp') {
+            if (e.key == 'ArrowLeft') {
                 this.back()
-            } else if (e.key == 'ArrowRight' || e.key == 'ArrowDown') {
+            } else if (e.key == 'ArrowRight') {
                 this.forward()
+            } else if (e.key == 'Escape') {
+                this.toClose()
             }
         },
         showImage(index) {
