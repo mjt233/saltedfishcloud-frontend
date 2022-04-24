@@ -4,18 +4,24 @@
         class="image-previewer"
         @close="$emit('close')"
     >
-        <div class="image-container">
+        <div class="image-container" :class="{ 'fullscreen': isFullScreen }">
             <mdui-loading :loading="loading"></mdui-loading>
+            <!-- 图片本体 -->
             <img :src="imgSrc" ref="img" class="main-image">
 
-            <!-- 图片后退/前进预览 -->
-            <div class="image-jumper">
-                <div class="jumper-content">
+            <!-- 下方攻击条 -->
+            <div class="image-tool-bar">
+
+                <!-- 图片后退/前进预览 -->
+                <div class="image-tool-jumper">
                     <mdui-btn @click="back" icon="arrow_back" :themeColor="false"></mdui-btn>
                     <span>{{activeIdx + 1}}/{{imgList.length}}</span>
                     <mdui-btn @click="forward" icon="arrow_forward" :themeColor="false"></mdui-btn>
                 </div>
+                <!-- 全屏/取消全屏 -->
+                <mdui-btn @click="isFullScreen = !isFullScreen" :icon="isFullScreen ? 'fullscreen_exit' : 'fullscreen'" :themeColor="false"></mdui-btn>
             </div>
+            
         </div>
         <div class="thumb-bar thumb-bar-left" ref="thumbBar">
             <fill-center :width="160" style="width: 100%;margin-top: 20px">
@@ -36,8 +42,9 @@ import API from '@/api'
 import StringUtils from '@/utils/StringUtils'
 import mdui from 'mdui'
 import MduiLoading from '../ui/MduiLoading.vue'
+import MduiBtn from '../ui/MduiBtn.vue'
 export default {
-    components: { FileIcon, FillCenter, MduiLoading },
+    components: { FileIcon, FillCenter, MduiLoading, MduiBtn },
     name: 'ImagePreviewer',
     props: {
         fileList: {
@@ -48,7 +55,8 @@ export default {
         return {
             imgSrc: '',
             activeIdx: null,
-            loading: true
+            loading: true,
+            isFullScreen: false
         }
     },
     computed: {
@@ -65,7 +73,6 @@ export default {
         document.body.addEventListener('keydown', this.keydownCallback)
         this.$refs.img.addEventListener('load', () => {
             this.loading = false
-            console.log('load')
         })
     },
     destroyed() {
@@ -138,91 +145,107 @@ export default {
 
 <style lang="less" scoped>
 
+.active-border {
+    border-color: rgb(255, 255, 255);
+}
+.image-container {
+    position: relative;
+    left: 210px;
+    width: calc(100% - 210px);
+    height: calc(100% - 20px);
+    transition: all .2s;
 
-.image-previewer {
-    .image-jumper {
+    // 窄屏主图显示
+    @media screen and (max-width: 1024px) {
+        left: 0;
+        width: 100%;
+        height: calc(100% - 380px);
+    };
+
+    // 主图img标签
+    .main-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    // 工具条
+    .image-tool-bar {
         display: flex;
         position: absolute;
         bottom: 0px;
         width: 100%;
         align-items: center;
         justify-content: center;
-        .jumper-content {
+        span,button{
+            text-shadow: 0 0 2px black !important;
+        }
+        .image-tool-jumper {
             display: flex;
             align-items: center;
-            span,button{
-                text-shadow: 0 0 5px black !important;
-            }
             button {
                 margin: 0 10px;
             }
         }
     }
-    .active-border {
-        border-color: rgb(255, 255, 255);
-    }
-    .image-container {
-        position: relative;
-        left: 210px;
-        width: calc(100% - 210px);
-        height: calc(100% - 20px);
 
-        // 窄屏主图显示
-        @media screen and (max-width: 1024px) {
-            left: 0;
-            width: 100%;
-            height: calc(100% - 380px);
-        };
-
-        .main-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-    }
-
-    .thumb-bar {
-        position: absolute;
-        bottom: 0;
+    // 显示区域全屏模式
+    &.fullscreen {
+        position: fixed;
+        top: 0;
         left: 0;
-        background-color: rgb(22, 22, 22);
-        height: 100%;
-        width: 210px;
-        overflow: auto;
-        scroll-behavior:smooth;
+        width: 100vw;
+        height: 100vh;
+        background-color: black;
+        z-index: 9999;
 
-        // 窄屏列表栏变成在底部
-        @media screen and (max-width: 1024px) {
-            height: 360px;
-            width: 100%;
+        >.image-tool-bar {
+            bottom: 20px;
         }
+    }
+}
 
-        .thumb-bar-item {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
+.thumb-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: rgb(22, 22, 22);
+    height: 100%;
+    width: 210px;
+    overflow: auto;
+    scroll-behavior:smooth;
 
-            &:hover {
-                .item-thumb {
-                    .active-border()
-                }
-            }
+    // 窄屏列表栏变成在底部
+    @media screen and (max-width: 1024px) {
+        height: 360px;
+        width: 100%;
+    }
+
+    .thumb-bar-item {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+
+        &:hover {
             .item-thumb {
-                height: 72px;
-                width: 128px;
-                border: 6px solid rgb(77, 77, 77);
+                .active-border()
+            }
+        }
+        .item-thumb {
+            height: 72px;
+            width: 128px;
+            border: 6px solid rgb(77, 77, 77);
 
-                &.active {
-                    .active-border()
-                }
+            &.active {
+                .active-border()
             }
-            .item-name {
-                padding: 5px 10px;
-                font-size: 12px;
-                width: 100%;
-                color: rgb(204, 204, 204);
-            }
+        }
+        .item-name {
+            padding: 5px 10px;
+            font-size: 12px;
+            width: 100%;
+            color: rgb(204, 204, 204);
         }
     }
 }
