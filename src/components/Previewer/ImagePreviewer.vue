@@ -91,7 +91,12 @@ export default {
             } else if (e.key == 'ArrowRight') {
                 this.forward()
             } else if (e.key == 'Escape') {
-                this.toClose()
+                // 如果在全屏模式先退出全屏
+                if (this.isFullScreen) {
+                    this.isFullScreen = false
+                } else {
+                    this.toClose()
+                }
             }
         },
         showImage(index) {
