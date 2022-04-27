@@ -9,6 +9,7 @@
             :path.sync="browserPath"
             :disableSearch="true"
             :rootName="username ? username + '的私人网盘' : '网盘'"
+            :fileFilter="fileFilter"
             ref="browser"
             @createFolder="createFolder"
             @delete="deleteItem"
@@ -36,7 +37,21 @@ export default {
         title: {
             type: String,
             default: '选择位置'
+        },
+        path: {
+            // 初始路径
+            type: String,
+            default: '/'
+        },
+        fileFilter: {
+            /**
+             * 过滤文件数组显示的文件
+             */
+            type: Function
         }
+    },
+    beforeMount() {
+        this.browserPath = this.path
     },
     data() {
         return {
@@ -51,6 +66,9 @@ export default {
         },
         showDialog(n, o) {
             this.$emit('update:show', n)
+            if (n == false) {
+                this.$emit('close')
+            }
         }
     },
     methods: {

@@ -14,7 +14,9 @@ export default {
         }
     },
     mounted() {
-        mdui.mutation(this.$el)
+        this.$nextTick(() => {
+            mdui.mutation(this.$el)
+        })
     }
 }
 </script>

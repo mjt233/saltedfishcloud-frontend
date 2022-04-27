@@ -7,6 +7,7 @@
         @contextmenu.native="showMenu"
         ref="list"
         @click.native="containerClick"
+        @mousedown.native="closeMenu"
         style="overflow:auto;height:0px"
     >
         <!-- 以下为绝对定位图层 -->
@@ -19,7 +20,7 @@
 
 
         <div ref="menuAnchor" style="position:fixed"></div>
-        <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading || !this.renderList">
+        <div style="position:absolute;top:0;width:calc(100% - 20px)" class="mdui-progress" v-if="loading">
             <div class="mdui-progress-indeterminate"></div>
         </div>
         <!-- 以上为绝对定位图层 -->
@@ -135,21 +136,14 @@
                     </div>
                     <div class="file-name" v-if="enableName">文件名</div>
                     <div class="file-size" v-if="enableSize">大小</div>
-                    <div class="file-date" v-if="enableDate">最后修改日期</div>
+                    <!-- <div class="file-date" v-if="enableDate">创建日期</div> -->
                     <slot name="columnHeader"></slot>
                 </li>
-                <!-- <li v-if="enableReturn && type == 'list'" class="list-item tool-bar mdui-ripple" @click="back">
-                    <div class="file-name">返回上一级</div>
-                    <div class="file-size"></div>
-                    <div class="file-date"></div>
-                </li> -->
                 <!-- 文件列表本体 -->
-                <!-- 表格模式图标在这里 -->
-                <template v-if="renderList">
+                <template>
                     <li
-                        style="overflow: hidden"
                         v-for="(item, index) in fileList"
-                        v-bind:key="index"
+                        v-bind:key="item.name + item.md5"
                         @click="click(item, index, $event)"
                         @dragleave="dragLeave"
                         @dragover="dragover"
@@ -158,29 +152,30 @@
                         selectable
                         ref="filesItem"
                         class="list-item mdui-ripple file-list-item"
-                        :class="(type == 'table' ? getFileItemIconClass(item) : '') + (checkList[index] ? 'selected': '')"
+                        :class="{'selected': checkList[index] }"
                     >
                         <!-- 列表模式文件多选框 -->
                         <div v-if="enableSelect" class="file-select">
                             <mdui-checkbox @change="updateCheckAll" v-model="checkList[index]"></mdui-checkbox>
                         </div>
                         <!-- 文件预览图 -->
-                        <file-thumb
-                            @load="$set(item, 'thumbLoad', true);$set(item, 'thumbError', false);"
-                            @error="$set(item, 'thumbError', true);$set(item, 'thumbLoad', false)"
-                            :md5="item.md5" v-show="!item.thumbError"
-                            :name="item.name"
-                            v-if="canLoadThumb(item)" class="file-thumb"
-                            :class="{ 'select-thumb': enableSelect }"
+                        <file-icon
+                            :dir="item.dir"
+                            :fileName="item.name"
+                            :md5="item.md5"
+                            :showThumb="true"
+                            class="item-icon"
+                            :class="{'item-icon-left': enableSelect}"
+                            :playIconSize="type == 'list' ? '24px' : '32px'"
                         />
                         <!-- 文件名与列表图标 -->
-                        <div class="file-name" v-if="enableName" :class="type == 'list' ? getFileItemIconClass(item) : '' ">
+                        <div class="file-name" v-if="enableName">
                             <!-- 文件重命名输入框 -->
                             <input
                                 v-if="index == targetIndex && statu == 'rename' && type == 'list'"
                                 class="rename-input"
                                 v-model="newName"
-                                @keyup.enter="resetFileInfo"
+                                @keyup.enter="resetRenameInfo"
                             />
                             <textarea
                                 style="border-radius: 0; resize:none; height: 32px"
@@ -188,7 +183,7 @@
                                 v-if="index == targetIndex && statu == 'rename' && type == 'table'"
                                 class="rename-input"
                                 v-model="newName"
-                                @keyup.enter="resetFileInfo"
+                                @keyup.enter="resetRenameInfo"
                             />
                             <!-- 文件名 -->
                             <span class="mdui-text-truncate" v-if="index != targetIndex || statu != 'rename'">{{item.name}}</span>
@@ -198,7 +193,7 @@
                             <div class="file-size" v-if="item.dir">-</div>
                             <div class="file-size" v-else>{{item.size | formatSize}}</div>
                         </template>
-                        <div class="file-date" v-if="enableDate">{{item.formatModified}}</div>
+                        <!-- <div class="file-date" v-if="enableDate">{{item.createdAt | formatDate}}</div> -->
                         <!-- 自定义插槽 -->
                         <slot name="columnItem" v-bind:item="item"></slot>
                     </li>
@@ -220,14 +215,14 @@ import selectArea from '@/components/ui/SelectArea.vue'
 import DOMUtils from '@/utils/DOMUtils'
 import StringFormatter from '@/utils/StringFormatter'
 import MduiCheckbox from '../ui/MduiCheckbox.vue'
-import FileThumb from './FileThumb.vue'
 import { Debouncer } from '@/utils/EventUtils'
+import FileIcon from '../FileIcon/FileIcon.vue'
 export default {
     components: {
         Container,
         selectArea,
         MduiCheckbox,
-        FileThumb
+        FileIcon
     },
     name: 'FileList',
     props: {
@@ -343,6 +338,12 @@ export default {
         }
     },
     methods: {
+        closeMenu(e) {
+            // 当鼠标点击菜单区域外的东西时，关闭菜单
+            if (this.menu && !DOMUtils.getElParentByClass(e.target, 'mdui-menu')) {
+                this.menu.close()
+            }
+        },
         getFileItemIconClass(item) {
             if (this.canLoadThumb(item) && (item.thumbLoad || !item.thumbError)) {
                 return ''
@@ -351,7 +352,10 @@ export default {
             }
         },
         canLoadThumb(item) {
-            const haveThumbnailType = window.feature.thumbType
+            let haveThumbnailType = []
+            if (window.feature) {
+                haveThumbnailType = window.feature.thumbType
+            }
             return !item.dir && haveThumbnailType.find(t => {
                 return item.name.toLowerCase().endsWith(`.${t}`)
             })
@@ -403,18 +407,17 @@ export default {
 
             //  按住Ctrl单击文件
             if (e.ctrlKey) {
-                const el = document.querySelectorAll('.dir,.file')[index]
+                const el = this.$refs.filesItem[index]
                 const t = this.selectedEl
-                let index2 = 0
 
                 //  切换选中状态
                 if (el.classList.contains('selected')) {
-                    t.forEach((elem, i) => { if (elem == el) index2 = i })
-                    t.splice(index2, 1)
+                    t.splice(t.findIndex(item => item == el), 1)
+                    el.classList.remove('selected')
                 } else {
                     t.push(el)
                 }
-                this.selectChange(t)
+                this.selectChange(t, e)
                 return
             }
 
@@ -424,7 +427,7 @@ export default {
                 this.$emit('clickItem', item); break
             case 'rename':
                 if (index !== this.targetIndex) {
-                    this.resetFileInfo()
+                    this.resetRenameInfo()
                 }
                 break
             case 'select':
@@ -439,8 +442,9 @@ export default {
          */
         containerClick(e) {
             try {
-                if (e.target == this.$refs.list.$el) {
-                    this.resetFileInfo()
+                // 当点击的元素是文件列表ul元素 或 点击的是容器空白区域，就重置文件重命名相关信息
+                if (e.target == this.$refs.list.$el || e.target == this.$refs.container) {
+                    this.resetRenameInfo()
                 }
 
                 //
@@ -454,7 +458,7 @@ export default {
                 // eslint-disable-next-line no-empty
                 if ((e.ctrlKey && DOMUtils.getElParentByClass(e.target, 'list-item')) || this.selecting) {
 
-                } else {
+                } else if (!e.ctrlKey) {
                     this.resetSelect()
                 }
             } catch (error) { }
@@ -462,7 +466,7 @@ export default {
         /**
          * 重置当前的文件信息，若文件处于编辑状态 则会触发文件重命名事件
          */
-        resetFileInfo() {
+        resetRenameInfo() {
             if (this.statu === 'rename') {
                 const info = {
                     old: this.fileList[this.targetIndex].name,
@@ -526,7 +530,7 @@ export default {
          * @param {MouseEvent} e
          */
         async showMenu(e) {
-            this.resetFileInfo()
+            this.resetRenameInfo()
             this.preventAction(e)
             if (!this.enableMenu) {
                 return
@@ -562,7 +566,7 @@ export default {
 
                 //  若触发右键的元素是未选中状态，则重置选中状态同时只选择该元素
                 if (!target.classList.contains('selected')) {
-                    this.selectChange([target])
+                    this.selectChange([target], e)
                 }
             } else {
                 this.targetIndex = undefined
@@ -573,15 +577,13 @@ export default {
             await this.$nextTick()
             this.$refs.menu.style.width = this.mobileMenu ? '' : '200px'
             menu.open()
+            this.menu = menu
         },
         upload() {
             this.$emit('upload')
         },
         refresh() {
-            this.renderList = false
-            this.$nextTick().then(_ => {
-                this.$emit('refresh')
-            })
+            this.$emit('refresh')
         },
         /**
          * @param {Type.ServerRawFileInfo} fileInfo
@@ -607,9 +609,12 @@ export default {
         /**
          * 选择结束时触发的selectEnd回调
          * @param {HTMLElement[]} elems
+         * @param {MouseEvent} ev 鼠标抬起事件
          */
-        selected(elems) {
-            this.resetSelect()
+        selected(elems, ev) {
+            if (!ev.ctrlKey) {
+                this.resetSelect()
+            }
             this.selectedEl = elems
             elems.forEach(item => item.classList.add('selected'))
             setTimeout(() => {
@@ -620,18 +625,24 @@ export default {
         /**
          * 鼠标选区触发selectChange时的回调
          * @param {HTMLElement[]} elems
+         * @param {MouseEvent} ev 触发开始选取的第一个鼠标事件
          */
-        selectChange(elems) {
-            this.resetSelect()
+        selectChange(elems, ev) {
+            if (!ev.ctrlKey) {
+                this.resetSelect()
+            }
             this.selectedEl = elems
             elems.forEach(item => item.classList.add('selected'))
         },
         /**
          * 鼠标选区触发selectStart时的回调
+         * @param {MouseEvent} e 鼠标事件
          */
-        selectStart() {
+        selectStart(e) {
             this.statu = 'select'
-            this.resetSelect()
+            if (!e.ctrlKey) {
+                this.resetSelect()
+            }
             this.selecting = true
         },
         /**
@@ -710,9 +721,6 @@ export default {
          */
         getSelectFiles() {
             return this.fileList.filter((e, i) => this.checkList[i])
-        },
-        doRenderList() {
-            this.renderList = true
         }
     },
     mounted() {
@@ -742,9 +750,7 @@ export default {
                  */
                 promiseObj: Promise.resolve()
             },
-            // 是否渲染该组件，通常用于切换以实现刷新
-            renderList: true,
-            renderDebouncer: new Debouncer(),
+            debouncer: new Debouncer(),
             lastChangeLen: 0,
             checkList: [],
             /**
@@ -780,13 +786,17 @@ export default {
              * 被选中的元素
              * @type {HTMLElement[]}
              */
-            selectedEl: []
+            selectedEl: [],
+            /**
+             * 菜单实例
+             * @type {Mdui.Menu}
+             */
+            menu: null
         }
     },
     watch: {
         fileList() {
-            this.renderDebouncer.execute(() => {
-                this.renderList = true
+            this.debouncer.execute(() => {
                 // 重置多选
                 const list = []
                 this.fileList.forEach(e => {

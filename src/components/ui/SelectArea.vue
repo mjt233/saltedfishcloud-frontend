@@ -87,12 +87,17 @@ export default {
              * @type {HTMLElement[]}
              */
             selecteds: [],
-            mousePositionType: 'page'
+            mousePositionType: 'page',
+            /**
+             * 触发开始选取的第一个鼠标事件
+             */
+            startEvent: null
         }
     },
     mounted() {
         this.parentEl = this.$el.parentElement
         this.parentEl.addEventListener('mousedown', e => {
+            this.startEvent = e
             // 记录初始x,y坐标
             this.eventEl = e.target
             this.downX = this.eventX = this.getX(e[this.mousePositionType + 'X'])
@@ -119,7 +124,7 @@ export default {
 
                 if (this.width > 5 && this.height > 5) {
                     if (!this.active) {
-                        this.$emit('selectStart')
+                        this.$emit('selectStart', ev)
                     }
                     // 显示选区遮罩
                     this.active = true
@@ -139,7 +144,7 @@ export default {
                 this.parentEl.removeEventListener('mousemove', moveCallback)
                 this.parentEl.removeEventListener('mouseup', mouseupCallback)
                 if (this.active) {
-                    this.$emit('selectEnd', this.selecteds)
+                    this.$emit('selectEnd', this.selecteds, ev)
                     this.active = false
                 }
             }
@@ -259,7 +264,7 @@ export default {
     watch: {
         selecteds(o, n) {
             if (o.length != n.length) {
-                this.$emit('selectChange', this.selecteds)
+                this.$emit('selectChange', this.selecteds, this.startEvent)
             }
         }
     }

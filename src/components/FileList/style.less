@@ -63,13 +63,15 @@ a {
     .head {
         cursor: unset;
     }
-    .file-thumb {
-        position: absolute;
+    // 文件图标 基础属性
+    .item-icon {
+        position: absolute !important;
         pointer-events: none;
         top: 0px;
-        left: 0px;
-        width: 32px;
-        &.select-thumb {
+        width: 22px;
+        left: 7px;
+        // 当列表模式下存在左侧选择框
+        &.item-icon-left {
             left: 60px;
         }
     }
@@ -79,22 +81,19 @@ a {
         grid-gap: 10px;
         gap: 10px;
         justify-content: space-evenly;
-        .file-thumb {
-            position: absolute;
+        .item-icon {
             top: 16px;
-            left: 0px;
+            padding: 0;
             width: 80%;
             height: 48px;
-            margin: 0 4%;
+            left: 0;
+            margin: 0 10%;
         }
         >.list-item {
             width: 120px;
             height: 120px;
             overflow: hidden;
             border: none !important;
-            background-size: 48px 48px;
-            background-position-x: center;
-            background-position-y: 16px;
             padding: 0;
             .file-size,.file-date {display: none;}
             .file-name {
@@ -104,10 +103,7 @@ a {
                 bottom: 0;
                 height: 45px;
                 padding: 0;
-                width: 100%;
-            }
-            &.selected {
-                border-radius: 5px;
+                width: 86%;
             }
         }
     }
@@ -119,16 +115,11 @@ a {
         justify-content: center;
         align-items: center;
         padding: 0 10px;
-        background-repeat: no-repeat;
-        background-position-y: 10px;
-        background-position-x: 10px;
-        background-size: 24px 24px;
         overflow: auto;
-        // transition: all .2s;
         cursor: pointer;
         overflow: hidden;
         &.selected {
-            background-color: rgb(201, 229, 248);
+            background-color: rgb(214, 232, 253);
         }
         &.tool-bar {
             background-image: url('~@/assets/img/icon/return.png');
@@ -140,12 +131,12 @@ a {
             justify-content: center;
             align-items: center;
             flex: none;
-            // flex-shrink: 0;
-            // flex-grow: 1;
             width: 48px;
             .mdui-checkbox-icon {
                 left: 9px;
             }
+            overflow: visible;
+            transform: scale(.9);
         }
         >.file-name {
             --icon-offset-x: 0px;
@@ -155,10 +146,6 @@ a {
             padding-left: 35px;
             text-overflow: ellipsis;
             word-wrap: break-word;
-            background-repeat: no-repeat;
-            background-position-y: calc(10px + var(--icon-offset-y));
-            //background-position-x: calc(10px + var(--icon-offset-x));
-            background-size: 24px 24px;
         }
 
         >*{
