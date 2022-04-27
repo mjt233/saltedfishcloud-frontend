@@ -7,7 +7,7 @@ const Store = new Vuex.Store({
         userInfo: null,
         drawer: null,
         token: '',
-        avatarURL: API.server + '/api/static/static/defaultAvatar.png'
+        avatarURL: API.server + '/api/static/defaultAvatar.png'
     },
     mutations: {
         setDrawer(state, drawer) {
