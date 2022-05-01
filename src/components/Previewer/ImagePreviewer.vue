@@ -19,7 +19,7 @@
                     <mdui-btn @click="forward" icon="arrow_forward" :themeColor="false"></mdui-btn>
                 </div>
                 <!-- 全屏/取消全屏 -->
-                <mdui-btn @click="isFullScreen = !isFullScreen" :icon="isFullScreen ? 'fullscreen_exit' : 'fullscreen'" :themeColor="false"></mdui-btn>
+                <mdui-btn ref="fullScreenBtn" @click="toggleFullScreen" :icon="isFullScreen ? 'fullscreen_exit' : 'fullscreen'" :themeColor="false"></mdui-btn>
             </div>
             
         </div>
@@ -74,11 +74,26 @@ export default {
         this.$refs.img.addEventListener('load', () => {
             this.loading = false
         })
+        document.body.addEventListener('fullscreenchange', this.fullScreenCallback)
     },
     destroyed() {
         document.body.removeEventListener('keydown', this.keydownCallback)
+        document.body.removeEventListener('fullscreenchange', this.fullScreenCallback)
     },
     methods: {
+        fullScreenCallback(e) {
+            if (!document.fullscreenElement) {
+                this.isFullScreen = false
+            }
+        },
+        toggleFullScreen() {
+            this.isFullScreen = !this.isFullScreen
+            if (this.isFullScreen) {
+                document.body.requestFullscreen()
+            } else {
+                document.exitFullscreen()
+            }
+        },
         toClose() {
             this.$refs.dialog.toClose()
         },
