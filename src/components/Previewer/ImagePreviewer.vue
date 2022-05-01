@@ -2,7 +2,7 @@
     <dialog-mask
         ref="dialog"
         class="image-previewer"
-        @close="$emit('close')"
+        @close="$emit('close');closeFullScreen()"
     >
         <div class="image-container" :class="{ 'fullscreen': isFullScreen }">
             <mdui-loading :loading="loading"></mdui-loading>
@@ -81,21 +81,37 @@ export default {
         document.body.removeEventListener('fullscreenchange', this.fullScreenCallback)
     },
     methods: {
-        fullScreenCallback(e) {
+        fullScreenCallback() {
             if (!document.fullscreenElement) {
                 this.isFullScreen = false
             }
         },
-        toggleFullScreen() {
-            this.isFullScreen = !this.isFullScreen
-            if (this.isFullScreen) {
-                document.body.requestFullscreen()
-            } else {
+        closeFullScreen() {
+            if (document.fullscreenElement) {
                 document.exitFullscreen()
+                setTimeout(() => {
+                    this.isFullScreen = false
+                }, 250);
+            } else {
+                this.isFullScreen = false
+            }
+        },
+        openFullScreen() {
+            document.body.requestFullscreen()
+            setTimeout(() => {
+                this.isFullScreen = true
+            }, 250);
+        },
+        toggleFullScreen() {
+            if (this.isFullScreen) {
+                this.closeFullScreen()
+            } else {
+                this.openFullScreen()
             }
         },
         toClose() {
             this.$refs.dialog.toClose()
+            this.closeFullScreen()
         },
         /**
          * @param {KeyboardEvent} e
@@ -114,6 +130,11 @@ export default {
                 }
             }
         },
+        /**
+         * 通过下标显示指定的图片
+         * @param {Number} index 图片下标
+         * 
+         */
         showImage(index) {
             this.loading = true
             const file = this.imgList[index]
