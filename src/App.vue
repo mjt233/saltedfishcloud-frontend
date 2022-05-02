@@ -1,22 +1,18 @@
+<script setup lang="ts">
+import HelloWorld from './components/HelloWorld.vue'
+</script>
+
 <template>
-  <div id="app" ref="app">
-      <file-upload-dialog></file-upload-dialog>
-      <router-view />
-  </div>
+  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
 </template>
 
-<script>
-import FileUploadDialog from '@/components/FileUploadDialog/index.vue'
-export default {
-    name: 'App',
-    components: {
-        FileUploadDialog
-    },
-    mounted() {
-        document.querySelector('#first-load').classList.add('hid')
-        setTimeout(() => {
-            document.querySelector('#first-load').remove()
-        }, 1000)
-    }
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
-</script>
+</style>
