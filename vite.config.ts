@@ -1,18 +1,40 @@
 import { defineConfig } from 'vite'
-import { resolve } from 'path'
 import vue from '@vitejs/plugin-vue'
+import vuetify from '@vuetify/vite-plugin'
+
+const path = require('path')
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
+    vuetify({
+      autoImport: true,
+    }),
+  ],
+  define: { 'process.env': {} },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
-    }
+      '@': path.resolve(__dirname, 'src'),
+    },
   },
   server: {
     proxy: {
-      '/api/': 'http://127.0.0.1:8087'
+      '/api': 'http://127.0.0.1:8087'
     }
   }
+  /* remove the need to specify .vue files https://vitejs.dev/config/#resolve-extensions
+  resolve: {
+    extensions: [
+      '.js',
+      '.json',
+      '.jsx',
+      '.mjs',
+      '.ts',
+      '.tsx',
+      '.vue',
+    ]
+  },
+  */
 })
