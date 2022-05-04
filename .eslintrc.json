@@ -1,0 +1,19 @@
+{
+    "extends": [
+      "plugin:vue/vue3-recommended"
+    ],
+    "rules": {
+        "indent": [ "error", 4 ],
+        "vue/html-indent": ["error", 4, {
+            "attribute": 1,
+            "baseIndent": 1,
+            "closeBracket": 0,
+            "alignAttributesVertically": true,
+            "ignores": []
+        }],
+        "quotes": ["error", "single"],
+        "key-spacing": ["error", {
+            "beforeColon": false
+        }]
+    }
+}

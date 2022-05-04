@@ -1,10 +1,10 @@
 <template>
-  <v-app>
-    <v-main>
-      <router-view></router-view>
-      <HelloWorld/>
-    </v-main>
-  </v-app>
+    <v-app>
+        <v-main>
+            <router-view />
+            <HelloWorld />
+        </v-main>
+    </v-app>
 </template>
 
 <script lang="ts">
@@ -12,16 +12,16 @@ import { defineComponent } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
 
 export default defineComponent({
-  name: 'App',
+    name: 'App',
 
-  components: {
-    HelloWorld,
-  },
+    components: {
+        HelloWorld,
+    },
 
-  data () {
-    return {
-      //
+    data () {
+        return {
+            //
+        }
     }
-  },
 })
 </script>
