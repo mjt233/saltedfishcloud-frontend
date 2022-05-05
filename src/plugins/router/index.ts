@@ -1,10 +1,9 @@
 
 import * as VueRouter from 'vue-router'
-import test from '@/components/Test.vue'
+import CommonRoute from './common'
 
-const routes = [
-    { path: '/test', component: test }
-]
+const routes: VueRouter.RouteRecordRaw[] = []
+routes.push(CommonRoute)
 
 const router =  VueRouter.createRouter({
     history: VueRouter.createWebHashHistory(),

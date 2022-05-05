@@ -11,6 +11,6 @@ const app = createApp(App)
 
 app.config.globalProperties.axios = axios
 app.use(router)
-.use(vuetify)
-.mount('#app')
-createApp(App)
+  .use(vuetify)
+  .mount('#app')
+  createApp(App)
