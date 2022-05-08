@@ -1,15 +1,32 @@
-import * as VueRouter from 'vue-router';
-import index from '@/views/common/index.vue'
-import CommonWelcome from '@/views/common/welcome.vue'
+import * as VueRouter from 'vue-router'
+import Index from '@/views/common/Index.vue'
+import CommonWelcome from '@/views/common/Welcome.vue'
 
-const CommonRoute: VueRouter.RouteRecordRaw  =  {
+
+const commonRoute: VueRouter.RouteRecordRaw  =  {
   path: '/',
-  component: index,
+  component: Index,
   children: [
     {
       path: '/',
       component: CommonWelcome
+    },
+    {
+      path: '/**',
+      component: CommonWelcome
+    },
+    {
+      path: '/public',
+      component: () => import('@/views/common/PublicDisk.vue')
+    },
+    {
+      path: '/private',
+      component: () => import('@/views/common/PrivateDisk.vue')
+    },
+    {
+      path: '/login',
+      component: () => import('@/views/common/LoginView.vue')
     }
   ]
 }
-export default CommonRoute
+export default commonRoute

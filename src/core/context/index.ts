@@ -27,7 +27,7 @@ interface MenuItem {
 /**
  * 全局上下文属性
  */
-interface GlobalContext {
+interface AppContext {
   /**
    * 用户界面主菜单
    */
@@ -40,7 +40,7 @@ interface GlobalContext {
   [otherKey: string]: any
 }
 
-const context: GlobalContext = {
+const context: AppContext = {
   theme: 'default',
   commonMenu: [
     {
@@ -48,7 +48,7 @@ const context: GlobalContext = {
       title: '主功能'
     },
     {
-      title: '公告网盘',
+      title: '公共网盘',
       route: '/public',
       icon: 'mdi-folder'
     },
@@ -57,7 +57,17 @@ const context: GlobalContext = {
       route: '/private',
       icon: 'mdi-lock'
     },
+    {
+      title: '登录',
+      route: '/login',
+      icon: 'mdi-lock'
+    }
   ]
 }
 
-export default context
+export {
+  context
+}
+export type {
+  MenuItem
+}

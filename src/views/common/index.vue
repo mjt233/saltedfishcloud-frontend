@@ -6,31 +6,36 @@
       <v-toolbar-title>咸鱼云网盘</v-toolbar-title>
       <v-spacer />
     </v-app-bar>
-    
+
     <!-- 侧边抽屉 -->
     <v-navigation-drawer
       v-model="showDrawer"
+      color="background"
     >
       <!-- 抽屉菜单列表 -->
-      <v-list>
-        <template 
-          v-for="(item,i) in commonMenu"
+      <v-list bg-color="background">
+        <template
+          v-for="(item, i) in commonMenu"
           :key="i"
         >
-          <!-- 子标题 -->
           <template v-if="item.isSubHeader">
             <v-list-subheader>{{ item.title }}</v-list-subheader>
           </template>
-          <!-- 项目 -->
           <template v-else>
             <v-list-item
+              :active="$route.path == item.route"
+              active-color="primary"
               :value="item.route"
+              @click="menuClick(item, $event)"
             >
               <v-list-item-avatar
                 v-if="item.icon"
                 start
               >
-                <v-icon :icon="item.icon" />
+                <v-icon
+                  :icon="item.icon"
+                  color="primary"
+                />
               </v-list-item-avatar>
               {{ item.title }}
             </v-list-item>
@@ -45,18 +50,36 @@
 </template>
 
 <script setup lang="ts">
-const theme = ref(GlobalContext.theme)
+const theme = ref(context.theme)
 const showDrawer = ref()
-const commonMenu = ref(GlobalContext.commonMenu.map(e => {
-  e.value = e.route
-  return e
-}))
+const commonMenu = ref(
+  context.commonMenu.map((e) => {
+    e.value = e.route
+    return e
+  })
+)
 </script>
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue'
-import GlobalContext from '@/core/context'
+import { context, MenuItem } from '@/core/context/'
 export default defineComponent({
-  name: 'CommonIndex'
+  name: 'CommonIndex',
+  mounted() {
+    console.log(this.$route.path)
+  },
+  methods: {
+    menuClick(menuItem: MenuItem, event: MouseEvent) {
+      if (menuItem.route) {
+        this.$router.push(menuItem.route)
+      }
+    }
+  }
 })
 </script>
+
+<style>
+a {
+  text-decoration: none;
+}
+</style>

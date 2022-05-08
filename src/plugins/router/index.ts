@@ -6,8 +6,8 @@ const routes: VueRouter.RouteRecordRaw[] = []
 routes.push(CommonRoute)
 
 const router =  VueRouter.createRouter({
-    history: VueRouter.createWebHashHistory(),
-    routes: routes
+  history: VueRouter.createWebHashHistory(),
+  routes: routes
 })
 
 

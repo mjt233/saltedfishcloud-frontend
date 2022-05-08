@@ -11,11 +11,20 @@
             "alignAttributesVertically": true,
             "ignores": []
         }],
+        "vue/multiline-html-element-content-newline": ["error", {
+            "allowEmptyLines": true
+        }],
         "quotes": ["error", "single"],
         "key-spacing": ["error", {
             "beforeColon": false
         }],
         "space-before-function-paren": ["error", "never"],
-        "space-before-blocks":"error"
+        "space-before-blocks":"error",
+        "semi": ["error", "never"]
+    },
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+        "parser": "@typescript-eslint/parser"
     }
+    
 }
