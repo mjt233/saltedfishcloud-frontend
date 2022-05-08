@@ -8,47 +8,49 @@
     </v-app-bar>
 
     <!-- 侧边抽屉 -->
-    <v-navigation-drawer
-      v-model="showDrawer"
-      color="background"
-    >
-      <img
-        :src="menuObj.backgroundImg"
-        style="width: 100%"
-      >
-      <!-- 抽屉菜单列表 -->
+    <v-navigation-drawer v-model="showDrawer" color="background">
+      <template #prepend>
+
+        <!-- 抽屉菜单顶部图 -->
+        <img :src="menuObj.backgroundImg" style="width: 100%">
+      </template>
+
+      <!-- 抽屉菜单列表本体 -->
       <v-list bg-color="background">
-        <template
-          v-for="(item, i) in context.menu.value.items"
-          :key="i"
-        >
+        <template v-for="(item, i) in context.menu.value.items" :key="i">
+
+          <!-- 副标题 -->
           <template v-if="item.isSubHeader">
             <v-list-subheader>{{ item.title }}</v-list-subheader>
           </template>
+
+          <!-- 菜单项 -->
           <template v-else>
             <v-list-item
+              v-if="item.renderOn == undefined ? true : item.renderOn(context)"
               :active="$route.path == item.route"
               active-color="primary"
               :value="item.route"
               @click="menuClick(item, $event)"
             >
-              <v-list-item-avatar
-                v-if="item.icon"
-                start
-              >
-                <v-icon
-                  :icon="item.icon"
-                  color="primary"
-                />
+              <!-- 菜单图标 -->
+              <v-list-item-avatar v-if="item.icon" start>
+                <v-icon :icon="item.icon" color="primary" />
               </v-list-item-avatar>
+
+              <!-- 菜单文本 -->
               {{ item.title }}
             </v-list-item>
           </template>
         </template>
       </v-list>
     </v-navigation-drawer>
+
+    <!-- 功能视图路由 -->
     <v-main>
-      <router-view />
+      <div class="main-body">
+        <router-view />
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -78,5 +80,8 @@ export default defineComponent({
 <style>
 a {
   text-decoration: none;
+}
+.main-body {
+  padding: 8px 16px;
 }
 </style>

@@ -1,21 +1,117 @@
 <template>
-  <div>
-    <h1>登录组件</h1>
-    <h1>{{ test }}</h1>
-  </div>
+  <v-card
+    style="overflow: hidden;"
+    :disabled="loading"
+    color="background"
+  >
+    <v-progress-linear v-if="loading" indeterminate color="primary" />
+    <!-- 头部 -->
+    <v-list-item>
+
+      <!-- 头像 -->
+      <v-list-item-avatar>
+        <v-img :src="avatar" />
+      </v-list-item-avatar>
+
+      <!-- 标题 -->
+      <div style="margin: 8px 16px;">
+        <v-list-item-title class="headline">
+          登录账号
+        </v-list-item-title>
+        <v-list-item-subtitle>开启云存储之旅</v-list-item-subtitle>
+      </div>
+    </v-list-item>
+
+    <!-- 表单 -->
+    <v-card-content>
+      <v-row>
+        <v-col :xs="8">
+          <v-text-field
+            v-model="username"
+            color="primary"
+            :label="'用户名'"
+            variant="underlined"
+            autocapitalize="false"
+          />
+        </v-col>
+        <v-col :lg="3" class="text-body-2" align-self="center">
+          <div>
+            <a href="javascript:;" tabindex="-1" class="text-primary">去注册</a>
+          </div>
+          
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col :xs="8">
+          <v-text-field
+            v-model="password"
+            color="primary"
+            :label="'密码'"
+            variant="underlined"
+            type="password"
+            @keyup.enter="doLogin"
+          />
+        </v-col>
+        <v-col :lg="3" class="text-body-2" align-self="center">
+          <div>
+            <a href="javascript:;" tabindex="-1" class="text-primary">忘记密码?</a>
+          </div>
+        </v-col>
+      </v-row>
+      <v-btn color="primary" @click="doLogin">
+        登录
+      </v-btn>
+    </v-card-content>
+  </v-card>
+  <v-snackbar v-model="showSnack" :timeout="3000">
+    {{ snackText }}
+    <template #actions>
+      <v-btn
+        variant="text"
+        color="error"
+        style="font-weight: bold;"
+        @click="showSnack = false"
+      >
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
+<script setup lang="ts">
+const username = ref('')
+const password = ref('')
+
+const avatar = context.defaultAvatar
+const showSnack = ref(false)
+const snackText = ref('')
+const loading = ref(false)
+
+const emit = defineEmits(['success', 'failed'])
+
+const doLogin = (_event: KeyboardEvent | MouseEvent) => {
+  loading.value = true
+  const conf = API.user.login(username.value, password.value)
+  axios(conf).then(e => {
+    emit('success', e.data.data)
+    context.session.value.token = e.data.data
+  }).catch(e => {
+    emit('failed', e.msg.toString())
+    showSnack.value = true
+    snackText.value = e.msg
+  }).finally(() => {
+    loading.value = false
+  })
+}
+</script>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import API from '@/api'
+import { context } from '@/core/context'
+import axios from '@/plugins/axios'
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
-  name: 'AppLogin',
-  props: {
-    test: {
-      type: String,
-      default: null
-    }
-  }
+  name: 'AppLogin'
 })
 </script>

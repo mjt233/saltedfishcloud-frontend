@@ -14,6 +14,14 @@
         "vue/multiline-html-element-content-newline": ["error", {
             "allowEmptyLines": true
         }],
+        "vue/max-attributes-per-line": ["error", {
+            "singleline": {
+              "max": 3
+            },      
+            "multiline": {
+              "max": 1
+            }
+        }],
         "quotes": ["error", "single"],
         "key-spacing": ["error", {
             "beforeColon": false
