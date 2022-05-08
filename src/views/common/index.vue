@@ -3,7 +3,7 @@
     <!-- 顶部栏 -->
     <v-app-bar>
       <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
-      <v-toolbar-title>咸鱼云网盘</v-toolbar-title>
+      <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
       <v-spacer />
     </v-app-bar>
 
@@ -12,10 +12,14 @@
       v-model="showDrawer"
       color="background"
     >
+      <img
+        :src="menuObj.backgroundImg"
+        style="width: 100%"
+      >
       <!-- 抽屉菜单列表 -->
       <v-list bg-color="background">
         <template
-          v-for="(item, i) in commonMenu"
+          v-for="(item, i) in context.menu.value.items"
           :key="i"
         >
           <template v-if="item.isSubHeader">
@@ -50,14 +54,10 @@
 </template>
 
 <script setup lang="ts">
-const theme = ref(context.theme)
+const theme = context.theme
+const menuObj = context.menu
 const showDrawer = ref()
-const commonMenu = ref(
-  context.commonMenu.map((e) => {
-    e.value = e.route
-    return e
-  })
-)
+
 </script>
 
 <script lang="ts">
@@ -65,9 +65,6 @@ import { ref, defineComponent } from 'vue'
 import { context, MenuItem } from '@/core/context/'
 export default defineComponent({
   name: 'CommonIndex',
-  mounted() {
-    console.log(this.$route.path)
-  },
   methods: {
     menuClick(menuItem: MenuItem, event: MouseEvent) {
       if (menuItem.route) {

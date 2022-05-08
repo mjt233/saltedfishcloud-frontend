@@ -1,5 +1,5 @@
 <template>
-  <app-login :test="'123123'" />
+  <app-login />
 </template>
 
 <script lang="ts">
