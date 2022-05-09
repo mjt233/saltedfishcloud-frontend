@@ -15,7 +15,7 @@ const emptySession: Session = {
 const context: ToRefs<AppContext> = toRefs(reactive({
   appTitle: '咸鱼云网盘',
   theme: 'default',
-  menu: defaultAppMenu,
+  mainMenu: defaultAppMenu,
   defaultAvatar: axios.defaults.baseURL + '/static/defaultAvatar.png',
   session: emptySession
 }))

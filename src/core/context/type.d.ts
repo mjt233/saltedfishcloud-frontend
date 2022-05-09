@@ -28,7 +28,7 @@ export interface AppContext {
   /**
    * 用户界面主菜单
    */
-  menu: AppMenu,
+  mainMenu: AppMenu,
 
   /**
    * 默认头像src属性

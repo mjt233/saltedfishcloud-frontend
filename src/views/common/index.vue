@@ -17,30 +17,31 @@
 
       <!-- 抽屉菜单列表本体 -->
       <v-list bg-color="background">
-        <template v-for="(item, i) in context.menu.value.items" :key="i">
+        <template v-for="(group) in context.mainMenu.value.group" :key="group.id">
+          <template v-if="!group.renderOn || group.renderOn(context)">
 
-          <!-- 副标题 -->
-          <template v-if="item.isSubHeader">
-            <v-list-subheader>{{ item.title }}</v-list-subheader>
-          </template>
+            <!-- 副标题 -->
+            <v-list-subheader>{{ group.name }}</v-list-subheader>
 
-          <!-- 菜单项 -->
-          <template v-else>
-            <v-list-item
-              v-if="item.renderOn == undefined ? true : item.renderOn(context)"
-              :active="$route.path == item.route"
-              active-color="primary"
-              :value="item.route"
-              @click="menuClick(item, $event)"
-            >
-              <!-- 菜单图标 -->
-              <v-list-item-avatar v-if="item.icon" start>
-                <v-icon :icon="item.icon" color="primary" />
-              </v-list-item-avatar>
+            <!-- 菜单项 -->
+            <template v-for="(item) in group.items">
+              <v-list-item
+                v-if="item.renderOn == undefined ? true : item.renderOn(context)"
+                :key="item.id"
+                :active="$route.path == item.route"
+                active-color="primary"
+                :value="item.route"
+                @click="menuClick(item, $event)"
+              >
+                <!-- 菜单图标 -->
+                <v-list-item-avatar v-if="item.icon" start>
+                  <v-icon :icon="item.icon" color="primary" />
+                </v-list-item-avatar>
 
-              <!-- 菜单文本 -->
-              {{ item.title }}
-            </v-list-item>
+                <!-- 菜单文本 -->
+                {{ item.title }}
+              </v-list-item>
+            </template>
           </template>
         </template>
       </v-list>
@@ -57,7 +58,7 @@
 
 <script setup lang="ts">
 const theme = context.theme
-const menuObj = context.menu
+const menuObj = context.mainMenu
 const showDrawer = ref()
 
 </script>

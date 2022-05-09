@@ -2,6 +2,31 @@ import { ToRefs } from 'vue'
 import { AppContext } from '../type'
 
 /**
+ * 菜单组
+ */
+export interface MenuGroup {
+  /**
+   * 唯一标识
+   */
+  id: string | number,
+
+  /**
+   * 菜单组名称
+   */
+  name: string,
+
+  /**
+   * 菜单项列表
+   */
+  items: MenuItem[],
+
+  /**
+   * 当函数返回true时才显示
+   */
+  renderOn?: (ctx: ToRefs<AppContext>) => boolean
+}
+
+/**
  * 菜单项
  */
 export interface MenuItem {
@@ -26,11 +51,6 @@ export interface MenuItem {
   route?: string,
 
   /**
-   * 是否为副标题
-   */
-  isSubHeader?: boolean,
-
-  /**
    * 当函数返回true时才显示
    */
   renderOn?: (ctx: ToRefs<AppContext>) => boolean
@@ -39,5 +59,5 @@ export interface MenuItem {
 
 export interface AppMenu {
   backgroundImg: string,
-  items: MenuItem[]
+  group: MenuGroup[]
 }
