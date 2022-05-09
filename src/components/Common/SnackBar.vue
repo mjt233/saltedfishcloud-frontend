@@ -31,6 +31,7 @@ const active = ref(true)
 
 const time = setTimeout(() => {
   active.value = false
+  emit('close')
 }, props.timeout)
 
 

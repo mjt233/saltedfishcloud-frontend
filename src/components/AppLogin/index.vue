@@ -98,7 +98,7 @@ const doLogin = (_event: KeyboardEvent | MouseEvent) => {
   }).catch(e => {
     const msg = e.msg.toString()
     emit('failed', msg)
-    SfcUtils.snackbar(msg, 10000, { showClose: true })
+    SfcUtils.snackbar(msg, 2000)
   }).finally(() => {
     loading.value = false
   })

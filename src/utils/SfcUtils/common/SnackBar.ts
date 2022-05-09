@@ -1,6 +1,5 @@
 import SnackBar from '@/components/Common/SnackBar.vue'
-import vuetify from '@/plugins/vuetify'
-import { createApp, h } from 'vue'
+import { dyncmount } from './DyncMount'
 
 
 
@@ -22,35 +21,18 @@ export interface SnackBarOptions {
  * @param param2 气泡其他选项
  */
 export function snackbar(text: string, timeout: number = 2000, { showClose, onClose }: SnackBarOptions = {}): void {
-  const tempDOM = document.createElement('div')
-  document.body.appendChild(tempDOM)
-  
   if (timeout == null || timeout == undefined) {
     timeout = 2000
   }
-
-  const unmount = () => {
-    tempApp.unmount()
-    document.body.removeChild(tempDOM)
-  }
-
-  // 动态创建组件
-  const tempApp = createApp({
-    render() {
-      return h(SnackBar, {
-        text,
-        timeout,
-        showClose,
-        onClose: () => {
-          unmount()
-          onClose && onClose()
-        }
-      })
+  const handler = dyncmount(SnackBar, {
+    text,
+    timeout,
+    showClose,
+    onClose: () => {
+      handler.unmount()
+      onClose && onClose()
     }
   })
-
-  // 挂载
-  tempApp.use(vuetify).mount(tempDOM)
 
 
 }
