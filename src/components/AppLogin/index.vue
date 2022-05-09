@@ -96,9 +96,9 @@ const doLogin = (_event: KeyboardEvent | MouseEvent) => {
     emit('success', e.data.data)
     context.session.value.token = e.data.data
   }).catch(e => {
-    emit('failed', e.msg.toString())
-    showSnack.value = true
-    snackText.value = e.msg
+    const msg = e.msg.toString()
+    emit('failed', msg)
+    SfcUtils.snackbar(msg, 10000, { showClose: true })
   }).finally(() => {
     loading.value = false
   })
@@ -109,6 +109,7 @@ const doLogin = (_event: KeyboardEvent | MouseEvent) => {
 import API from '@/api'
 import { context } from '@/core/context'
 import axios from '@/plugins/axios'
+import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
