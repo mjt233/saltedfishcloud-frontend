@@ -1,6 +1,9 @@
 import * as MenuType from './type.js'
 import defaultMenuBackground from '@/assets/img/bg/bg2.jpg'
-const defaultAppMenu: MenuType.AppMenu = {
+import { ConditionFunction } from '@/core/helper/ConditionFunction.js'
+import SfcUtils from '@/utils/SfcUtils/index.js'
+
+const defaultMainMenu: MenuType.AppMenu = {
   backgroundImg: defaultMenuBackground,
   group: [
     // 主功能
@@ -33,21 +36,28 @@ const defaultAppMenu: MenuType.AppMenu = {
           title: '登录',
           route: '/login',
           icon: 'mdi-login',
-          renderOn: ctx => {
-            return ctx.session.value.token == ''
-          }
+          renderOn: ConditionFunction.noLogin
+        },
+        {
+          id: 'my',
+          title: '个人中心',
+          icon: 'mdi-account',
+          route: '/personalCenter',
+          renderOn: ConditionFunction.hasLogin
         },
         {
           id: 'logout',
           title: '退出登录',
           icon: 'mdi-logout',
-          renderOn: ctx => {
-            return ctx.session.value.token != ''
-          }
+          action(ctx) {
+            ctx.session.value.logout()
+            SfcUtils.snackbar('退出成功')
+          },
+          renderOn: ConditionFunction.hasLogin
         }
       ]
     },
   ]
 }
 
-export default defaultAppMenu
+export default defaultMainMenu

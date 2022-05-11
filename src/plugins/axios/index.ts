@@ -39,7 +39,7 @@ inst.interceptors.response.use(
     // })
 
     if (status === 401) {
-      context.session.value.user = {uid: 0, name: 'public', role: 'public'}
+      context.session.value.user = {id: 0, name: 'public', role: 'public'}
       context.session.value.token = ''
     }
     err.msg = msg || err.response.data.message || (Math.trunc(status / 100) == 5 ? '服务器错误' : '未知错误')

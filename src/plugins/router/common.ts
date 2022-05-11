@@ -9,15 +9,24 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
   children: [
     {
       path: '/',
-      component: CommonWelcome
+      component: CommonWelcome,
+      meta: {
+        allowNoLogin: true
+      }
     },
     {
       path: '/**',
-      component: CommonWelcome
+      component: CommonWelcome,
+      meta: {
+        allowNoLogin: true
+      }
     },
     {
       path: '/public',
-      component: () => import('@/views/common/PublicDisk.vue')
+      component: () => import('@/views/common/PublicDisk.vue'),
+      meta: {
+        allowNoLogin: true
+      }
     },
     {
       path: '/private',
@@ -25,7 +34,14 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
     },
     {
       path: '/login',
-      component: () => import('@/views/common/LoginView.vue')
+      component: () => import('@/views/common/LoginView.vue'),
+      meta: {
+        allowNoLogin: true
+      }
+    },
+    {
+      path: '/personalCenter',
+      component: () => import('@/views/common/PersonalCenter.vue')
     }
   ]
 }

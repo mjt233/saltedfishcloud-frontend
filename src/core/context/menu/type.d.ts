@@ -53,7 +53,12 @@ export interface MenuItem {
   /**
    * 当函数返回true时才显示
    */
-  renderOn?: (ctx: ToRefs<AppContext>) => boolean
+  renderOn?: (ctx: ToRefs<AppContext>) => boolean,
+
+  /**
+   * 菜单点击动作
+   */
+  action?: (ctx: ToRefs<AppContext>) => void
   [otherKey: string]: any
 }
 

@@ -1,23 +1,19 @@
-import { AppContext, Session } from './type'
-import defaultAppMenu from './menu'
-import { reactive, ref, toRefs, ToRefs } from 'vue'
-import axios from '@/plugins/axios'
+import { AppContext } from './type'
+import defaultMainMenu from './menu'
+import { reactive, toRefs, ToRefs } from 'vue'
+import { emptySession } from './session'
 
-const emptySession: Session = {
-  token: '',
-  user: {
-    id: 0,
-    name: 'public',
-    role: 'public'
-  }
-}
 
 const context: ToRefs<AppContext> = toRefs(reactive({
   appTitle: '咸鱼云网盘',
   theme: 'default',
-  mainMenu: defaultAppMenu,
+  menu: {
+    mainMenu: defaultMainMenu
+  },
   defaultAvatar: '/api/static/defaultAvatar.png',
-  session: emptySession
+  session: emptySession,
+  routeInfo: {
+  }
 }))
 
 

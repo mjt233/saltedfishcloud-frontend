@@ -19,7 +19,7 @@ const props = defineProps({
   },
   showClose: {
     type: Boolean,
-    default: true
+    default: false
   },
   timeout: {
     type: Number,
@@ -28,16 +28,21 @@ const props = defineProps({
 })
 
 const active = ref(true)
+const emitClose = () => {
+  setTimeout(() => {
+    emit('close')
+  }, 200)
+}
 
 const time = setTimeout(() => {
   active.value = false
-  emit('close')
+  emitClose()
 }, props.timeout)
 
 
 const doClose = () => {
   active.value = false
-  emit('close')
+  emitClose()
   clearTimeout(time)
 }
 </script>

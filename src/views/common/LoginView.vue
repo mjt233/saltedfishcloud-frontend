@@ -6,10 +6,14 @@
 
 <script setup lang="ts">
 import AppLogin from '@/components/AppLogin/index.vue'
-import { User } from '@/core/context'
+import { User } from '@/core/context/session'
+import { useRouter } from 'vue-router'
+import { context } from '@/core/context'
 
+const router = useRouter()
 const success = (userInfo: User) => {
-  console.log('user', userInfo)
+  const routeInfo = context.routeInfo.value
+  router.push(routeInfo.prev?.path || '/personalCenter')
 }
 const failed = (reason: string) => {
   console.log('失败原因：' + reason)

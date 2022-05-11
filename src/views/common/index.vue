@@ -18,7 +18,7 @@
 
       <!-- 抽屉菜单列表本体 -->
       <v-list bg-color="background">
-        <template v-for="(group) in context.mainMenu.value.group" :key="group.id">
+        <template v-for="(group) in menuObj.group" :key="group.id">
           <template v-if="!group.renderOn || group.renderOn(context)">
 
             <!-- 副标题 -->
@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import UserCard from '@/components/Common/UserCard.vue'
 const theme = context.theme
-const menuObj = context.mainMenu
+const menuObj = context.menu.value.mainMenu
 const showDrawer = ref()
 
 const session = context.session
@@ -73,6 +73,9 @@ export default defineComponent({
   name: 'CommonIndex',
   methods: {
     menuClick(menuItem: MenuItem, event: MouseEvent) {
+      if (menuItem.action) {
+        menuItem.action(context)
+      }
       if (menuItem.route) {
         this.$router.push(menuItem.route)
       }

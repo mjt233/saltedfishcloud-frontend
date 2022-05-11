@@ -1,17 +1,21 @@
 import { ToRefs } from 'vue'
 import { AppMenu } from './menu/type'
-export interface Session {
-  token: string,
-  user: User
-}
+import { RouteLocationNormalized, Router } from 'vue-router'
+interface RouteInfo {
+  /**
+   * 当前路由
+   */
+  curr?: RouteLocationNormalized,
+  /**
+   * 上一路由
+   */
+  prev?: RouteLocationNormalized,
 
-export type UserRole = 'admin' | 'normal' | 'public'
-export interface User {
-  id: number,
-  name: string,
-  role: UserRole
+  /**
+   * 路由器
+   */
+  router?: Router
 }
-
 /**
  * 全局上下文属性
  */
@@ -27,9 +31,14 @@ export interface AppContext {
   theme: string,
 
   /**
-   * 用户界面主菜单
+   * 菜单
    */
-  mainMenu: AppMenu,
+  menu: {
+    /**
+     * 用户界面主菜单
+     */
+    mainMenu: AppMenu
+  }
 
   /**
    * 默认头像src属性
@@ -40,5 +49,10 @@ export interface AppContext {
    * 用户会话属性
    */
   session: Session,
+
+  /**
+   * 路由信息
+   */
+  routeInfo: RouteInfo,
   [otherKey: string]: any
 }

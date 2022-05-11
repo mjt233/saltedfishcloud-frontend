@@ -92,23 +92,23 @@ const emit = defineEmits(['success', 'failed'])
 const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
   loading.value = true
   const loginConf = API.user.login(username.value, password.value)
+  const session = context.session.value
   try {
 
     // 登录
+    // 设置token
     const loginRet = await axios(loginConf)
-    context.session.value.token = loginRet.data.data
-
+    session.setToken(loginRet.data.data)
+    
+    // 获取用户信息
     const userInfoRet = await axios(API.user.getUserInfo())
-    
-    // 为user创建别名name（用户名）
-    userInfoRet.data.data.name = userInfoRet.data.data.user
-    context.session.value.user = reactive(userInfoRet.data.data)
-    
+    session.setUserInfo(userInfoRet.data.data)
+
     emit('success', context.session.value.user)
   } catch(err) {
-    const msg = (err as any).msg.toString()
+    const msg = (err as any).toString()
     emit('failed', msg)
-    SfcUtils.snackbar(msg, 2000)
+    SfcUtils.snackbar(msg, 5000)
   } finally {
     loading.value = false
   }
