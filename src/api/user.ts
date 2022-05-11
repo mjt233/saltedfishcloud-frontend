@@ -1,226 +1,226 @@
 const user = {
-    prefix: 'user',
-    /**
+  prefix: '/user',
+  /**
      * 发送绑定新邮箱的验证码
      * @param {String} email 接收验证码的新邮箱
      * @returns {import("axios").AxiosRequestConfig}
      */
-    sendBindEmail(email: string) {
-        return {
-            url: `${this.prefix}/sendBindEmail`,
-            data: {
-                email: email
-            },
-            method: 'post'
-        }
-    },
-    /**
+  sendBindEmail(email: string) {
+    return {
+      url: `${this.prefix}/sendBindEmail`,
+      data: {
+        email: email
+      },
+      method: 'post'
+    }
+  },
+  /**
      * 更新token
      * @returns {import("axios").AxiosRequestConfig}
      */
-    updateToken() {
-        return {
-            url: `${this.prefix}/updateToken`,
-            method: 'post'
-        }
-    },
-    /**
+  updateToken() {
+    return {
+      url: `${this.prefix}/updateToken`,
+      method: 'post'
+    }
+  },
+  /**
      * 绑定新邮箱
      * @param {String} newEmail 新邮箱
      * @param {String} originCode 旧邮箱验证码，若先前未绑定邮箱则不需要
      * @param {String} newCode 新邮箱验证码
      * @returns {import("axios").AxiosRequestConfig}
      */
-    bindNewEmail(newEmail: string, originCode: string, newCode: string) {
-        return {
-            url: `${this.prefix}/newMail`,
-            method: 'post',
-            data: {
-                email: newEmail,
-                originCode: originCode,
-                newCode: newCode
-            }
-        }
-    },
-    /**
+  bindNewEmail(newEmail: string, originCode: string, newCode: string) {
+    return {
+      url: `${this.prefix}/newMail`,
+      method: 'post',
+      data: {
+        email: newEmail,
+        originCode: originCode,
+        newCode: newCode
+      }
+    }
+  },
+  /**
      * 用于验证旧邮箱的验证码是否正确
      * @param {String} code 验证码
      * @returns {import("axios").AxiosRequestConfig}
      */
-    verifyEmail(code: string) {
-        return {
-            url: `${this.prefix}/verifyEmail`,
-            method: 'post',
-            data: {
-                code: code
-            }
-        }
-    },
-    /**
+  verifyEmail(code: string) {
+    return {
+      url: `${this.prefix}/verifyEmail`,
+      method: 'post',
+      data: {
+        code: code
+      }
+    }
+  },
+  /**
      * 发送用于验证旧邮箱的验证码
      * @returns {import("axios").AxiosRequestConfig}
      */
-    sendVerifyEmail() {
-        return {
-            url: `${this.prefix}/sendVerifyEmail`,
-            method: 'post'
-        }
-    },
-    /**
+  sendVerifyEmail() {
+    return {
+      url: `${this.prefix}/sendVerifyEmail`,
+      method: 'post'
+    }
+  },
+  /**
      * 发送重置密码邮箱验证码
      * @param {String} account 用户名或邮箱
      * @param {String} code 验证码
      * @param {String} password 新密码
      * @returns {import("axios").AxiosRequestConfig}
      */
-    resetPassword(account: string, code: string, password: string) {
-        return {
-            url: `${this.prefix}/resetPassword`,
-            data: {
-                account: account,
-                code: code,
-                password: password
-            },
-            method: 'post'
-        }
-    },
-    /**
+  resetPassword(account: string, code: string, password: string) {
+    return {
+      url: `${this.prefix}/resetPassword`,
+      data: {
+        account: account,
+        code: code,
+        password: password
+      },
+      method: 'post'
+    }
+  },
+  /**
      * 发送重置密码邮箱验证码
      * @param {String} account 用户名或邮箱
      * @returns {import("axios").AxiosRequestConfig}
      */
-    sendResetPasswordEmail(account: string) {
-        return {
-            url: `${this.prefix}/sendResetPasswordEmail`,
-            data: {
-                account: account
-            },
-            method: 'post'
-        }
-    },
-    /**
+  sendResetPasswordEmail(account: string) {
+    return {
+      url: `${this.prefix}/sendResetPasswordEmail`,
+      data: {
+        account: account
+      },
+      method: 'post'
+    }
+  },
+  /**
      * 获取邮箱注册验证码
      * @param {String} email 接收的邮箱
      */
-    getEmailRegCode(email: string) {
-        return {
-            url: `${this.prefix}/regcode`,
-            data: {
-                email: email
-            },
-            method: 'post'
-        }
-    },
-    /**
+  getEmailRegCode(email: string) {
+    return {
+      url: `${this.prefix}/regcode`,
+      data: {
+        email: email
+      },
+      method: 'post'
+    }
+  },
+  /**
      * 获取系统开放的注册类型
      */
-    getRegType() {
-        return {
-            url: `${this.prefix}/regType`
-        }
-    },
-    /**
+  getRegType() {
+    return {
+      url: `${this.prefix}/regType`
+    }
+  },
+  /**
      * 设置用户的类型
      * @param {Number} uid      目标用户ID
      * @param {Boolean} isAdmin 是否设为管理员
      */
-    setUserType(uid: number, isAdmin: boolean) {
-        return {
-            url: `${this.prefix}/${uid}/type/${isAdmin ? '1' : '0'}`,
-            method: 'put'
-        }
-    },
-    /**
+  setUserType(uid: number, isAdmin: boolean) {
+    return {
+      url: `${this.prefix}/${uid}/type/${isAdmin ? '1' : '0'}`,
+      method: 'put'
+    }
+  },
+  /**
      * 获取用户列表
      * @param {Number} page 页码
      * @returns
      */
-    getUserList(page = 1) {
-        return {
-            url: `${this.prefix}/list`,
-            params: {
-                page: page
-            }
-        }
-    },
-    /**
+  getUserList(page = 1) {
+    return {
+      url: `${this.prefix}/list`,
+      params: {
+        page: page
+      }
+    }
+  },
+  /**
      * 注册新用户
      * @param {String} user 用户名
      * @param {String} passwd 密码
      * @param {String} regcode 注册码
      * @returns {Object}
      */
-    regUser(user: string, passwd: string, regcode: string) {
-        return {
-            url: this.prefix,
-            method: 'post',
-            data: {
-                user: user,
-                passwd: passwd,
-                regcode: regcode
-            }
-        }
-    },
-    /**
+  regUser(user: string, passwd: string, regcode: string) {
+    return {
+      url: this.prefix,
+      method: 'post',
+      data: {
+        user: user,
+        passwd: passwd,
+        regcode: regcode
+      }
+    }
+  },
+  /**
      * 用户登录
      * @param {String} user 用户
      * @param {String} passwd 密码
      * @returns
      */
-    login(user: string, passwd: string) {
-        return {
-            url: this.prefix + '/token',
-            method: 'post',
-            params: {
-                user: user,
-                passwd: passwd
-            }
-        }
-    },
-    /**
+  login(user: string, passwd: string) {
+    return {
+      url: this.prefix + '/token',
+      method: 'post',
+      params: {
+        user: user,
+        passwd: passwd
+      }
+    }
+  },
+  /**
      * 获取用户信息
      */
-    getUserInfo() {
-        return {
-            url: this.prefix,
-            method: 'get'
-        }
-    },
-    /**
+  getUserInfo() {
+    return {
+      url: this.prefix,
+      method: 'get'
+    }
+  },
+  /**
      * 上传用户头像
      * @param {File} img 头像文件
      * @returns
      */
-    uploadAvatar(img: File) {
-        const fd = new FormData()
-        fd.append('file', img)
-        return {
-            url: this.prefix + '/avatar',
-            method: 'post',
-            data: fd
-        }
-    },
-    /**
+  uploadAvatar(img: File) {
+    const fd = new FormData()
+    fd.append('file', img)
+    return {
+      url: this.prefix + '/avatar',
+      method: 'post',
+      data: fd
+    }
+  },
+  /**
      * 获取用户头像
      * @param {String} username 用户名
      * @returns
      */
-    getAvatar(username: string) {
-        return {
-            url: this.prefix + '/avatar' + (username ? `/${username}` : '')
-        }
-    },
-    /**
+  getAvatar(username: string) {
+    return {
+      url: this.prefix + '/avatar' + (username ? `/${username}` : '')
+    }
+  },
+  /**
      * 获取配额使用情况
      * @returns
      */
-    getQuotaUsed() {
-        return {
-            url: this.prefix + '/quota'
-        }
-    },
+  getQuotaUsed() {
+    return {
+      url: this.prefix + '/quota'
+    }
+  },
 
-    /**
+  /**
      *
      * @param {Number} uid 用户ID
      * @param {String} oldPasswd 旧密码
@@ -228,18 +228,18 @@ const user = {
      * @param {String} force     强制修改
      * @returns
      */
-    modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: string = 'false') {
-        const res = {
-            url: `${this.prefix}/${uid}/passwd`,
-            method: 'post',
-            data: {
-                old: oldPasswd,
-                new: newPasswd,
-                force
-            }
-        }
-        return res
+  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: string = 'false') {
+    const res = {
+      url: `${this.prefix}/${uid}/passwd`,
+      method: 'post',
+      data: {
+        old: oldPasswd,
+        new: newPasswd,
+        force
+      }
     }
+    return res
+  }
 }
 
 export default user

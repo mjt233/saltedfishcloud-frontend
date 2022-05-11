@@ -6,6 +6,10 @@ export interface DyncComponentHandler {
    * 卸载组件
    */
   unmount: Function,
+
+  /**
+   * 获取Vue实例
+   */
   getInst: App<Element>
 }
 

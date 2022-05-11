@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from '@vuetify/vite-plugin'
-import AutoImport from 'unplugin-auto-import/vite'
-import ViteComponents from 'unplugin-vue-components/vite'
-import { VantResolver } from 'unplugin-vue-components/resolvers'
 
 const path = require('path')
 

@@ -6,9 +6,10 @@
 
 <script setup lang="ts">
 import AppLogin from '@/components/AppLogin/index.vue'
+import { User } from '@/core/context'
 
-const success = (token: string) => {
-  console.log('token' + token)
+const success = (userInfo: User) => {
+  console.log('user', userInfo)
 }
 const failed = (reason: string) => {
   console.log('失败原因：' + reason)

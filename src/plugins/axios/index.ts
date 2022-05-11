@@ -1,5 +1,5 @@
+import { context } from '@/core/context'
 import axios from 'axios'
-import Store from '../vuex'
 import qs from 'qs'
 
 const inst = axios.create()
@@ -12,8 +12,8 @@ inst.interceptors.request.use(conf => {
   if (!conf.headers) {
     conf.headers = {}
   }
-  if (Store.state.token != null) {
-    conf.headers.Token = Store.state.token
+  if (context.session.value.token != null) {
+    conf.headers.Token = context.session.value.token
   }
   if (conf.data !== undefined && conf.method !== 'get') {
     const name = conf.data.constructor.name
@@ -39,8 +39,8 @@ inst.interceptors.response.use(
     // })
 
     if (status === 401) {
-      Store.commit('setToken', null)
-      Store.commit('setUserInfo', null)
+      context.session.value.user = {uid: 0, name: 'public', role: 'public'}
+      context.session.value.token = ''
     }
     err.msg = msg || err.response.data.message || (Math.trunc(status / 100) == 5 ? '服务器错误' : '未知错误')
     err.code = err.response.data.code

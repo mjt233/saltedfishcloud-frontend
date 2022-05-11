@@ -1,3 +1,4 @@
+import { ToRefs } from 'vue'
 import { AppMenu } from './menu/type'
 export interface Session {
   token: string,
@@ -6,7 +7,7 @@ export interface Session {
 
 export type UserRole = 'admin' | 'normal' | 'public'
 export interface User {
-  uid: number,
+  id: number,
   name: string,
   role: UserRole
 }

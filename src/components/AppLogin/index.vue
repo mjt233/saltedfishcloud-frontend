@@ -89,19 +89,29 @@ const loading = ref(false)
 
 const emit = defineEmits(['success', 'failed'])
 
-const doLogin = (_event: KeyboardEvent | MouseEvent) => {
+const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
   loading.value = true
-  const conf = API.user.login(username.value, password.value)
-  axios(conf).then(e => {
-    emit('success', e.data.data)
-    context.session.value.token = e.data.data
-  }).catch(e => {
-    const msg = e.msg.toString()
+  const loginConf = API.user.login(username.value, password.value)
+  try {
+
+    // 登录
+    const loginRet = await axios(loginConf)
+    context.session.value.token = loginRet.data.data
+
+    const userInfoRet = await axios(API.user.getUserInfo())
+    
+    // 为user创建别名name（用户名）
+    userInfoRet.data.data.name = userInfoRet.data.data.user
+    context.session.value.user = reactive(userInfoRet.data.data)
+    
+    emit('success', context.session.value.user)
+  } catch(err) {
+    const msg = (err as any).msg.toString()
     emit('failed', msg)
     SfcUtils.snackbar(msg, 2000)
-  }).finally(() => {
+  } finally {
     loading.value = false
-  })
+  }
 }
 </script>
 
@@ -110,7 +120,7 @@ import API from '@/api'
 import { context } from '@/core/context'
 import axios from '@/plugins/axios'
 import SfcUtils from '@/utils/SfcUtils'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, reactive, ref, toRefs } from 'vue'
 
 export default defineComponent({
   name: 'AppLogin'

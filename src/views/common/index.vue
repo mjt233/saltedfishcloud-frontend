@@ -5,6 +5,7 @@
       <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
       <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
       <v-spacer />
+      <user-card :uid="session.user.id" :name="session.user.name" />
     </v-app-bar>
 
     <!-- 侧边抽屉 -->
@@ -57,10 +58,12 @@
 </template>
 
 <script setup lang="ts">
+import UserCard from '@/components/Common/UserCard.vue'
 const theme = context.theme
 const menuObj = context.mainMenu
 const showDrawer = ref()
 
+const session = context.session
 </script>
 
 <script lang="ts">
@@ -84,5 +87,9 @@ a {
 }
 .main-body {
   padding: 8px 16px;
+}
+.top-bar-welcome {
+  position: absolute;
+  bottom: 0px;
 }
 </style>
