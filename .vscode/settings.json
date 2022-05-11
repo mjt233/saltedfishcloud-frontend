@@ -1,0 +1,9 @@
+{
+    "eslint.validate": ["javascript", "javascriptreact", "vue", "html", "typescript"],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+    "editor.tabSize": 2,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": false
+}
