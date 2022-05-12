@@ -1,6 +1,8 @@
+import { Session } from './session'
 import { ToRefs } from 'vue'
 import { AppMenu } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
+
 interface RouteInfo {
   /**
    * 当前路由
@@ -26,9 +28,14 @@ export interface AppContext {
   appTitle: string,
 
   /**
-   * 系统主题
+   * 当前系统主题
    */
   theme: string,
+
+  /**
+   * 当前系统主题（原始，不受黑暗模式影响）
+   */
+  originTheme: string,
 
   /**
    * 菜单

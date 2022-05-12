@@ -7,7 +7,9 @@ export type UserRole = 'admin' | 'normal' | 'public'
 export interface User {
   id: number,
   name: string,
-  role: UserRole
+  role: UserRole,
+  email?: string,
+  quota: number
 }
 
 export interface Session {
@@ -19,13 +21,19 @@ export interface Session {
   logout(): Promise<any>
 }
 
-const emptySession: Session = {
-  token: '',
-  user: {
+export function getPublicUser(): User {
+  return {
     id: 0,
     name: 'public',
-    role: 'public'
-  },
+    role: 'public',
+    email: '',
+    quota: 0
+  }
+}
+
+const emptySession: Session = {
+  token: '',
+  user: getPublicUser(),
   setToken(token) {
     this.token = token
     localStorage.setItem('token', token)
@@ -34,18 +42,18 @@ const emptySession: Session = {
     this.token = localStorage.getItem('token') || ''
   },
   setUserInfo(userObj) {
-    if (!userObj.name) {
-      userObj.name = userObj.user
+    const userInfo: User = {
+      id: userObj.id,
+      name: userObj.user || userObj.name,
+      quota: userObj.quota,
+      role: userObj.type == 1 ? 'admin' : 'normal',
+      email: userObj.email
     }
-    this.user = reactive(userObj)
+    this.user = reactive(userInfo)
   },
   async logout() {
     this.token = ''
-    this.user = reactive({
-      id: 0,
-      name: 'public',
-      role: 'public'
-    })
+    this.user = reactive(getPublicUser())
     localStorage.clear()
 
     if (!context.routeInfo.value.curr?.meta.allowNoLogin) {

@@ -7,6 +7,7 @@ import { emptySession } from './session'
 const context: ToRefs<AppContext> = toRefs(reactive({
   appTitle: '咸鱼云网盘',
   theme: 'default',
+  originTheme: 'default',
   menu: {
     mainMenu: defaultMainMenu
   },

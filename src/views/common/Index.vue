@@ -5,6 +5,7 @@
       <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
       <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
       <v-spacer />
+      <dark-switch brightness />
       <user-card :uid="session.user.id" :name="session.user.name" />
     </v-app-bar>
 
@@ -59,6 +60,7 @@
 
 <script setup lang="ts">
 import UserCard from '@/components/Common/UserCard.vue'
+import DarkSwitch from '@/components/Common/DarkSwitch.vue'
 const theme = context.theme
 const menuObj = context.menu.value.mainMenu
 const showDrawer = ref()
@@ -89,7 +91,7 @@ a {
   text-decoration: none;
 }
 .main-body {
-  padding: 8px 16px;
+  padding: 16px 16px;
 }
 .top-bar-welcome {
   position: absolute;

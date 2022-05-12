@@ -4,6 +4,13 @@
     ],
     "rules": {
         "indent": [ "error", 2 ],
+        "quotes": ["error", "single"],
+        "key-spacing": ["error", {
+            "beforeColon": false
+        }],
+        "space-before-function-paren": ["error", "never"],
+        "space-before-blocks":"error",
+        "semi": ["error", "never"],
         "vue/html-indent": ["error", 2, {
             "attribute": 1,
             "baseIndent": 1,
@@ -21,14 +28,7 @@
             "multiline": {
               "max": 1
             }
-        }],
-        "quotes": ["error", "single"],
-        "key-spacing": ["error", {
-            "beforeColon": false
-        }],
-        "space-before-function-paren": ["error", "never"],
-        "space-before-blocks":"error",
-        "semi": ["error", "never"]
+        }]
     },
     "parser": "vue-eslint-parser",
     "parserOptions": {
