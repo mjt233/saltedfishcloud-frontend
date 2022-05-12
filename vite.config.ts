@@ -31,7 +31,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'https://disk.xiaotao2333.top:344'
+      '/api': 'http://127.0.0.1:8087'
     }
   },
   /* remove the need to specify .vue files https://vitejs.dev/config/#resolve-extensions

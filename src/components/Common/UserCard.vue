@@ -1,13 +1,12 @@
 <template>
   <div>
-    <v-avatar size="32" style="margin-right: 12px;">
-      <v-img :src="avatarUrl" :transition="false" />
-    </v-avatar>
+    <user-avatar :uid="uid" :name="name" :transition="false" />
     <span style="font-size: 14px;">{{ uid == 0 ? '[游客]' : name }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
+import UserAvatar from './UserAvatar.vue'
 const props = defineProps({
   uid: {
     type: Number,
@@ -16,14 +15,6 @@ const props = defineProps({
   name: {
     type: String,
     default: '[游客]'
-  }
-})
-
-const avatarUrl = computed(() => {
-  if (props.uid == 0) {
-    return context.defaultAvatar.value
-  } else {
-    return axios.defaults.baseURL + API.user.getAvatar(props.name).url
   }
 })
 </script>

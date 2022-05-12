@@ -6,9 +6,13 @@
       <v-list bg-color="background">
         <v-list-subheader>个人信息</v-list-subheader>
         <v-list-item v-ripple title="头像">
-          <v-avatar size="48" class="elevation-1" @click="doUploadAvatar">
-            <v-img :src="avatarImgUrl" />
-          </v-avatar>
+          <user-avatar
+            :uid="userInfo.id"
+            :name="userInfo.name"
+            :size="48"
+            class="elevation-1"
+            @click="doUploadAvatar"
+          />
         </v-list-item>
         <v-divider />
         <v-list-item v-ripple min-height="48" title="用户ID">
@@ -59,12 +63,11 @@ import DarkSwitch from '@/components/Common/DarkSwitch.vue'
 import SfcUtils from '@/utils/SfcUtils'
 import LoadingMask from '@/components/Common/LoadingMask.vue'
 import { EventNameConstants } from '@/core/constans/EventName'
+import UserAvatar from '@/components/Common/UserAvatar.vue'
 const loading = ref()
 const userInfo = context.session.value.user
 const hasLogin = ConditionFunction.hasLogin(context)
 
-const baseUrl = axios.defaults.baseURL || ''
-const avatarImgUrl = StringUtils.appendPath(baseUrl, API.user.getAvatar(userInfo.name).url)
 let quotaUsed = reactive({
   used: 0,
   quota: 0
@@ -92,7 +95,10 @@ const doUploadAvatar = async() => {
     try {
       loading.value.startLoading()
       await SfcUtils.axios(API.user.uploadAvatar(file))
-      context.eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, userInfo.id)
+      context.eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, {
+        uid: userInfo.id,
+        name: userInfo.name
+      })
     } catch(err) {
       SfcUtils.snackbar((err as any).toString())
     } finally {
