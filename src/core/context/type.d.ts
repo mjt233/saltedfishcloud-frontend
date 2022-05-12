@@ -2,6 +2,7 @@ import { Session } from './session'
 import { ToRefs } from 'vue'
 import { AppMenu } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
+import { EventBus } from './EventBus'
 
 interface RouteInfo {
   /**
@@ -56,6 +57,11 @@ export interface AppContext {
    * 用户会话属性
    */
   session: Session,
+
+  /**
+   * 事件总线
+   */
+  eventBus: EventBus,
 
   /**
    * 路由信息

@@ -1,10 +1,12 @@
 <template>
   <div v-if="hasLogin">
-    <v-card max-width="640px" style="margin: 0 auto">
+    <v-card max-width="640px" style="margin: 0 auto; overflow: hidden;">
+      <loading-mask ref="loading" type="circular" />
+      <!-- <v-progress-linear v-if="loading" indeterminate /> -->
       <v-list bg-color="background">
         <v-list-subheader>个人信息</v-list-subheader>
         <v-list-item v-ripple title="头像">
-          <v-avatar size="48" class="elevation-1">
+          <v-avatar size="48" class="elevation-1" @click="doUploadAvatar">
             <v-img :src="avatarImgUrl" />
           </v-avatar>
         </v-list-item>
@@ -54,6 +56,10 @@
 
 <script async setup lang="ts">
 import DarkSwitch from '@/components/Common/DarkSwitch.vue'
+import SfcUtils from '@/utils/SfcUtils'
+import LoadingMask from '@/components/Common/LoadingMask.vue'
+import { EventNameConstants } from '@/core/constans/EventName'
+const loading = ref()
 const userInfo = context.session.value.user
 const hasLogin = ConditionFunction.hasLogin(context)
 
@@ -75,10 +81,30 @@ axios(API.user.getQuotaUsed()).then(e => {
     quotaColor.value = 'error'
   }
 })
+
+const doUploadAvatar = async() => {
+  FileUtils.openFileDialog().then(async e => {
+    const file = e[0]
+    if (file.size > 1024 * 1024 * 3) {
+      SfcUtils.snackbar('文件不能大于3MiB')
+      return
+    }
+    try {
+      loading.value.startLoading()
+      await SfcUtils.axios(API.user.uploadAvatar(file))
+      context.eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, userInfo.id)
+    } catch(err) {
+      SfcUtils.snackbar((err as any).toString())
+    } finally {
+      loading.value.closeLoading()
+    }
+  })
+}
 </script>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from 'vue'
+import FileUtils from '@/utils/FileUtils'
+import { defineComponent, onMounted, reactive, ref } from 'vue'
 import { context } from '@/core/context'
 import { ConditionFunction } from '@/core/helper/ConditionFunction'
 import API from '@/api'
