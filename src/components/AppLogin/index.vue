@@ -33,7 +33,7 @@
               :label="'用户名'"
               variant="underlined"
               autocapitalize="false"
-              :rules="[rules.nonNull]"
+              :rules="[Validators.notNull('用户名不能为空')]"
             />
           </v-col>
           <v-col :lg="3" class="text-body-2" align-self="center">
@@ -51,7 +51,7 @@
               :label="'密码'"
               variant="underlined"
               type="password"
-              :rules="[rules.nonNull, rules.validLen]"
+              :rules="[Validators.notNull('密码不能为空'), Validators.minLen('密码至少需要6位', 6)]"
               @keyup.enter="doLogin"
             />
           </v-col>
@@ -84,10 +84,6 @@
 
 <script setup lang="ts">
 const form = ref()
-const rules = {
-  nonNull: (e: string) => !!e || '不能为空',
-  validLen: (e: string) => e.length >= 6 || '密码不能小于6位'
-}
 const username = ref('')
 const password = ref('')
 
@@ -130,6 +126,7 @@ const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
 
 <script lang="ts">
 import API from '@/api'
+import { Validators } from '@/core/helper/Validators'
 import { context, ValidateResult } from '@/core/context'
 import axios from '@/plugins/axios'
 import SfcUtils from '@/utils/SfcUtils'
