@@ -24,40 +24,44 @@
 
     <!-- 表单 -->
     <v-card-content>
-      <v-row>
-        <v-col :xs="8">
-          <v-text-field
-            v-model="username"
-            color="primary"
-            :label="'用户名'"
-            variant="underlined"
-            autocapitalize="false"
-          />
-        </v-col>
-        <v-col :lg="3" class="text-body-2" align-self="center">
-          <div>
-            <a href="javascript:;" tabindex="-1" class="text-primary">去注册</a>
-          </div>
+      <v-form ref="form">
+        <v-row>
+          <v-col :xs="8">
+            <v-text-field
+              v-model="username"
+              color="primary"
+              :label="'用户名'"
+              variant="underlined"
+              autocapitalize="false"
+              :rules="[rules.nonNull]"
+            />
+          </v-col>
+          <v-col :lg="3" class="text-body-2" align-self="center">
+            <div>
+              <a href="javascript:;" tabindex="-1" class="text-primary">去注册</a>
+            </div>
           
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col :xs="8">
-          <v-text-field
-            v-model="password"
-            color="primary"
-            :label="'密码'"
-            variant="underlined"
-            type="password"
-            @keyup.enter="doLogin"
-          />
-        </v-col>
-        <v-col :lg="3" class="text-body-2" align-self="center">
-          <div>
-            <a href="javascript:;" tabindex="-1" class="text-primary">忘记密码?</a>
-          </div>
-        </v-col>
-      </v-row>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col :xs="8">
+            <v-text-field
+              v-model="password"
+              color="primary"
+              :label="'密码'"
+              variant="underlined"
+              type="password"
+              :rules="[rules.nonNull, rules.validLen]"
+              @keyup.enter="doLogin"
+            />
+          </v-col>
+          <v-col :lg="3" class="text-body-2" align-self="center">
+            <div>
+              <a href="javascript:;" tabindex="-1" class="text-primary">忘记密码?</a>
+            </div>
+          </v-col>
+        </v-row>
+      </v-form>
       <v-btn color="primary" @click="doLogin">
         登录
       </v-btn>
@@ -79,6 +83,11 @@
 </template>
 
 <script setup lang="ts">
+const form = ref()
+const rules = {
+  nonNull: (e: string) => !!e || '不能为空',
+  validLen: (e: string) => e.length >= 6 || '密码不能小于6位'
+}
 const username = ref('')
 const password = ref('')
 
@@ -94,6 +103,10 @@ const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
   const loginConf = API.user.login(username.value, password.value)
   const session = context.session.value
   try {
+    const validRes: ValidateResult = await form.value.validate()
+    if (!validRes.valid) {
+      return new Error('表单校验不通过')
+    }
 
     // 登录
     // 设置token
@@ -117,7 +130,7 @@ const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
 
 <script lang="ts">
 import API from '@/api'
-import { context } from '@/core/context'
+import { context, ValidateResult } from '@/core/context'
 import axios from '@/plugins/axios'
 import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, reactive, ref, toRefs } from 'vue'
