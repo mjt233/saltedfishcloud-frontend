@@ -19,6 +19,17 @@ interface RouteInfo {
    */
   router?: Router
 }
+
+export interface ValidateErrorMessage {
+  id: number,
+  errorMessages: string[]
+}
+
+export interface ValidateResult {
+  valid: boolean,
+  errorMessages: ValidateErrorMessage[]
+}
+
 /**
  * 全局上下文属性
  */

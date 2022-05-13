@@ -7,6 +7,7 @@ import axios from './plugins/axios'
 import router from './plugins/router'
 import vuetify from './plugins/vuetify'
 import SfcUtils from './utils/SfcUtils'
+import '@/styles/common.scss'
 
 context.routeInfo.value.router = router
 async function validSession() {
@@ -17,11 +18,8 @@ async function validSession() {
   if (ConditionFunction.hasLogin(context)) {
     const userInfo = (await axios(API.user.getUserInfo())).data.data
     session.setUserInfo(userInfo)
-    
     return true
   } else {
-    console.log('未登录')
-
     return false
   }
 }
@@ -34,6 +32,7 @@ validSession()
   })
   .catch(() => {
     console.log('登录已过期')
+    context.session.value.setToken('')
   })
   .finally(() => {
     const app = createApp(App)

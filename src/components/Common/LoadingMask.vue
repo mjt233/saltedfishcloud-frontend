@@ -1,29 +1,41 @@
 <template>
-  <v-row class="loading-mask" :class="{loading:loading, 'flex-center': type == 'circular'}" transition="fade-transition">
-    <v-progress-linear v-show="type == 'linear' && loading" indeterminate color="primary" />
-    <v-progress-circular
-      v-show="type == 'circular' && loading"
-      indeterminate
-      color="primary"
-    />
-  </v-row>
+  <div class="loading-mask" :class="{loading:inLoading, 'flex-center': type == 'circular'}">
+    <transition name="fade">
+      <v-progress-linear
+        v-show="type == 'linear' && inLoading"
+        indeterminate
+        color="primary"
+      />
+    </transition>
+    <transition name="fade">
+      <v-progress-circular
+        v-show="type == 'circular' && inLoading"
+        indeterminate
+        color="primary"
+      />
+    </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
+const props = defineProps({
   /**
    * 进度条类型：linear或circular
    */
   type: {
     type: String,
     default: 'linear'
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
 
 const loadCount = ref(0)
-const loading = computed(() => {
-  return loadCount.value > 0
+const inLoading = computed(() => {
+  return loadCount.value > 0 || props.loading
 })
 const startLoading = () => {
   loadCount.value++
@@ -61,6 +73,7 @@ export default defineComponent({
   z-index: 9999;
   overflow: hidden;
   pointer-events: none;
+  transition: all .5s;
 }
 
 .loading-mask.loading {

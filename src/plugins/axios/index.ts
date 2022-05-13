@@ -1,4 +1,5 @@
 import { context } from '@/core/context'
+import { getPublicUser } from '@/core/context/session'
 import axios from 'axios'
 import qs from 'qs'
 
@@ -17,7 +18,7 @@ inst.interceptors.request.use(conf => {
   }
   if (conf.data !== undefined && conf.method !== 'get') {
     const name = conf.data.constructor.name
-    if (name !== 'FormData' && (conf.headers['Content-Type'] as string).indexOf('json') === -1) {
+    if (name !== 'FormData' && ((conf.headers['Content-Type'] || '') as string).indexOf('json') === -1) {
       conf.data = qs.stringify(conf.data)
     }
   }
@@ -39,8 +40,7 @@ inst.interceptors.response.use(
     // })
 
     if (status === 401) {
-      context.session.value.user = {id: 0, name: 'public', role: 'public'}
-      context.session.value.token = ''
+      context.session.value.setUserInfo(getPublicUser())
     }
     err.msg = msg || err.response.data.message || (Math.trunc(status / 100) == 5 ? '服务器错误' : '未知错误')
     err.code = err.response.data.code
