@@ -14,7 +14,11 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,
   routeInfo: {},
-  eventBus: new DefaultEventBus()
+  eventBus: new DefaultEventBus(),
+  feature: {
+    enableRegCode: false,
+    enableEmailReg: false
+  }
 }))
 
 

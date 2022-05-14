@@ -72,7 +72,7 @@
   </div>
 </template>
 
-<script async setup lang="ts">
+<script setup lang="ts">
 import DarkSwitch from '@/components/Common/DarkSwitch.vue'
 import SfcUtils from '@/utils/SfcUtils'
 import LoadingMask from '@/components/Common/LoadingMask.vue'
@@ -146,11 +146,10 @@ const doChangePassword = async() => {
 
 <script lang="ts">
 import FileUtils from '@/utils/FileUtils'
-import { defineComponent, onMounted, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 import { context } from '@/core/context'
 import { ConditionFunction } from '@/core/helper/ConditionFunction'
 import API from '@/api'
-import { StringUtils } from '@/utils/StringUtils'
 import { StringFormatter } from '@/utils/StringFormatter'
 import axios from '@/plugins/axios'
 export default defineComponent({

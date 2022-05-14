@@ -1,3 +1,23 @@
+export interface UserRegOpt {
+  // 用户名
+  user: string,
+  
+  // 登录密码
+  passwd: string,
+  
+  // 注册邀请码，如果是管理员用户请求该接口，则不需要填写邀请码。若使用邮箱注册，该字段则使用邮箱验证码。
+  regcode: string,
+  
+  // 邮箱，邮箱注册方式需要填写这个字段。若使用邀请码方式注册，该字段不会被处理
+  email: string,
+  
+  // 用户类型 1 - 管理员，0 - 普通用户，只有当管理员用户调用该字段时才有效
+  type?: '1' | '0' | string,
+  
+  // 是否使用邮箱方式注册 true - 是，false - 邀请码注册。使用邮箱方式注册时会验证email字段的有效性
+  validEmail: boolean,
+  
+}
 const user = {
   prefix: '/user',
   /**
@@ -145,20 +165,12 @@ const user = {
   },
   /**
      * 注册新用户
-     * @param {String} user 用户名
-     * @param {String} passwd 密码
-     * @param {String} regcode 注册码
-     * @returns {Object}
      */
-  regUser(user: string, passwd: string, regcode: string) {
+  regUser(regOpt: UserRegOpt) {
     return {
       url: this.prefix,
       method: 'post',
-      data: {
-        user: user,
-        passwd: passwd,
-        regcode: regcode
-      }
+      data: regOpt
     }
   },
   /**

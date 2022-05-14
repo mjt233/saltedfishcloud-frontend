@@ -1,5 +1,6 @@
 // const file = require('./file')
 // const resource = require('./resource')
+import sys from './sys'
 import user from './user'
 // const admin = require('./admin')
 // const breakpoint = require('./breakpoint')
@@ -7,10 +8,10 @@ import user from './user'
 // const server = require('./server')
 // const collection = require('./collection')
 // const share = require('./share')
-// const sys = require('./sys')
 
 const API = {
-    user: user,
+  user,
+  sys
 //     file: file,
 //     resource: resource,
 //     admin: admin,

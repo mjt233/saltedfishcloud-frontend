@@ -39,6 +39,13 @@ const defaultMainMenu: MenuType.AppMenu = {
           renderOn: ConditionFunction.noLogin
         },
         {
+          id: 'register',
+          title: '注册',
+          route: '/register',
+          icon: 'mdi-clipboard-account',
+          renderOn: ConditionFunction.noLogin
+        },
+        {
           id: 'my',
           title: '个人中心',
           icon: 'mdi-account',

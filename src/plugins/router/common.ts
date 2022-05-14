@@ -42,6 +42,10 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
     {
       path: '/personalCenter',
       component: () => import('@/views/common/PersonalCenter.vue')
+    },
+    {
+      path: '/register',
+      component: () => import('@/views/common/RegisterView.vue')
     }
   ]
 }

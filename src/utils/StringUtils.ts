@@ -6,6 +6,15 @@ export interface RandomStrOption {
 }
 
 export namespace StringUtils {
+  
+
+  /**
+   * 判断输入的字符串是否为有效的邮箱格式
+   * @param {String} email 待验证的邮箱地址
+   */
+  export function isEmail(email: string) {
+    return email.match(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/) != null
+  }
   /**
    * 取随机字符串
    * @param {Number} len 字符长度

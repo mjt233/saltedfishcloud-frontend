@@ -1,3 +1,4 @@
+import { AppFeature } from './type.d'
 import { Session } from './session'
 import { ToRefs } from 'vue'
 import { AppMenu } from './menu/type'
@@ -28,6 +29,12 @@ export interface ValidateErrorMessage {
 export interface ValidateResult {
   valid: boolean,
   errorMessages: ValidateErrorMessage[]
+}
+
+export interface AppFeature {
+  enableRegCode: boolean,
+  enableEmailReg: boolean,
+  [otherKey: string]: any
 }
 
 /**
@@ -73,6 +80,8 @@ export interface AppContext {
    * 事件总线
    */
   eventBus: EventBus,
+
+  feature: AppFeature,
 
   /**
    * 路由信息
