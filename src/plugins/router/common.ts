@@ -1,5 +1,5 @@
 import * as VueRouter from 'vue-router'
-import Index from '@/views/common/Index.vue'
+import Index from '@/views/common/index.vue'
 import CommonWelcome from '@/views/common/Welcome.vue'
 
 

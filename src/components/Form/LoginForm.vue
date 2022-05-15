@@ -24,11 +24,11 @@
 
     <!-- 表单 -->
     <v-card-content>
-      <v-form ref="form">
+      <base-form ref="form" :submit-action="doLogin" :model-value="formData">
         <v-row>
           <v-col :xs="8">
             <v-text-field
-              v-model="username"
+              v-model="formData.username"
               color="primary"
               :label="'用户名'"
               variant="underlined"
@@ -36,9 +36,21 @@
               :rules="[Validators.notNull('用户名不能为空')]"
             />
           </v-col>
-          <v-col :lg="3" class="text-body-2" align-self="center">
+          <v-col
+            v-if="!plain"
+            :lg="3"
+            class="text-body-2"
+            align-self="center"
+          >
             <div>
-              <a href="javascript:;" tabindex="-1" class="text-primary">去注册</a>
+              <router-link
+                to="/register"
+                href="javascript:;"
+                tabindex="-1"
+                class="text-primary"
+              >
+                去注册
+              </router-link>
             </div>
           
           </v-col>
@@ -46,64 +58,62 @@
         <v-row>
           <v-col :xs="8">
             <v-text-field
-              v-model="password"
+              v-model="formData.password"
               color="primary"
               :label="'密码'"
               variant="underlined"
               type="password"
               :rules="[Validators.notNull('密码不能为空'), Validators.minLen('密码至少需要6位', 6)]"
-              @keyup.enter="doLogin"
+              @keyup.enter="emit('submit')"
             />
           </v-col>
-          <v-col :lg="3" class="text-body-2" align-self="center">
+          <v-col
+            v-if="!plain"
+            :lg="3"
+            class="text-body-2"
+            align-self="center"
+          >
             <div>
               <a href="javascript:;" tabindex="-1" class="text-primary">忘记密码?</a>
             </div>
           </v-col>
         </v-row>
-      </v-form>
-      <v-btn color="primary" @click="doLogin">
+      </base-form>
+      <v-btn color="primary" @click="emit('submit')">
         登录
       </v-btn>
     </v-card-content>
   </v-card>
-  <v-snackbar v-model="showSnack" :timeout="3000">
-    {{ snackText }}
-    <template #actions>
-      <v-btn
-        variant="text"
-        color="error"
-        style="font-weight: bold;"
-        @click="showSnack = false"
-      >
-        Close
-      </v-btn>
-    </template>
-  </v-snackbar>
 </template>
 
 <script setup lang="ts">
+import BaseForm from '../Common/BaseForm.vue'
+import { deconstructForm } from '@/utils/FormUtils'
 const form = ref()
-const username = ref('')
-const password = ref('')
+const formData = reactive({
+  username: '',
+  password: ''
+})
 
 const avatar = context.defaultAvatar
-const showSnack = ref(false)
-const snackText = ref('')
 const loading = ref(false)
+const props = defineProps({
+  /**
+   * 是否只显示登录输入组件
+   */
+  plain: {
+    type: Boolean,
+    default: false
+  }
+})
 
-const emit = defineEmits(['success', 'failed'])
+const emit = defineEmits(['submit'])
 
 const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
   loading.value = true
-  const loginConf = API.user.login(username.value, password.value)
+  const loginConf = API.user.login(formData.username, formData.password)
   const session = context.session.value
   try {
-    const validRes: ValidateResult = await form.value.validate()
-    if (!validRes.valid) {
-      return new Error('表单校验不通过')
-    }
-
     // 登录
     // 设置token
     const loginRet = await axios(loginConf)
@@ -112,16 +122,12 @@ const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
     // 获取用户信息
     const userInfoRet = await axios(API.user.getUserInfo())
     session.setUserInfo(userInfoRet.data.data)
-
-    emit('success', context.session.value.user)
-  } catch(err) {
-    const msg = (err as any).toString()
-    emit('failed', msg)
-    SfcUtils.snackbar(msg, 5000)
   } finally {
     loading.value = false
   }
 }
+
+defineExpose(deconstructForm(form))
 </script>
 
 <script lang="ts">
@@ -129,10 +135,9 @@ import API from '@/api'
 import { Validators } from '@/core/helper/Validators'
 import { context, ValidateResult } from '@/core/context'
 import axios from '@/plugins/axios'
-import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, reactive, ref, toRefs } from 'vue'
 
 export default defineComponent({
-  name: 'AppLogin'
+  name: 'LoginForm'
 })
 </script>

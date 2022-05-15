@@ -10,13 +10,9 @@ import { CommonForm } from '@/utils/FormUtils'
 import SfcUtils from '@/utils/SfcUtils'
 const form = ref() as Ref<CommonForm>
 const submit = async() => {
-  try {
-    await form.value.submit()
+  if((await form.value.submit()).success) {
     SfcUtils.snackbar('好耶~注册成功~ ヾ(≧▽≦*)o', 5000, { showClose: true })
     context.routeInfo.value.router?.push('/login')
-  } catch(err) {
-    console.log(err)
-    SfcUtils.snackbar((err as any).toString())
   }
 }
 </script>

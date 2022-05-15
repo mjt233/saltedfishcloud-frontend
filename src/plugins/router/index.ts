@@ -1,4 +1,5 @@
 
+import { EventNameConstants } from '@/core/constans/EventName'
 import { context } from '@/core/context'
 import * as VueRouter from 'vue-router'
 import { isNavigationFailure } from 'vue-router'
@@ -19,6 +20,10 @@ router.afterEach((to, from, failure) => {
   }
   context.routeInfo.value.curr = to
   context.routeInfo.value.prev = from
+  context.eventBus.value.emit(EventNameConstants.ROUTE_CHANGE, {
+    to,
+    from
+  })
 })
 
 export default router

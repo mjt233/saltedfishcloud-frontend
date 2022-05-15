@@ -1,5 +1,6 @@
 import { ValidateResult } from '@/core/context'
 import { Ref } from 'vue'
+import SfcUtils from '../SfcUtils'
 
 export interface CommonFormOpt {
   /**
@@ -20,6 +21,31 @@ export interface CommonFormOpt {
   submitAction: () => Promise<any> | null | undefined
 }
 
+export interface SubmitOpt {
+  /**
+   * 是否跳过表单校验
+   */
+  ignoreValidate?: boolean,
+
+  /**
+   * 当表单提交时出现异常时会执行该函数。
+   * 未提供该属性时，表单提交异常 且 popError为true时，会直接导致submit方法异常。
+   * 若该函数执行完毕未出现异常，则submit方法则视为无异常。
+   * 若该函数继续错误或抛出异常，则submit方法也会跟着抛出异常。
+   */
+  errorHandler?: ((...e: any) => Promise<any> | undefined | null) | null,
+
+  /**
+   * 当未提供errorHandler时，出现错误是否弹出错误信息。默认为true
+   */
+  showError?: boolean,
+
+  /**
+   * 出现未能处理的异常是否在submit中继续向上抛出
+   */
+  popError?: boolean
+}
+
 export interface CommonForm {
   /**
    * 执行表单校验，若存在子表单，则会连同子表单一起校验
@@ -33,9 +59,9 @@ export interface CommonForm {
 
   /**
    * 执行表单提交
-   * @param ignoreValidate 是否跳过校验
+   * @param opt 提交执行选项
    */
-  submit: (ignoreValidate?: boolean) => Promise<any>
+  submit: (opt?: SubmitOpt) => Promise<FormSubmitResult>
 }
 
 /**
@@ -55,6 +81,23 @@ export function deconstructForm(form: Ref<any>): CommonForm {
       return await form.value.validate()
     } 
   }
+}
+
+export interface FormSubmitResult {
+  /**
+   * 表单提交是否成功
+   */
+  success: boolean,
+  
+  /**
+   * 表单提交错误信息对象
+   */
+  err?: Error,
+
+  /**
+   * 表单提交后获得的数据
+   */
+  data?: any
 }
 
 /**
@@ -95,11 +138,42 @@ export function defineForm(opt: CommonFormOpt): CommonForm {
       }
       return result
     },
-    async submit(ignoreValidate = false) {
-      if (!ignoreValidate && !(await this.validate()).valid) {
-        throw new Error('表单校验不通过')
+    async submit(submitOpt) {
+      const { ignoreValidate = false, errorHandler = null, showError = true, popError = false } = submitOpt || {}
+
+      const submitResult: FormSubmitResult = {
+        success: true
       }
-      return opt.submitAction()
+      try {
+        if (!ignoreValidate && !(await this.validate()).valid) {
+          throw new Error('表单校验不通过')
+        }
+        submitResult.data = await opt.submitAction()
+        return submitResult
+      } catch(err: any) {
+        if (errorHandler) {
+          submitResult.data = await errorHandler(err)
+          return submitResult
+        } else {
+          submitResult.success = false
+          if (showError) {
+            let msg
+            if (err instanceof Error) {
+              msg = err.message
+              console.log(err)
+            } else {
+              msg = err.toString()
+            }
+            SfcUtils.snackbar(msg)
+          }
+          if (popError) {
+            throw err
+          } else {
+            submitResult.err = err
+          }
+          return submitResult
+        }
+      }
     }
   }
 }

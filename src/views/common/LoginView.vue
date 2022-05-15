@@ -1,27 +1,27 @@
 <template>
   <div style="margin: 24px auto; max-width: 480px; width: 100%;">
-    <app-login @success="success" @failed="failed" />
+    <login-form ref="form" @submit="login" />
   </div>
 </template>
 
 <script setup lang="ts">
-import AppLogin from '@/components/AppLogin/index.vue'
-import { User } from '@/core/context/session'
-import { useRouter } from 'vue-router'
-import { context } from '@/core/context'
-
+import LoginForm from '@/components/Form/LoginForm.vue'
+const form = ref() as Ref<CommonForm>
 const router = useRouter()
-const success = (userInfo: User) => {
-  const routeInfo = context.routeInfo.value
-  router.push(routeInfo.prev?.path || '/personalCenter')
-}
-const failed = (reason: string) => {
-  console.log('失败原因：' + reason)
+const login = async() => {
+  const res = await form.value.submit()
+  if (res.success) {
+    const routeInfo = context.routeInfo.value
+    router.push(routeInfo.prev?.path || '/personalCenter')
+  }
 }
 </script>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, Ref, ref } from 'vue'
+import { context } from '@/core/context'
+import { CommonForm } from '@/utils/FormUtils'
+import { useRouter } from 'vue-router'
 export default defineComponent({
   name: 'LoginView'
 })

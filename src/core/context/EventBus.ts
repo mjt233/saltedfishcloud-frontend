@@ -8,6 +8,9 @@ interface EventListenerMap {
 }
 
 export interface EventBus {
+  /**
+   * @see {EventNameConstants}
+   */
   emit: (eventName: string, data?: any) => void,
   on: (eventName: string, fn: (e: any) => void) => void,
   off: (eventName: string, fn: (e: any) => void) => void
