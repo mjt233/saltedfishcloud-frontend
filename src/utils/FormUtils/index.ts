@@ -157,14 +157,7 @@ export function defineForm(opt: CommonFormOpt): CommonForm {
         } else {
           submitResult.success = false
           if (showError) {
-            let msg
-            if (err instanceof Error) {
-              msg = err.message
-              console.log(err)
-            } else {
-              msg = err.toString()
-            }
-            SfcUtils.snackbar(msg)
+            SfcUtils.snackbar(err.msg || err.toString())
           }
           if (popError) {
             throw err

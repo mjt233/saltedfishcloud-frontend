@@ -17,8 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import TextInput from '@/components/Common/TextInput.vue'
-import BaseForm from '@/components/Common/BaseForm.vue'
+import TextInput from '@/components/common/TextInput.vue'
+import BaseForm from '@/components/common/BaseForm.vue'
 
 const codeForm = ref()
 const formData = reactive({

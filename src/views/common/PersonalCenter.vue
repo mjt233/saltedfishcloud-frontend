@@ -73,13 +73,13 @@
 </template>
 
 <script setup lang="ts">
-import DarkSwitch from '@/components/Common/DarkSwitch.vue'
+import DarkSwitch from '@/components/common/DarkSwitch.vue'
 import SfcUtils from '@/utils/SfcUtils'
-import LoadingMask from '@/components/Common/LoadingMask.vue'
+import LoadingMask from '@/components/common/LoadingMask.vue'
 import { EventNameConstants } from '@/core/constans/EventName'
-import UserAvatar from '@/components/Common/UserAvatar.vue'
-import ChangePassowrdForm from '@/components/Form/ChangePassowrdForm.vue'
-import BaseDialog from '@/components/Common/BaseDialog.vue'
+import UserAvatar from '@/components/common/UserAvatar.vue'
+import ChangePassowrdForm from '@/components/form/ChangePassowrdForm.vue'
+import BaseDialog from '@/components/common/BaseDialog.vue'
 const loading = ref()
 const showPasswordDialog = ref(false)
 const userInfo = context.session.value.user

@@ -43,8 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import BaseDialog from '@/components/Common/BaseDialog.vue'
-import LoginForm from '@/components/Form/LoginForm.vue'
+import BaseDialog from '@/components/common/BaseDialog.vue'
+import LoginForm from '@/components/form/LoginForm.vue'
 import { CommonForm } from '@/utils/FormUtils'
 const session = context.session
 const showLogin = ref(false)

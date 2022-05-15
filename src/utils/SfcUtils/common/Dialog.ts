@@ -1,4 +1,4 @@
-import BaseDialog from '@/components/Common/BaseDialog.vue'
+import BaseDialog from '@/components/common/BaseDialog.vue'
 import vuetify from '@/plugins/vuetify'
 
 import { Component, createApp, h } from 'vue'

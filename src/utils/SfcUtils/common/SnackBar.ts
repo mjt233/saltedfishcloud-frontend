@@ -1,4 +1,4 @@
-import SnackBar from '@/components/Common/SnackBar.vue'
+import SnackBar from '@/components/common/SnackBar.vue'
 import { dyncmount } from './DyncMount'
 
 

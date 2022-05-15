@@ -43,13 +43,22 @@
           <v-window-item value="email">
             <v-row>
               <v-col>
-                <text-input v-model="extraFormData.email" :rules="extraRules.email" label="邮箱" />
+                <text-input
+                  ref="emailInput"
+                  v-model="extraFormData.email"
+                  :error-messages="errorInfo.email.msg"
+                  :error="errorInfo.email.error"
+                  :rules="extraRules.email"
+                  label="邮箱"
+                  @input="updateErrorInfo"
+                  @blur="updateErrorInfo"
+                />
               </v-col>
               <v-col md="auto">
                 <div style="width: 120px" class="d-flex justify-center">
-                  <v-btn color="surface">
+                  <timeout-btn unique-key="email" @click="sendEmailCode">
                     获取验证码
-                  </v-btn>
+                  </timeout-btn>
                 </div>
               </v-col>
             </v-row>
@@ -76,21 +85,30 @@
 
 <script setup lang="ts">
 import BaseRegisterForm from './BaseRegisterForm.vue'
-import TextInput from '@/components/Common/TextInput.vue'
+import TextInput from '@/components/common/TextInput.vue'
 import { defineForm, CommonForm, deconstructForm } from '@/utils/FormUtils'
 import SfcUtils from '@/utils/SfcUtils'
 import API from '@/api'
-import LoadingMask from '@/components/Common/LoadingMask.vue'
-import BaseForm from '@/components/Common/BaseForm.vue'
+import LoadingMask from '@/components/common/LoadingMask.vue'
+import BaseForm from '@/components/common/BaseForm.vue'
+import TimeoutBtn from '@/components/common/btn/TimeoutBtn.vue'
+import { StringUtils } from '@/utils/StringUtils'
 const avatar = context.defaultAvatar.value
 const baseForm = ref()
 const extraForm = ref()
 const regType = ref('regCode')
 const loading = ref(false)
+const emailInput = ref()
 const extraFormData = reactive({
   regCode: '',
   email: '',
   emailCode: ''
+})
+const errorInfo = reactive({
+  email: {
+    error: false,
+    msg: ''
+  }
 })
 const extraRules = computed(() => {
   if (regType.value == 'regCode') {
@@ -126,6 +144,34 @@ const submitAction = async() => {
 const emit = defineEmits(['submit'])
 const emitSubmit = () => {
   console.log(123)
+}
+const updateErrorInfo = () => {
+
+  if (!StringUtils.isEmail(extraFormData.email)) {
+    errorInfo.email.error = true
+    errorInfo.email.msg = '不是有效的邮箱格式'
+    return
+  } else {
+    errorInfo.email.error = false
+    errorInfo.email.msg = ''
+  }
+}
+
+const sendEmailCode = async(e: any) => {
+  updateErrorInfo()
+  if (errorInfo.email.error) {
+    return
+  }
+  try {
+    loading.value = true
+    await SfcUtils.axios(API.user.getEmailRegCode(extraFormData.email))
+    e()
+  } catch (err: any) {
+    SfcUtils.snackbar(err.toString())
+  } finally {
+    loading.value = false
+  }
+  
 }
 defineExpose(deconstructForm(extraForm))
 </script>

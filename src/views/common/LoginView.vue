@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import LoginForm from '@/components/Form/LoginForm.vue'
+import LoginForm from '@/components/form/LoginForm.vue'
 const form = ref() as Ref<CommonForm>
 const router = useRouter()
 const login = async() => {

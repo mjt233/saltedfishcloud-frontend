@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import UserRegisterForm from '@/components/Form/UserRegisterForm/UserRegisterForm.vue'
+import UserRegisterForm from '@/components/form/UserRegisterForm/UserRegisterForm.vue'
 import { CommonForm } from '@/utils/FormUtils'
 import SfcUtils from '@/utils/SfcUtils'
 const form = ref() as Ref<CommonForm>
