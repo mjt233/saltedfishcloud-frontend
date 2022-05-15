@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="codeForm">
+  <base-form ref="codeForm" v-model="formData">
     <text-input v-model="formData.username" label="用户名" :rules="rules.username" />
     <text-input
       v-model="formData.password"
@@ -13,12 +13,12 @@
       label="确认密码"
       :rules="rules.repeatPassword"
     />
-  </v-form>
+  </base-form>
 </template>
 
 <script setup lang="ts">
 import TextInput from '@/components/Common/TextInput.vue'
-import { defineForm } from '@/utils/FormUtils'
+import BaseForm from '@/components/Common/BaseForm.vue'
 
 const codeForm = ref()
 const formData = reactive({
@@ -31,16 +31,11 @@ const rules = {
   password: [ Validators.notNull('密码不能为空'),Validators.minLen('密码不能小于6个字符', 6) ],
   repeatPassword: [ Validators.notNull('确认密码不能为空') ,() => formData.password == formData.repeatPassword || '确认密码与密码不一致'  ]
 }
-defineExpose(defineForm({
-  formData: formData,
-  formRef: codeForm,
-  submitExecutor() {
-    return null
-  }
-}))
+defineExpose(deconstructForm(codeForm))
 </script>
 
 <script lang="ts">
+import { defineForm, deconstructForm } from '@/utils/FormUtils'
 import { defineComponent, reactive, ref } from 'vue'
 import { Validators } from '@/core/helper/Validators'
 export default defineComponent({

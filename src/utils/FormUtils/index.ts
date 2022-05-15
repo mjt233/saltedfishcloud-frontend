@@ -1,26 +1,26 @@
 import { ValidateResult } from '@/core/context'
 import { Ref } from 'vue'
 
-export interface DefineFormOpt {
+export interface CommonFormOpt {
   /**
    * vuetify表单组件引用实例
    */
-  formRef: Ref<DefineForm>,
+  formRef: Ref<CommonForm>,
 
   /**
    * 表单数据对象
    */
   formData: Object,
 
-  sonForm?: Ref<DefineForm>[],
+  sonForm?: Ref<CommonForm>[],
 
   /**
    * 执行提交的方法
    */
-  submitExecutor: () => Promise<any> | null | undefined
+  submitAction: () => Promise<any> | null | undefined
 }
 
-export interface DefineForm {
+export interface CommonForm {
   /**
    * 执行表单校验，若存在子表单，则会连同子表单一起校验
    */
@@ -39,11 +39,30 @@ export interface DefineForm {
 }
 
 /**
+ * 解构Form
+ * @param form baseForm实例
+ * @returns 
+ */
+export function deconstructForm(form: Ref<any>): CommonForm {
+  return {
+    getFormData() {
+      return form.value.getFormData()
+    },
+    async submit() {
+      return await form.value.submit()
+    },
+    async validate() {
+      return await form.value.validate()
+    } 
+  }
+}
+
+/**
  * 声明一个支持子表单的标准表单
  * @param opt 表单选项
  * @returns 标准表单方法对象
  */
-export function defineForm(opt: DefineFormOpt): DefineForm {
+export function defineForm(opt: CommonFormOpt): CommonForm {
   return {
     getFormData() {
       const formData = {}
@@ -60,7 +79,7 @@ export function defineForm(opt: DefineFormOpt): DefineForm {
       const result: ValidateResult = { valid: true, errorMessages: [] }
 
       // 待校验的表单
-      const validForms: DefineForm[] = []
+      const validForms: CommonForm[] = []
       if (opt.sonForm != null && opt.sonForm.length > 0) {
         opt.sonForm.forEach(e => validForms.push(e.value))
       }
@@ -80,7 +99,7 @@ export function defineForm(opt: DefineFormOpt): DefineForm {
       if (!ignoreValidate && !(await this.validate()).valid) {
         throw new Error('表单校验不通过')
       }
-      return opt.submitExecutor()
+      return opt.submitAction()
     }
   }
 }
