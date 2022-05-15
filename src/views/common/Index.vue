@@ -59,8 +59,8 @@
 </template>
 
 <script setup lang="ts">
-import UserCard from '@/components/Common/UserCard.vue'
-import DarkSwitch from '@/components/Common/DarkSwitch.vue'
+import UserCard from '@/components/common/UserCard.vue'
+import DarkSwitch from '@/components/common/DarkSwitch.vue'
 const theme = context.theme
 const menuObj = context.menu.value.mainMenu
 const showDrawer = ref()
