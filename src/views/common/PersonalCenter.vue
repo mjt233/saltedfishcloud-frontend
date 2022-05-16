@@ -61,7 +61,6 @@
         <change-passowrd-form
           ref="changePasswordRef"
           :uid="userInfo.id"
-          style="width: 360px"
           @submit="doChangePassword"
         />
       </base-dialog>

@@ -1,5 +1,10 @@
 <template>
-  <v-dialog v-model="showDialog" :width="width" class="base-dialog">
+  <v-dialog
+    v-model="showDialog"
+    :width="width"
+    class="base-dialog"
+    :max-width="maxWidth"
+  >
     <loading-mask :loading="loading" />
     <v-card :title="title" color="background">
       <v-card-content style="margin-top: 12px">
@@ -36,7 +41,7 @@ defineProps({
   },
   width: {
     type: [Number, String],
-    default: '360px'
+    default: '100%'
   },
   loading: {
     type: Boolean,
@@ -48,6 +53,10 @@ defineProps({
   hideBtn: {
     type: Boolean,
     default: false
+  },
+  maxWidth: {
+    type: [Number, String],
+    default: '640px'
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])

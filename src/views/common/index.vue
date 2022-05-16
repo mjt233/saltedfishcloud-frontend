@@ -78,7 +78,7 @@ export default defineComponent({
       if (menuItem.action) {
         menuItem.action(context)
       }
-      if (menuItem.route) {
+      if (menuItem.route && this.$route.path != menuItem.route) {
         this.$router.push(menuItem.route)
       }
     }
