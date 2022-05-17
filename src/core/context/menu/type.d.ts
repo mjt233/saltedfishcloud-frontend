@@ -4,7 +4,7 @@ import { AppContext } from '../type'
 /**
  * 菜单组
  */
-export interface MenuGroup {
+export interface MenuGroup<T> {
   /**
    * 唯一标识
    */
@@ -23,7 +23,7 @@ export interface MenuGroup {
   /**
    * 当函数返回true时才显示
    */
-  renderOn?: (ctx: ToRefs<AppContext>) => boolean
+  renderOn?: (element: T) => boolean
 }
 
 /**
@@ -64,5 +64,5 @@ export interface MenuItem {
 
 export interface AppMenu {
   backgroundImg: string,
-  group: MenuGroup[]
+  group: MenuGroup<ToRefs<AppContext>>[]
 }
