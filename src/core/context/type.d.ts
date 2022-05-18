@@ -23,7 +23,7 @@ interface RouteInfo {
 
 export interface ValidateErrorMessage {
   id: number,
-  errorMessages: string[]
+  errorMessages: string
 }
 
 export interface ValidateResult {

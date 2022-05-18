@@ -4,6 +4,7 @@
     :width="width"
     class="base-dialog"
     :max-width="maxWidth"
+    :persistent="persistent"
   >
     <loading-mask :loading="loading" />
     <v-card :title="title" color="background">
@@ -41,7 +42,11 @@ defineProps({
   },
   width: {
     type: [Number, String],
-    default: '100%'
+    default: '90%'
+  },
+  persistent: {
+    type: Boolean,
+    default: false
   },
   loading: {
     type: Boolean,

@@ -7,8 +7,8 @@
         <v-list-subheader>个人信息</v-list-subheader>
         <v-list-item v-ripple title="头像">
           <user-avatar
-            :uid="userInfo.id"
-            :name="userInfo.name"
+            :uid="session.user.id"
+            :name="session.user.name"
             :size="48"
             class="elevation-1"
             @click="doUploadAvatar"
@@ -16,16 +16,25 @@
         </v-list-item>
         <v-divider />
         <v-list-item v-ripple min-height="48" title="用户ID">
-          <span class="list-content">{{ userInfo.id }}</span>
+          <span class="list-content">{{ session.user.id }}</span>
         </v-list-item>
         <v-list-item v-ripple min-height="48" title="用户名">
-          <span class="list-content">{{ userInfo.name }}</span>
+          <span class="list-content">{{ session.user.name }}</span>
         </v-list-item>
-        <v-list-item v-ripple min-height="48" title="邮箱">
-          <span class="list-content">{{ userInfo.email || '未设置' }}</span>
+        <v-list-item
+          v-ripple
+          min-height="48"
+          title="邮箱"
+        >
+          <template v-if="session.user.email">
+            <span class="list-content">{{ session.user.email }}<v-icon style="margin-left: 6px" color="primary" @click="showEmailDialog = true">mdi-pencil</v-icon></span>
+          </template>
+          <template v-else>
+            <span class="list-content"><a class="text-decoration-none text-primary" @click="showEmailDialog = true">立即绑定</a></span>
+          </template>
         </v-list-item>
         <v-list-item v-ripple min-height="48" title="身份">
-          <span class="list-content">{{ userInfo.role }}</span>
+          <span class="list-content">{{ session.user.role }}</span>
         </v-list-item>
         <v-divider />
         <v-list-item v-ripple min-height="48" @click="showPasswordDialog = true">
@@ -52,6 +61,22 @@
         </v-list-item>
       </v-list>
       <base-dialog
+        v-model="showEmailDialog"
+        title="绑定邮箱"
+        :hide-btn="true"
+        persistent
+      >
+        <bind-email-form ref="emailRef" />
+        <template #actions>
+          <v-btn color="surface" @click="submitEamil">
+            绑定
+          </v-btn>
+          <v-btn color="surface" @click="showEmailDialog = false">
+            取消
+          </v-btn>
+        </template>
+      </base-dialog>
+      <base-dialog
         v-model="showPasswordDialog"
         :loading="changePasswordLoading"
         title="修改密码"
@@ -60,7 +85,7 @@
       >
         <change-passowrd-form
           ref="changePasswordRef"
-          :uid="userInfo.id"
+          :uid="session.user.id"
           @submit="doChangePassword"
         />
       </base-dialog>
@@ -79,18 +104,21 @@ import { EventNameConstants } from '@/core/constans/EventName'
 import UserAvatar from '@/components/common/UserAvatar.vue'
 import ChangePassowrdForm from '@/components/form/ChangePassowrdForm.vue'
 import BaseDialog from '@/components/common/BaseDialog.vue'
+import BindEmailForm from '@/components/form/BindEmailForm.vue'
+import { CommonForm } from '@/utils/FormUtils'
 const loading = ref()
 const showPasswordDialog = ref(false)
-const userInfo = context.session.value.user
+const session = context.session
 const hasLogin = ConditionFunction.hasLogin(context)
 const changePasswordRef = ref()
 const changePasswordLoading = ref(false)
-
+const emailRef = ref() as Ref<CommonForm>
 let quotaUsed = reactive({
   used: 0,
   quota: 0
 })
 const quotaColor = ref('primary')
+const showEmailDialog = ref(false)
 
 // 获取存储使用情况
 axios(API.user.getQuotaUsed()).then(e => {
@@ -117,8 +145,8 @@ const doUploadAvatar = async() => {
       loading.value.startLoading()
       await SfcUtils.axios(API.user.uploadAvatar(file))
       context.eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, {
-        uid: userInfo.id,
-        name: userInfo.name
+        uid: session.value.user.id,
+        name: session.value.user.name
       })
     } catch(err) {
       SfcUtils.snackbar((err as any).toString())
@@ -141,11 +169,19 @@ const doChangePassword = async() => {
     changePasswordLoading.value = false
   }
 }
+
+const submitEamil = async() => {
+  
+  const success = (await emailRef.value.submit()).success
+  if (success) {
+    showEmailDialog.value = false
+  }
+}
 </script>
 
 <script lang="ts">
 import FileUtils from '@/utils/FileUtils'
-import { defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, Ref, ref } from 'vue'
 import { context } from '@/core/context'
 import { ConditionFunction } from '@/core/helper/ConditionFunction'
 import API from '@/api'
