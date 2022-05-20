@@ -2,8 +2,8 @@
   <v-snackbar
     v-model="active"
     :timeout="timeout"
-    @mouseover="mouseOver"
-    @mouseleave="mouseLeave"
+    @mouseover="stopTimeout"
+    @mouseleave="startTimeout"
   >
     {{ text }}
     <template v-if="showClose" #actions>
@@ -38,12 +38,19 @@ const emitClose = () => {
     emit('close')
   }, 200)
 }
+/**
+ * 自动消失timeout计时器
+ */
+let time: any = null
+const startTimeout = () => {
 
-const time = setTimeout(() => {
-  active.value = false
-  emitClose()
-}, props.timeout)
+  time = setTimeout(() => {
+    active.value = false
+    emitClose()
+  }, props.timeout)
+}
 
+startTimeout()
 
 const doClose = () => {
   active.value = false
@@ -51,15 +58,9 @@ const doClose = () => {
   clearTimeout(time)
 }
 
-const mouseOver = () => {
+const stopTimeout = () => {
   clearTimeout(time)
 }
-
-const mouseLeave = () => setTimeout(() => {
-  active.value = false
-  emitClose()
-  clearTimeout(time)
-}, props.timeout)
 </script>
 
 <script lang="ts">
