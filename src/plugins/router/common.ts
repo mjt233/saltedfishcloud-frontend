@@ -1,6 +1,6 @@
 import * as VueRouter from 'vue-router'
 import Index from '@/views/common/IndexView.vue'
-import CommonWelcome from '@/views/common/Welcome.vue'
+import CommonWelcome from '@/views/common/WelcomeView.vue'
 
 
 const commonRoute: VueRouter.RouteRecordRaw  =  {
