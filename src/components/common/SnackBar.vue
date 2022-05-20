@@ -1,5 +1,10 @@
 <template>
-  <v-snackbar v-model="active" :timeout="timeout">
+  <v-snackbar
+    v-model="active"
+    :timeout="timeout"
+    @mouseover="mouseOver"
+    @mouseleave="mouseLeave"
+  >
     {{ text }}
     <template v-if="showClose" #actions>
       <v-btn color="red" @click="doClose">
@@ -45,6 +50,16 @@ const doClose = () => {
   emitClose()
   clearTimeout(time)
 }
+
+const mouseOver = () => {
+  clearTimeout(time)
+}
+
+const mouseLeave = () => setTimeout(() => {
+  active.value = false
+  emitClose()
+  clearTimeout(time)
+}, props.timeout)
 </script>
 
 <script lang="ts">
