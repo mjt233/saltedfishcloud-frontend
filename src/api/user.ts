@@ -1,3 +1,5 @@
+import { CommonRequest } from '@/core/model'
+
 export interface UserRegOpt {
   // 用户名
   user: string,
@@ -25,7 +27,7 @@ const user = {
      * @param {String} email 接收验证码的新邮箱
      * @returns {import("axios").AxiosRequestConfig}
      */
-  sendBindEmail(email: string) {
+  sendBindEmail(email: string): CommonRequest {
     return {
       url: `${this.prefix}/sendBindEmail`,
       data: {
@@ -35,23 +37,21 @@ const user = {
     }
   },
   /**
-     * 更新token
-     * @returns {import("axios").AxiosRequestConfig}
-     */
-  updateToken() {
+   * 更新token
+   */
+  updateToken(): CommonRequest<string> {
     return {
       url: `${this.prefix}/updateToken`,
       method: 'post'
     }
   },
   /**
-     * 绑定新邮箱
-     * @param {String} newEmail 新邮箱
-     * @param {String} originCode 旧邮箱验证码，若先前未绑定邮箱则不需要
-     * @param {String} newCode 新邮箱验证码
-     * @returns {import("axios").AxiosRequestConfig}
-     */
-  bindNewEmail(newEmail: string, originCode: string, newCode: string) {
+   * 绑定新邮箱
+   * @param {String} newEmail 新邮箱
+   * @param {String} originCode 旧邮箱验证码，若先前未绑定邮箱则不需要
+   * @param {String} newCode 新邮箱验证码
+   */
+  bindNewEmail(newEmail: string, originCode: string, newCode: string): CommonRequest {
     return {
       url: `${this.prefix}/newMail`,
       method: 'post',
@@ -63,11 +63,10 @@ const user = {
     }
   },
   /**
-     * 用于验证旧邮箱的验证码是否正确
-     * @param {String} code 验证码
-     * @returns {import("axios").AxiosRequestConfig}
-     */
-  verifyEmail(code: string) {
+   * 用于验证旧邮箱的验证码是否正确
+   * @param {String} code 验证码
+   */
+  verifyEmail(code: string): CommonRequest {
     return {
       url: `${this.prefix}/verifyEmail`,
       method: 'post',
@@ -77,23 +76,21 @@ const user = {
     }
   },
   /**
-     * 发送用于验证旧邮箱的验证码
-     * @returns {import("axios").AxiosRequestConfig}
-     */
-  sendVerifyEmail() {
+   * 发送用于验证旧邮箱的验证码
+   */
+  sendVerifyEmail(): CommonRequest {
     return {
       url: `${this.prefix}/sendVerifyEmail`,
       method: 'post'
     }
   },
   /**
-     * 发送重置密码邮箱验证码
-     * @param {String} account 用户名或邮箱
-     * @param {String} code 验证码
-     * @param {String} password 新密码
-     * @returns {import("axios").AxiosRequestConfig}
-     */
-  resetPassword(account: string, code: string, password: string) {
+   * 发送重置密码邮箱验证码
+   * @param {String} account 用户名或邮箱
+   * @param {String} code 验证码
+   * @param {String} password 新密码
+   */
+  resetPassword(account: string, code: string, password: string): CommonRequest {
     return {
       url: `${this.prefix}/resetPassword`,
       data: {
@@ -105,11 +102,11 @@ const user = {
     }
   },
   /**
-     * 发送重置密码邮箱验证码
-     * @param {String} account 用户名或邮箱
-     * @returns {import("axios").AxiosRequestConfig}
-     */
-  sendResetPasswordEmail(account: string) {
+   * 发送重置密码邮箱验证码
+   * @param {String} account 用户名或邮箱
+   * @returns {import("axios").AxiosRequestConfig}
+   */
+  sendResetPasswordEmail(account: string): CommonRequest {
     return {
       url: `${this.prefix}/sendResetPasswordEmail`,
       data: {
@@ -119,10 +116,10 @@ const user = {
     }
   },
   /**
-     * 获取邮箱注册验证码
-     * @param {String} email 接收的邮箱
-     */
-  getEmailRegCode(email: string) {
+   * 获取邮箱注册验证码
+   * @param {String} email 接收的邮箱
+   */
+  getEmailRegCode(email: string): CommonRequest {
     return {
       url: `${this.prefix}/regcode`,
       data: {
@@ -132,29 +129,29 @@ const user = {
     }
   },
   /**
-     * 获取系统开放的注册类型
-     */
-  getRegType() {
+   * 获取系统开放的注册类型
+   */
+  getRegType(): CommonRequest<{email: boolean, regcode: boolean}> {
     return {
       url: `${this.prefix}/regType`
     }
   },
   /**
-     * 设置用户的类型
-     * @param {Number} uid      目标用户ID
-     * @param {Boolean} isAdmin 是否设为管理员
-     */
-  setUserType(uid: number, isAdmin: boolean) {
+   * 设置用户的类型
+   * @param {Number} uid      目标用户ID
+   * @param {Boolean} isAdmin 是否设为管理员
+   */
+  setUserType(uid: number, isAdmin: boolean): CommonRequest {
     return {
       url: `${this.prefix}/${uid}/type/${isAdmin ? '1' : '0'}`,
       method: 'put'
     }
   },
   /**
-     * 获取用户列表
-     * @param {Number} page 页码
-     * @returns
-     */
+   * 获取用户列表
+   * @param {Number} page 页码
+   * @returns
+   */
   getUserList(page = 1) {
     return {
       url: `${this.prefix}/list`,
@@ -164,9 +161,9 @@ const user = {
     }
   },
   /**
-     * 注册新用户
-     */
-  regUser(regOpt: UserRegOpt) {
+   * 注册新用户
+   */
+  regUser(regOpt: UserRegOpt): CommonRequest {
     return {
       url: this.prefix,
       method: 'post',
@@ -174,12 +171,12 @@ const user = {
     }
   },
   /**
-     * 用户登录
-     * @param {String} user 用户
-     * @param {String} passwd 密码
-     * @returns
-     */
-  login(user: string, passwd: string) {
+   * 用户登录
+   * @param {String} user 用户
+   * @param {String} passwd 密码
+   * @returns token
+   */
+  login(user: string, passwd: string): CommonRequest<string> {
     return {
       url: this.prefix + '/token',
       method: 'post',
@@ -190,8 +187,8 @@ const user = {
     }
   },
   /**
-     * 获取用户信息
-     */
+   * 获取用户信息
+   */
   getUserInfo() {
     return {
       url: this.prefix,
@@ -199,11 +196,11 @@ const user = {
     }
   },
   /**
-     * 上传用户头像
-     * @param {File} img 头像文件
-     * @returns
-     */
-  uploadAvatar(img: File) {
+   * 上传用户头像
+   * @param {File} img 头像文件
+   * @returns
+   */
+  uploadAvatar(img: File): CommonRequest {
     const fd = new FormData()
     fd.append('file', img)
     return {
@@ -213,20 +210,20 @@ const user = {
     }
   },
   /**
-     * 获取用户头像
-     * @param {String} username 用户名
-     * @returns
-     */
+   * 获取用户头像
+   * @param {String} username 用户名
+   * @returns
+   */
   getAvatar(username: string) {
     return {
       url: this.prefix + '/avatar' + (username ? `/${username}` : '')
     }
   },
   /**
-     * 获取配额使用情况
-     * @returns
-     */
-  getQuotaUsed() {
+   * 获取配额使用情况
+   * @returns
+   */
+  getQuotaUsed(): CommonRequest<{used: number, quota: number}> {
     return {
       url: this.prefix + '/quota'
     }

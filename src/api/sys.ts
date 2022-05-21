@@ -1,9 +1,9 @@
+import { CommonRequest } from '@/core/model'
 const sys = {
   /**
      * 获取系统特性
-     * @returns {import("axios").AxiosRequestConfig}
      */
-  getFeature() {
+  getFeature(): CommonRequest {
     return {
       url: '/hello/feature'
     }

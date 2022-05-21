@@ -1,26 +1,19 @@
+import { SessionUser } from '@/core/model/'
 import { reactive } from 'vue'
 import { context } from '.'
 
 
-export type UserRole = 'admin' | 'normal' | 'public'
-export interface User {
-  id: number,
-  name: string,
-  role: UserRole,
-  email?: string,
-  quota: number
-}
 
 export interface Session {
   token: string,
-  user: User,
+  user: SessionUser,
   setToken(token: string): void,
   loadToken(): void,
   setUserInfo(userObj: any): void,
   logout(): Promise<any>
 }
 
-export function getPublicUser(): User {
+export function getPublicUser(): SessionUser {
   return {
     id: 0,
     name: 'public',
@@ -41,7 +34,7 @@ const emptySession: Session = {
     this.token = localStorage.getItem('token') || ''
   },
   setUserInfo(userObj) {
-    const userInfo: User = {
+    const userInfo: SessionUser = {
       id: userObj.id,
       name: userObj.user || userObj.name,
       quota: userObj.quota,

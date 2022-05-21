@@ -5,5 +5,7 @@
     },
     "editor.tabSize": 2,
     "typescript.tsdk": "node_modules/typescript/lib",
-    "vue3snippets.enable-compile-vue-file-on-did-save-code": false
+    "auto-close-tag.disableOnLanguage": [
+        "typescript"
+    ]
 }

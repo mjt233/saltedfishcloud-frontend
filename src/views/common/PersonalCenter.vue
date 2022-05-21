@@ -121,7 +121,7 @@ const quotaColor = ref('primary')
 const showEmailDialog = ref(false)
 
 // 获取存储使用情况
-axios(API.user.getQuotaUsed()).then(e => {
+SfcUtils.request(API.user.getQuotaUsed()).then(e => {
   const info = e.data.data
   quotaUsed.used = info.used
   quotaUsed.quota = info.quota

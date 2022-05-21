@@ -1,11 +1,25 @@
+import { ApiRequest, CommonRequest, JsonResult } from '@/core/model'
 // import selectFile from './file/fileSelector'
 // import previewImage from './preview/previewImage'
 import { snackbar } from './common/SnackBar'
 import axios from '@/plugins/axios'
-import { dialog } from './common/Dialog'
+import { AxiosResponse } from 'axios'
 const SfcUtils = {
   snackbar,
-  axios
+  /**
+   * 原始默认预设配置的axios对象
+   */
+  axios,
+  
+  /**
+   * 发起API请求
+   * @param request API请求参数
+   * @returns Axios响应对象
+   */
+  async request <T>(request: ApiRequest<T>): Promise<AxiosResponse<T, any>> {
+    
+    return await axios(request)
+  }
 }
 
 export default SfcUtils
