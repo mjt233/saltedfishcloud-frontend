@@ -18,7 +18,7 @@ export interface MenuGroup<T> {
   /**
    * 菜单项列表
    */
-  items: MenuItem[],
+  items: MenuItem<T>[],
 
   /**
    * 当函数返回true时才显示
@@ -29,7 +29,7 @@ export interface MenuGroup<T> {
 /**
  * 菜单项
  */
-export interface MenuItem {
+export interface MenuItem<T> {
   /**
    * 唯一标识
    */
@@ -53,12 +53,12 @@ export interface MenuItem {
   /**
    * 当函数返回true时才显示
    */
-  renderOn?: (ctx: ToRefs<AppContext>) => boolean,
+  renderOn?: (ctx: T) => boolean,
 
   /**
    * 菜单点击动作
    */
-  action?: (ctx: ToRefs<AppContext>) => void
+  action?: (ctx: T) => void
   [otherKey: string]: any
 }
 

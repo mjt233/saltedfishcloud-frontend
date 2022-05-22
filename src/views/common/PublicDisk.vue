@@ -1,9 +1,11 @@
 <template>
   <div>
-    <h1>公共网盘</h1>
+    <file-browser :uid="0" path="/" />
   </div>
 </template>
-
+<script setup lang="ts">
+import FileBrowser from '@/components/common/FileBrowser.vue'
+</script>
 <script lang="ts">
 import { defineComponent } from 'vue'
 
