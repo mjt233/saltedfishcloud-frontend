@@ -30,25 +30,25 @@ async function validSession() {
 }
 
 async function getFeature() {
-  const feature = (await axios(API.sys.getFeature())).data
-  context.feature.value = reactive(feature)
-  console.log(feature)
+  const data = (await SfcUtils.request(API.sys.getFeature())).data
+  context.feature.value = reactive(data)
 }
 
-validSession()
-  .then(e => {
-    if (e) {
+async function start() {
+  try {
+    if(await validSession() == true) {
       SfcUtils.snackbar(`欢迎回来，${context.session.value.user.name}`, 1500, { showClose: false })
     }
-  })
-  .then(() => getFeature())
-  .catch(err => {
+    await getFeature()
+  } catch(err: any) {
     SfcUtils.snackbar(err.toString())
-  })
-  .finally(() => {
+  } finally {
     const app = createApp(App)
     app.use(router)
       .use(vuetify)
       .mount('#app')
     createApp(App)
-  })
+  }
+}
+
+start()

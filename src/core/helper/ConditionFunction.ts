@@ -1,5 +1,5 @@
 import { ToRefs } from 'vue'
-import { AppContext } from './../context/type.d'
+import { AppContext } from '../context/type'
 export namespace ConditionFunction {
   export function hasLogin(ctx: ToRefs<AppContext>)  {
     const token = ctx.session.value.token

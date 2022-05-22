@@ -186,7 +186,6 @@ import { context } from '@/core/context'
 import { ConditionFunction } from '@/core/helper/ConditionFunction'
 import API from '@/api'
 import { StringFormatter } from '@/utils/StringFormatter'
-import axios from '@/plugins/axios'
 export default defineComponent({
   name: 'PersonalCenter'
 })

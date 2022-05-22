@@ -1,4 +1,4 @@
-import { CommonRequest } from '@/core/model'
+import { CommonRequest, PageRequest, RawUser } from '@/core/model'
 
 export interface UserRegOpt {
   // 用户名
@@ -152,7 +152,7 @@ const user = {
    * @param {Number} page 页码
    * @returns
    */
-  getUserList(page = 1) {
+  getUserList(page = 1): PageRequest<RawUser> {
     return {
       url: `${this.prefix}/list`,
       params: {
@@ -189,7 +189,7 @@ const user = {
   /**
    * 获取用户信息
    */
-  getUserInfo() {
+  getUserInfo(): CommonRequest<RawUser> {
     return {
       url: this.prefix,
       method: 'get'
@@ -214,7 +214,7 @@ const user = {
    * @param {String} username 用户名
    * @returns
    */
-  getAvatar(username: string) {
+  getAvatar(username: string): {url: string} {
     return {
       url: this.prefix + '/avatar' + (username ? `/${username}` : '')
     }
@@ -230,14 +230,14 @@ const user = {
   },
 
   /**
-     *
-     * @param {Number} uid 用户ID
-     * @param {String} oldPasswd 旧密码
-     * @param {String} newPasswd 新密码
-     * @param {String} force     强制修改
-     * @returns
-     */
-  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: string = 'false') {
+   *
+   * @param {Number} uid 用户ID
+   * @param {String} oldPasswd 旧密码
+   * @param {String} newPasswd 新密码
+   * @param {String} force     强制修改
+   * @returns
+   */
+  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: string = 'false'): CommonRequest {
     const res = {
       url: `${this.prefix}/${uid}/passwd`,
       method: 'post',

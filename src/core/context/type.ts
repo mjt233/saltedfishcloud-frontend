@@ -1,9 +1,9 @@
-import { AppFeature } from './type.d'
 import { Session } from './session'
 import { ToRefs } from 'vue'
 import { AppMenu } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
+import { SystemFeature } from '../model'
 
 interface RouteInfo {
   /**
@@ -81,7 +81,7 @@ export interface AppContext {
    */
   eventBus: EventBus,
 
-  feature: AppFeature,
+  feature: SystemFeature,
 
   /**
    * 路由信息

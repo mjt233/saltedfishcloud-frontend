@@ -75,7 +75,7 @@
           </v-window-item>
         </v-window>
       </base-form>
-      <v-btn color="primary" width="100%" @click="emit('submit')">
+      <v-btn color="primary" width="100%" @click="emitSubmit">
         立即注册
       </v-btn>
     </v-card-content>
@@ -143,7 +143,7 @@ const submitAction = async() => {
 }
 const emit = defineEmits(['submit'])
 const emitSubmit = () => {
-  console.log(123)
+  emit('submit')
 }
 const updateErrorInfo = () => {
 
