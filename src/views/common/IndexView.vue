@@ -69,12 +69,12 @@ const session = context.session
 </script>
 
 <script lang="ts">
-import { ref, defineComponent } from 'vue'
-import { context, MenuItem } from '@/core/context/'
+import { ref, defineComponent, ToRefs } from 'vue'
+import { AppContext, context, MenuItem } from '@/core/context/'
 export default defineComponent({
   name: 'CommonIndex',
   methods: {
-    menuClick(menuItem: MenuItem, event: MouseEvent) {
+    menuClick(menuItem: MenuItem<ToRefs<AppContext>>, event: MouseEvent) {
       if (menuItem.action) {
         menuItem.action(context)
       }

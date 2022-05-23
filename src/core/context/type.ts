@@ -1,9 +1,9 @@
 import { Session } from './session'
 import { ToRefs } from 'vue'
-import { AppMenu } from './menu/type'
+import { AppMenu, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
-import { SystemFeature } from '../model'
+import { FileListContext, SystemFeature } from '../model'
 
 interface RouteInfo {
   /**
@@ -63,7 +63,9 @@ export interface AppContext {
     /**
      * 用户界面主菜单
      */
-    mainMenu: AppMenu
+    mainMenu: AppMenu,
+
+    fileListMenu: MenuGroup<FileListContext>[]
   }
 
   /**

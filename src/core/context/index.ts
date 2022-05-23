@@ -1,5 +1,5 @@
 import { AppContext } from './type'
-import defaultMainMenu from './menu'
+import { defaultFileListMenu, defaultMainMenu } from './menu'
 import { reactive, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
 import { DefaultEventBus } from './EventBus'
@@ -21,7 +21,8 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   theme: 'default',
   originTheme: 'default',
   menu: {
-    mainMenu: defaultMainMenu
+    mainMenu: defaultMainMenu,
+    fileListMenu: defaultFileListMenu
   },
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,

@@ -1,5 +1,6 @@
 // const file = require('./file')
 // const resource = require('./resource')
+import file from './file'
 import sys from './sys'
 import user from './user'
 // const admin = require('./admin')
@@ -11,7 +12,8 @@ import user from './user'
 
 const API = {
   user,
-  sys
+  sys,
+  file
 //     file: file,
 //     resource: resource,
 //     admin: admin,
