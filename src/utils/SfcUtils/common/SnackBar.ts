@@ -11,7 +11,11 @@ export interface SnackBarOptions {
   /**
    * 气泡消失回调
    */
-  onClose?: Function
+  onClose?: Function,
+  /**
+   * 是否开启点击区域外关闭功能
+   */
+  outClose?:boolean,
 }
 
 /**
@@ -20,7 +24,7 @@ export interface SnackBarOptions {
  * @param timeout 自动消失时间（默认2s，单位ms）
  * @param param2 气泡其他选项
  */
-export function snackbar(text: string, timeout: number = 2000, { showClose, onClose }: SnackBarOptions = {}): void {
+export function snackbar(text: string, timeout: number = 2000, { showClose, onClose, outClose }: SnackBarOptions = {}): void {
   if (timeout == null || timeout == undefined) {
     timeout = 2000
   }
@@ -28,6 +32,7 @@ export function snackbar(text: string, timeout: number = 2000, { showClose, onCl
     text,
     timeout,
     showClose,
+    outClose,
     onClose: () => {
       handler.unmount()
       onClose && onClose()

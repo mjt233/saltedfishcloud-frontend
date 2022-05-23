@@ -29,14 +29,29 @@ const props = defineProps({
   timeout: {
     type: Number,
     default: 2000
+  },
+  /**
+   * 控制点击气泡框外部区域时是否关闭气泡，默认为false，false为不关闭
+   */
+  outClose: {
+    type: Boolean,
+    default: false
   }
 })
 
 const active = ref(true)
+const closeSnackBar = (e: MouseEvent) => {
+  if(props.outClose  && !DOMUtils.getElParentByClass(e.target as HTMLElement, 'v-overlay-container')) {
+    active.value = false
+    emitClose()
+  }
+}
+
 const emitClose = () => {
   setTimeout(() => {
     emit('close')
   }, 200)
+  document.removeEventListener('click', closeSnackBar)
 }
 /**
  * 自动消失timeout计时器
@@ -61,11 +76,17 @@ const doClose = () => {
 const stopTimeout = () => {
   clearTimeout(time)
 }
+
+onMounted(() => {
+  setTimeout(() => {
+    document.addEventListener('click', closeSnackBar)
+  }, 0)
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, defineProps, defineEmits } from 'vue'
-
+import { defineComponent, ref, defineProps, defineEmits, onMounted, getCurrentInstance, nextTick } from 'vue'
+import DOMUtils from '@/utils/DOMUtils'
 export default defineComponent({
   name: 'SnackBar'
 })
