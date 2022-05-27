@@ -1,7 +1,10 @@
 <template>
   <div>
     <ul class="file-list">
-      <li v-for="fileInfo in fileList" :key="fileInfo.name + fileInfo.md5">
+      <li v-show="showBack" @click="emits('back')">
+        back
+      </li>
+      <li v-for="fileInfo in fileList" :key="fileInfo.name + fileInfo.md5" @click="emits('clickItem', fileInfo)">
         {{ fileInfo.name }}
       </li>
     </ul>
@@ -17,18 +20,20 @@ const props = defineProps({
   fileList: {
     type: Array as PropType<FileInfo[]>,
     default: () => []
+  },
+  showBack: {
+    type: Boolean,
+    default: true
   }
+
 })
-
-
-
-const session = context.session
 
 const fileListContext: FileListContext = reactive({
   fileList: [] as FileInfo[],
   enableFeature: [''],
   readonly: true,
-  name: ''
+  name: '',
+  selectFileList: []
 })
 const componentInst: Ref<ComponentPublicInstance | undefined> = ref()
 onMounted(() => {
@@ -36,24 +41,36 @@ onMounted(() => {
   fileListContext.el = inst
 })
 
+const fileListModelHandler: FileListModelHandler = {
+  async mkdir() {
+    console.log('mkdir')
+    return ''
+  },
 
-defineEmits(['mkdir', 'upload'])
+  async upload() {
+    return await FileUtils.openFileDialog(true)
+  },
 
-const mkdir = () => {
-  console.log('mkdir')
+  async loadList() {
+    return []
+  }
 }
-const upload = () => {
-  console.log('upload')
-}
+const emits = defineEmits<{
+  (event: 'clickItem', item: FileInfo): void,
+  (event: 'back'): void
+}>()
+
+defineExpose(fileListModelHandler)
 </script>
 
 <script lang="ts">
-import { FileListModel } from '@/core/model/component/FileListModel'
+import { FileListModel, FileListModelHandler } from '@/core/model/component/FileListModel'
 import { FileInfo } from '@/core/model'
 import { FileListContext } from '@/core/model'
-import { defineComponent, ref, Ref, onMounted, getCurrentInstance,ComponentPublicInstance, reactive, PropType } from 'vue'
+import { defineComponent, ref, Ref, onMounted, getCurrentInstance,ComponentPublicInstance, reactive, PropType, inject } from 'vue'
 import { context } from '@/core/context'
 import API from '@/api'
+import FileUtils from '@/utils/FileUtils'
 
 export default defineComponent({
   name: 'FileList'

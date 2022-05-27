@@ -27,9 +27,9 @@ export function blobToArrayBuffer(blob: Blob, onprogress: (e: ProgressEvent<File
 }
 
 export interface Md5ComputeOption {
-  success: (md5: string) => void,
-  error: (err: any) => void,
-  prog: (prog: Prog) => void
+  success?: (md5: string) => void,
+  error?: (err: any) => void,
+  prog?: (prog: Prog) => void
 }
 
 /**
@@ -63,6 +63,7 @@ export async function computeMd5(file: File, { success, error, prog }: Md5Comput
       cnt += buffer.byteLength
     } catch (err) {
       error && error(err)
+      return Promise.reject(err)
     }
   }
   const res = md5obj.hex()

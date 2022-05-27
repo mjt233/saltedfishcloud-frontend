@@ -1,7 +1,7 @@
-import * as MenuType from './type.js'
+import * as MenuType from './type'
 import defaultMenuBackground from '@/assets/img/bg/bg2.jpg'
-import { ConditionFunction } from '@/core/helper/ConditionFunction.js'
-import SfcUtils from '@/utils/SfcUtils/index.js'
+import { ConditionFunction } from '@/core/helper/ConditionFunction'
+import SfcUtils from '@/utils/SfcUtils'
 
 const defaultMainMenu: MenuType.AppMenu = {
   backgroundImg: defaultMenuBackground,

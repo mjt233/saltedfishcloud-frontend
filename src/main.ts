@@ -37,7 +37,7 @@ async function getFeature() {
 async function start() {
   try {
     if(await validSession() == true) {
-      SfcUtils.snackbar(`欢迎回来，${context.session.value.user.name}`, 1500, { showClose: false })
+      SfcUtils.snackbar(`欢迎回来，${context.session.value.user.name}`, 1500, { showClose: false, outClose: true })
     }
     await getFeature()
   } catch(err: any) {

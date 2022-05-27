@@ -1,13 +1,14 @@
 <template>
   <div>
-    <file-browser :uid="0" path="/" />
+    <file-browser v-model:path="path" :uid="0" />
   </div>
 </template>
 <script setup lang="ts">
 import FileBrowser from '@/components/common/FileBrowser.vue'
+const path = ref('/')
 </script>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
   name: 'PublicDisk'

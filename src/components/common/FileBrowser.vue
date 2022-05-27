@@ -1,39 +1,81 @@
 <template>
   <div>
-    <file-list :file-list="fileList" />
+    <loading-mask :use-transition="false" :loading="loading" />
+    <file-list :file-list="fileList" @click-item="clickItem" @back="back" />
   </div>
 </template>
 
 <script setup lang="ts">
 import FileList from './FileList.vue'
-const session = context.session
+import LoadingMask from './LoadingMask.vue'
+import { MethodInterceptor } from '@/utils/MethodInterceptor'
+import { LoadingManager } from '@/utils/LoadingManager'
+// props
 const props = defineProps({
-  uid: {
-    type: Number,
-    default: 0
-  },
   path: {
     type: String,
     default: '/'
+  },
+  fileSystemHandler: {
+    type: Object as PropType<FileSystemHandler>,
+    default: null
   }
 })
+
+// data
+const loadingManager = new LoadingManager()
+const loading = loadingManager.getLoadingRef()
 const fileList: Ref<FileInfo[]> = ref([])
 
-const loadList = async() => {
-  const list = (await SfcUtils.request(API.file.getFileList(props.uid, props.path))).data.data
-  fileList.value = list[0].concat(list[1])
+// computed
+const handler = computed(() => {
+  let targetObj = props.fileSystemHandler
+  if(targetObj == undefined) {
+    targetObj = FileSystemHandlerFactory.getFileSystemHandler(ref(0))
+  }
+  return MethodInterceptor.createAutoLoadingProxy(targetObj, loadingManager)
+})
+
+
+
+
+const loadList = async(path: string) => {
+  fileList.value = await handler.value.loadList(path)
+  if (props.path != path) {
+    emits('update:path', path)
+  }
 }
 
+const back = async() => {
+  if (props.path == '/') return
+  const pathArr = props.path.split('/')
+  pathArr.pop()
+  await loadList('/' + pathArr.join('/'))
+}
+
+const clickItem = async(e: FileInfo) => {
+  if (e.dir) {
+    const newPath = StringUtils.appendPath(props.path, e.name)
+    await loadList(newPath)
+  } else {
+    console.log('isfile')
+  }
+}
+
+const emits = defineEmits<{
+  (event: 'update:path', path: string): void
+}>()
+
 onMounted(() => {
-  loadList()
+  loadList(props.path)
 })
 </script>
 
 <script lang="ts">
 import { FileInfo } from '@/core/model'
-import API from '@/api'
-import SfcUtils from '@/utils/SfcUtils'
-import { defineComponent, ref, Ref, onMounted } from 'vue'
+import { StringUtils } from '@/utils/StringUtils'
+import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
+import { defineComponent, ref, Ref, onMounted, inject, PropType, computed } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({
