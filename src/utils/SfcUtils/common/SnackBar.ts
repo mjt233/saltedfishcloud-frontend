@@ -20,11 +20,17 @@ export interface SnackBarOptions {
 
 /**
  * 
- * @param text 显示的文本
+ * @param message 显示的文本
  * @param timeout 自动消失时间（默认2s，单位ms）
  * @param param2 气泡其他选项
  */
-export function snackbar(text: string, timeout: number = 2000, { showClose, onClose, outClose }: SnackBarOptions = {}): void {
+export function snackbar(message: string | any, timeout: number = 2000, { showClose, onClose, outClose }: SnackBarOptions = {}): void {
+  let text = ''
+  if (message instanceof String) {
+    text = message as string
+  } else {
+    text = message.msg || message.message || message.toString()
+  }
   if (timeout == null || timeout == undefined) {
     timeout = 2000
   }

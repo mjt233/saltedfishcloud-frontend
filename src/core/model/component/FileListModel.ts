@@ -16,6 +16,6 @@ export interface FileListModelHandler {
    * 通知列表执行加载
    * @returns 若加载成功，则返回文件列表
    */
-  loadList: () => Promise<FileInfo[]>
+  refresh: () => Promise<FileInfo[] | undefined>
 }
 export type FileListModel = ComponentPublicInstance & FileListModelHandler

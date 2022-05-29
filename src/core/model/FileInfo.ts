@@ -1,4 +1,4 @@
-import { FileListModel } from './component/FileListModel'
+import { FileListModel, FileListModelHandler } from './component/FileListModel'
 
 export namespace FileTypeConstant {
   export const FILE = 2
@@ -46,6 +46,6 @@ export interface FileListContext {
   /** 文件列表是否只读 */
   readonly: boolean
 
-  /** 文件列表FileList组件实例 */
-  el?: FileListModel
+  /** 文件列表操作器 */
+  modelHandler: FileListModelHandler
 }

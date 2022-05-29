@@ -58,7 +58,7 @@ export interface MenuItem<T> {
   /**
    * 菜单点击动作
    */
-  action?: (ctx: T) => void
+  action?: (ctx: T) => any
   [otherKey: string]: any
 }
 

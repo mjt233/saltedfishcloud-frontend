@@ -1,7 +1,13 @@
 <template>
   <div>
     <loading-mask :use-transition="false" :loading="loading" />
-    <file-list :file-list="fileList" @click-item="clickItem" @back="back" />
+    <file-list
+      :menu="menu.fileListMenu"
+      :file-list="fileList"
+      :path="path"
+      @click-item="clickItem"
+      @back="back"
+    />
   </div>
 </template>
 
@@ -23,6 +29,7 @@ const props = defineProps({
 })
 
 // data
+const menu = context.menu
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const fileList: Ref<FileInfo[]> = ref([])
@@ -35,6 +42,7 @@ const handler = computed(() => {
   }
   return MethodInterceptor.createAutoLoadingProxy(targetObj, loadingManager)
 })
+provide('fileSystemHandler', handler)
 
 
 
@@ -75,7 +83,7 @@ onMounted(() => {
 import { FileInfo } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
-import { defineComponent, ref, Ref, onMounted, inject, PropType, computed } from 'vue'
+import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({
