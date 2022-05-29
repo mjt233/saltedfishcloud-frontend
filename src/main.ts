@@ -10,6 +10,10 @@ import SfcUtils from './utils/SfcUtils'
 import '@/styles/common.scss'
 
 context.routeInfo.value.router = router
+
+/**
+ * 校验token是否有效以保持登录状态
+ */
 async function validSession() {
 
   const session = context.session.value
@@ -29,6 +33,9 @@ async function validSession() {
   }
 }
 
+/**
+ * 获取后端系统开放的特性
+ */
 async function getFeature() {
   const data = (await SfcUtils.request(API.sys.getFeature())).data
   context.feature.value = reactive(data)

@@ -1,6 +1,5 @@
 <template>
   <v-dialog
-    v-model="showDialog"
     :width="width"
     class="base-dialog"
     :max-width="maxWidth"
@@ -10,9 +9,12 @@
     <v-card :title="title" color="background">
       <v-card-content style="margin-top: 12px">
         <div style="padding: 0 12px">
+          <!-- 对话框默认正文内容插槽 -->
           <slot />
         </div>
       </v-card-content>
+
+      <!-- 对话框操作按钮插槽 -->
       <v-card-actions v-show="!hideBtn || $slots.actions" class="justify-end">
         <template v-if="!hideBtn">
           <v-btn color="primary" @click="emits('confirm')">
@@ -30,15 +32,11 @@
 
 <script setup lang="ts">
 import LoadingMask from './LoadingMask.vue'
-const showDialog = ref(false)
+const showDialog = ref()
 defineProps({
   title: {
     type: String,
     default: ''
-  },
-  value: {
-    type: Boolean,
-    default: false
   },
   width: {
     type: [Number, String],
@@ -65,10 +63,14 @@ defineProps({
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])
+const formManager = new FormManager()
+provide('formManager', formManager)
+defineExpose({ formManager })
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, defineProps, onMounted } from 'vue'
+import { FormManager } from '@/utils/FormUtils/FormManager'
+import { defineComponent, ref, defineProps, onMounted, provide } from 'vue'
 
 export default defineComponent({
   name: 'BaseDialog'

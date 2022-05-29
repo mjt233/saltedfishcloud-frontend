@@ -1,25 +1,24 @@
 <template>
   <v-text-field
-    :variant="props.variant"
-    :rules="props.rules"
-    :type="props.type"
+    :variant="variant"
+    :rules="rules"
+    :type="type"
     :error-messages="errorMessage"
     :model-value="value"
     :label="label"
     :color="color"
     :error="error"
     @input="input"
-    @keyup.enter="test"
+    @keyup.enter="doEnter"
     @blur="validate"
   />
 </template>
 
 <script setup lang="ts">
-const userInfo = context.session.value.user
 const props = defineProps({
   rules: {
-    type: Array,
-    default: null
+    type: Array as PropType<ValidateRule[]>,
+    default: () => []
   },
   value: {
     type: String,
@@ -34,7 +33,7 @@ const props = defineProps({
     default: ''
   },
   variant: {
-    type: String,
+    type: String as PropType<'underlined' | 'filled' | 'outlined' | 'plain' | 'contained' | undefined>,
     default: 'underlined'
   },
   color: {
@@ -45,8 +44,7 @@ const props = defineProps({
 const error = ref(false)
 const errorMessage = ref('')
 const emit = defineEmits(['update:value', 'enter'])
-const test = () => {
-  console.log('enter')
+const doEnter = () => {
   emit('enter')
 }
 let curVal = ''
@@ -91,8 +89,9 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef } from 'vue'
+import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef, PropType } from 'vue'
 import { context, ValidateResult } from '@/core/context'
+import { ValidateRule } from '@/core/model/component/type'
 
 export default defineComponent({
   name: 'TextInput'

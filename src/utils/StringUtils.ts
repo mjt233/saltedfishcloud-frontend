@@ -21,7 +21,7 @@ export namespace StringUtils {
    * @param {RandomStrOption} opt 选项
    * @return {String}
    */
-  export function getRandomStr(len: number, opt: RandomStrOption) {
+  export function getRandomStr(len: number, opt?: RandomStrOption) {
     let pattern = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm'
     if (opt !== undefined && opt.withNumber == true) {
       pattern += '1234567890'

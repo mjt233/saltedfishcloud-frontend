@@ -102,6 +102,7 @@ const itemClick = async(item: MenuItem<FileListContext>) => {
     }
   } catch (error: any) {
     SfcUtils.snackbar(error, 1500, { outClose: true })
+    console.error(error)
   }
 }
 

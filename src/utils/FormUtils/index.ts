@@ -1,3 +1,4 @@
+import { StringUtils } from '@/utils/StringUtils'
 import { ValidateResult } from '@/core/context'
 import { Ref } from 'vue'
 import SfcUtils from '../SfcUtils'
@@ -18,7 +19,7 @@ export interface CommonFormOpt {
   /**
    * 执行提交的方法
    */
-  submitAction: () => Promise<any> | null | undefined
+  submitAction: () => Promise<any> | null | undefined | void
 }
 
 export interface SubmitOpt {
@@ -61,7 +62,12 @@ export interface CommonForm {
    * 执行表单提交
    * @param opt 提交执行选项
    */
-  submit: (opt?: SubmitOpt) => Promise<FormSubmitResult>
+  submit: (opt?: SubmitOpt) => Promise<FormSubmitResult>,
+
+  /**
+   * 获取该表单的唯一标识符
+   */
+  getId: () => string
 }
 
 /**
@@ -79,7 +85,10 @@ export function deconstructForm(form: Ref<any>): CommonForm {
     },
     async validate() {
       return await form.value.validate()
-    } 
+    },
+    getId() {
+      return form.value.getId()
+    }
   }
 }
 
@@ -106,7 +115,11 @@ export interface FormSubmitResult {
  * @returns 标准表单方法对象
  */
 export function defineForm(opt: CommonFormOpt): CommonForm {
+  const id = StringUtils.getRandomStr(32)
   return {
+    getId() {
+      return id
+    },
     getFormData() {
       const formData = {}
       if(opt.sonForm != null) {
