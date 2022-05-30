@@ -7,7 +7,7 @@
         class="menu-list"
       >
         <template
-          v-for="(menuGroup, gIndex) in menu"
+          v-for="(menuGroup, gIndex) in availableMenu"
           :key="gIndex"
         >
           <v-list-item
@@ -26,7 +26,7 @@
               {{ item.title }}
             </v-list-item-title>
           </v-list-item>
-          <v-divider v-if="gIndex != menu.length - 1" />
+          <v-divider v-if="gIndex != availableMenu.length - 1 && menuGroup.items.length != 0" />
         </template>
       </v-list>
     </v-menu>
@@ -43,10 +43,22 @@ const propsAttr = defineProps({
     type: [Object, String, HTMLElement],
     default: null
   },
-  context: {
+  listContext: {
     type: Object as PropType<FileListContext>,
     default: null
   }
+})
+const availableMenu = computed(() => {
+  const ret = propsAttr.menu
+    .map(group => {
+      const availableItem = group.items.filter(item => !item.renderOn || item.renderOn(propsAttr.listContext))
+      const newGroup = {} as MenuGroup<FileListContext>
+      Object.assign(newGroup, group)
+      newGroup.items = availableItem
+      return newGroup
+    })
+    .filter(group => (!group.renderOn || group.renderOn(propsAttr.listContext)) && group.items.length > 0 )
+  return ret
 })
 const menuAnchor = ref()
 const menuRef = ref()
@@ -98,7 +110,7 @@ const itemClick = async(item: MenuItem<FileListContext>) => {
   closeMenu()
   try {
     if (item.action) {
-      await item.action(propsAttr.context)
+      await item.action(propsAttr.listContext)
     }
   } catch (error: any) {
     SfcUtils.snackbar(error, 1500, { outClose: true })
@@ -115,11 +127,11 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, PropType, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, PropType, Ref, ref, watch } from 'vue'
 import { context, MenuGroup, MenuItem } from '@/core/context'
 import { FileListContext } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
-import { debug } from 'console'
+import { debug, group } from 'console'
 
 export default defineComponent({
   name: 'FileMenu'

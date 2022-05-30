@@ -27,8 +27,8 @@ const MethodInterceptor = {
           return targetAtt
         }
 
-        const invoker = (...args: any) => {
-          return (targetAtt as Function).apply(target, args)
+        const invoker = (args: any) => {
+          return (targetAtt as () => void).apply(target, args)
         }
 
         return (...args: any) => {

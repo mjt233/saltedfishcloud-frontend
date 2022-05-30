@@ -5,7 +5,7 @@ export interface FileListModelHandler {
    * 通知列表执行新建文件夹
    * @returns 若完成创建，则返回文件夹名称
    */
-  mkdir: () => Promise<string>
+  mkdir: (name: string) => Promise<string>
 
   /**
    * 通知列表触发选择文件上传

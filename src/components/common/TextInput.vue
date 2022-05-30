@@ -8,6 +8,7 @@
     :label="label"
     :color="color"
     :error="error"
+    :autofocus="autofocus"
     @input="input"
     @keyup.enter="doEnter"
     @blur="validate"
@@ -39,6 +40,10 @@ const props = defineProps({
   color: {
     type: String,
     default: 'primary'
+  },
+  autofocus: {
+    type: Boolean,
+    default: false
   }
 })
 const error = ref(false)

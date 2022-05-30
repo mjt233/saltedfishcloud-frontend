@@ -13,6 +13,8 @@ export interface DyncComponentHandler<T> {
   getComponentInst(): ComponentPublicInstance & T
 
   getApp(): App<Element>
+
+  getRoot(): ComponentPublicInstance
 }
 const ROOT_REF_NAME = 'rootRefByDyncmount'
 /**
@@ -48,6 +50,9 @@ export function dyncmount<T = {}>(component: Component, props: Object = {}, chil
     },
     getApp() {
       return tempApp
+    },
+    getRoot() {
+      return inst
     }
   }
 }

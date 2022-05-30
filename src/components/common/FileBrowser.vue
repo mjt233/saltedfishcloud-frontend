@@ -2,9 +2,10 @@
   <div>
     <loading-mask :use-transition="false" :loading="loading" />
     <file-list
+      v-model:file-list="fileList"
       :menu="menu.fileListMenu"
-      :file-list="fileList"
       :path="path"
+      :read-only="readOnly"
       @click-item="clickItem"
       @back="back"
     />
@@ -25,6 +26,10 @@ const props = defineProps({
   fileSystemHandler: {
     type: Object as PropType<FileSystemHandler>,
     default: null
+  },
+  readOnly: {
+    type: Boolean,
+    default: true
   }
 })
 

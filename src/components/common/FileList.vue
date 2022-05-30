@@ -1,6 +1,6 @@
 <template>
   <div>
-    <file-menu :container="$el" :menu="menu" :context="fileListContext" />
+    <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
     <ul class="file-list">
       <li v-show="showBack" @click="emits('back')">
         back
@@ -44,20 +44,21 @@ const props = defineProps({
 const emits = defineEmits<{
   (event: 'clickItem', item: FileInfo): void,
   (event: 'back'): void,
-  (event: 'refresh'): void
+  (event: 'refresh'): void,
+  (event: 'update:file-list', fileList: FileInfo[]): void
 }>()
-
 
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler')
 const fileListContext: FileListContext = reactive({
   fileList: props.fileList,
   enableFeature: [''],
-  readonly: true,
+  readonly: props.readOnly,
   name: '',
   selectFileList: [],
   modelHandler: {
-    async mkdir() {
-      throw new Error('未实现')
+    async mkdir(name) {
+      await handler?.value.mkdir(props.path, name)
+      return name
     },
 
     async upload() {
@@ -65,9 +66,14 @@ const fileListContext: FileListContext = reactive({
     },
 
     async refresh() {
-      return handler?.value.loadList(props.path)
+      const list = await handler?.value.loadList(props.path) as FileInfo[]
+      emits('update:file-list', list)
+      return list
     }
   }
+})
+watch(() => props.readOnly, () => {
+  fileListContext.readonly = props.readOnly
 })
 
 watch(() => props.fileList, () => {
@@ -78,13 +84,10 @@ defineExpose(fileListContext.modelHandler)
 
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
-import { FileListModel, FileListModelHandler } from '@/core/model/component/FileListModel'
 import { FileInfo } from '@/core/model'
 import { FileListContext } from '@/core/model'
-import { defineExpose ,defineComponent, ref, Ref, onMounted, getCurrentInstance,ComponentPublicInstance, reactive, PropType, inject, watch } from 'vue'
-import { context, MenuGroup } from '@/core/context'
-import API from '@/api'
-import FileUtils from '@/utils/FileUtils'
+import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch } from 'vue'
+import { MenuGroup } from '@/core/context'
 
 export default defineComponent({
   name: 'FileList'

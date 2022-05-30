@@ -24,6 +24,7 @@ const defaultFileListMenu: MenuGroup<FileListContext>[] = [
         id: 'mkdir',
         title: '新建文件夹',
         async action(ctx) {
+          // 定义校验器，不允许为空，不允许重名
           const rules: ValidateRule[] = [
             Validators.notNull('文件夹名称不能为空'),
             (e: string) => {
@@ -54,8 +55,8 @@ const defaultFileListMenu: MenuGroup<FileListContext>[] = [
             rules,
             defaultValue: defaultName
           })
-          console.log('文件名' + name)
-          return name
+          await ctx.modelHandler.mkdir(name)
+          await ctx.modelHandler.refresh()
         },
         renderOn(ctx) {
           return !ctx.readonly
@@ -85,7 +86,10 @@ const defaultFileListMenu: MenuGroup<FileListContext>[] = [
       {
         id: 'rename',
         title: '重命名',
-        icon: 'mdi-form-textbox'
+        icon: 'mdi-form-textbox',
+        renderOn(ctx) {
+          return !ctx.readonly
+        }
       }
     ]
   }

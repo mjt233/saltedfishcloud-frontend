@@ -55,7 +55,12 @@ export interface PromptOpt {
   /**
    * 校验规则
    */
-  rules?: ValidateRule[]
+  rules?: ValidateRule[],
+
+  /**
+   * 打开对话框后自动聚焦
+   */
+  autofocus?: boolean
 }
 
 export function dialog(opt: DialogOpt) {
@@ -112,7 +117,7 @@ export function dialog(opt: DialogOpt) {
 }
 
 export function prompt(opt: PromptOpt): Promise<string> {
-  const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '' } = opt
+  const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true } = opt
   const inputValue = ref(defaultValue)
   return new Promise((resolve, reject) => {
     const dialogPromise = dialog({
@@ -144,11 +149,14 @@ export function prompt(opt: PromptOpt): Promise<string> {
           'onUpdate:modelValue'(e: string) {
             inputValue.value = e
           },
+          autofocus,
           onEnter() {
             dialogPromise.handler.value.getComponentInst().$emit('confirm')
-          }
+          },
+          ref: 'inputForm'
         })
       ]
     })
+    
   })
 }
