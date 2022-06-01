@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import FileMenu from './FileMenu.vue'
+import FileMenu from '@/components/common/FileMenu.vue'
 
 // 基本属性定义
 const props = defineProps({

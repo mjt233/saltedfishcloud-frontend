@@ -1,6 +1,6 @@
 import SfcUtils from '@/utils/SfcUtils'
 import { DialogModel } from '@/core/model/component/DialogModel'
-import { ref, reactive, h, Ref } from 'vue'
+import { ref, reactive, h, Ref, toRefs } from 'vue'
 import { DyncComponentHandler, dyncmount } from './DyncMount'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
@@ -118,7 +118,9 @@ export function dialog(opt: DialogOpt) {
 
 export function prompt(opt: PromptOpt): Promise<string> {
   const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true } = opt
-  const inputValue = ref(defaultValue)
+  const formValue = reactive({
+    value: defaultValue
+  })
   return new Promise((resolve, reject) => {
     const dialogPromise = dialog({
       title,
@@ -135,7 +137,7 @@ export function prompt(opt: PromptOpt): Promise<string> {
             return Promise.reject('校验失败：' + result.errorMessages[0].errorMessages)
           }
         }
-        resolve(inputValue.value)
+        resolve(formValue.value)
         return true
       },
       onCancel() {
@@ -143,11 +145,11 @@ export function prompt(opt: PromptOpt): Promise<string> {
       },
       children: () => [
         h(SingleFieldForm, {
-          modelValue: inputValue.value,
+          modelValue: formValue,
           rules,
           label,
-          'onUpdate:modelValue'(e: string) {
-            inputValue.value = e
+          'onUpdate:modelValue'(e: {value: string}) {
+            formValue.value = e.value
           },
           autofocus,
           onEnter() {

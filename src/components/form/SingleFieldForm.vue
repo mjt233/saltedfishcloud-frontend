@@ -1,13 +1,13 @@
 <template>
-  <base-form ref="form" v-model="formData">
+  <base-form ref="form" :model-value="modelValue" @update:model-value="emits('update:modelValue', $event)">
     <text-input
       ref="inputRef"
       :autofocus="autofocus"
       :label="label"
       :rules="rules"
-      :model-value="modelValue"
+      :value="modelValue.value"
       @enter="emits('enter')"
-      @update:value="emits('update:modelValue', $event)"
+      @update:value="emits('update:modelValue', {value: $event});"
     />
   </base-form>
 </template>
@@ -16,18 +16,15 @@
 import BaseForm from '../common/BaseForm.vue'
 import TextInput from '../common/TextInput.vue'
 import { ValidateRule } from '@/core/model/component/type'
-const val = computed(() => {
-  return props.modelValue
-})
-const formData = {
-  value: val
-}
 const inputRef = ref() as Ref<ComponentPublicInstance>
 const form = ref() as Ref<CommonForm>
+const inputVal = ref()
 const props = defineProps({
   modelValue: {
-    type: [String, Number],
-    default: ''
+    type: Object,
+    default: () => {
+      return { value: '' }
+    }
   },
   label: {
     type: String,
@@ -43,15 +40,10 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['update:modelValue', 'enter'])
-const focus = () => {
-  console.log(inputRef.value.$el)
-  inputRef.value.$el.focus()
-}
-defineExpose({
-  focus,
-  ...deconstructForm(form)
+defineExpose(deconstructForm(form))
+onMounted(() => {
+  inputVal.value = props.modelValue.value
 })
-
 </script>
 
 <script lang="ts">

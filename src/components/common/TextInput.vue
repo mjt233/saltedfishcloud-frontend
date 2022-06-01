@@ -91,10 +91,14 @@ const input = (e: any) => {
 defineExpose({
   validate
 })
+console.log('before mount ' + curVal)
+onMounted(() => {
+  curVal = props.value
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef, PropType } from 'vue'
+import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef, PropType, onMounted } from 'vue'
 import { context, ValidateResult } from '@/core/context'
 import { ValidateRule } from '@/core/model/component/type'
 
