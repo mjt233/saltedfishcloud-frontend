@@ -91,7 +91,6 @@ const input = (e: any) => {
 defineExpose({
   validate
 })
-console.log('before mount ' + curVal)
 onMounted(() => {
   curVal = props.value
 })

@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-mask" :class="{loading:inLoading, 'flex-center': type == 'circular', 'use-transition': useTransition}">
+  <div class="loading-mask use-transition" :class="{loading:inLoading, 'flex-center': type == 'circular'}">
     <transition name="fade">
       <v-progress-linear
         v-show="type == 'linear' && inLoading"
@@ -39,6 +39,7 @@ const props = defineProps({
 
 const loadCount = ref(0)
 const inLoading = computed(() => {
+  // return true
   return loadCount.value > 0 || props.loading
 })
 const startLoading = () => {
@@ -73,17 +74,19 @@ export default defineComponent({
   height: 100%;
   top: 0;
   left: 0;
-  background-color: rgba(223, 223, 223, 0);
+  background-color: rgba(255, 255, 255, 0.548);
+  opacity: 0;
   z-index: 9999;
   overflow: hidden;
   pointer-events: none;
 }
 .loading-mask.use-transition {
   transition: all .5s;
+  transition-timing-function: cubic-bezier(0.2, 1.03, 0.93, 0.99);
 }
 
 .loading-mask.loading {
-  background-color: rgba(255, 255, 255, 0.548);
+  opacity: 1;
   pointer-events: all;
 }
 

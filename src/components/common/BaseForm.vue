@@ -20,7 +20,7 @@ const props = defineProps({
     default: () => { {} }
   }
 })
-const formManager = inject<FormManager>('formManager')
+const formManager = inject<FormManager>('formManager', new FormManager())
 defineEmits(['update:modelValue'])
 const formInst = defineForm({
   formData: props.modelValue,

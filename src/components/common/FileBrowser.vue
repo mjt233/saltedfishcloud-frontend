@@ -1,6 +1,6 @@
 <template>
   <div>
-    <loading-mask :use-transition="false" :loading="loading" />
+    <loading-mask :loading="loading" />
     <file-list
       v-model:file-list="fileList"
       :menu="menu.fileListMenu"
