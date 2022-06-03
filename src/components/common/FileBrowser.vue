@@ -13,11 +13,10 @@
 </template>
 
 <script setup lang="ts">
-import FileList from './FileList/FileList.vue'
+import FileList from './FileList.vue'
 import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
-// props
 const props = defineProps({
   path: {
     type: String,

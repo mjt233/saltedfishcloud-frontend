@@ -1,19 +1,34 @@
 <template>
   <div>
     <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
-    <ul class="file-list">
-      <li v-show="showBack" @click="emits('back')">
-        back
-      </li>
-      <li v-for="fileInfo in fileList" :key="fileInfo.name + fileInfo.md5" @click="emits('clickItem', fileInfo)">
-        {{ fileInfo.name }}
-      </li>
-    </ul>
+    <div class="file-list">
+      <v-row v-show="showBack" @click="emits('back')">
+        <v-col>
+          back
+        </v-col>
+        
+      </v-row>
+      <v-row v-for="fileInfo in fileList" :key="fileInfo.name + fileInfo.md5" @click="emits('clickItem', fileInfo)">
+        <v-col>
+          <span class="file-icon-group">
+            <file-icon
+              width="32"
+              height="32"
+              :file-name="fileInfo.name"
+              :md5="fileInfo.md5"
+              :is-dir="fileInfo.dir"
+            />
+            <span>{{ fileInfo.name }}</span>
+          </span>
+        </v-col>
+      </v-row>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import FileMenu from '@/components/common/FileMenu.vue'
+import FileMenu from './FileMenu.vue'
+import FileIcon from './FileIcon.vue'
 
 // 基本属性定义
 const props = defineProps({
@@ -95,7 +110,7 @@ export default defineComponent({
 </script>
 
 
-<style>
+<style lang="scss">
 .file-list {
   padding: 0;
   list-style: none;
@@ -105,5 +120,15 @@ export default defineComponent({
   height: 0 !important;
   /* display: none; */
   position: fixed;
+}
+
+.file-icon-group {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    margin-left: 6px;
+  }
 }
 </style>
