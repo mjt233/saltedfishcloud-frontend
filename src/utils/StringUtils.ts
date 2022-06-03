@@ -69,9 +69,40 @@ export namespace StringUtils {
         res += e
         return
       }
-      res += res.endsWith('/') ? e : (e.startsWith('/') ? e : ('/' + e))
+      if (res.endsWith('/')) {
+        if (e.startsWith('/')) {
+          res += e.substring(1)
+        } else {
+          res += e
+        }
+      } else if (e.startsWith('/')) {
+        res += e
+      } else {
+        res += ('/' + e)
+      }
     })
     return res
   }
-
+  /**
+   * 只对URL的路径进行URL解码
+   * @param {String} url 完整URL
+   */
+  export function decodeURLPath(url: string) {
+    const i = url.indexOf('?')
+    let qs = ''
+    let path = url
+    if (i != -1) {
+      qs = decodeURIComponent(url.substring(i))
+      path = url.substring(0, i)
+    }
+    const u = new URL(url)
+    path = u.pathname.split('/').map(e => decodeURIComponent(e)).join('/')
+    let host = u.hostname
+    const protocol = u.protocol
+    const port = u.port
+    if (port != '80' && port != '443') {
+      host = host + ':' + port
+    }
+    return protocol + '//' + host + path + qs
+  }
 }

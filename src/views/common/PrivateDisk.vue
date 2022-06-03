@@ -1,6 +1,6 @@
 <template>
   <div v-if="session.user.id != 0">
-    <h3>这是私人网盘</h3>
+    <file-browser v-model:path="path" :file-system-handler="handler" />
   </div>
   <div v-else class="d-flex justify-center">
     <v-card
@@ -46,6 +46,8 @@
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import LoginForm from '@/components/form/LoginForm.vue'
 import { CommonForm } from '@/utils/FormUtils'
+import FileBrowser from '@/components/common/FileBrowser.vue'
+import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 const session = context.session
 const showLogin = ref(false)
 const loginForm = ref() as Ref<CommonForm>
@@ -55,11 +57,15 @@ const login = async() => {
   }
 }
 
+const handler = computed(() => {
+  return FileSystemHandlerFactory.getFileSystemHandler(ref(session.value.user.id))
+}) 
+const path = ref('/')
 </script>
 
 <script lang="ts">
 import { context } from '@/core/context'
-import { defineComponent, Ref, ref } from 'vue'
+import { computed, defineComponent, Ref, ref } from 'vue'
 export default defineComponent({
   name: 'PrivateDisk'
 })

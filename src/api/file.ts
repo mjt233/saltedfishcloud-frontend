@@ -123,6 +123,7 @@ const file = {
    */
   getFileList(uid: number, path: string): CommonRequest<FileInfo[][]> {
     if (path == '/') path = ''
+    path = StringUtils.encodeURLPath(path)
     return {
       url: `${this.prefix}/${uid}/fileList/byPath/${path}`,
       method: 'get'

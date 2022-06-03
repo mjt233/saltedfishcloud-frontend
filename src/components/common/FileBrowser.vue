@@ -17,6 +17,7 @@ import FileList from './FileList.vue'
 import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
+import SfcUtils from '@/utils/SfcUtils'
 const props = defineProps({
   path: {
     type: String,
@@ -49,12 +50,14 @@ const handler = computed(() => {
 provide('fileSystemHandler', handler)
 
 
-
-
 const loadList = async(path: string) => {
-  fileList.value = await handler.value.loadList(path)
-  if (props.path != path) {
-    emits('update:path', path)
+  try {
+    fileList.value = await handler.value.loadList(path)
+    if (props.path != path) {
+      emits('update:path', path)
+    }
+  } catch(err) {
+    SfcUtils.snackbar(err)
   }
 }
 
@@ -62,7 +65,7 @@ const back = async() => {
   if (props.path == '/') return
   const pathArr = props.path.split('/')
   pathArr.pop()
-  await loadList('/' + pathArr.join('/'))
+  await loadList(StringUtils.appendPath('/', pathArr.join('/')))
 }
 
 const clickItem = async(e: FileInfo) => {

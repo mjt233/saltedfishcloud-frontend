@@ -1,34 +1,51 @@
 <template>
   <div>
     <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
-    <div class="file-list">
-      <v-row v-show="showBack" @click="emits('back')">
-        <v-col>
-          back
-        </v-col>
-        
-      </v-row>
-      <v-row v-for="fileInfo in fileList" :key="fileInfo.name + fileInfo.md5" @click="emits('clickItem', fileInfo)">
-        <v-col>
-          <span class="file-icon-group">
-            <file-icon
-              width="32"
-              height="32"
-              :file-name="fileInfo.name"
-              :md5="fileInfo.md5"
-              :is-dir="fileInfo.dir"
-            />
-            <span>{{ fileInfo.name }}</span>
-          </span>
-        </v-col>
-      </v-row>
-    </div>
+    <v-table theme="background" class="file-table">
+      <thead>
+        <tr>
+          <th>文件名</th>
+          <th>大小</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr @click="emits('back')">
+          <td colspan="2">
+            <div class="file-icon-group">
+              <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
+              <span>返回上一级</span>
+            </div> 
+          </td>
+        </tr>
+        <tr
+          v-for="(fileInfo, index) in fileList"
+          :key="index"
+          v-ripple
+          @click="emits('clickItem', fileInfo)"
+        >
+          <td>
+            <div class="file-icon-group">
+              <file-icon
+                width="32"
+                height="32"
+                :file-name="fileInfo.name"
+                :is-dir="fileInfo.dir"
+                :md5="fileInfo.md5"
+              />
+              <span class="file-name">{{ fileInfo.name }}</span>
+            </div>
+          </td>
+          <td>{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</td>
+        </tr>
+      </tbody>
+    </v-table>
   </div>
 </template>
 
 <script setup lang="ts">
 import FileMenu from './FileMenu.vue'
 import FileIcon from './FileIcon.vue'
+import { StringFormatter } from '@/utils/StringFormatter'
 
 // 基本属性定义
 const props = defineProps({
@@ -94,6 +111,10 @@ watch(() => props.readOnly, () => {
 watch(() => props.fileList, () => {
   fileListContext.fileList = props.fileList
 })
+
+const formatSize = (size: number) => {
+  return StringFormatter.toSize(size)
+}
 defineExpose(fileListContext.modelHandler)
 </script>
 
@@ -110,11 +131,8 @@ export default defineComponent({
 </script>
 
 
-<style lang="scss">
-.file-list {
-  padding: 0;
-  list-style: none;
-}
+<style lang="scss" scoped>
+
 .menu-anchor {
   width: 0 !important;
   height: 0 !important;
@@ -127,8 +145,36 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
 
-  span {
+  .file-name {
     margin-left: 6px;
   }
+}
+
+
+.file-table {
+  background-color: var(--v-theme-background);
+  color: var(--v-theme-surface);
+
+  tr {
+    cursor: pointer;
+    &:hover {
+      background-color: rgba($color: var(--v-theme-primary), $alpha: .02) !important;
+
+      .file-name {
+        color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;
+      }
+    }
+
+    td {
+      font-size: 13px !important;
+    }
+  }
+}
+
+.back-icon {
+  font-size: 18px;
+  height: 32px;
+  width: 32px;
+  display: inline-block;
 }
 </style>
