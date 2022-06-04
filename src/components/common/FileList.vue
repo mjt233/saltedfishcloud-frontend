@@ -21,8 +21,8 @@
           </td>
         </tr>
         <tr
-          v-for="(fileInfo, index) in fileList"
-          :key="index"
+          v-for="(fileInfo) in fileList"
+          :key="fileInfo.name + fileInfo.md5"
           v-ripple
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
           @click="fileLClick($event, fileInfo)"
@@ -173,7 +173,6 @@ const toggleSelectFile = (...fileInfos: FileInfo[]) => {
   })
 }
 const resetSelect = () => {
-  console.log('重置')
   Object.keys(selectedFile).forEach(key => {
     delete selectedFile[key]
   })

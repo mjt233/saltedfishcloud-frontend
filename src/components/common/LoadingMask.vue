@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-mask use-transition" :class="{loading:inLoading, 'flex-center': type == 'circular', 'z-index': zIndex}">
+  <div class="loading-mask use-transition" :class="{loading:inLoading, 'flex-center': type == 'circular'}" :style="{zIndex: (zIndex as number)}">
     <transition name="fade">
       <v-progress-linear
         v-show="type == 'linear' && inLoading"
