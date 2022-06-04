@@ -1,11 +1,10 @@
 <template>
-  <div>
+  <div ref="rootRef">
     <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
-    <v-table theme="background" class="file-table">
+    <v-table theme="background" class="file-table" :style="{'--table-width': tableWidth}">
       <thead>
         <tr>
           <th>文件名</th>
-          <th>大小</th>
         </tr>
       </thead>
       <tbody>
@@ -32,11 +31,15 @@
                 :is-dir="fileInfo.dir"
                 :md5="fileInfo.md5"
               />
-              <span class="file-name">{{ fileInfo.name }}</span>
+              <div class="file-detail">
+                <div class="d-inline-block text-truncate file-name">
+                  {{ fileInfo.name }}
+                </div>
+                <div>
+                  <span class="file-size">{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</span>
+                </div>
+              </div>
             </div>
-          </td>
-          <td style="width: 120px">
-            {{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}
           </td>
         </tr>
       </tbody>
@@ -113,18 +116,32 @@ watch(() => props.readOnly, () => {
 watch(() => props.fileList, () => {
   fileListContext.fileList = props.fileList
 })
+const tableWidth = ref('100%')
+const rootRef = ref()
+
+const updateWidth = () => {
+  const el = rootRef.value as HTMLElement
+  tableWidth.value = el.clientWidth + 'px'
+}
 
 const formatSize = (size: number) => {
   return StringFormatter.toSize(size)
 }
 defineExpose(fileListContext.modelHandler)
+onMounted(() => {
+  window.addEventListener('resize', updateWidth)
+  updateWidth()
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth)
+})
 </script>
 
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileInfo } from '@/core/model'
 import { FileListContext } from '@/core/model'
-import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch } from 'vue'
+import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted } from 'vue'
 import { MenuGroup } from '@/core/context'
 
 export default defineComponent({
@@ -135,30 +152,15 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 
-.menu-anchor {
-  width: 0 !important;
-  height: 0 !important;
-  /* display: none; */
-  position: fixed;
-}
-
-.file-icon-group {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-
-  .file-name {
-    margin-left: 6px;
-  }
-}
-
-
 .file-table {
+  max-width: 100%;
   background-color: var(--v-theme-background);
   color: var(--v-theme-surface);
+  --table-width: 100%;
 
   tr {
     cursor: pointer;
+    max-width: 90%;
     &:hover,&.active {
       background-color: rgba($color: var(--v-theme-primary), $alpha: .02) !important;
 
@@ -172,6 +174,32 @@ export default defineComponent({
     }
   }
 }
+.menu-anchor {
+  width: 0 !important;
+  height: 0 !important;
+  /* display: none; */
+  position: fixed;
+}
+
+.file-icon-group {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  
+  .file-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    margin-left: 6px;
+  }
+  .file-name {
+    font-size: 14px;
+    max-width: calc( var(--table-width) - 72px );
+  }
+}
+
+
 
 .back-icon {
   font-size: 18px;

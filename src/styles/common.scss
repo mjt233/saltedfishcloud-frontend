@@ -32,3 +32,13 @@ html {
 *::-webkit-scrollbar-corner {
   background: #f6f6f6;
 }
+
+.break-text {
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.file-size {
+  color: #747474;
+  font-size: 12px;
+}
