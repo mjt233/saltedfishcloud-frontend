@@ -1,5 +1,5 @@
-import { Ref } from 'vue'
 import { LoadingManager } from './LoadingManager'
+import SfcUtils from './SfcUtils'
 /**
  * 拦截处理器
  */
@@ -57,6 +57,34 @@ const MethodInterceptor = {
             loading.closeLoading()
           })
       })
+    })
+  },
+  /**
+   * 创建一个方法有自动异常捕获的对象，当方法执行出现异常或Promise出现reject时会触发默认的气泡提示。
+   * @param target 被代理对象
+   * @param throwError 出现异常时是否继续抛出
+   * @returns 代理后的对象，执行方法出现异常时会自动弹出气泡提示
+   */
+  createAutoCatch<T extends Object>(target: T, throwError: boolean = true): T {
+    return MethodInterceptor.createProxy(target, (invoker, args, name) => {
+      try {
+        const ret = invoker(args)
+        if (ret instanceof Promise) {
+          return ret.catch(err => {
+            SfcUtils.snackbar(err)
+            if (throwError) {
+              return Promise.reject(err)
+            }
+          })
+        } else {
+          return ret
+        }
+      } catch(err) {
+        SfcUtils.snackbar(err)
+        if (throwError) {
+          throw err
+        }
+      }
     })
   }
 }

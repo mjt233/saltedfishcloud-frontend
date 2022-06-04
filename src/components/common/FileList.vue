@@ -10,7 +10,7 @@
       </thead>
       <tbody>
         <tr @click="emits('back')">
-          <td colspan="2">
+          <td colspan="100">
             <div class="file-icon-group">
               <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
               <span>返回上一级</span>
@@ -35,7 +35,9 @@
               <span class="file-name">{{ fileInfo.name }}</span>
             </div>
           </td>
-          <td>{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</td>
+          <td style="width: 120px">
+            {{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}
+          </td>
         </tr>
       </tbody>
     </v-table>
@@ -157,7 +159,7 @@ export default defineComponent({
 
   tr {
     cursor: pointer;
-    &:hover {
+    &:hover,&.active {
       background-color: rgba($color: var(--v-theme-primary), $alpha: .02) !important;
 
       .file-name {

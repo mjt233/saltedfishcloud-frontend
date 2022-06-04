@@ -1,6 +1,6 @@
 <template>
   <div v-if="session.user.id != 0">
-    <file-browser v-model:path="path" :file-system-handler="handler" />
+    <file-browser v-model:path="path" :file-system-handler="handler" :read-only="false" />
   </div>
   <div v-else class="d-flex justify-center">
     <v-card

@@ -45,19 +45,17 @@ const handler = computed(() => {
   if(targetObj == undefined) {
     targetObj = FileSystemHandlerFactory.getFileSystemHandler(ref(0))
   }
-  return MethodInterceptor.createAutoLoadingProxy(targetObj, loadingManager)
+  return MethodInterceptor.createAutoCatch(
+    MethodInterceptor.createAutoLoadingProxy(targetObj, loadingManager)
+  )
 })
 provide('fileSystemHandler', handler)
 
 
 const loadList = async(path: string) => {
-  try {
-    fileList.value = await handler.value.loadList(path)
-    if (props.path != path) {
-      emits('update:path', path)
-    }
-  } catch(err) {
-    SfcUtils.snackbar(err)
+  fileList.value = await handler.value.loadList(path)
+  if (props.path != path) {
+    emits('update:path', path)
   }
 }
 
