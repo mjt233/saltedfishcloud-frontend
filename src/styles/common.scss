@@ -12,6 +12,7 @@ html {
 
 *::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 *::-webkit-scrollbar-track {
@@ -41,4 +42,27 @@ html {
 .file-size {
   color: #747474;
   font-size: 12px;
+}
+
+.link {
+  display: inline-block;
+  position: relative;
+  color: rgba($color: var(--v-theme-primary), $alpha: 1.0);
+  padding-top: 2px;
+  padding-bottom: 2px;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: rgba($color: var(--v-theme-primary), $alpha: 1.0);
+    transform: rotateY(90deg);
+    transition: all .2s;
+  }
+
+  &:hover::after {
+    transform: rotateY(0deg);
+  }
 }

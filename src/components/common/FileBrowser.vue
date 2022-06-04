@@ -1,7 +1,22 @@
 <template>
   <div>
     <loading-mask :loading="loading" z-index="1000" />
-    <v-breadcrumbs :items="pathItems" />
+    <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
+      <v-breadcrumbs-item :disabled="pathItems.length == 1">
+        <a class="link" @click="jumpIndex(pathItems.length - 2)">返回上一级</a>
+      </v-breadcrumbs-item>
+      <v-breadcrumbs-divider>
+        |
+      </v-breadcrumbs-divider>
+      <template v-for="(item, index) in pathItems" :key="index">
+        <v-breadcrumbs-item :disabled="item.disabled" @click="jumpIndex(index)">
+          <a class="link">{{ item.text }}</a>
+        </v-breadcrumbs-item>
+        <v-breadcrumbs-divider v-if="index != pathItems.length - 1">
+          <v-icon icon="mdi-chevron-right" />
+        </v-breadcrumbs-divider>
+      </template>
+    </v-breadcrumbs>
     <file-list
       v-model:file-list="fileList"
       :menu="menu.fileListMenu"
@@ -34,6 +49,7 @@ const props = defineProps({
 })
 
 // data
+const breadcrumbs = ref()
 const menu = context.menu
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
@@ -50,29 +66,42 @@ const handler = computed(() => {
   )
 })
 
+const pathArr = computed(() => {
+  return props.path.split('/').filter(e => e)
+})
 const pathItems = computed(() => {
-  const pathArr = [{
+  const itemArr = [{
     text: '根',
     disabled: false
   }]
-  props.path.split('/').filter(e => e).map(nodeName => {
+  pathArr.value.map(nodeName => {
     return {
       text: nodeName,
       disabled: false
     }
-  }).forEach(item => pathArr.push(item))
-  if (pathArr.length > 0) {
-    pathArr[pathArr.length - 1].disabled = true
+  }).forEach(item => itemArr.push(item))
+  if (itemArr.length > 0) {
+    itemArr[itemArr.length - 1].disabled = true
   }
-  return pathArr
+  return itemArr
 })
 provide('fileSystemHandler', handler)
 
+const jumpIndex = (nodeIndex: number) => {
+  const newArr = pathArr.value.filter((e, i) => i < nodeIndex)
+  loadList('/' + newArr.join('/'))
+}
+const scrollBreadcrumbs = async() => {
+  const el = breadcrumbs.value.$el as HTMLElement
+  await nextTick()
+  el.scrollLeft = el.scrollWidth
+}
 
 const loadList = async(path: string) => {
   fileList.value = await handler.value.loadList(path)
   if (props.path != path) {
     emits('update:path', path)
+    scrollBreadcrumbs()
   }
 }
 
@@ -99,6 +128,10 @@ const emits = defineEmits<{
 defineExpose({loadList})
 onMounted(() => {
   loadList(props.path)
+  window.addEventListener('resize', scrollBreadcrumbs)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', scrollBreadcrumbs)
 })
 </script>
 
@@ -106,10 +139,19 @@ onMounted(() => {
 import { FileInfo } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
-import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide } from 'vue'
+import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({
   name: 'FileBrowser'
 })
 </script>
+
+
+<style>
+.path-breadcrumbs {
+  white-space: nowrap;
+  padding: 6px 0;
+  scroll-behavior:smooth
+}
+</style>
