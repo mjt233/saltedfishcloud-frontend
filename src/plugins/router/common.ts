@@ -29,7 +29,18 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
       }
     },
     {
+      path: '/public/:path*',
+      component: () => import('@/views/common/PublicDisk.vue'),
+      meta: {
+        allowNoLogin: true
+      }
+    },
+    {
       path: '/private',
+      component: () => import('@/views/common/PrivateDisk.vue')
+    },
+    {
+      path: '/private/:path*',
       component: () => import('@/views/common/PrivateDisk.vue')
     },
     {

@@ -125,7 +125,7 @@ const file = {
     if (path == '/') path = ''
     path = StringUtils.encodeURLPath(path)
     return {
-      url: `${this.prefix}/${uid}/fileList/byPath/${path}`,
+      url: `/${this.prefix}/${uid}/fileList/byPath/${path}`.replaceAll(/\/\/+/g, '/'),
       method: 'get'
     }
   },
@@ -138,8 +138,8 @@ const file = {
    */
   mkdir(uid: number, path: string, name: string): CommonRequest {
     if (path == '/') path = ''
-    let url = `${this.prefix}/${uid}/dir/${path}`
-    url = url.replace(/\/\/+/, '/')
+    let url = `/${this.prefix}/${uid}/dir/${path}`
+    url = url.replace(/\/\/+/g, '/')
     return {
       url: url,
       method: 'put',

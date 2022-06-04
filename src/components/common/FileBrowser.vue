@@ -1,6 +1,7 @@
 <template>
   <div>
     <loading-mask :loading="loading" z-index="1000" />
+    <v-breadcrumbs :items="pathItems" />
     <file-list
       v-model:file-list="fileList"
       :menu="menu.fileListMenu"
@@ -48,6 +49,23 @@ const handler = computed(() => {
     MethodInterceptor.createAutoLoadingProxy(targetObj, loadingManager)
   )
 })
+
+const pathItems = computed(() => {
+  const pathArr = [{
+    text: '根',
+    disabled: false
+  }]
+  props.path.split('/').filter(e => e).map(nodeName => {
+    return {
+      text: nodeName,
+      disabled: false
+    }
+  }).forEach(item => pathArr.push(item))
+  if (pathArr.length > 0) {
+    pathArr[pathArr.length - 1].disabled = true
+  }
+  return pathArr
+})
 provide('fileSystemHandler', handler)
 
 
@@ -78,6 +96,7 @@ const emits = defineEmits<{
   (event: 'update:path', path: string): void
 }>()
 
+defineExpose({loadList})
 onMounted(() => {
   loadList(props.path)
 })

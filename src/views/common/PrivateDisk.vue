@@ -1,6 +1,11 @@
 <template>
   <div v-if="session.user.id != 0">
-    <file-browser v-model:path="path" :file-system-handler="handler" :read-only="false" />
+    <file-browser
+      ref="browser"
+      v-model:path="path"
+      :file-system-handler="handler"
+      :read-only="false"
+    />
   </div>
   <div v-else class="d-flex justify-center">
     <v-card
@@ -49,7 +54,9 @@ import { CommonForm } from '@/utils/FormUtils'
 import FileBrowser from '@/components/common/FileBrowser.vue'
 import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 const session = context.session
+const browser = ref()
 const showLogin = ref(false)
+
 const loginForm = ref() as Ref<CommonForm>
 const login = async() => {
   if((await loginForm.value.submit()).success) {
@@ -59,13 +66,30 @@ const login = async() => {
 
 const handler = computed(() => {
   return FileSystemHandlerFactory.getFileSystemHandler(ref(session.value.user.id))
-}) 
-const path = ref('/')
+})
+const path = ref('/');
+
+// 根据路由设定初始路径
+(() => {
+  const pathParams = context.routeInfo.value.curr?.params.path as string[] | undefined
+  if (pathParams) {
+    const initPath = '/' + pathParams.join('/')
+    path.value = initPath
+  }
+})()
+
+const updateUrl = () => {
+  context.routeInfo.value.router?.replace(StringUtils.appendPath('/private', path.value.substring(1)))
+}
+watch(path, () => {
+  updateUrl()
+})
 </script>
 
 <script lang="ts">
 import { context } from '@/core/context'
-import { computed, defineComponent, Ref, ref } from 'vue'
+import { computed, defineComponent, onMounted, Ref, ref, watch } from 'vue'
+import { StringUtils } from '@/utils/StringUtils'
 export default defineComponent({
   name: 'PrivateDisk'
 })
