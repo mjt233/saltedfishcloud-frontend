@@ -1,7 +1,11 @@
 <template>
-  <div ref="rootRef">
+  <div ref="rootRef" @contextmenu="rootClick" @click="rootLClick">
     <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
-    <v-table theme="background" class="file-table" :style="{'--table-width': tableWidth}">
+    <v-table
+      theme="background"
+      class="file-table"
+      :style="{'--table-width': tableWidth}"
+    >
       <thead>
         <tr>
           <th>文件名</th>
@@ -20,7 +24,9 @@
           v-for="(fileInfo, index) in fileList"
           :key="index"
           v-ripple
-          @click="emits('clickItem', fileInfo)"
+          :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
+          @click="fileLClick($event, fileInfo)"
+          @contextmenu.prevent="fileRClick($event, fileInfo)"
         >
           <td>
             <div class="file-icon-group">
@@ -109,13 +115,69 @@ const fileListContext: FileListContext = reactive({
     }
   }
 })
-watch(() => props.readOnly, () => {
-  fileListContext.readonly = props.readOnly
-})
 
-watch(() => props.fileList, () => {
-  fileListContext.fileList = props.fileList
-})
+let lastClickFile: FileInfo | null = null
+const selectedFile = reactive({}) as {[key:string]: FileInfo}
+
+const rootLClick = (e: MouseEvent) => {
+  if (!e.ctrlKey) {
+    resetSelect()
+  }
+}
+/**
+ * 整个组件的右键/打开菜单事件
+ */
+const rootClick = () => {
+  // 如果是在文件项目上触发的事件，则清除标志位，否则重置已选择文件
+  if (lastClickFile) {
+    lastClickFile = null
+  } else {
+    resetSelect()
+  }
+}
+/**
+ * 文件项的右键/打开菜单事件
+ * 会和rootClick一起触发，且会先于rootClick。
+ * 通过设置lastClickFile属性来让rootClick判断是否是点击了文件项。
+ */
+const fileRClick = (e: MouseEvent, fileInfo: FileInfo) => {
+  lastClickFile = fileInfo
+  if(!selectedFile[fileInfo.name + fileInfo.md5] && !e.ctrlKey) {
+    setSelectFile(fileInfo)
+  }
+  
+}
+const fileLClick = (e: MouseEvent, fileInfo: FileInfo) => {
+  if (e.ctrlKey) {
+    toggleSelectFile(fileInfo)
+  } else {
+    emits('clickItem', fileInfo)
+  }
+  
+}
+const setSelectFile = (...fileInfos: FileInfo[]) => {
+  resetSelect()
+  fileInfos.forEach(fileInfo => {
+    const key = fileInfo.name + fileInfo.md5
+    selectedFile[key] = fileInfo
+  })
+}
+const toggleSelectFile = (...fileInfos: FileInfo[]) => {
+  fileInfos.forEach(fileInfo => {
+    const key = fileInfo.name + fileInfo.md5
+    if (selectedFile[key]) {
+      delete selectedFile[key]
+    } else {
+      selectedFile[key] = fileInfo
+    }
+  })
+}
+const resetSelect = () => {
+  console.log('重置')
+  Object.keys(selectedFile).forEach(key => {
+    delete selectedFile[key]
+  })
+}
 const tableWidth = ref('100%')
 const rootRef = ref()
 
@@ -127,7 +189,18 @@ const updateWidth = () => {
 const formatSize = (size: number) => {
   return StringFormatter.toSize(size)
 }
-defineExpose(fileListContext.modelHandler)
+watch(() => props.readOnly, () => {
+  fileListContext.readonly = props.readOnly
+})
+
+watch(() => props.fileList, () => {
+  fileListContext.fileList = props.fileList
+  resetSelect()
+})
+watch(selectedFile, () => {
+  fileListContext.selectFileList = Object.values(selectedFile)
+})
+
 onMounted(() => {
   window.addEventListener('resize', updateWidth)
   updateWidth()
@@ -135,12 +208,12 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', updateWidth)
 })
+defineExpose(fileListContext.modelHandler)
 </script>
 
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
-import { FileInfo } from '@/core/model'
-import { FileListContext } from '@/core/model'
+import { FileListContext,FileInfo } from '@/core/model'
 import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted } from 'vue'
 import { MenuGroup } from '@/core/context'
 
@@ -161,8 +234,15 @@ export default defineComponent({
   tr {
     cursor: pointer;
     max-width: 90%;
-    &:hover,&.active {
-      background-color: rgba($color: var(--v-theme-primary), $alpha: .02) !important;
+    &:hover {
+      background-color: rgba($color: var(--v-theme-primary), $alpha: .08) !important;
+
+      .file-name {
+        color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;
+      }
+    }
+    &.active {
+      background-color: rgba($color: var(--v-theme-primary), $alpha: .2) !important;
 
       .file-name {
         color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;

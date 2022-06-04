@@ -101,9 +101,6 @@ const resetListen = () => {
   addListen()
 }
 
-watch(() => propsAttr.container, () => {
-  resetListen()
-})
 
 
 const itemClick = async(item: MenuItem<FileListContext>) => {
@@ -118,6 +115,9 @@ const itemClick = async(item: MenuItem<FileListContext>) => {
   }
 }
 
+watch(() => propsAttr.container, () => {
+  resetListen()
+})
 onMounted(() => {
   resetListen()
 })

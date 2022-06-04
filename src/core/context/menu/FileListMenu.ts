@@ -88,7 +88,7 @@ const defaultFileListMenu: MenuGroup<FileListContext>[] = [
         title: '重命名',
         icon: 'mdi-form-textbox',
         renderOn(ctx) {
-          return !ctx.readonly
+          return !ctx.readonly && ctx.selectFileList.length == 1
         }
       }
     ]

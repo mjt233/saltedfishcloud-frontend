@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-mask use-transition" :class="{loading:inLoading, 'flex-center': type == 'circular'}">
+  <div class="loading-mask use-transition" :class="{loading:inLoading, 'flex-center': type == 'circular', 'z-index': zIndex}">
     <transition name="fade">
       <v-progress-linear
         v-show="type == 'linear' && inLoading"
@@ -33,6 +33,10 @@ const props = defineProps({
   useTransition: {
     type: Boolean,
     default: true
+  },
+  zIndex: {
+    type: [Number, String],
+    default: 9999
   }
 })
 
@@ -76,7 +80,6 @@ export default defineComponent({
   left: 0;
   background-color: rgba(255, 255, 255, 0.548);
   opacity: 0;
-  z-index: 9999;
   overflow: hidden;
   pointer-events: none;
 }

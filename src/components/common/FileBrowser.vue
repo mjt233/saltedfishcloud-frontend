@@ -1,6 +1,6 @@
 <template>
   <div>
-    <loading-mask :loading="loading" />
+    <loading-mask :loading="loading" z-index="1000" />
     <file-list
       v-model:file-list="fileList"
       :menu="menu.fileListMenu"
@@ -17,7 +17,6 @@ import FileList from './FileList.vue'
 import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
-import SfcUtils from '@/utils/SfcUtils'
 const props = defineProps({
   path: {
     type: String,
