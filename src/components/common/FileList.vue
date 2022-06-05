@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef" @contextmenu="rootClick" @click="rootLClick">
+  <div ref="rootRef" @contextmenu="rootRClick" @click="rootLClick">
     <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
     <v-table
       fixed-header
@@ -9,6 +9,7 @@
     >
       <thead>
         <tr>
+          <th class="file-checkbox" style="background-color: rgb(var(--v-theme-background)); z-index: 1;" width="64" />
           <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;">
             文件名
           </th>
@@ -16,11 +17,12 @@
       </thead>
       <tbody>
         <tr @click="emits('back')">
+          <td />
           <td colspan="100">
             <div class="file-icon-group">
               <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
               <span>返回上一级</span>
-            </div> 
+            </div>
           </td>
         </tr>
         <tr
@@ -28,10 +30,12 @@
           :key="fileInfo.name + fileInfo.md5"
           v-ripple
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
-          @click="fileLClick($event, fileInfo)"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
         >
-          <td>
+          <td class="file-checkbox" @click="checkClick($event ,fileInfo)">
+            <v-checkbox hide-details color="primary" :model-value="!!selectedFile[fileInfo.name + fileInfo.md5]" />
+          </td>
+          <td @click="fileLClick($event, fileInfo)">
             <div class="file-icon-group">
               <file-icon
                 width="32"
@@ -60,6 +64,7 @@
 import FileMenu from './FileMenu.vue'
 import FileIcon from './FileIcon.vue'
 import { StringFormatter } from '@/utils/StringFormatter'
+import SelectArea from './SelectArea.vue'
 
 // 基本属性定义
 const props = defineProps({
@@ -126,15 +131,19 @@ const fileListContext: FileListContext = reactive({
 let lastClickFile: FileInfo | null = null
 const selectedFile = reactive({}) as {[key:string]: FileInfo}
 
+const checkClick = (e: MouseEvent, fileInfo: FileInfo) => {
+  lastClickFile = fileInfo
+  toggleSelectFile(fileInfo)
+}
 const rootLClick = (e: MouseEvent) => {
-  if (!e.ctrlKey) {
+  if (!lastClickFile && !e.ctrlKey) {
     resetSelect()
   }
 }
 /**
  * 整个组件的右键/打开菜单事件
  */
-const rootClick = () => {
+const rootRClick = () => {
   // 如果是在文件项目上触发的事件，则清除标志位，否则重置已选择文件
   if (lastClickFile) {
     lastClickFile = null
@@ -230,7 +239,9 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-
+.file-checkbox {
+  padding-right: 0px !important;
+}
 .file-table {
   max-width: 100%;
   background-color: var(--v-theme-background);
