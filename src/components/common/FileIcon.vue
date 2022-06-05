@@ -25,7 +25,7 @@ const type = computed(() => {
 
 const imgUrl = computed(() => {
   let url = ''
-  if (props.useThumb && props.md5 && context.feature.value.thumbType.includes(type.value)) {
+  if (props.useThumb && props.md5 && context.feature.value.thumbType.findIndex(e => e.toLowerCase() == type.value.toLocaleLowerCase()) != -1) {
     url = thumbnailUrl.value
   } else {
     url = commonUrl.value

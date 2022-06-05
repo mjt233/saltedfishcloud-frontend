@@ -89,6 +89,10 @@ const defaultFileListMenu: MenuGroup<FileListContext>[] = [
         icon: 'mdi-form-textbox',
         renderOn(ctx) {
           return !ctx.readonly && ctx.selectFileList.length == 1
+        },
+        action(ctx) {
+          const fileInfo = ctx.selectFileList[0]
+          ctx.modelHandler.rename(fileInfo.name, fileInfo.md5)
         }
       }
     ]

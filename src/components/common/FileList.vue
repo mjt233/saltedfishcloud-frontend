@@ -9,16 +9,23 @@
     >
       <thead>
         <tr>
-          <th class="file-checkbox" style="background-color: rgb(var(--v-theme-background)); z-index: 1;" width="64" />
+          <th class="file-checkbox" style="background-color: rgb(var(--v-theme-background)); z-index: 1;" width="32" />
           <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;">
             文件名
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr @click="emits('back')">
-          <td />
-          <td colspan="100">
+        <tr>
+          <td @click="toggleSelectAll">
+            <v-checkbox
+              color="primary"
+              hide-details
+              :indeterminate="partInSelect"
+              :model-value="allInSelect || partInSelect"
+            />  
+          </td>
+          <td colspan="100" @click="emits('back')">
             <div class="file-icon-group">
               <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
               <span>返回上一级</span>
@@ -46,7 +53,8 @@
               />
               <div class="file-detail">
                 <div class="d-inline-block text-truncate file-name">
-                  {{ fileInfo.name }}
+                  <span v-if="renameKey != fileInfo.name + fileInfo.md5"> {{ fileInfo.name }}</span>
+                  <span v-else @click.stop> <input v-model="renameNewName" class="rename-input"> </span>
                 </div>
                 <div>
                   <span class="file-size">{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</span>
@@ -64,8 +72,6 @@
 import FileMenu from './FileMenu.vue'
 import FileIcon from './FileIcon.vue'
 import { StringFormatter } from '@/utils/StringFormatter'
-import SelectArea from './SelectArea.vue'
-
 // 基本属性定义
 const props = defineProps({
   readOnly: {
@@ -96,6 +102,17 @@ const props = defineProps({
     default: undefined
   }
 })
+let lastClickFile: FileInfo | null | boolean = null
+const selectedFile = reactive({}) as {[key:string]: FileInfo}
+const renameKey = ref('')
+const renameNewName = ref('')
+const partInSelect = computed(() => {
+  return fileListContext.selectFileList.length > 0 && fileListContext.selectFileList.length != props.fileList.length
+})
+const allInSelect = computed(() => {
+  return props.fileList.length != 0 && props.fileList.length == fileListContext.selectFileList.length
+})
+
 const emits = defineEmits<{
   (event: 'clickItem', item: FileInfo): void,
   (event: 'back'): void,
@@ -124,13 +141,25 @@ const fileListContext: FileListContext = reactive({
       const list = await handler?.value.loadList(props.path) as FileInfo[]
       emits('update:file-list', list)
       return list
+    },
+
+    async rename(name, md5) {
+      resetSelect()
+      renameKey.value = name + md5
+      renameNewName.value = name
+      return name
     }
   }
 })
 
-let lastClickFile: FileInfo | null = null
-const selectedFile = reactive({}) as {[key:string]: FileInfo}
-
+const toggleSelectAll = () => {
+  lastClickFile = true
+  if (partInSelect.value || !allInSelect.value) {
+    setSelectFile(...props.fileList)
+  } else {
+    setSelectFile()
+  }
+}
 const checkClick = (e: MouseEvent, fileInfo: FileInfo) => {
   lastClickFile = fileInfo
   toggleSelectFile(fileInfo)
@@ -139,6 +168,7 @@ const rootLClick = (e: MouseEvent) => {
   if (!lastClickFile && !e.ctrlKey) {
     resetSelect()
   }
+  lastClickFile = null
 }
 /**
  * 整个组件的右键/打开菜单事件
@@ -211,6 +241,7 @@ watch(() => props.readOnly, () => {
 watch(() => props.fileList, () => {
   fileListContext.fileList = props.fileList
   resetSelect()
+  renameKey.value = ''
 })
 watch(selectedFile, () => {
   fileListContext.selectFileList = Object.values(selectedFile)
@@ -229,7 +260,7 @@ defineExpose(fileListContext.modelHandler)
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
-import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted } from 'vue'
+import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed } from 'vue'
 import { MenuGroup } from '@/core/context'
 
 export default defineComponent({
@@ -251,6 +282,7 @@ export default defineComponent({
   tr {
     cursor: pointer;
     max-width: 90%;
+    transition: all .1s;
     &:hover {
       background-color: rgba($color: var(--v-theme-primary), $alpha: .08) !important;
 
@@ -296,6 +328,10 @@ export default defineComponent({
   }
 }
 
+.rename-input {
+  border: 1px solid rgb(var(--v-theme-primary));
+  outline: none;
+}
 
 
 .back-icon {

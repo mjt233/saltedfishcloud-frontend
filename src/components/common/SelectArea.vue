@@ -28,7 +28,6 @@ const downHandler = (e: MouseEvent) => {
   parentTop = parentEl.getBoundingClientRect().top - DOMUtils.getAbsoluteOffsetTop(parentEl, document.body)
   downX = e.clientX
   downY = e.clientY + parentEl.scrollTop
-  console.log(parentEl)
   window.addEventListener('mousemove', moveHandler)
   window.addEventListener('mouseup', upHandler)
 }

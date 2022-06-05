@@ -17,5 +17,13 @@ export interface FileListModelHandler {
    * @returns 若加载成功，则返回文件列表
    */
   refresh: () => Promise<FileInfo[] | undefined>
+
+  /**
+   * 发起文件重命名流程
+   * @param name 原文件名
+   * @param md5  被修改文件名的md5
+   * @returns 修改后的名称
+   */
+  rename: (name: string, md5: string) => Promise<string>
 }
 export type FileListModel = ComponentPublicInstance & FileListModelHandler
