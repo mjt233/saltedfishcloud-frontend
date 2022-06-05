@@ -18,10 +18,12 @@
       </template>
     </v-breadcrumbs>
     <file-list
+      ref="listRef"
       v-model:file-list="fileList"
       :menu="menu.fileListMenu"
       :path="path"
       :read-only="readOnly"
+      :height="listHeight"
       @click-item="clickItem"
       @back="back"
     />
@@ -45,11 +47,20 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 自动计算文件列表的高度以填充页面而刚好不溢出
+   */
+  autoComputeHeight: {
+    type: Boolean,
+    default: true
   }
 })
 
 // data
 const breadcrumbs = ref()
+const listHeight: Ref<undefined | number> = ref(undefined)
+const listRef = ref()
 const menu = context.menu
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
@@ -91,11 +102,6 @@ const jumpIndex = (nodeIndex: number) => {
   const newArr = pathArr.value.filter((e, i) => i < nodeIndex)
   loadList('/' + newArr.join('/'))
 }
-const scrollBreadcrumbs = async() => {
-  const el = breadcrumbs.value.$el as HTMLElement
-  await nextTick()
-  el.scrollLeft = el.scrollWidth
-}
 
 const loadList = async(path: string) => {
   fileList.value = await handler.value.loadList(path)
@@ -125,13 +131,31 @@ const emits = defineEmits<{
   (event: 'update:path', path: string): void
 }>()
 
+
+const scrollBreadcrumbs = async() => {
+  const el = breadcrumbs.value.$el as HTMLElement
+  await nextTick()
+  el.scrollLeft = el.scrollWidth
+
+}
+const updateListHeight = async() => {
+  if (props.autoComputeHeight) {
+    await nextTick()
+    listHeight.value = document.documentElement.clientHeight - (listRef.value.$el as HTMLElement).getBoundingClientRect().top
+  }
+}
+const resizeHandler = async() => {
+  await scrollBreadcrumbs()
+  await updateListHeight()
+}
 defineExpose({loadList})
 onMounted(() => {
   loadList(props.path)
-  window.addEventListener('resize', scrollBreadcrumbs)
+  window.addEventListener('resize', resizeHandler)
+  updateListHeight()
 })
 onUnmounted(() => {
-  window.removeEventListener('resize', scrollBreadcrumbs)
+  window.removeEventListener('resize', resizeHandler)
 })
 </script>
 
@@ -141,6 +165,7 @@ import { StringUtils } from '@/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
 import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted } from 'vue'
 import { context } from '@/core/context'
+import DOMUtils from '@/utils/DOMUtils'
 
 export default defineComponent({
   name: 'FileBrowser'

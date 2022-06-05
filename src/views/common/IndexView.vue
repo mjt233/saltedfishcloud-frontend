@@ -90,8 +90,8 @@ export default defineComponent({
 a {
   text-decoration: none;
 }
-.main-body {
-  padding: 16px 16px;
+.main-body>* {
+  padding-top: 16px;
 }
 .top-bar-welcome {
   position: absolute;

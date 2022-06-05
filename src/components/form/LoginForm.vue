@@ -47,7 +47,7 @@
                 to="/register"
                 href="javascript:;"
                 tabindex="-1"
-                class="text-primary"
+                class="text-primary link"
               >
                 去注册
               </router-link>
@@ -74,7 +74,7 @@
             align-self="center"
           >
             <div>
-              <a href="javascript:;" tabindex="-1" class="text-primary">忘记密码?</a>
+              <a href="javascript:;" tabindex="-1" class="text-primary link">忘记密码?</a>
             </div>
           </v-col>
         </v-row>

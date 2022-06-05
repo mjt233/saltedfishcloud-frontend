@@ -2,13 +2,16 @@
   <div ref="rootRef" @contextmenu="rootClick" @click="rootLClick">
     <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
     <v-table
-      theme="background"
+      fixed-header
       class="file-table"
       :style="{'--table-width': tableWidth}"
+      :height="height"
     >
       <thead>
         <tr>
-          <th>文件名</th>
+          <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;">
+            文件名
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -82,6 +85,10 @@ const props = defineProps({
   menu: {
     type: Array as PropType<MenuGroup<FileListContext>[]>,
     default: () => []
+  },
+  height: {
+    type: Number,
+    default: undefined
   }
 })
 const emits = defineEmits<{
