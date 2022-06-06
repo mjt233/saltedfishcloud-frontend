@@ -33,7 +33,7 @@
           </td>
         </tr>
         <tr
-          v-for="(fileInfo) in fileList"
+          v-for="(fileInfo, index) in fileList"
           :key="fileInfo.name + fileInfo.md5"
           v-ripple
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
@@ -47,14 +47,21 @@
               <file-icon
                 width="32"
                 height="32"
+                style="flex-grow: 0;"
                 :file-name="fileInfo.name"
                 :is-dir="fileInfo.dir"
                 :md5="fileInfo.md5"
               />
               <div class="file-detail">
                 <div class="d-inline-block text-truncate file-name">
-                  <span v-if="renameKey != fileInfo.name + fileInfo.md5"> {{ fileInfo.name }}</span>
-                  <span v-else @click.stop> <input v-model="renameNewName" class="rename-input"> </span>
+                  <span v-if="renameIndex != index">
+                    {{ fileInfo.name }}
+                  </span>
+                  <div v-else @click.stop>
+                    <input v-model="renameNewName" class="rename-input" @keypress.enter="doRename">
+                    <v-icon icon="mdi-check" @click="doRename" />
+                    <v-icon icon="mdi-close" @click="cancelRename" />
+                  </div>
                 </div>
                 <div>
                   <span class="file-size">{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</span>
@@ -72,6 +79,8 @@
 import FileMenu from './FileMenu.vue'
 import FileIcon from './FileIcon.vue'
 import { StringFormatter } from '@/utils/StringFormatter'
+import SfcUtils from '@/utils/SfcUtils'
+import TextInput from './TextInput.vue'
 // 基本属性定义
 const props = defineProps({
   readOnly: {
@@ -104,8 +113,12 @@ const props = defineProps({
 })
 let lastClickFile: FileInfo | null | boolean = null
 const selectedFile = reactive({}) as {[key:string]: FileInfo}
-const renameKey = ref('')
 const renameNewName = ref('')
+const renameIndex = ref(-1)
+let renamePromiseResolve: ((value: string | PromiseLike<string>) => void) | null= null
+let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null = null
+const tableWidth = ref('100%')
+const rootRef = ref() as Ref<HTMLElement>
 const partInSelect = computed(() => {
   return fileListContext.selectFileList.length > 0 && fileListContext.selectFileList.length != props.fileList.length
 })
@@ -143,11 +156,17 @@ const fileListContext: FileListContext = reactive({
       return list
     },
 
-    async rename(name, md5) {
+    rename(name, md5) {
       resetSelect()
-      renameKey.value = name + md5
+      renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
       renameNewName.value = name
-      return name
+      return new Promise((resolve, reject) => {
+        renamePromiseResolve = resolve
+        renamePromiseReject = reject
+        nextTick().then(() => {
+          (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
+        })
+      })
     }
   }
 })
@@ -164,11 +183,32 @@ const checkClick = (e: MouseEvent, fileInfo: FileInfo) => {
   lastClickFile = fileInfo
   toggleSelectFile(fileInfo)
 }
+const cancelRename = () => {
+  renamePromiseReject && renamePromiseReject('重命名取消')
+  renameIndex.value = -1
+}
+const doRename = async() => {
+  if (props.fileList.find(e => e.name == renameNewName.value)) {
+    renamePromiseReject && renamePromiseReject ('存在同名文件')
+    return false
+  }
+  await handler?.value.rename(props.path, props.fileList[renameIndex.value].name, renameNewName.value)
+  renameIndex.value = -1
+  renamePromiseResolve && renamePromiseResolve(renameNewName.value)
+}
+/**
+ * 整个组件的点击事件回调
+ * @param e 鼠标事件
+ */
 const rootLClick = (e: MouseEvent) => {
   if (!lastClickFile && !e.ctrlKey) {
     resetSelect()
   }
   lastClickFile = null
+  if (renameIndex.value != -1) {
+    renameIndex.value = -1
+    SfcUtils.snackbar('重命名已取消', 1000, {outClose: true})
+  }
 }
 /**
  * 整个组件的右键/打开菜单事件
@@ -223,12 +263,10 @@ const resetSelect = () => {
     delete selectedFile[key]
   })
 }
-const tableWidth = ref('100%')
-const rootRef = ref()
 
 const updateWidth = () => {
   const el = rootRef.value as HTMLElement
-  tableWidth.value = el.clientWidth + 'px'
+  tableWidth.value = (el.clientWidth - 81)+ 'px'
 }
 
 const formatSize = (size: number) => {
@@ -241,7 +279,6 @@ watch(() => props.readOnly, () => {
 watch(() => props.fileList, () => {
   fileListContext.fileList = props.fileList
   resetSelect()
-  renameKey.value = ''
 })
 watch(selectedFile, () => {
   fileListContext.selectFileList = Object.values(selectedFile)
@@ -260,7 +297,7 @@ defineExpose(fileListContext.modelHandler)
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
-import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed } from 'vue'
+import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { MenuGroup } from '@/core/context'
 
 export default defineComponent({
@@ -312,15 +349,16 @@ export default defineComponent({
 
 .file-icon-group {
   display: inline-flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
-
+  width: 100%;
   
   .file-detail {
     display: flex;
     flex-direction: column;
     justify-content: left;
     margin-left: 6px;
+    width: 100%;
   }
   .file-name {
     font-size: 14px;
@@ -330,7 +368,10 @@ export default defineComponent({
 
 .rename-input {
   border: 1px solid rgb(var(--v-theme-primary));
+  width: 80%;
+  padding: 2px;
   outline: none;
+  background-color: rgb(var(--v-theme-background));
 }
 
 

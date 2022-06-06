@@ -90,9 +90,10 @@ const defaultFileListMenu: MenuGroup<FileListContext>[] = [
         renderOn(ctx) {
           return !ctx.readonly && ctx.selectFileList.length == 1
         },
-        action(ctx) {
+        async action(ctx) {
           const fileInfo = ctx.selectFileList[0]
-          ctx.modelHandler.rename(fileInfo.name, fileInfo.md5)
+          await ctx.modelHandler.rename(fileInfo.name, fileInfo.md5)
+          await ctx.modelHandler.refresh()
         }
       }
     ]

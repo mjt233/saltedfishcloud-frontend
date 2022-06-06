@@ -38,6 +38,14 @@ export interface FileSystemHandler {
    * @returns 1 - 新文件，0 - 旧文件覆盖
    */
   uploadDirect(path: string, file: File, options: Md5ComputeOption): Promise<number>
+
+  /**
+   * 对文件进行重命名操作
+   * @param path 文件所在路径
+   * @param oldName 原文件名
+   * @param newName 新文件名
+   */
+  rename(path: string, oldName: string, newName: string): Promise<string>
 }
 
 export class DefaultFileSystemHandler implements FileSystemHandler {
@@ -45,6 +53,10 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
   
   constructor(uid: Ref<number>) {
     this.uid = uid
+  }
+  async rename(path: string, oldName: string, newName: string): Promise<string> {
+    await SfcUtils.request(API.file.rename(this.uid.value, path, oldName, newName))
+    return newName
   }
   async loadList(path: string): Promise<FileInfo[]> {
     const res = (await SfcUtils.request(API.file.getFileList(this.uid.value, path))).data.data
