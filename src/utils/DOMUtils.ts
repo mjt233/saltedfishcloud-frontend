@@ -41,10 +41,10 @@ const DOMUtils = {
      */
   getElParentByClass(elem: HTMLElement, className: string) {
     let t: ParentNode & HTMLElement = elem
-    while (t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML')) {
+    while (t != null && (t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML'))) {
       t = t.parentNode as ParentNode & HTMLElement
     }
-    if (t.tagName === 'HTML') {
+    if (t == null || t.tagName === 'HTML') {
       return null
     } else {
       return t
