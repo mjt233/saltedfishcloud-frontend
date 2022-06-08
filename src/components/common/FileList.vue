@@ -9,7 +9,14 @@
     >
       <thead>
         <tr>
-          <th class="file-checkbox" style="background-color: rgb(var(--v-theme-background)); z-index: 1;" width="32" />
+          <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;" width="32" @click="toggleSelectAll">
+            <v-checkbox
+              color="primary"
+              hide-details
+              :indeterminate="partInSelect"
+              :model-value="allInSelect || partInSelect"
+            />
+          </th>
           <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;">
             文件名
           </th>
