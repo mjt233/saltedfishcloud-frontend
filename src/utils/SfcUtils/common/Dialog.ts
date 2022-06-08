@@ -20,6 +20,23 @@ export interface DialogOpt {
   extraProps?: any
 }
 
+export interface ConfirmOpt {
+  /**
+   * 额外附加的VNode子节点
+   */
+  children?: Array<any> | string | Function
+
+  /**
+   * 当用户点击取消或关闭对话框时是否将Promise敲定为reject
+   */
+  cancelToReject?: boolean,
+
+  /**
+   * 直接插入的HTML字符串
+   */
+  html?: string
+}
+
 export class DialogPromise extends Promise<void> {
   handler!: Ref<DyncComponentHandler<DialogModel>>
   constructor(executor: (resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void) => void) {
@@ -160,5 +177,59 @@ export function prompt(opt: PromptOpt): Promise<string> {
       ]
     })
     
+  })
+}
+
+/**
+ * 打开一个确认对话框
+ * @param message 提示的消息内容
+ * @param title 对话框标题
+ * @param opt 其他选项
+ */
+export function confirm(message: string, title: string, opt: ConfirmOpt = {}) :Promise<void> {
+  const { children = [], cancelToReject = false, html = '' } = opt
+  let isConfirm = false
+  return new Promise((resolve, reject) => {
+    dialog({
+      children: () => {
+        // 默认的纯文本消息
+        const renderArr: any[] = [
+          h('div', [
+            message
+          ])
+        ]
+
+        // 附加的子VNode
+        if (children instanceof Array) {
+          (children as any[]).forEach(e => renderArr.push(e))
+        } else {
+          renderArr.push(children as string)
+        }
+
+        // 附加的HTML渲染
+        if (html) {
+          renderArr.push(h('div', {
+            'innerHTML': html
+          }))
+        }
+        return renderArr
+      },
+      title: title,
+      onConfirm: () => {
+        isConfirm = true
+        resolve()
+        return true
+      },
+      onCancel: () => {
+        if (cancelToReject) {
+          reject('cancel')
+        }
+        return true
+      }
+    }).then(() => {
+      if (!isConfirm && cancelToReject) {
+        reject('cancel')
+      }
+    })
   })
 }
