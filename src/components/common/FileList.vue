@@ -174,6 +174,10 @@ const fileListContext: FileListContext = reactive({
           (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
         })
       })
+    },
+
+    async delete(name) {
+      return await handler?.value.deleteFile(props.path, name) as number
     }
   }
 })
