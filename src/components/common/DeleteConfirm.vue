@@ -40,7 +40,7 @@ export default defineComponent({
 
 .delete-list {
   list-style: none;
-  max-height: 70vh;
+  max-height: calc(70vh - 200px);
   overflow: auto;
   &>li {
     margin: 6px 0;
