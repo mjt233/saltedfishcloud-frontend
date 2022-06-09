@@ -25,5 +25,12 @@ export interface FileListModelHandler {
    * @returns 修改后的名称
    */
   rename: (name: string, md5: string) => Promise<string>
+
+  /**
+   * 删除列表中的文件
+   * @param name 被删除的文件名列表集合
+   * @returns 删除的文件数量
+   */
+  delete: (name: string[]) => Promise<number> 
 }
 export type FileListModel = ComponentPublicInstance & FileListModelHandler
