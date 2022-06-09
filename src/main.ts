@@ -1,61 +1,28 @@
-import { createApp, reactive } from 'vue'
-import API from './api'
-import App from './App.vue'
-import { context } from './core/context'
-import { ConditionFunction } from './core/helper/ConditionFunction'
-import axios from './plugins/axios'
-import router from './plugins/router'
-import vuetify from './plugins/vuetify'
-import SfcUtils from './utils/SfcUtils'
 import '@/styles/common.scss'
+import * as boot from './core/boot'
+import './core/boot/globalmount'
+type BootProcessor = typeof boot & { [key: string]: () => Promise<void> }
 
-context.routeInfo.value.router = router
 
-/**
- * 校验token是否有效以保持登录状态
- */
-async function validSession() {
-
-  const session = context.session.value
-  session.loadToken()
-  try {
-    if (ConditionFunction.hasLogin(context)) {
-      const userInfo = (await axios(API.user.getUserInfo())).data.data
-      session.setUserInfo(userInfo)
-      return true
-    } else {
-      return false
-    }
-  } catch (err) {
-    console.log('登录已过期')
-    context.session.value.setToken('')
-    return false
-  }
-}
+const mountApp = boot.mountApp
 
 /**
- * 获取后端系统开放的特性
+ * 启动任务，在挂载App之前会执行的函数Promise集合
  */
-async function getFeature() {
-  const data = (await SfcUtils.request(API.sys.getFeature())).data
-  context.feature.value = reactive(data)
-}
+const bootTask: Promise<void>[] = []
 
-async function start() {
-  try {
-    if(await validSession() == true) {
-      SfcUtils.snackbar(`欢迎回来，${context.session.value.user.name}`, 1500, { showClose: false, outClose: true })
-    }
-    await getFeature()
-  } catch(err: any) {
-    SfcUtils.snackbar(err.toString())
-  } finally {
-    const app = createApp(App)
-    app.use(router)
-      .use(vuetify)
-      .mount('#app')
-    createApp(App)
-  }
-}
+/**
+ * 执行所有启动前动作函数
+ */
+Object.keys(boot)
+  .filter(name => name != 'mountApp')
+  .map(name => (boot as BootProcessor)[name])
+  .forEach(task => {
+    bootTask.push(task())
+  })
 
-start()
+
+
+Promise.all(bootTask).finally(() => {
+  mountApp()
+})
