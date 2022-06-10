@@ -6,6 +6,11 @@ import App from '@/App.vue'
 import { createApp, reactive } from 'vue'
 import { context } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
+import { extensionManager } from '../serivce/Extension'
+
+export async function loadPlugin() {
+  return await extensionManager.mountAll()
+}
 
 /**
  * 校验token是否有效以保持登录状态

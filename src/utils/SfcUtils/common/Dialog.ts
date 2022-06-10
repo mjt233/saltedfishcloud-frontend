@@ -1,6 +1,6 @@
 import SfcUtils from '@/utils/SfcUtils'
 import { DialogModel } from '@/core/model/component/DialogModel'
-import { ref, reactive, h, Ref, toRefs } from 'vue'
+import { ref, reactive, h, Ref, toRefs, VNode } from 'vue'
 import { DyncComponentHandler, dyncmount } from './DyncMount'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
@@ -16,7 +16,7 @@ export interface DialogOpt {
   onConfirm(model: DialogModel): Promise<boolean> | boolean,
   onCancel(model: DialogModel): Promise<boolean> | boolean,
 
-  children?: Array<any> | string | Function,
+  children?: VNode | Array<any> | string | Function,
   extraProps?: any
 }
 
@@ -24,7 +24,7 @@ export interface ConfirmOpt {
   /**
    * 额外附加的VNode子节点
    */
-  children?: Array<any> | string | Function
+  children?: VNode | Array<any> | string | Function
 
   /**
    * 当用户点击取消或关闭对话框时是否将Promise敲定为reject
@@ -203,7 +203,7 @@ export function confirm(message: string, title: string, opt: ConfirmOpt = {}) :P
         if (children instanceof Array) {
           (children as any[]).forEach(e => renderArr.push(e))
         } else {
-          renderArr.push(children as string)
+          renderArr.push(children)
         }
 
         // 附加的HTML渲染

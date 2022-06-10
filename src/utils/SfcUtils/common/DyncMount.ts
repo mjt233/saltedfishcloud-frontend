@@ -1,4 +1,4 @@
-import { DefineComponent, createApp, h, App, Component, ComponentPublicInstance } from 'vue'
+import { DefineComponent, createApp, h, App, Component, ComponentPublicInstance, VNode } from 'vue'
 import vuetify from '@/plugins/vuetify'
 
 export interface DyncComponentHandler<T> {
@@ -23,7 +23,7 @@ const ROOT_REF_NAME = 'rootRefByDyncmount'
  * @param props     附加的props或事件监听函数
  * @returns         动态组件操作器
  */
-export function dyncmount<T = {}>(component: Component, props: Object = {}, children?: Array<any> | string | Function): DyncComponentHandler<T> {
+export function dyncmount<T = {}>(component: Component, props: Object = {}, children?: VNode | Array<any> | string | Function): DyncComponentHandler<T> {
   const tempDOM = document.createElement('div')
   document.body.appendChild(tempDOM)
   Object.assign(props, {
