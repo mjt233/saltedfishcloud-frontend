@@ -87,7 +87,7 @@ import FileMenu from './FileMenu.vue'
 import FileIcon from './FileIcon.vue'
 import { StringFormatter } from '@/utils/StringFormatter'
 import SfcUtils from '@/utils/SfcUtils'
-import TextInput from './TextInput.vue'
+import FileUtils from '@/utils/FileUtils'
 // 基本属性定义
 const props = defineProps({
   readOnly: {
@@ -154,7 +154,13 @@ const fileListContext: FileListContext = reactive({
     },
 
     async upload() {
-      throw new Error('未实现')
+      const selectFile = await FileUtils.openFileDialog(false)
+      const file = selectFile[0]
+      if (file != null) {
+        return handler?.value.uploadDirect(props.path, file)
+      } else {
+        return Promise.reject('未选择文件')
+      }
     },
 
     async refresh() {

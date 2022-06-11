@@ -10,7 +10,7 @@ export interface FileListModelHandler {
   /**
    * 通知列表触发选择文件上传
    */
-  upload: () => Promise<FileList>
+  upload: () => Promise<any>
 
   /** 
    * 通知列表执行加载

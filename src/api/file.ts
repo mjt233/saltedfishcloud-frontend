@@ -158,14 +158,13 @@ const file = {
    */
   upload(uid: number, path: string, file: File, md5: string): CommonRequest<number> {
     path = path.split('/').map(e => encodeURIComponent(e)).join('/')
-    if (path == '/') path = ''
+    const fd = new FormData()
+    fd.set('md5', md5)
+    fd.set('file', file)
     return {
-      url: `${this.prefix}/${uid}/file/${path}`,
+      url: StringUtils.appendPath(`/${this.prefix}/${uid}/file`, path),
       method: 'put',
-      data: {
-        file: file,
-        md5: md5
-      }
+      data: fd
     }
   },
   /**

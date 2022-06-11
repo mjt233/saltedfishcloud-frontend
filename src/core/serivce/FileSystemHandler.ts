@@ -1,9 +1,11 @@
+import { DiskFileUploadService, FileUploadService } from './FileUpload'
 import API from '@/api'
 import FileUtils from '@/utils/FileUtils'
 import { Md5ComputeOption } from '@/utils/FileUtils/FileDataProcess'
 import SfcUtils from '@/utils/SfcUtils'
 import { Ref } from 'vue'
 import { FileInfo } from '../model'
+import { StringFormatter } from '@/utils/StringFormatter'
 
 export interface FileSystemHandler {
   /**
@@ -34,10 +36,9 @@ export interface FileSystemHandler {
    * @param uid   用户ID
    * @param path  文件所在路径
    * @param file  待上传的文件
-   * @param options md5计算选项
    * @returns 1 - 新文件，0 - 旧文件覆盖
    */
-  uploadDirect(path: string, file: File, options: Md5ComputeOption): Promise<number>
+  uploadDirect(path: string, file: File): Promise<any>
 
   /**
    * 对文件进行重命名操作
@@ -72,10 +73,10 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
   }
   
 
-  async uploadDirect(path: string, file: File, options: Md5ComputeOption): Promise<number> {
-    const {success = () => {}, prog = () => {}, error = () => {}} = options
-    const md5 = await FileUtils.computeMd5(file, { success, prog, error })
-    return (await SfcUtils.request(API.file.upload(this.uid.value, path, file, md5))).data.data
+  async uploadDirect(path: string, file: File): Promise<any> {
+    const executor = DiskFileUploadService.uploadToDisk(this.uid.value, path, file)
+    const ret = await executor.start()
+    return ret
   }
 }
 

@@ -1,5 +1,7 @@
+import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import { FileListContext } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
+import { h } from 'vue'
 import { MenuGroup } from '../type'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
@@ -30,7 +32,9 @@ const fileActionGroup: MenuGroup<FileListContext> =
         return !ctx.readonly && ctx.selectFileList.length >= 1
       },
       async action(ctx) {
-        await SfcUtils.confirm('确定要删除吗', '提示')
+        await SfcUtils.confirm('', '', {
+          children: [ h(DeleteConfirm, { fileList: ctx.selectFileList }) ]
+        })
         await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
         await ctx.modelHandler.refresh()
         SfcUtils.snackbar('删除成功')

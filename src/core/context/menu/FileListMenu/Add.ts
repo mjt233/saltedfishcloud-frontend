@@ -12,8 +12,9 @@ const addGroup: MenuGroup<FileListContext> = {
     {
       id: 'upload',
       title: '上传',
-      action(e) {
-        return e.modelHandler.upload()
+      async action(e) {
+        await e.modelHandler.upload()
+        await e.modelHandler.refresh()
       },
       renderOn(ctx) {
         return !ctx.readonly
