@@ -199,9 +199,22 @@ const cancelRename = () => {
   renameIndex.value = -1
 }
 const doRename = async() => {
-  if (props.fileList.find(e => e.name == renameNewName.value)) {
-    renamePromiseReject && renamePromiseReject ('存在同名文件')
-    return false
+  const sameNameIndex = props.fileList.findIndex(e => e.name == renameNewName.value)
+  
+  // 如果在文件列表中找到文件名和新文件名相同
+  if (sameNameIndex != -1) {
+
+    // 同一个文件
+    if (sameNameIndex == renameIndex.value) {
+      renameIndex.value = -1
+      renamePromiseResolve && renamePromiseResolve('')
+      return false
+    } else {
+
+      // 其它文件存在同名
+      renamePromiseReject && renamePromiseReject('存在同名文件')
+      return Promise.reject()
+    }
   }
   await handler?.value.rename(props.path, props.fileList[renameIndex.value].name, renameNewName.value)
   renameIndex.value = -1
