@@ -12,6 +12,29 @@ const SfcUtils = {
    * 原始默认预设配置的axios对象
    */
   axios,
+
+  batchInvokeFunction(funcs: Function[] | Function,...params: any[]): any[] {
+    const ret = []
+    if (funcs instanceof Function) {
+      try {
+        ret.push(funcs(params))
+      } catch(err) {
+        console.log(err)
+        ret.push(undefined)
+      }
+      
+    } else {
+      funcs.forEach(fun => {
+        try {
+          ret.push(fun(params))
+        } catch(err) {
+          console.log(err)
+          ret.push(undefined)
+        }
+      })
+    }
+    return ret
+  },
   
   /**
    * 发起API请求

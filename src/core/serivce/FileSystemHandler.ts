@@ -73,9 +73,6 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
   async uploadDirect(path: string, file: File): Promise<any> {
     const executor = DiskFileUploadService.uploadToDisk(this.uid.value, path, file)
     fileUploadTaskManager.addExecutor(executor)
-    executor.onFinally(() => {
-      console.log(`文件${file.name}完成上传`)
-    })
   }
 }
 

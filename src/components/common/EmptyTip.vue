@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>Hello World</h1>
+  <div class="empty-tip">
+    (～￣▽￣)～这里什么也没有哦
   </div>
 </template>
 
@@ -13,6 +13,15 @@ import { defineComponent } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({
-  name: 'FileUploadListItem'
+  name: 'EmptyTip'
 })
 </script>
+
+
+<style scoped>
+.empty-tip {
+  text-align: center;
+  margin: 16px 0;
+  color: grey;
+}
+</style>

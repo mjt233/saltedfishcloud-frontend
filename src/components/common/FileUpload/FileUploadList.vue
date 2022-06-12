@@ -1,16 +1,31 @@
 <template>
-  <v-list>
-    <slot />
+  <empty-tip v-if="!uploadInfoList || uploadInfoList.length == 0" />
+  <v-list v-else bg-color="background">
+    <v-list-item
+      v-for="(item, index) in uploadInfoList"
+      :key="index"
+      link
+    >
+      <file-upload-item :upload-info="item" @close="emits('close', index)" />
+    </v-list-item>
   </v-list>
 </template>
 
 <script setup lang="ts">
-const session = context.session
+import EmptyTip from '../EmptyTip.vue'
+import FileUploadItem from './FileUploadItem.vue'
+import { FileUploadInfo } from '@/core/serivce/FileUpload'
+const props = defineProps({
+  uploadInfoList: {
+    type: Array as PropType<FileUploadInfo[]>,
+    default: () => []
+  }
+})
+const emits = defineEmits(['close'])
 </script>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { context } from '@/core/context'
+import { defineComponent, defineProps, PropType } from 'vue'
 
 export default defineComponent({
   name: 'FileUploadList'

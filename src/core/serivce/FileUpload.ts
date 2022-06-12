@@ -54,17 +54,17 @@ export interface FileUploadExecutor {
   getId(): string
 
   /**
-   * 恢复下载
+   * 恢复上传
    */
   resume(): void
 
   /**
-   * 暂停下载
+   * 暂停上传
    */
   pause(): void
 
   /**
-   * 中断下载
+   * 中断上传
    */
   interrupt(): void
 
@@ -143,12 +143,13 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   private config: AxiosRequestConfig
   protected file: File
   private digestCache = ''
-  protected finishHandler: ((e: AxiosResponse) => void)[] = []
+  protected successHandler: ((e: AxiosResponse) => void)[] = []
   protected errorHandler: ((e: any) => void)[] = []
   protected finallyHandler: (() => void)[] = []
   protected uploadInfo: FileUploadInfo
   private cancelSource: CancelTokenSource
   private uploadPromise: Promise<any>|undefined
+  private isInterrupt: boolean = false
 
 
   /**
@@ -182,7 +183,7 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     return this.uploadInfo.uploadId
   }
   onSuccess(handler: (e: AxiosResponse) => void): void {
-    this.finishHandler.push(handler)
+    this.successHandler.push(handler)
   }
   onError(handler: (e: any) => void): void {
     this.errorHandler.push(handler)
@@ -190,6 +191,7 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   
 
   interrupt(): void {
+    this.isInterrupt = true
     this.cancelSource.cancel()
   }
 
@@ -245,10 +247,18 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   }
 
   start(): Promise<any> {
+    if (this.isInterrupt) {
+      return Promise.reject('已中断')
+    }
     if(!this.uploadPromise) {
       this.uploadPromise = this.upload()
     }
     return this.uploadPromise
+  }
+
+  private handleInterruptEvent() {
+    SfcUtils.batchInvokeFunction(this.errorHandler, 'interrupt')
+    SfcUtils.batchInvokeFunction(this.finallyHandler)
   }
 
   async upload() {
@@ -258,35 +268,20 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     }
     try {
       await this.prepare()
+      if (this.isInterrupt) {
+        this.handleInterruptEvent()
+      }
       this.getUploadInfo().status = 'upload'
       this.uploadInfo.beginDate = new Date
       const ret = await SfcUtils.axios(this.config)
       this.uploadInfo.status = 'success'
-      this.finishHandler.forEach(handler => {
-        try {
-          handler(ret)
-        } catch (error) {
-          console.log(error)
-        }
-      })
+      SfcUtils.batchInvokeFunction(this.successHandler, ret)
       return ret
     } catch(err) {
-      this.errorHandler.forEach(handler => {
-        try {
-          handler(err)
-        } catch (error) {
-          console.log(error)
-        }
-      })
+      SfcUtils.batchInvokeFunction(this.errorHandler)
       this.uploadInfo.status = 'failed'
     } finally {
-      this.finallyHandler.forEach(handler => {
-        try {
-          handler()
-        } catch(err) {
-          console.log(err)
-        }
-      })
+      SfcUtils.batchInvokeFunction(this.finallyHandler)
     }
   }
 
@@ -337,7 +332,7 @@ interface BindIdExecutor {
   index: number
 }
 export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
-  private executorList: FileUploadExecutor[] = []
+  private executorList: FileUploadExecutor[] = reactive([])
   private bindList: BindIdExecutor[] = []
   private bindMap = new Map<string, BindIdExecutor>()
   private curUploadCount = 0
