@@ -1,11 +1,8 @@
-import { DiskFileUploadService, FileUploadService } from './FileUpload'
+import { DiskFileUploadService, fileUploadTaskManager } from './FileUpload'
 import API from '@/api'
-import FileUtils from '@/utils/FileUtils'
-import { Md5ComputeOption } from '@/utils/FileUtils/FileDataProcess'
 import SfcUtils from '@/utils/SfcUtils'
 import { Ref } from 'vue'
 import { FileInfo } from '../model'
-import { StringFormatter } from '@/utils/StringFormatter'
 
 export interface FileSystemHandler {
   /**
@@ -75,8 +72,10 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
 
   async uploadDirect(path: string, file: File): Promise<any> {
     const executor = DiskFileUploadService.uploadToDisk(this.uid.value, path, file)
-    const ret = await executor.start()
-    return ret
+    fileUploadTaskManager.addExecutor(executor)
+    executor.onFinally(() => {
+      console.log(`文件${file.name}完成上传`)
+    })
   }
 }
 

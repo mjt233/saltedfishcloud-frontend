@@ -1,5 +1,4 @@
 import { Session } from './session'
-import { ToRefs } from 'vue'
 import { AppMenu, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
@@ -35,6 +34,11 @@ export interface AppFeature {
   enableRegCode: boolean,
   enableEmailReg: boolean,
   [otherKey: string]: any
+}
+
+export interface VisiableWindows {
+  uploadList: boolean
+  [otherKey: string]: boolean
 }
 
 /**
@@ -89,5 +93,7 @@ export interface AppContext {
    * 路由信息
    */
   routeInfo: RouteInfo,
+
+  visiableWindows: VisiableWindows
   [otherKey: string]: any
 }

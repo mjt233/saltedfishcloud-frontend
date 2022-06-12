@@ -1,4 +1,4 @@
-import { AppContext } from './type'
+import { AppContext, VisiableWindows } from './type'
 import { defaultFileListMenu, defaultMainMenu } from './menu'
 import { reactive, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
@@ -28,7 +28,10 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   session: emptySession,
   routeInfo: {},
   eventBus: new DefaultEventBus(),
-  feature: defaultFeature
+  feature: defaultFeature,
+  visiableWindows: reactive({
+    uploadList: false
+  } as VisiableWindows)
 }))
 
 

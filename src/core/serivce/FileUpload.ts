@@ -1,14 +1,16 @@
 import { StringUtils } from '@/utils/StringUtils'
 import API from '@/api'
-import { AxiosPromise, AxiosRequestConfig, AxiosResponse, CancelToken, CancelTokenSource } from 'axios'
+import { AxiosRequestConfig, AxiosResponse, CancelTokenSource } from 'axios'
 import axios from 'axios'
 
 import { Prog } from '@/utils/FileUtils/FileDataProcess'
 import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
 import FileUtils from '@/utils/FileUtils'
+import { debug } from 'console'
 
 export type FileUploadStatus = 'wait' | 'digest' | 'upload' | 'success' | 'failed' | 'pause'
+export type UploadType = 'public' | 'private'
 export interface FileUploadInfo {
   /**
    * 上传的文件
@@ -40,9 +42,17 @@ export interface FileUploadInfo {
    */
   beginDate: Date
 
+  type: UploadType
+
 }
 
 export interface FileUploadExecutor {
+
+  /**
+   * 上传任务ID
+   */
+  getId(): string
+
   /**
    * 恢复下载
    */
@@ -73,9 +83,50 @@ export interface FileUploadExecutor {
    */
   getUploadInfo(): FileUploadInfo
 
-  onFinish(handler: (e: AxiosResponse) => void): void
+  onSuccess(handler: (e: AxiosResponse) => void): void
 
   onError(handler: (e: any) => void): void
+
+  onFinally(handler: () => void): void
+}
+
+/**
+ * 文件上传任务管理器
+ */
+export interface FileUploadTaskManager {
+  /**
+   * 添加一个上传执行器纳入到管理中
+   * @param executor 上传执行器
+   */
+  addExecutor(executor: FileUploadExecutor): void
+
+  /**
+   * 获取所有的执行器
+   */
+  getAllExecutor(): FileUploadExecutor[]
+  
+  /**
+   * 根据id获取执行器
+   * @param id 执行器id
+   */
+  getById(id: string): FileUploadExecutor | undefined
+
+  /**
+   * 移除执行器
+   * @param id 被移除的执行任务id
+   */
+  removeExecutor(id: string): boolean
+
+  /**
+   * 获取最大同时上传数量
+   */
+  getMaxTaskCount(): number
+
+  /**
+   * 设置最大同时上传数量
+   */
+  setMaxTaskCount(count: number): void
+
 }
 
 export interface FileUploadService {
@@ -94,8 +145,10 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   private digestCache = ''
   protected finishHandler: ((e: AxiosResponse) => void)[] = []
   protected errorHandler: ((e: any) => void)[] = []
+  protected finallyHandler: (() => void)[] = []
   protected uploadInfo: FileUploadInfo
   private cancelSource: CancelTokenSource
+  private uploadPromise: Promise<any>|undefined
 
 
   /**
@@ -104,7 +157,7 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
    * @param file 文件信息（仅用作信息获取，不参与上传）
    * @param alias 文件别名（file的文件名别名，仅用作信息获取，不参与上传）
    */
-  constructor(config: AxiosRequestConfig, file: File, alias?: string) {
+  constructor(config: AxiosRequestConfig, file: File, type: UploadType, alias?: string) {
     this.config = config
     this.file = file
     this.cancelSource = axios.CancelToken.source()
@@ -117,11 +170,18 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       }),
       status: 'wait',
       uploadId: StringUtils.getRandomStr(32),
-      beginDate: new Date
+      beginDate: new Date,
+      type: type
     })
     this.initProgHandler()
   }
-  onFinish(handler: (e: AxiosResponse) => void): void {
+  onFinally(handler: () => void): void {
+    this.finallyHandler.push(handler)
+  }
+  getId(): string {
+    return this.uploadInfo.uploadId
+  }
+  onSuccess(handler: (e: AxiosResponse) => void): void {
     this.finishHandler.push(handler)
   }
   onError(handler: (e: any) => void): void {
@@ -184,7 +244,14 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     }
   }
 
-  async start(): Promise<any> {
+  start(): Promise<any> {
+    if(!this.uploadPromise) {
+      this.uploadPromise = this.upload()
+    }
+    return this.uploadPromise
+  }
+
+  async upload() {
 
     if (this.uploadInfo.status == 'upload' || this.uploadInfo.status == 'digest') {
       throw new Error('已经正在上传中')
@@ -196,17 +263,33 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       const ret = await SfcUtils.axios(this.config)
       this.uploadInfo.status = 'success'
       this.finishHandler.forEach(handler => {
-        handler(ret)
+        try {
+          handler(ret)
+        } catch (error) {
+          console.log(error)
+        }
       })
       return ret
     } catch(err) {
-      this.errorHandler.forEach(hanler => {
-        hanler(err)
+      this.errorHandler.forEach(handler => {
+        try {
+          handler(err)
+        } catch (error) {
+          console.log(error)
+        }
       })
       this.uploadInfo.status = 'failed'
+    } finally {
+      this.finallyHandler.forEach(handler => {
+        try {
+          handler()
+        } catch(err) {
+          console.log(err)
+        }
+      })
     }
-    
   }
+
   getUploadInfo(): FileUploadInfo {
     return this.uploadInfo
   }
@@ -221,8 +304,8 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
 }
 
 export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
-  constructor(config: AxiosRequestConfig, file:File, alias?: string) {
-    super(config,file, alias)
+  constructor(config: AxiosRequestConfig, file:File, type: UploadType, alias?: string) {
+    super(config, file, type, alias)
   }
   
   handleDigest() {
@@ -242,10 +325,90 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
 const DiskFileUploadService: FileUploadService = {
   uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor {
     const config = API.file.upload(uid, path, file, '')
-    return new DirectFileUploadExecutor(config, file)
+    return new DirectFileUploadExecutor(config, file, uid == 0 ? 'public' : 'private')
   }
 }
 
+interface BindIdExecutor {
+  id: string,
+
+  executor: FileUploadExecutor
+
+  index: number
+}
+export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
+  private executorList: FileUploadExecutor[] = []
+  private bindList: BindIdExecutor[] = []
+  private bindMap = new Map<string, BindIdExecutor>()
+  private curUploadCount = 0
+  private maxUploadCount = 3
+  addExecutor(executor: FileUploadExecutor): void {
+    const bindObj = {
+      executor: executor,
+      id: executor.getId(),
+      index: this.bindList.length
+    }
+    this.executorList.push(executor)
+    this.bindList.push(bindObj)
+    this.bindMap.set(bindObj.id, bindObj)
+
+    executor.onFinally(() => {
+      this.removeExecutor(executor.getId())
+      this.curUploadCount--
+      this.startAll()
+    })
+    this.startAll()
+  }
+  setMaxTaskCount(count: number): void {
+    this.maxUploadCount = count
+  }
+  getMaxTaskCount(): number {
+    return this.maxUploadCount
+  }
+  getAllExecutor(): FileUploadExecutor[] {
+    return this.executorList
+  }
+  getById(id: string): FileUploadExecutor | undefined {
+    return this.bindMap.get(id)?.executor
+  }
+  removeExecutor(id: string): boolean {
+    const item = this.bindMap.get(id)
+    if (item == undefined) {
+      return false
+    }
+
+    this.executorList.splice(item.index, 1)
+    this.bindList.splice(item.index, 1)
+    this.bindMap.delete(id)
+    for (let i = item.index; i < this.bindList.length; i++) {
+      const element = this.bindList[i]
+      element.index--
+    }
+    return true
+  }
+
+  /**
+   * 在最大同时上传数量范围内尽可能启动上传
+   */
+  private startAll() {
+    if (this.curUploadCount >= this.maxUploadCount) {
+      return
+    }
+    for(let executor of this.executorList) {
+      if (this.curUploadCount >= this.maxUploadCount) {
+        break
+      }
+      if (executor.getUploadInfo().status == 'wait') {
+        executor.start()
+        this.curUploadCount++
+      }
+    }
+  }
+}
+
+const fileUploadTaskManager = new DefaultFileUploadTaskManager
+
 export {
-  DiskFileUploadService
+  DiskFileUploadService,
+  fileUploadTaskManager
 }

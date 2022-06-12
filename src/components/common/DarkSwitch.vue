@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 32px; cursor: pointer;">
+  <div>
     <v-switch
       v-if="!brightness"
       hide-details
@@ -8,8 +8,8 @@
       @click="switchDark"
     />
     <template v-else>
-      <v-icon v-if="inDark" icon="mdi-brightness-3" @click="switchDark" />
-      <v-icon v-else icon="mdi-brightness-6" @click="switchDark" />
+      <v-btn v-if="inDark" icon="mdi-brightness-3" @click="switchDark" />
+      <v-btn v-else icon="mdi-brightness-6" @click="switchDark" />
     </template>
   </div>
 </template>

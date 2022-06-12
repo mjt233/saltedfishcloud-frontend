@@ -5,7 +5,7 @@
     style="margin-right: 12px;"
     :transition="transition"
   >
-    <v-img :src="avatarUrl" :transition="false" />
+    <v-img :src="avatarUrl" :transition="false" cover />
   </v-avatar>
 </template>
 

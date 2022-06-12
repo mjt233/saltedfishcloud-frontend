@@ -13,6 +13,6 @@ import { defineComponent } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({
-  name: 'FileUploadList'
+  name: 'FileUploadListItem'
 })
 </script>

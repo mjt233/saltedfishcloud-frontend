@@ -154,12 +154,10 @@ const fileListContext: FileListContext = reactive({
     },
 
     async upload() {
-      const selectFile = await FileUtils.openFileDialog(false)
-      const file = selectFile[0]
-      if (file != null) {
-        return handler?.value.uploadDirect(props.path, file)
-      } else {
-        return Promise.reject('未选择文件')
+      const selectFile = await FileUtils.openFileDialog(true)
+      for (let i = 0; i < selectFile.length; i++) {
+        const file = selectFile[i]
+        handler?.value.uploadDirect(props.path, file)
       }
     },
 
