@@ -3,7 +3,8 @@
     <div style="margin-right: 8px">
       <file-icon
         width="32"
-        :use-thumb="false"
+        :md5="uploadInfo?.md5"
+        :use-thumb="uploadInfo?.status == 'success'"
         :file-name="uploadInfo?.file.name"
         :is-dir="false"
       />
@@ -13,12 +14,14 @@
         {{ uploadInfo?.file.name }}
       </div>
       <div class="file-size">
-        速度：{{ StringFormatter.toSize(progRecord.speed) }} /s
+        <span v-if="uploadInfo?.status == 'upload' || uploadInfo?.status == 'digest'">速度：{{ StringFormatter.toSize(progRecord.speed) }}/s</span>
+        <span v-if="uploadInfo?.status == 'success'">
+          平均速度：{{ StringFormatter.toSize(uploadInfo.file.size / ((uploadInfo.endDate.getTime() - uploadInfo.beginDate.getTime()) / 1000) ) }}/s
+        </span>
         大小：{{ StringFormatter.toSize(uploadInfo?.file.size || 0) }}
-        状态：{{ uploadInfo?.status }}
       </div>
       <v-progress-linear
-        v-show="uploadInfo?.status != 'wait'"
+        v-show="uploadInfo?.status != 'wait' && uploadInfo?.status != 'success' && uploadInfo?.status != 'failed'"
         :model-value="progVal"
         :indeterminate="uploadInfo?.status == 'digest'"
         style="width: 100%;margin-top: 8px;"

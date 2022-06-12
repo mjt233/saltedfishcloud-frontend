@@ -6,9 +6,15 @@
     <v-spacer />
     <v-btn
       v-ripple
-      icon="mdi-swap-vertical"
+      icon
+      style="border-radius: 50%;"
       @click="context.visiableWindows.value.uploadList = !context.visiableWindows.value.uploadList"
-    />
+    >
+      <v-badge v-if="uploadingExecutor.length != 0" dot color="error">
+        <v-icon size="24" icon="mdi-swap-vertical" />
+      </v-badge>
+      <v-icon v-else size="24" icon="mdi-swap-vertical" />
+    </v-btn>
     <dark-switch brightness />
     <user-card :uid="session.user.id" :name="session.user.name" style="margin-left: 16px" />
   </v-app-bar>
@@ -64,7 +70,9 @@
 <script setup lang="ts">
 import UserCard from '@/components/common/UserCard.vue'
 import DarkSwitch from '@/components/common/DarkSwitch.vue'
+import { fileUploadTaskManager } from '@/core/serivce/FileUpload'
 const menuObj = context.menu.value.mainMenu
+const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 
 const session = context.session
@@ -73,6 +81,7 @@ const session = context.session
 <script lang="ts">
 import { ref, defineComponent, ToRefs } from 'vue'
 import { AppContext, context, MenuItem } from '@/core/context/'
+
 export default defineComponent({
   name: 'CommonIndex',
   methods: {

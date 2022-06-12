@@ -5,10 +5,10 @@
       fixed-tabs
     >
       <v-tab value="upload">
-        上传中
+        上传中{{ uploadingExecutor.length > 0 ? '(' + uploadingExecutor.length + ')': '' }}
       </v-tab>
       <v-tab value="finish">
-        已完成
+        已完成{{ finishList.length > 0 ? '(' + finishList.length + ')': '' }}
       </v-tab>
       <v-tab value="failed">
         传输失败
@@ -20,7 +20,7 @@
           <file-upload-list :upload-info-list="uploadingExecutor.map(e => e.getUploadInfo())" @close="uploadClose" />
         </v-window-item>
         <v-window-item value="finish">
-          <file-upload-list />
+          <file-upload-list :upload-info-list="finishList" @close="finishList.splice($event as number, 1)" />
         </v-window-item>
         <v-window-item value="failed">
           <file-upload-list />
@@ -52,7 +52,7 @@ const uploadingExecutor = computed(() => {
     return props.taskManager.getAllExecutor()
   }
 })
-const finishList: FileUploadInfo[] = []
+const finishList: FileUploadInfo[] = reactive([])
 const uploadClose = (index: number) => {
   const executor = uploadingExecutor.value[index]
   if (executor.getUploadInfo().status == 'wait') {
@@ -61,12 +61,37 @@ const uploadClose = (index: number) => {
     executor.interrupt()
   }
 }
+const finishListener = (executor: FileUploadExecutor) => {
+  finishList.push(executor.getUploadInfo())
+}
+const addListener = (manager: FileUploadTaskManager ) => {
+  manager.addEventListener('success', finishListener)
+}
+const removeListener = (manager: FileUploadTaskManager ) => {
+  manager.removeEventListener('success', finishListener)
+}
+
+onMounted(() => {
+  addListener(props.taskManager as FileUploadTaskManager)
+})
+onUnmounted(() => {
+  removeListener(props.taskManager as FileUploadTaskManager)
+})
+watch(() => props.taskManager, (newVal, oldVal) => {
+  if (oldVal) {
+    removeListener(oldVal)
+  }
+  if (newVal) {
+    addListener(newVal)
+  }
+  
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, defineProps, defineEmits, computed, PropType } from 'vue'
+import { defineComponent, ref, defineProps, defineEmits, computed, PropType, onMounted, onUnmounted, watch, reactive } from 'vue'
 import { context } from '@/core/context'
-import { FileUploadInfo, FileUploadTaskManager } from '@/core/serivce/FileUpload'
+import { FileUploadExecutor, FileUploadInfo, FileUploadTaskManager } from '@/core/serivce/FileUpload'
 
 export default defineComponent({
   name: 'FileUploadList'

@@ -7,7 +7,6 @@ import { Prog } from '@/utils/FileUtils/FileDataProcess'
 import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
 import FileUtils from '@/utils/FileUtils'
-import { debug } from 'console'
 
 export type FileUploadStatus = 'wait' | 'digest' | 'upload' | 'success' | 'failed' | 'pause'
 export type UploadType = 'public' | 'private'
@@ -42,7 +41,20 @@ export interface FileUploadInfo {
    */
   beginDate: Date
 
+  /**
+   * 任务结束日期
+   */
+  endDate: Date
+
+  /**
+   * 上传任务类型
+   */
   type: UploadType
+
+  /**
+   * 文件md5
+   */
+  md5: string
 
 }
 
@@ -90,6 +102,9 @@ export interface FileUploadExecutor {
   onFinally(handler: () => void): void
 }
 
+export type TaskManagerEvent = 'add' | 'remove' | 'success' | 'error' | 'finally'
+
+export type TaskManagerEventListener = (executor: FileUploadExecutor) => void
 /**
  * 文件上传任务管理器
  */
@@ -126,6 +141,10 @@ export interface FileUploadTaskManager {
    * 设置最大同时上传数量
    */
   setMaxTaskCount(count: number): void
+
+  addEventListener(event: TaskManagerEvent, listener: TaskManagerEventListener): void
+
+  removeEventListener(event: TaskManagerEvent, listener: TaskManagerEventListener): void
 
 }
 
@@ -172,7 +191,9 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       status: 'wait',
       uploadId: StringUtils.getRandomStr(32),
       beginDate: new Date,
-      type: type
+      endDate: new Date,
+      type: type,
+      md5: ''
     })
     this.initProgHandler()
   }
@@ -242,6 +263,7 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     const handler = this.handleDigest()
     if (handler instanceof Function) {
       const md5 = await this.getDigest()
+      this.uploadInfo.md5 = md5
       handler(md5, this.config)
     }
   }
@@ -281,6 +303,7 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       SfcUtils.batchInvokeFunction(this.errorHandler)
       this.uploadInfo.status = 'failed'
     } finally {
+      this.uploadInfo.endDate = new Date()
       SfcUtils.batchInvokeFunction(this.finallyHandler)
     }
   }
@@ -331,12 +354,14 @@ interface BindIdExecutor {
 
   index: number
 }
+
 export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
   private executorList: FileUploadExecutor[] = reactive([])
   private bindList: BindIdExecutor[] = []
   private bindMap = new Map<string, BindIdExecutor>()
   private curUploadCount = 0
   private maxUploadCount = 3
+  private listenerMap = new Map<TaskManagerEvent, TaskManagerEventListener[]>()
   addExecutor(executor: FileUploadExecutor): void {
     const bindObj = {
       executor: executor,
@@ -346,13 +371,37 @@ export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
     this.executorList.push(executor)
     this.bindList.push(bindObj)
     this.bindMap.set(bindObj.id, bindObj)
-
+    this.dispatchEvent('add', executor)
     executor.onFinally(() => {
       this.removeExecutor(executor.getId())
       this.curUploadCount--
       this.startAll()
     })
+    executor.onSuccess(() => this.dispatchEvent('success', executor))
+    executor.onError(() => this.dispatchEvent('error', executor))
+    executor.onFinally(() => this.dispatchEvent('finally', executor))
+
     this.startAll()
+  }
+  removeEventListener(event: TaskManagerEvent, listener: TaskManagerEventListener): void {
+    const list = this.listenerMap.get(event)
+    if (list == undefined) {
+      return
+    }
+    const idx = list.findIndex(e => e == listener)
+    if (idx == -1) {
+      return
+    }
+    list.splice(idx, 1)
+  }
+  addEventListener(event: TaskManagerEvent, listener: TaskManagerEventListener): void {
+    let list = this.listenerMap.get(event)
+    if (list == undefined) {
+      list = []
+      this.listenerMap.set(event, list)
+    }
+
+    list.push(listener)
   }
   setMaxTaskCount(count: number): void {
     this.maxUploadCount = count
@@ -371,7 +420,7 @@ export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
     if (item == undefined) {
       return false
     }
-
+    this.dispatchEvent('remove', item.executor)
     this.executorList.splice(item.index, 1)
     this.bindList.splice(item.index, 1)
     this.bindMap.delete(id)
@@ -397,6 +446,13 @@ export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
         executor.start()
         this.curUploadCount++
       }
+    }
+  }
+
+  private dispatchEvent(event: TaskManagerEvent, executor: FileUploadExecutor) {
+    const listeners = this.listenerMap.get(event)
+    if (listeners) {
+      SfcUtils.batchInvokeFunction(listeners, executor)
     }
   }
 }

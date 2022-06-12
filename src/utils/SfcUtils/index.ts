@@ -14,10 +14,11 @@ const SfcUtils = {
   axios,
 
   batchInvokeFunction(funcs: Function[] | Function,...params: any[]): any[] {
+    
     const ret = []
     if (funcs instanceof Function) {
       try {
-        ret.push(funcs(params))
+        ret.push(funcs(...params))
       } catch(err) {
         console.log(err)
         ret.push(undefined)
@@ -26,7 +27,7 @@ const SfcUtils = {
     } else {
       funcs.forEach(fun => {
         try {
-          ret.push(fun(params))
+          ret.push(fun(...params))
         } catch(err) {
           console.log(err)
           ret.push(undefined)
