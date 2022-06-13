@@ -77,6 +77,8 @@ const handler = computed(() => {
   )
 })
 
+provide('fileSystemHandler', handler)
+
 const pathArr = computed(() => {
   return props.path.split('/').filter(e => e)
 })
@@ -96,7 +98,6 @@ const pathItems = computed(() => {
   }
   return itemArr
 })
-provide('fileSystemHandler', handler)
 
 const jumpIndex = (nodeIndex: number) => {
   const newArr = pathArr.value.filter((e, i) => i < nodeIndex)
