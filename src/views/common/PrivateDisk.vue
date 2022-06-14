@@ -5,6 +5,7 @@
       v-model:path="path"
       :file-system-handler="handler"
       :read-only="false"
+      :uid="session.user.id"
     />
   </div>
   <div v-else class="d-flex justify-center">

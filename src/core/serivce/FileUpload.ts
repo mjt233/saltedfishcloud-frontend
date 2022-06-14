@@ -56,6 +56,11 @@ export interface FileUploadInfo {
    */
   md5: string
 
+  /**
+   * 其他自定义属性
+   */
+  otherAttr?: any
+
 }
 
 export interface FileUploadExecutor {
@@ -158,6 +163,30 @@ export interface FileUploadService {
   uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor
 }
 
+export interface ExecutorOption {
+  type: UploadType
+
+  /**
+   * 文件信息（仅用作信息获取，不参与上传）
+   */
+  file: File
+
+  /**
+   * 文件别名（file的文件名别名，仅用作信息获取，不参与上传）
+   */
+  alias?: string
+
+  /**
+   * 上传文件的axios配置
+   */
+  config: AxiosRequestConfig
+
+  /**
+   * 其他属性
+   */
+  otherAttr?: any
+}
+
 export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   private config: AxiosRequestConfig
   protected file: File
@@ -173,11 +202,12 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
 
   /**
    * 构造文件上传执行器
-   * @param config 上传文件的axios配置
-   * @param file 文件信息（仅用作信息获取，不参与上传）
-   * @param alias 文件别名（file的文件名别名，仅用作信息获取，不参与上传）
+   * @param config 
+   * @param file 
+   * @param alias 
    */
-  constructor(config: AxiosRequestConfig, file: File, type: UploadType, alias?: string) {
+  constructor(opt: ExecutorOption) {
+    const {config, file, alias, type, otherAttr} = opt
     this.config = config
     this.file = file
     this.cancelSource = axios.CancelToken.source()
@@ -193,7 +223,8 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       beginDate: new Date,
       endDate: new Date,
       type: type,
-      md5: ''
+      md5: '',
+      otherAttr: otherAttr
     })
     this.initProgHandler()
   }
@@ -322,8 +353,8 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
 }
 
 export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
-  constructor(config: AxiosRequestConfig, file:File, type: UploadType, alias?: string) {
-    super(config, file, type, alias)
+  constructor(opt: ExecutorOption) {
+    super(opt)
   }
   
   handleDigest() {
@@ -343,7 +374,15 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
 const DiskFileUploadService: FileUploadService = {
   uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor {
     const config = API.file.upload(uid, path, file, '')
-    return new DirectFileUploadExecutor(config, file, uid == 0 ? 'public' : 'private')
+    return new DirectFileUploadExecutor({
+      file,
+      config,
+      type: uid == 0 ? 'public' : 'private',
+      otherAttr: {
+        uid,
+        path
+      }
+    })
   }
 }
 

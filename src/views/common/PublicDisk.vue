@@ -1,6 +1,11 @@
 <template>
   <div>
-    <file-browser v-model:path="path" :file-system-handler="handler" :read-only="readOnly" />
+    <file-browser
+      v-model:path="path"
+      :file-system-handler="handler"
+      :read-only="readOnly"
+      :uid="0"
+    />
   </div>
 </template>
 <script setup lang="ts">

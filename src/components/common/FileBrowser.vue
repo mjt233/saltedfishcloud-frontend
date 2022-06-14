@@ -54,6 +54,14 @@ const props = defineProps({
   autoComputeHeight: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 用户id，用于识别上传任务完成时决定是否自动刷新
+   * （疑问：既然都传uid了，为什么还要由外部传入fileSystemHandler....)
+   */
+  uid: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -78,6 +86,33 @@ const handler = computed(() => {
 })
 
 provide('fileSystemHandler', handler)
+
+const autoRefresher = MethodInterceptor.createThrottleProxy({
+  loading: false,
+  async refresh(info: FileUploadInfo) {
+    if (this.loading) {
+      return undefined
+    }
+    this.loading = true
+    const attr = info.otherAttr
+    let ret:FileInfo[]
+
+    if (attr && attr.uid == props.uid && attr.path == props.path) {
+      ret = await handler.value.loadList(props.path)
+      if (attr && attr.uid == props.uid && attr.path == props.path) {
+        fileList.value.length = 0
+        ret.forEach(e => fileList.value.push(e))
+        this.loading = false
+      }
+    }
+  }
+}, {
+  afterExecute: true,
+  delay: 2500
+})
+const successListener = async(executor: FileUploadExecutor) => {
+  autoRefresher.refresh(executor.getUploadInfo())
+}
 
 const pathArr = computed(() => {
   return props.path.split('/').filter(e => e)
@@ -151,12 +186,14 @@ const resizeHandler = async() => {
 }
 defineExpose({loadList})
 onMounted(() => {
+  fileUploadTaskManager.addEventListener('success', successListener)
   loadList(props.path)
   window.addEventListener('resize', resizeHandler)
   updateListHeight()
 })
 onUnmounted(() => {
   window.removeEventListener('resize', resizeHandler)
+  fileUploadTaskManager.removeEventListener('success', successListener)
 })
 </script>
 
@@ -164,9 +201,9 @@ onUnmounted(() => {
 import { FileInfo } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
-import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted } from 'vue'
+import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive } from 'vue'
 import { context } from '@/core/context'
-import DOMUtils from '@/utils/DOMUtils'
+import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from '@/core/serivce/FileUpload'
 
 export default defineComponent({
   name: 'FileBrowser'
