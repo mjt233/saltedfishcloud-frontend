@@ -154,12 +154,16 @@ const back = async() => {
   await loadList(StringUtils.appendPath('/', pathArr.join('/')))
 }
 
-const clickItem = async(e: FileInfo) => {
+const clickItem = async(ctx: FileListContext, e: FileInfo) => {
   if (e.dir) {
     const newPath = StringUtils.appendPath(props.path, e.name)
     await loadList(newPath)
   } else {
-    console.log('isfile')
+    const files = [e]
+    const handlers = context.fileOpenHandler.value.filter(handler => handler.matcher(ctx, files))
+    if (handlers.length == 1) {
+      handlers[0].action(ctx, files)
+    }
   }
 }
 
@@ -198,7 +202,7 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { FileInfo } from '@/core/model'
+import { FileInfo, FileListContext } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
 import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive } from 'vue'

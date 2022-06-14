@@ -1,9 +1,10 @@
-import { AppContext, VisiableWindows } from './type'
+import { AppContext, RouteInfo, VisiableWindows } from './type'
 import { defaultFileListMenu, defaultMainMenu } from './menu'
-import { reactive, toRefs, ToRefs } from 'vue'
+import { reactive, Ref, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
 import { DefaultEventBus } from './EventBus'
 import { SystemFeature } from '../model'
+import { defaultFileOpenHandler } from './fileOpenHandler'
 
 const defaultFeature: SystemFeature = {
   enableEmailReg: false,
@@ -29,6 +30,9 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   routeInfo: {},
   eventBus: new DefaultEventBus(),
   feature: defaultFeature,
+  fileOpenHandler: reactive([
+    defaultFileOpenHandler
+  ]),
   visiableWindows: reactive({
     uploadList: false
   } as VisiableWindows)

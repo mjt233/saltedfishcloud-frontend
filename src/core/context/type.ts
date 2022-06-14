@@ -2,9 +2,9 @@ import { Session } from './session'
 import { AppMenu, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
-import { FileListContext, SystemFeature } from '../model'
+import { FileInfo, FileListContext, SystemFeature } from '../model'
 
-interface RouteInfo {
+export interface RouteInfo {
   /**
    * 当前路由
    */
@@ -39,6 +39,38 @@ export interface AppFeature {
 export interface VisiableWindows {
   uploadList: boolean
   [otherKey: string]: boolean
+}
+
+/**
+ * 文件打开处理器，也就是文件的打开方式
+ */
+export interface FileOpenHandler {
+  /**
+   * 标题 文件
+   */
+  title: string | (() => string)
+
+  /**
+   * 图标，可以是mdi图标或图片url
+   */
+  icon: string
+
+  /**
+   * 匹配器，返回true表示待打开的文件可以被该文件处理器处理
+   */
+  matcher: (ctx: FileListContext, files: FileInfo[]) => boolean
+
+  /**
+   * 排序，越小越靠前
+   */
+  sort: number
+
+  /**
+   * 唯一标识
+   */
+  id: string
+
+  action: (ctx: FileListContext, files: FileInfo[]) => Promise<any> | void
 }
 
 /**
@@ -95,5 +127,7 @@ export interface AppContext {
   routeInfo: RouteInfo,
 
   visiableWindows: VisiableWindows
+
+  fileOpenHandler: FileOpenHandler[]
   [otherKey: string]: any
 }

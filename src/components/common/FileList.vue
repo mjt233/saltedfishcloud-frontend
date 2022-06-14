@@ -134,7 +134,7 @@ const allInSelect = computed(() => {
 })
 
 const emits = defineEmits<{
-  (event: 'clickItem', item: FileInfo): void,
+  (event: 'clickItem', ctx: FileListContext ,item: FileInfo): void,
   (event: 'back'): void,
   (event: 'refresh'): void,
   (event: 'update:file-list', fileList: FileInfo[]): void
@@ -265,7 +265,7 @@ const fileLClick = (e: MouseEvent, fileInfo: FileInfo) => {
   if (e.ctrlKey) {
     toggleSelectFile(fileInfo)
   } else {
-    emits('clickItem', fileInfo)
+    emits('clickItem', fileListContext, fileInfo)
   }
   
 }
