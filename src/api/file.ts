@@ -87,11 +87,11 @@ const file = {
     })
   },
   move(param: FileTransferParam): CommonRequest {
-    return {
+    return useJsonBody({
       method: 'post',
       url: `/${this.prefix}/${param.sourceUid}/move`,
       data: param
-    }
+    })
   },
   /**
    * 取文件列表

@@ -31,7 +31,7 @@ function jumpWithPost(url: string, newWindow: boolean, filed: any) {
  * 标记axios请求配置使用json请求
  * @param config axios配置
  */
-function useJsonBody(config: AxiosRequestConfig) {
+function useJsonBody<T extends AxiosRequestConfig>(config: T): T {
   if (!config.headers) {
     config.headers = {
       'Content-Type': 'application/json'

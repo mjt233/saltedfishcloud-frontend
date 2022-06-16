@@ -33,18 +33,18 @@ const otherGroup: MenuGroup<FileListContext> =
         SfcUtils.snackbar('已复制，在目标目录可粘贴')
       }
     },
-    // {
-    //   id: 'cut',
-    //   title: '剪切',
-    //   icon: 'mdi-content-cut',
-    //   renderOn(ctx) {
-    //     return !ctx.readonly && ctx.selectFileList.length > 0 && !!context.session.value.token
-    //   },
-    //   async action(ctx) {
-    //     setToClipBoard(ctx, 'cut')
-    //     SfcUtils.snackbar('已剪切，在目标目录可粘贴')
-    //   }
-    // },
+    {
+      id: 'cut',
+      title: '剪切',
+      icon: 'mdi-content-cut',
+      renderOn(ctx) {
+        return !ctx.readonly && ctx.selectFileList.length > 0 && !!context.session.value.token
+      },
+      async action(ctx) {
+        setToClipBoard(ctx, 'cut')
+        SfcUtils.snackbar('已剪切，在目标目录可粘贴')
+      }
+    },
     {
       id: 'paste',
       title: '粘贴',
@@ -83,6 +83,9 @@ const otherGroup: MenuGroup<FileListContext> =
 
           if (clip.type == 'copy') {
             await SfcUtils.request(API.file.copy(param))
+          } else if (clip.type == 'cut') {
+            await SfcUtils.request(API.file.move(param))
+            context.fileClipBoard.value = reactive({} as FileClipBoard)
           }
           await ctx.modelHandler.refresh()
         }
