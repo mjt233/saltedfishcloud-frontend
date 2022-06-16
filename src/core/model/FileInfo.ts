@@ -17,15 +17,23 @@ export interface FileInfo {
   suffix: string
 }
 
-export interface FileTransferInfo {
-  /** 文件所在目录 */
+export interface FileItemTransferParam {
+  /** 文件原位置 */
   source: string
 
-  /** 被操作的多个文件 */
-  filenames: string[]
+  /** 文件目标位置 */
+  target: string
+}
+export interface FileTransferParam {
 
-  /** 要保存到的位置 */
-  dest?: string
+  /** 被操作的多个文件 */
+  files: FileItemTransferParam[]
+
+  /** 文件传输到的目标uid */
+  targetUid: number
+
+  /** 文件来源uid */
+  sourceUid: number
 }
 export interface FileListContext {
   /** 整个文件列表的所有文件 */
@@ -45,6 +53,9 @@ export interface FileListContext {
 
   /** 文件列表是否只读 */
   readonly: boolean
+
+  /** 文件列表路径 */
+  path?: string
 
   /** 文件列表操作器 */
   modelHandler: FileListModelHandler

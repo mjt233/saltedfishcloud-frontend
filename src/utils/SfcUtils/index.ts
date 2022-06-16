@@ -46,7 +46,14 @@ const SfcUtils = {
     
     return await axios(request)
   },
-  ...dialog
+  ...dialog,
+  sleep(timeout: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, timeout)
+    })
+  }
 }
 
 export default SfcUtils

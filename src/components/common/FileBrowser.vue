@@ -20,8 +20,10 @@
     <file-list
       ref="listRef"
       v-model:file-list="fileList"
+      :loading-manager="loadingManager"
       :menu="menu.fileListMenu"
       :path="path"
+      :uid="uid"
       :read-only="readOnly"
       :height="listHeight"
       @click-item="clickItem"

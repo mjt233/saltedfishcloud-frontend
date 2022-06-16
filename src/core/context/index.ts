@@ -1,4 +1,4 @@
-import { AppContext, RouteInfo, VisiableWindows } from './type'
+import { AppContext, FileClipBoard, RouteInfo, VisiableWindows } from './type'
 import { defaultFileListMenu, defaultMainMenu } from './menu'
 import { reactive, Ref, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
@@ -33,6 +33,7 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   fileOpenHandler: reactive([
     defaultFileOpenHandler
   ]),
+  fileClipBoard: undefined as unknown as FileClipBoard,
   visiableWindows: reactive({
     uploadList: false
   } as VisiableWindows)

@@ -1,6 +1,11 @@
 <template>
   <div ref="rootRef" @contextmenu="rootRClick" @click="rootLClick">
-    <file-menu :container="$el" :menu="menu" :list-context="fileListContext" />
+    <file-menu
+      :container="$el"
+      :menu="menu"
+      :list-context="fileListContext"
+      :loading-manager="loadingManager"
+    />
     <v-table
       fixed-header
       class="file-table"
@@ -88,6 +93,7 @@ import FileIcon from './FileIcon.vue'
 import { StringFormatter } from '@/utils/StringFormatter'
 import SfcUtils from '@/utils/SfcUtils'
 import FileUtils from '@/utils/FileUtils'
+import { LoadingManager } from '@/utils/LoadingManager'
 // 基本属性定义
 const props = defineProps({
   readOnly: {
@@ -115,6 +121,14 @@ const props = defineProps({
   },
   height: {
     type: Number,
+    default: undefined
+  },
+  uid: {
+    type: Number,
+    default: undefined
+  },
+  loadingManager: {
+    type: Object as PropType<LoadingManager>,
     default: undefined
   }
 })
@@ -147,6 +161,7 @@ const fileListContext: FileListContext = reactive({
   readonly: props.readOnly,
   name: '',
   selectFileList: [],
+  path: props.path,
   modelHandler: {
     async mkdir(name) {
       await handler?.value.mkdir(props.path, name)
@@ -311,8 +326,15 @@ watch(() => props.fileList, () => {
 watch(selectedFile, () => {
   fileListContext.selectFileList = Object.values(selectedFile)
 })
+watch(() => props.path, () => {
+  fileListContext.path = props.path
+})
+watch(() => props.uid, () => {
+  fileListContext.uid = props.uid
+})
 
 onMounted(() => {
+  fileListContext.uid = props.uid
   window.addEventListener('resize', updateWidth)
   updateWidth()
 })

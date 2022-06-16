@@ -46,6 +46,10 @@ const propsAttr = defineProps({
   listContext: {
     type: Object as PropType<FileListContext>,
     default: null
+  },
+  loadingManager: {
+    type: Object as PropType<LoadingManager>,
+    default: null
   }
 })
 const availableMenu = computed(() => {
@@ -105,13 +109,23 @@ const resetListen = () => {
 
 const itemClick = async(item: MenuItem<FileListContext>) => {
   closeMenu()
+  let inloading = false
   try {
     if (item.action) {
-      await item.action(propsAttr.listContext)
+      const ret = item.action(propsAttr.listContext)
+      if (ret instanceof Promise) {
+        propsAttr.loadingManager.beginLoading()
+        inloading = true
+        await ret
+      }
     }
   } catch (error: any) {
     SfcUtils.snackbar(error, 1500, { outClose: true })
     console.error(error)
+  } finally {
+    if (inloading) {
+      propsAttr.loadingManager.closeLoading()
+    }
   }
 }
 
@@ -132,6 +146,7 @@ import { context, MenuGroup, MenuItem } from '@/core/context'
 import { FileListContext } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
 import { debug, group } from 'console'
+import { LoadingManager } from '@/utils/LoadingManager'
 
 export default defineComponent({
   name: 'FileMenu'

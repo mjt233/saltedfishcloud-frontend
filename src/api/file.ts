@@ -1,4 +1,4 @@
-import { CommonRequest, FileInfo, FileTransferInfo, PageRequest } from '@/core/model'
+import { CommonRequest, FileInfo, FileTransferParam, PageRequest } from '@/core/model'
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from '@/utils/StringUtils'
 
@@ -43,7 +43,7 @@ const file = {
    * @param {FileTransferObj} fileTransferObj 文件操作对象，dest不要求
    * @returns 打包id
    */
-  createWrap(uid: number, fileTransferObj: FileTransferInfo): CommonRequest<string> {
+  createWrap(uid: number, fileTransferObj: FileTransferParam): CommonRequest<string> {
     return useJsonBody({
       url: `/${this.prefix}/${uid}/wrap`,
       method: 'post',
@@ -56,7 +56,7 @@ const file = {
    * @param {FileTransferObj} fileTransferObj 文件操作对象
    * @returns {import('axios').AxiosRequestConfig}
    */
-  compress(uid: number, fileTransferObj: FileTransferInfo): CommonRequest {
+  compress(uid: number, fileTransferObj: FileTransferParam): CommonRequest {
     return useJsonBody({
       url: `/${this.prefix}/${uid}/compress`,
       method: 'post',
@@ -79,41 +79,19 @@ const file = {
       }
     }
   },
-  /**
-   * 复制文件或目录
-   * @param {Number} uid 用户ID
-   * @param {String} source 原文件所在目录
-   * @param {String} target 目标文件所在目录
-   * @param {boolean} overwrite 是否覆盖原有文件
-   * @param {FileTransferInfo} files 要操作的文件信息
-   */
-  copy(uid: number, source: string, target: string, overwrite: boolean = true, files: FileTransferInfo): CommonRequest {
-    if (source == '/') source = ''
+  copy(param: FileTransferParam): CommonRequest {
+    return useJsonBody({
+      method: 'post',
+      url: `/${this.prefix}/${param.sourceUid}/copy`,
+      data: param
+    })
+  },
+  move(param: FileTransferParam): CommonRequest {
     return {
       method: 'post',
-      url: `/${this.prefix}/${uid}/fromPath/${source}`,
-      data: {
-        target: target,
-        files: files,
-        overwrite: overwrite
-      },
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8'
-      }
+      url: `/${this.prefix}/${param.sourceUid}/move`,
+      data: param
     }
-  },
-  /**
-   * 复制文件或目录
-   * @param {Number} uid 用户ID
-   * @param {String} source 原文件所在目录
-   * @param {String} target 目标文件所在目录
-   * @param {boolean} overwrite 是否覆盖原有文件
-   * @param {FileTransferInfo} files 要操作的文件信息
-   */
-  move(uid: number, source: string, target: string, overwrite: boolean = true, files: FileTransferInfo): CommonRequest {
-    const conf = this.copy(uid, source, target, overwrite, files)
-    conf.method = 'put'
-    return conf
   },
   /**
    * 取文件列表

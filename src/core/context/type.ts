@@ -73,6 +73,25 @@ export interface FileOpenHandler {
   action: (ctx: FileListContext, files: FileInfo[]) => Promise<any> | void
 }
 
+export type FileClipBoardType = 'cut' | 'copy'
+
+/**
+ * 文件剪切板信息
+ */
+export interface FileClipBoard {
+  /** 文件所在路径 */
+  path: string
+
+  /** 文件列表 */
+  files: FileInfo[]
+
+  /** 剪切板的文件类型 */
+  type: FileClipBoardType
+
+  /** 其他自定义附加属性，如uid */
+  otherAttr?: any
+}
+
 /**
  * 全局上下文属性
  */
@@ -129,5 +148,8 @@ export interface AppContext {
   visiableWindows: VisiableWindows
 
   fileOpenHandler: FileOpenHandler[]
+
+  fileClipBoard: FileClipBoard
+
   [otherKey: string]: any
 }
