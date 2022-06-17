@@ -1,0 +1,82 @@
+
+.file-checkbox {
+  padding-right: 0px !important;
+}
+.file-table {
+  max-width: 100%;
+  background-color: var(--v-theme-background);
+  color: var(--v-theme-surface);
+  --table-width: 100%;
+  .mdi-checkbox-blank-outline {
+    font-size: 16px;
+  }
+  tr {
+    cursor: pointer;
+    max-width: 90%;
+    transition: all .1s;
+    &:hover {
+      background-color: rgba($color: var(--v-theme-primary), $alpha: .08) !important;
+
+      .file-name {
+        color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;
+      }
+    }
+    &.active {
+      background-color: rgba($color: var(--v-theme-primary), $alpha: .2) !important;
+
+      .file-name {
+        color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;
+      }
+    }
+
+    td.file-col,tr.file-col {
+      padding: 0;
+    }
+
+    th {
+      background-color: rgb(var(--v-theme-background)) !important;
+      z-index: 1 !important;
+    }
+  }
+}
+.menu-anchor {
+  width: 0 !important;
+  height: 0 !important;
+  /* display: none; */
+  position: fixed;
+}
+
+.file-icon-group {
+  display: inline-flex;
+  justify-content: start;
+  align-items: center;
+  width: 100%;
+  
+  .file-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    margin-left: 6px;
+    width: 100%;
+  }
+  .file-name {
+    font-size: 14px;
+    max-width: calc( var(--table-width) - 72px );
+  }
+}
+
+.rename-input {
+  border: 1px solid rgb(var(--v-theme-primary));
+  width: 80%;
+  padding: 2px;
+  outline: none;
+  background-color: rgb(var(--v-theme-background));
+}
+
+
+.back-icon {
+  font-size: 18px;
+  height: 32px;
+  width: 32px;
+  display: inline-block;
+}

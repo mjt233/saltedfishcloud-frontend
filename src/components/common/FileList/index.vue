@@ -9,21 +9,26 @@
     <v-table
       fixed-header
       class="file-table"
+      color="background"
       :style="{'--table-width': tableWidth}"
       :height="height"
     >
       <thead>
         <tr>
-          <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;" width="32" @click="toggleSelectAll">
+          <th width="16" class="file-checkbox" @click="toggleSelectAll">
             <v-checkbox
+              inline
               color="primary"
               hide-details
               :indeterminate="partInSelect"
               :model-value="allInSelect || partInSelect"
             />
           </th>
-          <th style="background-color: rgb(var(--v-theme-background)); z-index: 1;">
+          <th class="file-col">
             文件名
+          </th>
+          <th width="128">
+            大小
           </th>
         </tr>
       </thead>
@@ -31,13 +36,14 @@
         <tr>
           <td @click="toggleSelectAll">
             <v-checkbox
+              inline
               color="primary"
               hide-details
               :indeterminate="partInSelect"
               :model-value="allInSelect || partInSelect"
             />  
           </td>
-          <td colspan="100" @click="emits('back')">
+          <td colspan="100" class="file-col" @click="emits('back')">
             <div class="file-icon-group">
               <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
               <span>返回上一级</span>
@@ -52,9 +58,14 @@
           @contextmenu.prevent="fileRClick($event, fileInfo)"
         >
           <td class="file-checkbox" @click="checkClick($event ,fileInfo)">
-            <v-checkbox hide-details color="primary" :model-value="!!selectedFile[fileInfo.name + fileInfo.md5]" />
+            <v-checkbox
+              inline
+              hide-details
+              color="primary"
+              :model-value="!!selectedFile[fileInfo.name + fileInfo.md5]"
+            />
           </td>
-          <td @click="fileLClick($event, fileInfo)">
+          <td class="file-col" @click="fileLClick($event, fileInfo)">
             <div class="file-icon-group">
               <file-icon
                 width="32"
@@ -80,6 +91,9 @@
                 </div>
               </div>
             </div>
+          </td>
+          <td>
+            {{ fileInfo.size == -1 ? '-' : StringFormatter.toSize(fileInfo.size) }}
           </td>
         </tr>
       </tbody>
@@ -299,78 +313,5 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-.file-checkbox {
-  padding-right: 0px !important;
-}
-.file-table {
-  max-width: 100%;
-  background-color: var(--v-theme-background);
-  color: var(--v-theme-surface);
-  --table-width: 100%;
-
-  tr {
-    cursor: pointer;
-    max-width: 90%;
-    transition: all .1s;
-    &:hover {
-      background-color: rgba($color: var(--v-theme-primary), $alpha: .08) !important;
-
-      .file-name {
-        color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;
-      }
-    }
-    &.active {
-      background-color: rgba($color: var(--v-theme-primary), $alpha: .2) !important;
-
-      .file-name {
-        color: rgba($color: var(--v-theme-primary), $alpha: 1.0) !important;
-      }
-    }
-
-    td {
-      font-size: 13px !important;
-    }
-  }
-}
-.menu-anchor {
-  width: 0 !important;
-  height: 0 !important;
-  /* display: none; */
-  position: fixed;
-}
-
-.file-icon-group {
-  display: inline-flex;
-  justify-content: start;
-  align-items: center;
-  width: 100%;
-  
-  .file-detail {
-    display: flex;
-    flex-direction: column;
-    justify-content: left;
-    margin-left: 6px;
-    width: 100%;
-  }
-  .file-name {
-    font-size: 14px;
-    max-width: calc( var(--table-width) - 72px );
-  }
-}
-
-.rename-input {
-  border: 1px solid rgb(var(--v-theme-primary));
-  width: 80%;
-  padding: 2px;
-  outline: none;
-  background-color: rgb(var(--v-theme-background));
-}
-
-
-.back-icon {
-  font-size: 18px;
-  height: 32px;
-  width: 32px;
-  display: inline-block;
-}
+@import './style.scss';
 </style>
