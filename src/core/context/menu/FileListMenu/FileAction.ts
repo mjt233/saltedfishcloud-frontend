@@ -16,12 +16,13 @@ const fileActionGroup: MenuGroup<FileListContext> =
       renderOn(ctx) {
         return !ctx.readonly && ctx.selectFileList.length == 1
       },
-      async action(ctx) {
+      action(ctx) {
         const fileInfo = ctx.selectFileList[0]
-        const ret = await ctx.modelHandler.rename(fileInfo.name, fileInfo.md5)
-        if (ret) {
-          await ctx.modelHandler.refresh()
-        }
+        ctx.modelHandler.rename(fileInfo.name, fileInfo.md5).then(async ret => {
+          if (ret) {
+            ctx.modelHandler.refresh()
+          }
+        })
       }
     },
     {

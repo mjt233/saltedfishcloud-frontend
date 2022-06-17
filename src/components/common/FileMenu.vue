@@ -114,6 +114,9 @@ const itemClick = async(item: MenuItem<FileListContext>) => {
     if (item.action) {
       const ret = item.action(propsAttr.listContext)
       if (ret instanceof Promise) {
+        if (ret instanceof LoadingControlPromise && !ret.autoLoading) {
+          return ret
+        }
         propsAttr.loadingManager.beginLoading()
         inloading = true
         await ret
@@ -146,7 +149,7 @@ import { context, MenuGroup, MenuItem } from '@/core/context'
 import { FileListContext } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
 import { debug, group } from 'console'
-import { LoadingManager } from '@/utils/LoadingManager'
+import { LoadingControlPromise, LoadingManager } from '@/utils/LoadingManager'
 
 export default defineComponent({
   name: 'FileMenu'

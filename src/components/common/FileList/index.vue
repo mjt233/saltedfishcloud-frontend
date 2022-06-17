@@ -94,7 +94,7 @@ import propsOptions from './props'
 import { StringFormatter } from '@/utils/StringFormatter'
 import SfcUtils from '@/utils/SfcUtils'
 import FileListContextBuilder from './FileListContextBuilder'
-import { FileListEmits } from './emits'
+import { LoadingControlPromise } from '@/utils/LoadingManager'
 
 
 const props = defineProps(propsOptions)
@@ -120,13 +120,13 @@ const rename = (name: string, md5: string) => {
   resetSelect()
   renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
   renameNewName.value = name
-  return new Promise<string>((resolve, reject) => {
+  return new LoadingControlPromise<string>((resolve, reject) => {
     renamePromiseResolve = resolve
     renamePromiseReject = reject
     nextTick().then(() => {
       (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
     })
-  })
+  }, false)
 }
 const emits = defineEmits<{
   (event: 'clickItem', ctx: FileListContext ,item: FileInfo): void,
