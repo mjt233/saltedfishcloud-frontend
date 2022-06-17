@@ -88,50 +88,17 @@
 </template>
 
 <script setup lang="ts">
-import FileMenu from './FileMenu.vue'
-import FileIcon from './FileIcon.vue'
+import FileMenu from '../FileMenu.vue'
+import FileIcon from '../FileIcon.vue'
+import propsOptions from './props'
 import { StringFormatter } from '@/utils/StringFormatter'
 import SfcUtils from '@/utils/SfcUtils'
-import FileUtils from '@/utils/FileUtils'
-import { LoadingManager } from '@/utils/LoadingManager'
-// 基本属性定义
-const props = defineProps({
-  readOnly: {
-    type: Boolean,
-    default: true
-  },
-  fileList: {
-    type: Array as PropType<FileInfo[]>,
-    default: () => []
-  },
-  showBack: {
-    type: Boolean,
-    default: true
-  },
-  /**
-   * 文件列表所处的路径
-   */
-  path: {
-    type: String,
-    default: '/'
-  },
-  menu: {
-    type: Array as PropType<MenuGroup<FileListContext>[]>,
-    default: () => []
-  },
-  height: {
-    type: Number,
-    default: undefined
-  },
-  uid: {
-    type: Number,
-    default: undefined
-  },
-  loadingManager: {
-    type: Object as PropType<LoadingManager>,
-    default: undefined
-  }
-})
+import FileListContextBuilder from './FileListContextBuilder'
+import { FileListEmits } from './emits'
+
+
+const props = defineProps(propsOptions)
+
 let lastClickFile: FileInfo | null | boolean = null
 const selectedFile = reactive({}) as {[key:string]: FileInfo}
 const renameNewName = ref('')
@@ -140,6 +107,7 @@ let renamePromiseResolve: ((value: string | PromiseLike<string>) => void) | null
 let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null = null
 const tableWidth = ref('100%')
 const rootRef = ref() as Ref<HTMLElement>
+
 const partInSelect = computed(() => {
   return fileListContext.selectFileList.length > 0 && fileListContext.selectFileList.length != props.fileList.length
 })
@@ -147,6 +115,19 @@ const allInSelect = computed(() => {
   return props.fileList.length != 0 && props.fileList.length == fileListContext.selectFileList.length
 })
 
+
+const rename = (name: string, md5: string) => {
+  resetSelect()
+  renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
+  renameNewName.value = name
+  return new Promise<string>((resolve, reject) => {
+    renamePromiseResolve = resolve
+    renamePromiseReject = reject
+    nextTick().then(() => {
+      (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
+    })
+  })
+}
 const emits = defineEmits<{
   (event: 'clickItem', ctx: FileListContext ,item: FileInfo): void,
   (event: 'back'): void,
@@ -155,50 +136,11 @@ const emits = defineEmits<{
 }>()
 
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler')
-const fileListContext: FileListContext = reactive({
-  fileList: props.fileList,
-  enableFeature: [''],
-  readonly: props.readOnly,
-  name: '',
-  selectFileList: [],
-  path: props.path,
-  modelHandler: {
-    async mkdir(name) {
-      await handler?.value.mkdir(props.path, name)
-      return name
-    },
-
-    async upload() {
-      const selectFile = await FileUtils.openFileDialog(true)
-      for (let i = 0; i < selectFile.length; i++) {
-        const file = selectFile[i]
-        handler?.value.uploadDirect(props.path, file)
-      }
-    },
-
-    async refresh() {
-      const list = await handler?.value.loadList(props.path) as FileInfo[]
-      emits('update:file-list', list)
-      return list
-    },
-
-    rename(name, md5) {
-      resetSelect()
-      renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
-      renameNewName.value = name
-      return new Promise((resolve, reject) => {
-        renamePromiseResolve = resolve
-        renamePromiseReject = reject
-        nextTick().then(() => {
-          (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
-        })
-      })
-    },
-
-    async delete(name) {
-      return await handler?.value.deleteFile(props.path, name) as number
-    }
-  }
+const fileListContext: FileListContext = FileListContextBuilder.getFileListContext({
+  props,
+  emits,
+  rename,
+  handler
 })
 
 const toggleSelectAll = () => {
