@@ -50,6 +50,11 @@
             </div>
           </td>
         </tr>
+        <tr v-show="fileList.length == 0">
+          <td colspan="100">
+            <empty-tip />
+          </td>
+        </tr>
         <tr
           v-for="(fileInfo, index) in fileList"
           :key="fileInfo.name + fileInfo.md5"
@@ -109,6 +114,7 @@ import { StringFormatter } from '@/utils/StringFormatter'
 import SfcUtils from '@/utils/SfcUtils'
 import FileListContextBuilder from './FileListContextBuilder'
 import { LoadingControlPromise } from '@/utils/LoadingManager'
+import EmptyTip from '../EmptyTip.vue'
 
 
 const props = defineProps(propsOptions)

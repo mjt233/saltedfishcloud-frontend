@@ -78,6 +78,11 @@ export interface PromptOpt {
    * 打开对话框后自动聚焦
    */
   autofocus?: boolean
+
+  /**
+   * 取消时是否为Reject
+   */
+  cancelToReject?: boolean
 }
 
 export function dialog(opt: DialogOpt) {
@@ -134,7 +139,7 @@ export function dialog(opt: DialogOpt) {
 }
 
 export function prompt(opt: PromptOpt): Promise<string> {
-  const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true } = opt
+  const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true, cancelToReject = false } = opt
   const formValue = reactive({
     value: defaultValue
   })
@@ -158,6 +163,9 @@ export function prompt(opt: PromptOpt): Promise<string> {
         return true
       },
       onCancel() {
+        if (cancelToReject) {
+          reject('cancel')
+        }
         return true
       },
       children: () => [

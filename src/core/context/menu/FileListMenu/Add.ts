@@ -12,9 +12,8 @@ const addGroup: MenuGroup<FileListContext> = {
     {
       id: 'upload',
       title: '上传',
-      async action(e) {
-        await e.modelHandler.upload()
-        await e.modelHandler.refresh()
+      action(e) {
+        e.modelHandler.upload().then(e.modelHandler.refresh)
       },
       renderOn(ctx) {
         return !ctx.readonly
@@ -50,14 +49,24 @@ const addGroup: MenuGroup<FileListContext> = {
         })
 
         // 打开输入对话框
-        const name = await SfcUtils.prompt({
-          title: '新建文件夹',
-          label: '文件夹名称',
-          rules,
-          defaultValue: defaultName
-        })
-        await ctx.modelHandler.mkdir(name)
-        await ctx.modelHandler.refresh()
+        try {
+
+          const name = await SfcUtils.prompt({
+            title: '新建文件夹',
+            label: '文件夹名称',
+            rules,
+            defaultValue: defaultName,
+            cancelToReject: true
+          })
+          await ctx.modelHandler.mkdir(name)
+          await ctx.modelHandler.refresh()
+        } catch(err) {
+          if (err == 'cancel') {
+            return
+          } else {
+            return Promise.reject(err)
+          }
+        }
       },
       renderOn(ctx) {
         return !ctx.readonly
