@@ -1,3 +1,4 @@
+import { FileTransferInfo } from './../core/model/FileInfo'
 import { CommonRequest, FileInfo, FileTransferParam, PageRequest } from '@/core/model'
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from '@/utils/StringUtils'
@@ -43,7 +44,7 @@ const file = {
    * @param {FileTransferObj} fileTransferObj 文件操作对象，dest不要求
    * @returns 打包id
    */
-  createWrap(uid: number, fileTransferObj: FileTransferParam): CommonRequest<string> {
+  createWrap(uid: number, fileTransferObj: FileTransferInfo): CommonRequest<string> {
     return useJsonBody({
       url: `/${this.prefix}/${uid}/wrap`,
       method: 'post',

@@ -35,6 +35,13 @@ export interface FileTransferParam {
   /** 文件来源uid */
   sourceUid: number
 }
+
+export interface FileTransferInfo {
+  source: string,
+  filenames: string[],
+  dest?: string
+}
+
 export interface FileListContext {
   /** 整个文件列表的所有文件 */
   fileList: FileInfo[]

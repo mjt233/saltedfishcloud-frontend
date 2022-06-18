@@ -22,6 +22,25 @@ const otherGroup: MenuGroup<FileListContext> =
   name: '其他操作',
   items: [
     {
+      id: 'wrap',
+      title: '打包下载',
+      icon: 'mdi-download',
+      renderOn(ctx) {
+        return ctx.selectFileList.length > 1 || ctx.selectFileList.find(e => e.dir) != undefined
+      },
+      async action(ctx) {
+        const wrapId = await SfcUtils.request(API.file.createWrap(ctx.uid as number, {
+          filenames: ctx.selectFileList.map(e => e.name),
+          source: ctx.path as string
+        }))
+        const nodeName = (ctx.path as string).split('/').pop()
+        const wrapName = nodeName ? `${nodeName}.zip` : '打包下载.zip' 
+        const url = API.file.downloadWrap(wrapId.data.data, wrapName).url
+        const fullUrl = StringUtils.appendPath(API.getDefaultPrefix(), url)
+        window.open(fullUrl)
+      }
+    },
+    {
       id: 'copy',
       title: '复制',
       icon: 'mdi-content-copy',
