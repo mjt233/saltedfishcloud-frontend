@@ -16,6 +16,7 @@ const FileListContextBuilder = {
   getFileListContext(opt: FileListContextBuilderOptions): FileListContext {
     const { props, emits, handler, rename} = opt
     return reactive({
+      uid: props.uid,
       fileList: props.fileList,
       enableFeature: [''],
       readonly: props.readOnly,

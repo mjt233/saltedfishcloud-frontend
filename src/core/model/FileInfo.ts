@@ -56,13 +56,13 @@ export interface FileListContext {
   name?: string
 
   /** 该列表所展示的文件的用户id */
-  uid?: number
+  uid: number
 
   /** 文件列表是否只读 */
   readonly: boolean
 
   /** 文件列表路径 */
-  path?: string
+  path: string
 
   /** 文件列表操作器 */
   modelHandler: FileListModelHandler

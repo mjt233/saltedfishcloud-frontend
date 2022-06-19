@@ -6,6 +6,8 @@ import { snackbar } from './common/SnackBar'
 import axios from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import * as dialog from './common/Dialog'
+import * as fileSelector from './file/fileSelector'
+
 const SfcUtils = {
   snackbar,
   /**
@@ -47,6 +49,7 @@ const SfcUtils = {
     return await axios(request)
   },
   ...dialog,
+  ...fileSelector,
   sleep(timeout: number): Promise<void> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {

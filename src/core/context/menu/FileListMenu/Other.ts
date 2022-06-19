@@ -6,6 +6,7 @@ import { reactive } from 'vue'
 import { context } from '../..'
 import { MenuGroup } from '../type'
 import API from '@/api'
+import { Validators } from '@/core/helper/Validators'
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
   context.fileClipBoard.value = reactive({
     files: ctx.selectFileList,
@@ -38,6 +39,49 @@ const otherGroup: MenuGroup<FileListContext> =
         const url = API.file.downloadWrap(wrapId.data.data, wrapName).url
         const fullUrl = StringUtils.appendPath(API.getDefaultPrefix(), url)
         window.open(fullUrl)
+      }
+    },
+    {
+      id: 'compress',
+      title: '压缩',
+      icon: 'mdi-package-down',
+      renderOn(ctx) {
+        return ctx.selectFileList.length != 0
+      },
+      async action(ctx) {
+        try {
+          
+          const path = await SfcUtils.selectPath({
+            uid: ctx.uid,
+            path: ctx.path
+          })
+          const name = await SfcUtils.prompt({
+            title: '压缩文件名',
+            cancelToReject: true,
+            rules: [
+              Validators.notNull('压缩文件名不能为空'),
+              (val: string) => {
+                if (!val.endsWith('.zip')) {
+                  return '必须以.zip结尾'
+                } else {
+                  return true
+                }
+              }
+            ]
+          })
+          await SfcUtils.request(API.file.compress(ctx.uid, {
+            source: ctx.path,
+            filenames: ctx.selectFileList.map(e => e.name),
+            dest: StringUtils.appendPath(path, name)
+          }))
+          if (path == ctx.path) {
+            await ctx.modelHandler.refresh()
+          }
+        } catch(err) {
+          if (err != 'cancel') {
+            return Promise.reject(err)
+          }
+        }
       }
     },
     {

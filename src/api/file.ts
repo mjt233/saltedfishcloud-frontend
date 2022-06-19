@@ -57,7 +57,7 @@ const file = {
    * @param {FileTransferObj} fileTransferObj 文件操作对象
    * @returns {import('axios').AxiosRequestConfig}
    */
-  compress(uid: number, fileTransferObj: FileTransferParam): CommonRequest {
+  compress(uid: number, fileTransferObj: FileTransferInfo): CommonRequest {
     return useJsonBody({
       url: `/${this.prefix}/${uid}/compress`,
       method: 'post',

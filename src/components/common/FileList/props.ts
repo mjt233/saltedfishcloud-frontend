@@ -33,7 +33,7 @@ const propsOptions = {
   },
   uid: {
     type: Number,
-    default: undefined
+    default: 0
   },
   loadingManager: {
     type: Object as PropType<LoadingManager>,

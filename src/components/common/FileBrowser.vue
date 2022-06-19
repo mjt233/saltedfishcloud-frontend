@@ -64,6 +64,13 @@ const props = defineProps({
   uid: {
     type: Number,
     default: 0
+  },
+  /**
+   * 文件过滤器，符合条件的文件才显示
+   */
+  filter: {
+    type: Function as PropType<(file: FileInfo) => boolean>,
+    default: () => true
   }
 })
 
@@ -142,7 +149,7 @@ const jumpIndex = (nodeIndex: number) => {
 }
 
 const loadList = async(path: string) => {
-  fileList.value = await handler.value.loadList(path)
+  fileList.value = (await handler.value.loadList(path)).filter(props.filter)
   if (props.path != path) {
     emits('update:path', path)
     scrollBreadcrumbs()
