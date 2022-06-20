@@ -1,36 +1,38 @@
 <template>
-  <v-btn ref="menuAnchor" class="menu-anchor">
-    <v-menu v-model="showMenu" activator="parent">
-      <v-list
-        ref="menuRef"
-        bg-color="background"
-        class="menu-list"
-      >
-        <template
-          v-for="(menuGroup, gIndex) in availableMenu"
-          :key="gIndex"
+  <teleport to="body">
+    <v-btn ref="menuAnchor" class="menu-anchor">
+      <v-menu v-model="showMenu" activator="parent">
+        <v-list
+          ref="menuRef"
+          bg-color="background"
+          class="menu-list"
         >
-          <v-list-item
-            v-for="(item) in menuGroup.items"
-            :key="item.id"
-            :value="item.id"
-            @click="itemClick(item)"
+          <template
+            v-for="(menuGroup, gIndex) in availableMenu"
+            :key="gIndex"
           >
-            <v-list-item-icon
-              v-if="item.icon"
-              size="small"
-              :icon="item.icon"
-              style="margin-right: 8px"
-            />
-            <v-list-item-title>
-              {{ item.title }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-divider v-if="gIndex != availableMenu.length - 1 && menuGroup.items.length != 0" />
-        </template>
-      </v-list>
-    </v-menu>
-  </v-btn>
+            <v-list-item
+              v-for="(item) in menuGroup.items"
+              :key="item.id"
+              :value="item.id"
+              @click="itemClick(item)"
+            >
+              <v-list-item-icon
+                v-if="item.icon"
+                size="small"
+                :icon="item.icon"
+                style="margin-right: 8px"
+              />
+              <v-list-item-title>
+                {{ item.title }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-divider v-if="gIndex != availableMenu.length - 1 && menuGroup.items.length != 0" />
+          </template>
+        </v-list>
+      </v-menu>
+    </v-btn>
+  </teleport>
 </template>
 
 <script setup lang="ts">
@@ -50,6 +52,10 @@ const propsAttr = defineProps({
   loadingManager: {
     type: Object as PropType<LoadingManager>,
     default: null
+  },
+  topElement: {
+    type: HTMLElement,
+    default: document.body
   }
 })
 const availableMenu = computed(() => {
@@ -72,8 +78,8 @@ const openMenu = async(e: MouseEvent) => {
   e.stopPropagation()
   const toOpen = () => {
     const anchor = menuAnchor.value.$el as HTMLElement
-    anchor.style.top = e.clientY + 'px'
-    anchor.style.left = e.clientX + 'px'
+    anchor.style.top = e.pageY + 'px'
+    anchor.style.left = e.pageX + 'px'
     showMenu.value = true
   }
   if (showMenu.value) {
@@ -148,10 +154,21 @@ import { computed, defineComponent, onMounted, onUnmounted, PropType, Ref, ref, 
 import { context, MenuGroup, MenuItem } from '@/core/context'
 import { FileListContext } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
-import { debug, group } from 'console'
 import { LoadingControlPromise, LoadingManager } from '@/utils/LoadingManager'
+import DOMUtils from '@/utils/DOMUtils'
 
 export default defineComponent({
   name: 'FileMenu'
 })
 </script>
+
+
+<style scoped>
+
+.menu-anchor {
+  width: 0 !important;
+  height: 0 !important;
+  position: fixed;
+}
+
+</style>
