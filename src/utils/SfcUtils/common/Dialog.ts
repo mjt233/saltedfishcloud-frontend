@@ -103,10 +103,12 @@ export function dialog(opt: DialogOpt) {
     const attrs = reactive({
       // 对话框显示控制
       modelValue: true,
-      'onUpdate:modelValue'(e: any) {
+      async 'onUpdate:modelValue'(e: any) {
         attrs.modelValue = e
         if (!e) {
-          close()
+          if(await onCancel(ret.handler.value.getComponentInst())) {
+            close()
+          }
         }
       },
       title,
