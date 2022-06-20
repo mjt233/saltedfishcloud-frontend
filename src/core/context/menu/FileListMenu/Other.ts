@@ -7,6 +7,9 @@ import { context } from '../..'
 import { MenuGroup } from '../type'
 import API from '@/api'
 import { Validators } from '@/core/helper/Validators'
+
+const archiveTypeCache = new Map<string, boolean>()
+
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
   context.fileClipBoard.value = reactive({
     files: ctx.selectFileList,
@@ -42,6 +45,43 @@ const otherGroup: MenuGroup<FileListContext> =
       }
     },
     {
+      id: 'unpackage',
+      icon: 'mdi-package-up',
+      title: '解压缩',
+      renderOn(ctx) {
+        if (archiveTypeCache.size == 0) {
+          context.feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
+        }
+        if (ctx.selectFileList.length != 1) {
+          return false
+        }
+        const name = ctx.selectFileList[0].name
+        const idx = name.lastIndexOf('.')
+        if (idx == -1) {
+          return false
+        }
+        const extName = name.substring(idx + 1)
+        return archiveTypeCache.get(extName) == true
+      },
+      async action(ctx) {
+        try {
+          const path = await SfcUtils.selectPath({
+            title: '选择解压位置',
+            uid: ctx.uid,
+            path: ctx.path
+          })
+          await SfcUtils.request(API.file.unzip(ctx.uid, ctx.path, ctx.fileList[0].name, path))
+          if (path == ctx.path) {
+            await ctx.modelHandler.refresh()
+          }
+        } catch(err) {
+          if (err != 'cancel') {
+            return Promise.reject(err)
+          }
+        }
+      }
+    },
+    {
       id: 'compress',
       title: '压缩',
       icon: 'mdi-package-down',
@@ -50,11 +90,13 @@ const otherGroup: MenuGroup<FileListContext> =
       },
       async action(ctx) {
         try {
-          
+          // 选择文件
           const path = await SfcUtils.selectPath({
             uid: ctx.uid,
             path: ctx.path
           })
+
+          // 设置文件名
           const name = await SfcUtils.prompt({
             title: '压缩文件名',
             cancelToReject: true,
@@ -69,11 +111,15 @@ const otherGroup: MenuGroup<FileListContext> =
               }
             ]
           })
+
+          // 执行压缩
           await SfcUtils.request(API.file.compress(ctx.uid, {
             source: ctx.path,
             filenames: ctx.selectFileList.map(e => e.name),
             dest: StringUtils.appendPath(path, name)
           }))
+
+          // 原地保存时刷新
           if (path == ctx.path) {
             await ctx.modelHandler.refresh()
           }
