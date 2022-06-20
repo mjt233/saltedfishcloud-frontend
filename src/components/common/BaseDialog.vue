@@ -3,6 +3,7 @@
     :width="width"
     class="base-dialog"
     :max-width="maxWidth"
+    :fullscreen="fullscreen"
     :persistent="persistent"
   >
     <loading-mask :loading="loading" />
@@ -60,6 +61,10 @@ defineProps({
   maxWidth: {
     type: [Number, String],
     default: '640px'
+  },
+  fullscreen: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])

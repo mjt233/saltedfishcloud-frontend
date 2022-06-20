@@ -18,6 +18,11 @@ export interface DialogOpt {
 
   children?: VNode | Array<any> | string | Function,
   extraProps?: any
+
+  /**
+   * 是否全屏显示
+   */
+  fullscreen?: boolean
 }
 
 export interface ConfirmOpt {
@@ -91,8 +96,12 @@ export function dialog(opt: DialogOpt) {
     onConfirm = () => true,
     onCancel = () => true,
     children,
-    extraProps = {}
+    extraProps = {},
+    fullscreen = false
   } = opt
+  if (fullscreen) {
+    extraProps.maxWidth = '99999px'
+  }
   let vueInst = ref() as Ref<DyncComponentHandler<DialogModel>>
   const ret = new DialogPromise((resolve, reject) => {
     const close = () => {
@@ -111,6 +120,7 @@ export function dialog(opt: DialogOpt) {
           }
         }
       },
+      fullscreen,
       title,
       // 对话框确认
       async onConfirm() {
