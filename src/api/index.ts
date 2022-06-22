@@ -7,7 +7,7 @@ import user from './user'
 import resource from './resource'
 import SfcUtils from '@/utils/SfcUtils'
 // const admin = require('./admin')
-// const breakpoint = require('./breakpoint')
+import breakpoint from './breakpoint'
 // const task = require('./task')
 // const server = require('./server')
 // const collection = require('./collection')
@@ -18,6 +18,7 @@ const API = {
   sys,
   file,
   resource,
+  breakpoint,
   /**
    * 获取API URL的完整前缀。
    * 因为封装的API对象中URL是缺少公共前缀的，如果需要绕开通用的请求方法单独使用URL，则需要这个方法来补全前缀

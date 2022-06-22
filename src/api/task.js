@@ -10,24 +10,24 @@ const URLUtils = require('@/utils/UrlUtils')
  * @property {Object=} headers 额外请求头
  */
 const task = {
-    download: {
-        prefix: '/task/download',
-        /**
+  download: {
+    prefix: '/task/download',
+    /**
          * 中断（取消）一个下载中的任务
          * @param {Number} uid 用户ID
          * @param {String} taskId 任务ID
          * @returns {import("axios").AxiosRequestConfig}
          */
-        interruptTask(uid, taskId) {
-            return {
-                url: `${this.prefix}`,
-                method: 'delete',
-                params: {
-                    uid, taskId
-                }
-            }
-        },
-        /**
+    interruptTask(uid, taskId) {
+      return {
+        url: `${this.prefix}`,
+        method: 'delete',
+        params: {
+          uid, taskId
+        }
+      }
+    },
+    /**
          * 获取任务列表（包括下载中与已完成的）
          * @param {Number} uid 用户ID
          * @param {('DOWNLOADING'|'FINISH'|'ALL')} type 任务类型
@@ -35,41 +35,41 @@ const task = {
          * @param {Number} size 每页大小
          * @returns {import("axios").AxiosRequestConfig}
          */
-        getTaskList(uid, type, page = 1, size = 10) {
-            return {
-                url: `${this.prefix}`,
-                params: {
-                    uid: uid,
-                    page: page,
-                    size: size,
-                    type: type
-                }
-            }
-        },
-        /**
+    getTaskList(uid, type, page = 1, size = 10) {
+      return {
+        url: `${this.prefix}`,
+        params: {
+          uid: uid,
+          page: page,
+          size: size,
+          type: type
+        }
+      }
+    },
+    /**
          * 创建一个下载任务
          * @param {DownloadTaskCreateOpt} opt 任务选项
          * @returns {import("axios").AxiosRequestConfig}
          */
-        create(opt) {
-            if (!opt.method) { opt.method = 'GET' }
-            if (!opt.savePath) { opt.savePath = '/' }
-            opt.savePath = opt.savePath.replace(/\/\/+/g, '/')
-            opt.url = URLUtils.decodeURLPath(opt.url)
-            return {
-                method: 'POST',
-                url: this.prefix,
-                headers: {
-                    'Content-Type': 'application/json;charset=utf8'
-                },
-                data: opt
-            }
+    create(opt) {
+      if (!opt.method) { opt.method = 'GET' }
+      if (!opt.savePath) { opt.savePath = '/' }
+      opt.savePath = opt.savePath.replace(/\/\/+/g, '/')
+      opt.url = URLUtils.decodeURLPath(opt.url)
+      return {
+        method: 'POST',
+        url: this.prefix,
+        headers: {
+          'Content-Type': 'application/json;charset=utf8'
         },
-        getProxy() {
-            return {
-                url: `${this.prefix}/proxy`
-            }
-        }
+        data: opt
+      }
+    },
+    getProxy() {
+      return {
+        url: `${this.prefix}/proxy`
+      }
     }
+  }
 }
 module.exports = task

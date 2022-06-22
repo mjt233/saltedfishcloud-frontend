@@ -7,8 +7,9 @@ import { Prog } from '@/utils/FileUtils/FileDataProcess'
 import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
 import FileUtils from '@/utils/FileUtils'
+import { BreakPointTaskMetaData } from '../model/BreakPointTask'
 
-export type FileUploadStatus = 'wait' | 'digest' | 'upload' | 'success' | 'failed' | 'pause'
+export type FileUploadStatus = 'wait' | 'digest' | 'upload' | 'success' | 'failed' | 'pause' | 'interrupt'
 export type UploadType = 'public' | 'private'
 export interface FileUploadInfo {
   /**
@@ -195,22 +196,16 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   protected errorHandler: ((e: any) => void)[] = []
   protected finallyHandler: (() => void)[] = []
   protected uploadInfo: FileUploadInfo
-  private cancelSource: CancelTokenSource
   private uploadPromise: Promise<any>|undefined
-  private isInterrupt: boolean = false
 
 
   /**
    * 构造文件上传执行器
-   * @param config 
-   * @param file 
-   * @param alias 
    */
   constructor(opt: ExecutorOption) {
     const {config, file, alias, type, otherAttr} = opt
     this.config = config
     this.file = file
-    this.cancelSource = axios.CancelToken.source()
     this.uploadInfo = reactive({
       alias: alias || file.name,
       file: file,
@@ -226,7 +221,6 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       md5: '',
       otherAttr: otherAttr
     })
-    this.initProgHandler()
   }
   onFinally(handler: () => void): void {
     this.finallyHandler.push(handler)
@@ -241,11 +235,6 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     this.errorHandler.push(handler)
   }
   
-
-  interrupt(): void {
-    this.isInterrupt = true
-    this.cancelSource.cancel()
-  }
 
   async getDigest(): Promise<string> {
     if (!this.digestCache) {
@@ -286,11 +275,10 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     wrapHandler.isWrap = true
     
     this.config.onUploadProgress = progUpdateHandler
-    this.config.cancelToken = this.cancelSource.token
 
   }
 
-  private async prepare():Promise<any> {
+  protected async prepare():Promise<any> {
     const handler = this.handleDigest()
     if (handler instanceof Function) {
       const md5 = await this.getDigest()
@@ -300,43 +288,66 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   }
 
   start(): Promise<any> {
-    if (this.isInterrupt) {
-      return Promise.reject('已中断')
-    }
     if(!this.uploadPromise) {
+      this.initProgHandler()
       this.uploadPromise = this.upload()
     }
     return this.uploadPromise
   }
 
-  private handleInterruptEvent() {
-    SfcUtils.batchInvokeFunction(this.errorHandler, 'interrupt')
-    SfcUtils.batchInvokeFunction(this.finallyHandler)
-  }
 
   async upload() {
 
     if (this.uploadInfo.status == 'upload' || this.uploadInfo.status == 'digest') {
       throw new Error('已经正在上传中')
+    } else if (this.uploadInfo.status == 'interrupt') {
+      throw new Error('已停止')
     }
     try {
       await this.prepare()
-      if (this.isInterrupt) {
-        this.handleInterruptEvent()
-      }
       this.getUploadInfo().status = 'upload'
       this.uploadInfo.beginDate = new Date
       const ret = await SfcUtils.axios(this.config)
-      this.uploadInfo.status = 'success'
-      SfcUtils.batchInvokeFunction(this.successHandler, ret)
+      this.handleSuccessEvent(ret)
       return ret
     } catch(err) {
-      SfcUtils.batchInvokeFunction(this.errorHandler)
+      this.handleErrorEvent(err)
       this.uploadInfo.status = 'failed'
     } finally {
       this.uploadInfo.endDate = new Date()
-      SfcUtils.batchInvokeFunction(this.finallyHandler)
+      this.handleFinallyEvent()
     }
+  }
+
+  /**
+   * 调用所有的成功事件回调执行器
+   * @param param 传递的事件参数
+   */
+  protected handleSuccessEvent(param?: any) {
+    this.uploadInfo.status = 'success'
+    SfcUtils.batchInvokeFunction(this.successHandler, param)
+  }
+
+  /**
+   * 调用所有的失败事件回调执行器
+   * @param err 错误信息
+   */
+  protected handleErrorEvent(err: any) {
+    this.uploadInfo.status = 'failed'
+    SfcUtils.batchInvokeFunction(this.errorHandler, err)
+  }
+
+  /**
+   * 调用所有的finally事件执行器
+   */
+  protected handleFinallyEvent() {
+    this.uploadInfo.endDate = new Date
+    SfcUtils.batchInvokeFunction(this.finallyHandler)
+  }
+
+  private handleInterruptEvent() {
+    this.handleErrorEvent('interrupt')
+    this.handleFinallyEvent()
   }
 
   getUploadInfo(): FileUploadInfo {
@@ -350,11 +361,14 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
    */
   abstract handleDigest(): ((md5: string, config: AxiosRequestConfig) => Promise<void>) | undefined | null | boolean
   abstract pause(): void
+  abstract interrupt(): void
 }
 
 export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
+  private cancelTokenSource = axios.CancelToken.source()
   constructor(opt: ExecutorOption) {
     super(opt)
+    opt.config.cancelToken = this.cancelTokenSource.token
   }
   
   handleDigest() {
@@ -368,22 +382,53 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
   pause(): void {
     throw new Error('不支持暂停')
   }
+  interrupt(): void {
+    this.cancelTokenSource.cancel('interrupt')
+    this.handleErrorEvent('interrupt')
+  }
 
 }
 
-const DiskFileUploadService: FileUploadService = {
+const DiskFileUploadService: FileUploadService & any = {
   uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor {
-    const config = API.file.upload(uid, path, file, '')
-    return new DirectFileUploadExecutor({
-      file,
-      config,
-      type: uid == 0 ? 'public' : 'private',
-      otherAttr: {
-        uid,
-        path
-      }
-    })
-  }
+    
+    
+    function directUploadToDisk(): FileUploadExecutor {
+      const config = API.file.upload(uid, path, file, '')
+      return new DirectFileUploadExecutor({
+        file,
+        config,
+        type: uid == 0 ? 'public' : 'private',
+        otherAttr: {
+          uid,
+          path
+        }
+      })
+    }
+
+    function breakpointUpload(): FileUploadExecutor {
+      const config = API.file.upload(uid, path, null, '')
+      return new BreakPointUploadExecutor({
+        file,
+        config,
+        type: uid == 0 ? 'public' : 'private',
+        otherAttr: {
+          uid,
+          path
+        },
+        async digestHandler(md5, config) {
+          (config.data as FormData).set('md5', md5)
+        }
+      })
+    }
+
+    if (file.size < _8MiB) {
+      return directUploadToDisk()
+    } else {
+      return breakpointUpload()
+    }
+  },
+
 }
 
 interface BindIdExecutor {
@@ -493,6 +538,128 @@ export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
     if (listeners) {
       SfcUtils.batchInvokeFunction(listeners, executor)
     }
+  }
+}
+
+export interface BreakPointExecutorOption extends ExecutorOption {
+  digestHandler:(md5: string, config: AxiosRequestConfig<any>) => Promise<void>
+}
+
+const _8MiB = 1024 * 1024 * 8
+export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
+  private breakPointOpt: BreakPointExecutorOption
+  private metaData: BreakPointTaskMetaData | undefined
+  private sliceGenerator: Generator<Blob, void> | undefined
+  private uploadPromiseObj: Promise<any> | undefined
+  private cancelToken = axios.CancelToken.source()
+  constructor(opt: BreakPointExecutorOption) {
+    super(opt)
+    this.breakPointOpt = opt
+  }
+  start(): Promise<any> {
+    const file = this.breakPointOpt.file
+    if (!this.uploadPromiseObj) {
+
+      
+      // 1. 准备工作，计算md5
+      this.uploadPromiseObj = this.prepare()
+        // 2. 标记状态
+        .then(() => this.uploadInfo.status = 'upload')
+        // 3. 创建任务
+        .then(this.createBreakPointTask.bind(this))
+        .then((metaData) => {
+          this.metaData = metaData
+          return metaData
+        })
+
+        // 4. 上传切片
+        .then(this.uploadSlice.bind(this))
+
+        // 5. 合并提交API
+        .then(this.mergeRequest.bind(this))
+    }
+
+    return this.uploadPromiseObj
+  }
+  resume(): void {
+    throw new Error('Method not implemented.')
+  }
+  handleDigest(): boolean | ((md5: string, config: AxiosRequestConfig<any>) => Promise<void>) | null | undefined {
+    return this.breakPointOpt.digestHandler
+  }
+  pause(): void {
+    throw new Error('Method not implemented.')
+  }
+  /**
+   * 创建断点续传任务
+   */
+  private async createBreakPointTask(): Promise<BreakPointTaskMetaData> {
+    const name = this.breakPointOpt.file.name
+    const size = this.breakPointOpt.file.size
+    let chunkSize = _8MiB
+    if(size < chunkSize) {
+      chunkSize = size
+    }
+    const conf = API.breakpoint.createTask(name, size, chunkSize)
+    conf.cancelToken = this.cancelToken.token
+    return (await SfcUtils.request(conf)).data
+  }
+  private async uploadSlice() {
+    let finishSize = 0
+    this.sliceGenerator = FileUtils.sliceFile(this.breakPointOpt.file, this.metaData?.chunkSize)
+    let sliceData
+    let part = 1
+    try {
+      while ((sliceData = this.getSlice(1))) {
+        let curPartFinishSize = 0
+        const conf = API.breakpoint.uploadPart(this.metaData?.taskId as string, sliceData, part + '')
+        conf.onUploadProgress = (e: Prog) => {
+          curPartFinishSize = e.loaded
+          this.uploadInfo.prog.loaded = finishSize + curPartFinishSize
+        }
+        conf.cancelToken = this.cancelToken.token
+        await SfcUtils.request(conf)
+        finishSize += sliceData.size
+        console.log('完成文件块编号：' + part + ' 的上传')
+        part++
+      }
+    } catch(err) {
+      this.handleErrorEvent(err)
+    } finally {
+      this.handleFinallyEvent()
+    }
+  }
+
+  /**
+   * 获取指定数量的文件切片数据（多个切片合并为1个Blob）
+   * @param mergeCount 合并切片的数量
+   */
+  private getSlice(mergeCount: number): Blob | null {
+    
+    let cnt = 0
+    let tmp: IteratorResult<Blob, any>
+    let res = new Blob()
+    while (cnt < mergeCount && !(tmp = (this.sliceGenerator as Generator<Blob>).next()).done) {
+      res = new Blob([res, tmp.value])
+      cnt++
+    }
+    return res.size == 0 ? null : res
+  }
+
+  private async mergeRequest(): Promise<any> {
+    const conf = this.breakPointOpt.config
+    if (!conf.params) {
+      conf.params = {}
+    }
+    conf.params.breakpoint_id = this.metaData?.taskId
+    const ret = await SfcUtils.axios(conf)
+    this.handleSuccessEvent(ret)
+    return ret
+  }
+  
+  interrupt(): void {
+    this.cancelToken.cancel()
+    this.handleErrorEvent('interrupt')
   }
 }
 

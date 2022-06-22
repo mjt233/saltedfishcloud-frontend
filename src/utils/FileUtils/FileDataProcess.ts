@@ -1,4 +1,3 @@
-import { SfcUtils } from '@/utils/SfcUtils'
 import md5 from 'js-md5'
 import { buildAsyncTaskQueue } from '../AsyncTaskQueue'
 import { sliceFile } from './sliceFile'
