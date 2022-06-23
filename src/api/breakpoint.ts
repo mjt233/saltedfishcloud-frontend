@@ -22,13 +22,13 @@ const breakpoint = {
    * 上传文件块到断点续传任务中
    * @param {String} id 断点续传任务ID
    * @param {File} file 文件
-   * @param {String} part 本次上传的文件编号，支持范围表示，如：3-6 表示本次上传的文件块按顺序包含编号3,4,5,6的部分
+   * @param {String} range 本次上传的文件编号，支持范围表示，如：3-6 表示本次上传的文件块按顺序包含编号3,4,5,6的部分
    */
-  uploadPart(id: string, file: Blob, part: string): CommonRequest {
+  uploadPart(id: string, file: Blob, range: string): CommonRequest {
     const fd = new FormData()
     fd.append('file', file)
     return {
-      url: `breakpoint/${id}/${part}`,
+      url: `breakpoint/${id}/${range}`,
       method: 'post',
       data: fd
     }

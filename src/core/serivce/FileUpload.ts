@@ -540,6 +540,21 @@ export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
     }
   }
 }
+/**
+ * 生成符合断点续传接口解析规则的文件切片长度范围字符串
+ * @param startPos 起始位置
+ * @param count 分片数量
+ * @param chunkCount 允许的总切片分块数量
+ * @returns 切片范围字符串
+ */
+function getPartRange(startPos: number, count: number, chunkCount: number) {
+  let endPos = startPos + count
+  if (endPos > chunkCount) {
+    endPos = chunkCount
+  }
+  return `${startPos == endPos ? startPos : `${startPos}-${endPos}`}`
+}
+
 
 export interface BreakPointExecutorOption extends ExecutorOption {
   digestHandler:(md5: string, config: AxiosRequestConfig<any>) => Promise<void>
@@ -577,6 +592,9 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
 
         // 5. 合并提交API
         .then(this.mergeRequest.bind(this))
+        .then(this.handleSuccessEvent.bind(this))
+        .catch(this.handleErrorEvent.bind(this))
+        .finally(this.handleFinallyEvent.bind(this))
     }
 
     return this.uploadPromiseObj
@@ -608,25 +626,36 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
     let finishSize = 0
     this.sliceGenerator = FileUtils.sliceFile(this.breakPointOpt.file, this.metaData?.chunkSize)
     let sliceData
-    let part = 1
-    try {
-      while ((sliceData = this.getSlice(1))) {
-        let curPartFinishSize = 0
-        const conf = API.breakpoint.uploadPart(this.metaData?.taskId as string, sliceData, part + '')
-        conf.onUploadProgress = (e: Prog) => {
-          curPartFinishSize = e.loaded
-          this.uploadInfo.prog.loaded = finishSize + curPartFinishSize
-        }
-        conf.cancelToken = this.cancelToken.token
-        await SfcUtils.request(conf)
-        finishSize += sliceData.size
-        console.log('完成文件块编号：' + part + ' 的上传')
-        part++
+    let startPos = 1
+
+    // 分块倍数
+    let multiple = 1
+    while ((sliceData = this.getSlice(multiple))) {
+      let curPartFinishSize = 0
+      const range = getPartRange(startPos, multiple, this.metaData?.chunkCount as number)
+      const conf = API.breakpoint.uploadPart(this.metaData?.taskId as string, sliceData, range)
+      conf.onUploadProgress = (e: Prog) => {
+        curPartFinishSize = e.loaded
+        this.uploadInfo.prog.loaded = finishSize + curPartFinishSize
       }
-    } catch(err) {
-      this.handleErrorEvent(err)
-    } finally {
-      this.handleFinallyEvent()
+      conf.cancelToken = this.cancelToken.token
+
+      const begin = new Date().getTime()
+      await SfcUtils.request(conf)
+
+      // 上传花费的时（秒）
+      const sec = (new Date().getTime() - begin) / 1000
+      finishSize += sliceData.size
+      startPos += multiple
+
+      // 若花费时间大于8秒，则重新调整块大小至期望值5秒
+      if (sec > 8 || sec < 3) {
+        multiple = Math.ceil(5 / (sec / multiple))
+        if (multiple < 1) {
+          multiple = 1
+        }
+          
+      }
     }
   }
 
