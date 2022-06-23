@@ -1,6 +1,6 @@
 import { StringUtils } from '@/utils/StringUtils'
 import API from '@/api'
-import { AxiosRequestConfig, AxiosResponse, CancelTokenSource } from 'axios'
+import { AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
 
 import { Prog } from '@/utils/FileUtils/FileDataProcess'
@@ -111,6 +111,20 @@ export interface FileUploadExecutor {
 export type TaskManagerEvent = 'add' | 'remove' | 'success' | 'error' | 'finally'
 
 export type TaskManagerEventListener = (executor: FileUploadExecutor) => void
+
+/**
+ * 结果执行策略，决定后续步骤的执行策略
+ * continue - 继续执行
+ * finish - 流程完成（提前结束）
+ * interrupt - 流程终止（提前结束）
+ */
+export type ResultExecuteStrategy = 'continue' | 'finish' | 'interrupt'
+
+/**
+ * 文件摘要信息处理器。
+ * 在执行器计算出文件摘要信息（一般是md5）后会调用该方法，由该方法的返回值决定后续执行步骤
+ */
+export type DigestHandler = (md5: string, config: AxiosRequestConfig) => Promise<ResultExecuteStrategy>
 /**
  * 文件上传任务管理器
  */
@@ -183,6 +197,12 @@ export interface ExecutorOption {
   config: AxiosRequestConfig
 
   /**
+   * 摘要信息处理器。
+   * 可通过该方法进行秒传，秒传成功后返回finish提前结束流程。
+   */
+  digestHandler?: DigestHandler
+
+  /**
    * 其他属性
    */
   otherAttr?: any
@@ -197,13 +217,14 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   protected finallyHandler: (() => void)[] = []
   protected uploadInfo: FileUploadInfo
   private uploadPromise: Promise<any>|undefined
-
+  protected opt: ExecutorOption
 
   /**
    * 构造文件上传执行器
    */
   constructor(opt: ExecutorOption) {
     const {config, file, alias, type, otherAttr} = opt
+    this.opt = opt
     this.config = config
     this.file = file
     this.uploadInfo = reactive({
@@ -278,12 +299,14 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
 
   }
 
-  protected async prepare():Promise<any> {
-    const handler = this.handleDigest()
+  protected async prepare():Promise<ResultExecuteStrategy> {
+    const handler = this.opt.digestHandler
     if (handler instanceof Function) {
       const md5 = await this.getDigest()
       this.uploadInfo.md5 = md5
-      handler(md5, this.config)
+      return await handler(md5, this.config)
+    } else {
+      return 'continue'
     }
   }
 
@@ -304,12 +327,19 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
       throw new Error('已停止')
     }
     try {
-      await this.prepare()
+      const strategy = await this.prepare()
       this.getUploadInfo().status = 'upload'
       this.uploadInfo.beginDate = new Date
-      const ret = await SfcUtils.axios(this.config)
-      this.handleSuccessEvent(ret)
-      return ret
+
+      if (strategy == 'continue') {
+        const ret = await SfcUtils.axios(this.config)
+        this.handleSuccessEvent(ret)
+        return ret
+      } else if (strategy == 'finish') {
+        this.uploadInfo.prog.loaded = this.uploadInfo.prog.total
+        this.uploadInfo.endDate = new Date
+        this.handleSuccessEvent('finish-strategy')
+      }
     } catch(err) {
       this.handleErrorEvent(err)
       this.uploadInfo.status = 'failed'
@@ -356,10 +386,6 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
 
   abstract resume(): void
 
-  /**
-   * 处理文件的md5，返回值决定在计算
-   */
-  abstract handleDigest(): ((md5: string, config: AxiosRequestConfig) => Promise<void>) | undefined | null | boolean
   abstract pause(): void
   abstract interrupt(): void
 }
@@ -389,10 +415,20 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
 
 }
 
+
 const DiskFileUploadService: FileUploadService & any = {
   uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor {
     
     
+    const queickUploadHandler: DigestHandler = async(md5, config) => {
+      const result = await SfcUtils.request(API.file.quickSave(uid, path, file.name, md5))
+      if (result.data.data) {
+        return 'finish'
+      } else {
+        (config.data as FormData).set('md5', md5)
+        return 'continue'
+      }
+    }
     function directUploadToDisk(): FileUploadExecutor {
       const config = API.file.upload(uid, path, file, '')
       return new DirectFileUploadExecutor({
@@ -402,7 +438,8 @@ const DiskFileUploadService: FileUploadService & any = {
         otherAttr: {
           uid,
           path
-        }
+        },
+        digestHandler: queickUploadHandler
       })
     }
 
@@ -416,9 +453,7 @@ const DiskFileUploadService: FileUploadService & any = {
           uid,
           path
         },
-        async digestHandler(md5, config) {
-          (config.data as FormData).set('md5', md5)
-        }
+        digestHandler: queickUploadHandler
       })
     }
 
@@ -556,54 +591,48 @@ function getPartRange(startPos: number, count: number, chunkCount: number) {
 }
 
 
-export interface BreakPointExecutorOption extends ExecutorOption {
-  digestHandler:(md5: string, config: AxiosRequestConfig<any>) => Promise<void>
-}
 
 const _8MiB = 1024 * 1024 * 8
 export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
-  private breakPointOpt: BreakPointExecutorOption
+  private breakPointOpt: ExecutorOption
   private metaData: BreakPointTaskMetaData | undefined
   private sliceGenerator: Generator<Blob, void> | undefined
   private uploadPromiseObj: Promise<any> | undefined
   private cancelToken = axios.CancelToken.source()
-  constructor(opt: BreakPointExecutorOption) {
+  constructor(opt: ExecutorOption) {
     super(opt)
     this.breakPointOpt = opt
   }
   start(): Promise<any> {
-    const file = this.breakPointOpt.file
-    if (!this.uploadPromiseObj) {
-
-      
-      // 1. 准备工作，计算md5
-      this.uploadPromiseObj = this.prepare()
-        // 2. 标记状态
-        .then(() => this.uploadInfo.status = 'upload')
-        // 3. 创建任务
-        .then(this.createBreakPointTask.bind(this))
-        .then((metaData) => {
-          this.metaData = metaData
-          return metaData
-        })
-
-        // 4. 上传切片
-        .then(this.uploadSlice.bind(this))
-
-        // 5. 合并提交API
-        .then(this.mergeRequest.bind(this))
-        .then(this.handleSuccessEvent.bind(this))
-        .catch(this.handleErrorEvent.bind(this))
-        .finally(this.handleFinallyEvent.bind(this))
+    if (this.uploadPromiseObj) {
+      return this.uploadPromiseObj
     }
+    this.uploadPromiseObj = (async() => {
+      try {
+        this.uploadInfo.beginDate = new Date
+        const strategy = await this.prepare()
+        if (strategy == 'finish') {
+          this.uploadInfo.prog.loaded = this.uploadInfo.prog.total
+          this.uploadInfo.endDate = new Date
+        } else if (strategy == 'continue') {
+          this.uploadInfo.status = 'upload'
+          this.metaData = await this.createBreakPointTask()
+          await this.uploadSlice()
+          await this.mergeRequest()
+        }
+        this.handleSuccessEvent()
+
+      } catch (err) {
+        this.handleErrorEvent(err)
+      } finally {
+        this.handleFinallyEvent()
+      }
+    })()
 
     return this.uploadPromiseObj
   }
   resume(): void {
     throw new Error('Method not implemented.')
-  }
-  handleDigest(): boolean | ((md5: string, config: AxiosRequestConfig<any>) => Promise<void>) | null | undefined {
-    return this.breakPointOpt.digestHandler
   }
   pause(): void {
     throw new Error('Method not implemented.')
