@@ -302,10 +302,15 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   protected async prepare():Promise<ResultExecuteStrategy> {
     const handler = this.opt.digestHandler
     if (handler instanceof Function) {
+
+      // 虽然getDigest里会设置digest状态，但由于是异步执行，start后无法立即修改状态导致UploadManager误判状态重复执行start从而导致无效启动且执行计数增加无效值
+      // 最坏的情况下会导致执行计数永久保持最大值
+      this.uploadInfo.status = 'digest'
       const md5 = await this.getDigest()
       this.uploadInfo.md5 = md5
       return await handler(md5, this.config)
     } else {
+      this.uploadInfo.status = 'upload'
       return 'continue'
     }
   }
@@ -320,12 +325,6 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
 
 
   async upload() {
-
-    if (this.uploadInfo.status == 'upload' || this.uploadInfo.status == 'digest') {
-      throw new Error('已经正在上传中')
-    } else if (this.uploadInfo.status == 'interrupt') {
-      throw new Error('已停止')
-    }
     try {
       const strategy = await this.prepare()
       this.getUploadInfo().status = 'upload'
@@ -561,7 +560,8 @@ export class DefaultFileUploadTaskManager implements FileUploadTaskManager {
       if (this.curUploadCount >= this.maxUploadCount) {
         break
       }
-      if (executor.getUploadInfo().status == 'wait') {
+      const info = executor.getUploadInfo()
+      if (info.status == 'wait') {
         executor.start()
         this.curUploadCount++
       }
@@ -611,16 +611,17 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
       try {
         this.uploadInfo.beginDate = new Date
         const strategy = await this.prepare()
+        this.uploadInfo.status = 'upload'
         if (strategy == 'finish') {
           this.uploadInfo.prog.loaded = this.uploadInfo.prog.total
           this.uploadInfo.endDate = new Date
+          this.handleSuccessEvent('finish-strategy')
         } else if (strategy == 'continue') {
-          this.uploadInfo.status = 'upload'
           this.metaData = await this.createBreakPointTask()
           await this.uploadSlice()
-          await this.mergeRequest()
+          const ret = await this.mergeRequest()
+          this.handleSuccessEvent(ret)
         }
-        this.handleSuccessEvent()
 
       } catch (err) {
         this.handleErrorEvent(err)
@@ -711,7 +712,6 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
     }
     conf.params.breakpoint_id = this.metaData?.taskId
     const ret = await SfcUtils.axios(conf)
-    this.handleSuccessEvent(ret)
     return ret
   }
   
