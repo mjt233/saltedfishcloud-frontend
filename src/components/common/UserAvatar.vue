@@ -5,7 +5,12 @@
     style="margin-right: 12px;"
     :transition="transition"
   >
-    <v-img :src="avatarUrl" :transition="false" cover />
+    <v-img
+      class="avatar"
+      :src="avatarUrl"
+      :transition="false"
+      cover
+    />
   </v-avatar>
 </template>
 
@@ -86,3 +91,10 @@ export default defineComponent({
   name: 'UserAvatar'
 })
 </script>
+
+<style lang="scss" scoped>
+.avatar {
+  width: 100%;
+  height: 100%;
+}
+</style>
