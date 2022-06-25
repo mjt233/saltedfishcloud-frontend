@@ -32,13 +32,17 @@ const fileActionGroup: MenuGroup<FileListContext> =
       renderOn(ctx) {
         return !ctx.readonly && ctx.selectFileList.length >= 1
       },
-      async action(ctx) {
-        await SfcUtils.confirm('', '', {
-          children: [ h(DeleteConfirm, { fileList: ctx.selectFileList }) ]
-        })
-        await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
-        await ctx.modelHandler.refresh()
-        SfcUtils.snackbar('删除成功')
+      action(ctx) {
+        const asyncFunWrap = async() => {
+          await SfcUtils.confirm('', '', {
+            children: [ h(DeleteConfirm, { fileList: ctx.selectFileList }) ],
+            cancelToReject: true
+          })
+          await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
+          await ctx.modelHandler.refresh()
+          SfcUtils.snackbar('删除成功')
+        }
+        asyncFunWrap()
       }
     }
   ]
