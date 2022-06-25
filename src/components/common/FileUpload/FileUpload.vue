@@ -63,10 +63,10 @@ const uploadClose = (index: number) => {
   }
 }
 const finishListener = (executor: FileUploadExecutor) => {
-  finishList.push(executor.getUploadInfo())
+  finishList.unshift(executor.getUploadInfo())
 }
 const errorListener = (executor: FileUploadExecutor) => {
-  errorList.push(executor.getUploadInfo())
+  errorList.unshift(executor.getUploadInfo())
 }
 const addListener = (manager: FileUploadTaskManager ) => {
   manager.addEventListener('success', finishListener)
