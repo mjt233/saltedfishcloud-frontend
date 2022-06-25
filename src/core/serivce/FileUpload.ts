@@ -340,8 +340,9 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
         this.handleSuccessEvent('finish-strategy')
       }
     } catch(err) {
-      this.handleErrorEvent(err)
-      this.uploadInfo.status = 'failed'
+      if (this.uploadInfo.status != 'interrupt') {
+        this.handleErrorEvent(err)
+      }
     } finally {
       this.uploadInfo.endDate = new Date()
       this.handleFinallyEvent()
@@ -374,9 +375,9 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     SfcUtils.batchInvokeFunction(this.finallyHandler)
   }
 
-  private handleInterruptEvent() {
-    this.handleErrorEvent('interrupt')
-    this.handleFinallyEvent()
+  protected handleInterruptEvent() {
+    this.uploadInfo.status = 'interrupt'
+    SfcUtils.batchInvokeFunction(this.errorHandler, 'interrupt')
   }
 
   getUploadInfo(): FileUploadInfo {
@@ -409,7 +410,7 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
   }
   interrupt(): void {
     this.cancelTokenSource.cancel('interrupt')
-    this.handleErrorEvent('interrupt')
+    this.handleInterruptEvent()
   }
 
 }
@@ -624,7 +625,9 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
         }
 
       } catch (err) {
-        this.handleErrorEvent(err)
+        if (this.uploadInfo.status != 'interrupt') {
+          this.handleErrorEvent(err)
+        }
       } finally {
         this.handleFinallyEvent()
       }
@@ -717,7 +720,7 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
   
   interrupt(): void {
     this.cancelToken.cancel()
-    this.handleErrorEvent('interrupt')
+    this.handleInterruptEvent()
   }
 }
 

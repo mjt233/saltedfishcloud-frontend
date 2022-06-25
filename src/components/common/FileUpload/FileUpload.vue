@@ -11,7 +11,7 @@
         已完成{{ finishList.length > 0 ? '(' + finishList.length + ')': '' }}
       </v-tab>
       <v-tab value="failed">
-        传输失败
+        传输失败{{ errorList.length > 0 ? '(' + errorList.length + ')': '' }}
       </v-tab>
     </v-tabs>
     <div class="upload-info-list">
@@ -23,7 +23,7 @@
           <file-upload-list :upload-info-list="finishList" @close="finishList.splice($event as number, 1)" />
         </v-window-item>
         <v-window-item value="failed">
-          <file-upload-list />
+          <file-upload-list :upload-info-list="errorList" :show-close="false" />
         </v-window-item>
       </v-window>
     </div>
@@ -53,6 +53,7 @@ const uploadingExecutor = computed(() => {
   }
 })
 const finishList: FileUploadInfo[] = reactive([])
+const errorList: FileUploadInfo[] = reactive([])
 const uploadClose = (index: number) => {
   const executor = uploadingExecutor.value[index]
   if (executor.getUploadInfo().status == 'wait') {
@@ -64,11 +65,16 @@ const uploadClose = (index: number) => {
 const finishListener = (executor: FileUploadExecutor) => {
   finishList.push(executor.getUploadInfo())
 }
+const errorListener = (executor: FileUploadExecutor) => {
+  errorList.push(executor.getUploadInfo())
+}
 const addListener = (manager: FileUploadTaskManager ) => {
   manager.addEventListener('success', finishListener)
+  manager.addEventListener('error', errorListener)
 }
 const removeListener = (manager: FileUploadTaskManager ) => {
   manager.removeEventListener('success', finishListener)
+  manager.removeEventListener('error', errorListener)
 }
 
 onMounted(() => {

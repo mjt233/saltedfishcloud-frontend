@@ -6,7 +6,7 @@
       :key="index"
       link
     >
-      <file-upload-item :upload-info="item" @close="emits('close', index)" />
+      <file-upload-item :upload-info="item" :show-close="showClose" @close="emits('close', index)" />
     </v-list-item>
   </v-list>
 </template>
@@ -19,9 +19,14 @@ const props = defineProps({
   uploadInfoList: {
     type: Array as PropType<FileUploadInfo[]>,
     default: () => []
+  },
+  showClose: {
+    type: Boolean,
+    default: true
   }
 })
 const emits = defineEmits(['close'])
+
 </script>
 
 <script lang="ts">

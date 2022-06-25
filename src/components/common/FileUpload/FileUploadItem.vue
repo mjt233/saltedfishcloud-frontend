@@ -14,21 +14,26 @@
         {{ uploadInfo?.file.name }}
       </div>
       <div class="file-size">
+        状态：{{ getStatusText(uploadInfo?.status) }} 大小：{{ StringFormatter.toSize(uploadInfo?.file.size || 0) }}
         <span v-if="uploadInfo?.status == 'upload' || uploadInfo?.status == 'digest'">速度：{{ StringFormatter.toSize(progRecord.speed) }}/s</span>
         <span v-if="uploadInfo?.status == 'success'">
           平均速度：{{ StringFormatter.toSize(uploadInfo.file.size / ((uploadInfo.endDate.getTime() - uploadInfo.beginDate.getTime()) / 1000) ) }}/s
         </span>
-        大小：{{ StringFormatter.toSize(uploadInfo?.file.size || 0) }}
       </div>
       <v-progress-linear
-        v-show="uploadInfo?.status != 'wait' && uploadInfo?.status != 'success' && uploadInfo?.status != 'failed'"
+        v-show="uploadInfo?.status == 'upload' || uploadInfo?.status == 'pause' || uploadInfo?.status == 'digest'"
         :model-value="progVal"
         :indeterminate="uploadInfo?.status == 'digest'"
         style="width: 100%;margin-top: 8px;"
       />
     </div>
     <div class="handler">
-      <v-icon v-ripple icon="mdi-close" @click="emits('close')" />
+      <v-icon
+        v-show="showClose"
+        v-ripple
+        icon="mdi-close"
+        @click="emits('close')"
+      />
     </div>
   </div>
 </template>
@@ -40,6 +45,10 @@ const props = defineProps({
   uploadInfo: {
     type: Object as PropType<FileUploadInfo>,
     default: undefined
+  },
+  showClose: {
+    type: Boolean,
+    default: true
   }
 })
 const emits = defineEmits(['close'])
@@ -64,12 +73,32 @@ watch(() => props.uploadInfo?.prog.loaded || 0, () => {
   const time = new Date().getTime() - progRecord.time
   progRecord.speed = parseFloat((size / (time / 1000)).toFixed(2))
 })
+
+const getStatusText = (status?: FileUploadStatus) => {
+  switch (status) {
+  case 'digest':
+    return '计算摘要中'
+  case 'failed':
+    return '失败'
+  case 'interrupt':
+    return '已取消'
+  case 'pause':
+    return '暂停'
+  case 'success':
+    return '上传成功'
+  case 'upload':
+    return '上传中'
+  case 'wait':
+    return '等待中'
+  default:
+    return '未知'
+  }
+}
 </script>
 
 <script lang="ts">
 import { computed, defineComponent, defineProps, PropType, reactive, watch } from 'vue'
-import { FileUploadInfo } from '@/core/serivce/FileUpload'
-import { Prog } from '@/utils/FileUtils/FileDataProcess'
+import { FileUploadInfo, FileUploadStatus } from '@/core/serivce/FileUpload'
 export default defineComponent({
   name: 'FileUploadListItem'
 })
