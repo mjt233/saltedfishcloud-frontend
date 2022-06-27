@@ -10,7 +10,9 @@ const defaultTheme = {
   dark: false,
   colors: {
     background: '#FFFFFF',
-    surface: '#3F51B5',
+    // surface: '#3F51B5',
+    header: '#3F51B5',
+    surface: '#FFFFFF',
     primary: '#5c6bc0',
     'primary-darken-1': '#3700B3',
     secondary: '#03DAC6',

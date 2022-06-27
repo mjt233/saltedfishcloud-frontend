@@ -38,6 +38,13 @@ const propsOptions = {
   loadingManager: {
     type: Object as PropType<LoadingManager>,
     default: undefined
+  },
+  /**
+   * 文件列表展示视图类型，list - 表格列表，grid - 栅格平铺
+   */
+  type: {
+    type: String as PropType<'list' | 'grid'>,
+    default: 'list'
   }
 }
 export default propsOptions

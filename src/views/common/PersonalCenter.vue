@@ -68,10 +68,10 @@
       >
         <bind-email-form ref="emailRef" />
         <template #actions>
-          <v-btn color="surface" @click="submitEamil">
+          <v-btn color="primary" @click="submitEamil">
             绑定
           </v-btn>
-          <v-btn color="surface" @click="showEmailDialog = false">
+          <v-btn color="primary" @click="showEmailDialog = false">
             取消
           </v-btn>
         </template>

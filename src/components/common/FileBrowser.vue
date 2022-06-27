@@ -1,25 +1,46 @@
 <template>
   <div>
     <loading-mask :loading="loading" z-index="1000" />
-    <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
-      <v-breadcrumbs-item :disabled="pathItems.length == 1">
-        <a class="link" @click="jumpIndex(pathItems.length - 2)">返回上一级</a>
-      </v-breadcrumbs-item>
-      <v-breadcrumbs-divider>
-        |
-      </v-breadcrumbs-divider>
-      <template v-for="(item, index) in pathItems" :key="index">
-        <v-breadcrumbs-item :disabled="item.disabled" @click="jumpIndex(index)">
-          <a class="link">{{ item.text }}</a>
-        </v-breadcrumbs-item>
-        <v-breadcrumbs-divider v-if="index != pathItems.length - 1">
-          <v-icon icon="mdi-chevron-right" />
-        </v-breadcrumbs-divider>
-      </template>
-    </v-breadcrumbs>
+    <v-row justify="space-between">
+      <v-col style="max-width: calc(100% - 140px)">
+        <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
+          <v-breadcrumbs-item :disabled="pathItems.length == 1">
+            <a class="link" @click="jumpIndex(pathItems.length - 2)">返回上一级</a>
+          </v-breadcrumbs-item>
+          <v-breadcrumbs-divider>
+            |
+          </v-breadcrumbs-divider>
+          <template v-for="(item, index) in pathItems" :key="index">
+            <v-breadcrumbs-item :disabled="item.disabled" @click="jumpIndex(index)">
+              <a class="link">{{ item.text }}</a>
+            </v-breadcrumbs-item>
+            <v-breadcrumbs-divider v-if="index != pathItems.length - 1">
+              <v-icon icon="mdi-chevron-right" />
+            </v-breadcrumbs-divider>
+          </template>
+        </v-breadcrumbs>
+      </v-col>
+      <v-col :cols="1" style="width: 120px">
+        <v-btn-toggle v-model="btnToggle">
+          <v-btn
+            color="background"
+            size="small"
+            icon="mdi-format-list-bulleted"
+            @click="listType = 'list'"
+          />
+          <v-btn
+            color="background"
+            size="small"
+            icon="mdi-dots-grid"
+            @click="listType = 'grid'"
+          />
+        </v-btn-toggle>
+      </v-col>
+    </v-row>
     <file-list
       ref="listRef"
       v-model:file-list="fileList"
+      :type="listType"
       :loading-manager="loadingManager"
       :menu="menu.fileListMenu"
       :path="path"
@@ -75,6 +96,8 @@ const props = defineProps({
 })
 
 // data
+type ListType = 'list' | 'grid'
+const listType: Ref<ListType> = ref('list')
 const breadcrumbs = ref()
 const listHeight: Ref<undefined | number> = ref(undefined)
 const listRef = ref()
@@ -82,7 +105,7 @@ const menu = context.menu
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const fileList: Ref<FileInfo[]> = ref([])
-
+const btnToggle = ref(0)
 // computed
 const handler = computed(() => {
   let targetObj = props.fileSystemHandler

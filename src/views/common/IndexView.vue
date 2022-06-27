@@ -1,6 +1,6 @@
 <template>
   <!-- 顶部栏 -->
-  <v-app-bar>
+  <v-app-bar color="header">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
     <v-spacer />

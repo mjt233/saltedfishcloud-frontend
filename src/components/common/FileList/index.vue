@@ -7,6 +7,7 @@
       :loading-manager="loadingManager"
     />
     <v-table
+      v-if="type == 'list'"
       fixed-header
       class="file-table"
       color="background"
@@ -103,6 +104,11 @@
         </tr>
       </tbody>
     </v-table>
+    <grid-container v-else :width="120">
+      <div v-for="(fileInfo, index) in fileList" :key="index" @contextmenu.prevent="fileRClick($event, fileInfo)">
+        <file-list-grid-item v-ripple :file-info="fileInfo" />
+      </div>
+    </grid-container>
   </div>
 </template>
 
@@ -115,6 +121,8 @@ import SfcUtils from '@/utils/SfcUtils'
 import FileListContextBuilder from './FileListContextBuilder'
 import { LoadingControlPromise } from '@/utils/LoadingManager'
 import EmptyTip from '../EmptyTip.vue'
+import GridContainer from '@/components/layout/GridContainer.vue'
+import FileListGridItem from './FileListGridItem.vue'
 
 
 const props = defineProps(propsOptions)
