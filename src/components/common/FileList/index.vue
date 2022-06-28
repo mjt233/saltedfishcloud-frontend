@@ -28,9 +28,9 @@
           <th class="file-col">
             文件名
           </th>
-          <th width="128">
+          <!-- <th width="128">
             大小
-          </th>
+          </th> -->
         </tr>
       </thead>
       <tbody>
@@ -98,16 +98,21 @@
               </div>
             </div>
           </td>
-          <td>
+          <!-- <td>
             {{ fileInfo.size == -1 ? '-' : StringFormatter.toSize(fileInfo.size) }}
-          </td>
+          </td> -->
         </tr>
       </tbody>
     </v-table>
     <grid-container v-else :width="120">
-      <div v-for="(fileInfo, index) in fileList" :key="index" @contextmenu.prevent="fileRClick($event, fileInfo)">
-        <file-list-grid-item v-ripple :file-info="fileInfo" />
-      </div>
+      <file-list-grid-item
+        v-for="(fileInfo, index) in fileList"
+        :key="index"
+        ref="gridItemRef"
+        v-ripple
+        :file-info="fileInfo"
+        @contextmenu.prevent="fileRClick($event, fileInfo)"
+      />
     </grid-container>
   </div>
 </template>
@@ -135,6 +140,7 @@ let renamePromiseResolve: ((value: string | PromiseLike<string>) => void) | null
 let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null = null
 const tableWidth = ref('100%')
 const rootRef = ref() as Ref<HTMLElement>
+const gridItemRef = ref()
 
 const partInSelect = computed(() => {
   return fileListContext.selectFileList.length > 0 && fileListContext.selectFileList.length != props.fileList.length
@@ -148,13 +154,33 @@ const rename = (name: string, md5: string) => {
   resetSelect()
   renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
   renameNewName.value = name
-  return new LoadingControlPromise<string>((resolve, reject) => {
-    renamePromiseResolve = resolve
-    renamePromiseReject = reject
-    nextTick().then(() => {
-      (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
+  if (props.type == 'grid') {
+    // 针对grid模式的重命名
+    return gridItemRef.value[renameIndex.value].rename().then((newName: string) => {
+      const sameNameIndex = props.fileList.findIndex((e, idx) => e.name == newName && idx != renameIndex.value)
+      if (sameNameIndex != -1) {
+        renameIndex.value = -1
+        SfcUtils.snackbar('存在同名文件')
+        return Promise.reject('存在同名文件')
+      } else {
+        return handler.value.rename(props.path, props.fileList[renameIndex.value].name, newName).then(() => {
+          return Promise.resolve(newName)
+        })
+      }
+    }).finally(() => {
+      renameIndex.value = -1
     })
-  }, false)
+  } else {
+
+    // 针对list模式的重命名
+    return new LoadingControlPromise<string>((resolve, reject) => {
+      renamePromiseResolve = resolve
+      renamePromiseReject = reject
+      nextTick().then(() => {
+        (rootRef.value.querySelector('.rename-input') as HTMLInputElement).select()
+      })
+    }, false)
+  }
 }
 const emits = defineEmits<{
   (event: 'clickItem', ctx: FileListContext ,item: FileInfo): void,
@@ -163,7 +189,7 @@ const emits = defineEmits<{
   (event: 'update:file-list', fileList: FileInfo[]): void
 }>()
 
-const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler')
+const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler') as Ref<FileSystemHandler>
 const fileListContext: FileListContext = FileListContextBuilder.getFileListContext({
   props,
   emits,
@@ -279,7 +305,7 @@ const resetSelect = () => {
 
 const updateWidth = () => {
   const el = rootRef.value as HTMLElement
-  tableWidth.value = (el.clientWidth - 81)+ 'px'
+  tableWidth.value = (el.clientWidth - 128)+ 'px'
 }
 
 const formatSize = (size: number) => {

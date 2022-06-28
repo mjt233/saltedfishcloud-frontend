@@ -1,7 +1,7 @@
 <template>
   <div>
     <loading-mask :loading="loading" z-index="1000" />
-    <v-row justify="space-between">
+    <v-row justify="space-between" style="max-width: 100%">
       <v-col style="max-width: calc(100% - 140px)">
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
@@ -20,7 +20,7 @@
           </template>
         </v-breadcrumbs>
       </v-col>
-      <v-col :cols="1" style="width: 120px">
+      <v-col :cols="1" style="min-width: 120px">
         <v-btn-toggle v-model="btnToggle">
           <v-btn
             color="background"
