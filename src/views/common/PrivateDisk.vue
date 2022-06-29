@@ -19,7 +19,7 @@
         <p style="margin-bottom: 16px">
           私人网盘功能需要登录账号才能使用捏~φ(゜▽゜*)♪
         </p>
-        <v-btn color="surface" @click="showLogin = true">
+        <v-btn color="primary" @click="showLogin = true">
           立即登录
         </v-btn>
         <base-dialog

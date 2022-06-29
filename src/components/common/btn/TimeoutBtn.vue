@@ -21,7 +21,7 @@ const props = defineProps({
   },
   color: {
     type: String,
-    default: 'surface'
+    default: 'primary'
   }
 })
 const emit = defineEmits(['click'])
