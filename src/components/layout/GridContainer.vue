@@ -60,5 +60,6 @@ export default defineComponent({
   grid-template-columns: repeat(auto-fill, v-bind(itemWidth));
   justify-content: space-evenly;
   gap: 10px;
+  grid-auto-rows: max-content;
 }
 </style>

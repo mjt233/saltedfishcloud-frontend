@@ -136,6 +136,7 @@ export default defineComponent({
 
   .item-name {
     width: 100%;
+    height: 100%;
     min-height: 48px;
     font-size: 12px;
     text-align: center;

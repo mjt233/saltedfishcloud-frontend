@@ -1,5 +1,9 @@
 <template>
-  <div ref="rootRef" @contextmenu="rootRClick" @click="rootLClick">
+  <div
+    ref="rootRef"
+    @contextmenu="rootRClick"
+    @click="rootLClick"
+  >
     <file-menu
       :container="$el"
       :menu="menu"
@@ -104,7 +108,12 @@
         </tr>
       </tbody>
     </v-table>
-    <grid-container v-else :width="120" style="margin: 8px">
+    <grid-container
+      v-else
+      :width="120"
+      style="margin: 8px"
+      :style="{height: height ? (height + 'px') : 'auto'}"
+    >
       <file-list-grid-item
         v-for="(fileInfo, index) in fileList"
         :key="index"
