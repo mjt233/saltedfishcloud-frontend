@@ -104,7 +104,7 @@
         </tr>
       </tbody>
     </v-table>
-    <grid-container v-else :width="120" style="margin: 6px">
+    <grid-container v-else :width="120" style="margin: 8px">
       <file-list-grid-item
         v-for="(fileInfo, index) in fileList"
         :key="index"
@@ -114,6 +114,7 @@
         :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
         @click="fileLClick($event, fileInfo)"
         @contextmenu.prevent="fileRClick($event, fileInfo)"
+        @check-change="toggleSelectFile(fileInfo)"
       />
     </grid-container>
     <empty-tip v-if="type == 'grid' && fileList.length == 0" />

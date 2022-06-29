@@ -1,5 +1,11 @@
 <template>
   <div class="file-grid-item" :class="{active}">
+    <v-checkbox
+      class="item-checkbox"
+      color="primary"
+      :model-value="active"
+      @click.stop="emits('checkChange', !active)"
+    />
     <div class="item-icon">
       <file-icon
         :file-name="fileInfo?.name"
@@ -60,6 +66,10 @@ const adjustRenameTextareaHeight = async() => {
 let resolveFun: Function
 let rejectFun: Function
 let originName = ''
+const emits = defineEmits<{
+  (event: 'checkChange', value: Boolean):void
+}>()
+
 const rename = () => {
   newName.value = props.fileInfo.name
   inRename.value = true
@@ -93,7 +103,7 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, nextTick, onMounted, PropType, Ref, ref } from 'vue'
+import { defineComponent, defineProps, nextTick, defineEmits, PropType, Ref, ref } from 'vue'
 import { FileInfo } from '@/core/model'
 
 export default defineComponent({
@@ -149,6 +159,18 @@ export default defineComponent({
     .item-name {
       color: var(--v-theme-primary)
     }
+    .item-checkbox {
+      visibility: visible;
+    }
+  }
+  
+  .item-checkbox {
+    position: absolute;
+    z-index: 1;
+    top: -16px;
+    left: -4px;
+    transform: scale(.8);
+    visibility: hidden;
   }
 }
 
