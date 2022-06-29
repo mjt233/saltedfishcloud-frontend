@@ -5,8 +5,6 @@
         :file-name="fileInfo?.name"
         :is-dir="fileInfo?.dir"
         :md5="fileInfo?.md5"
-        width="64"
-        height="64"
       />
       <div v-show="inRename" class="rename-handle">
         <v-btn
@@ -128,6 +126,7 @@ export default defineComponent({
 
   .item-name {
     width: 100%;
+    min-height: 48px;
     font-size: 12px;
     text-align: center;
     &.view {

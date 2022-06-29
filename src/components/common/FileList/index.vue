@@ -104,7 +104,7 @@
         </tr>
       </tbody>
     </v-table>
-    <grid-container v-else :width="120">
+    <grid-container v-else :width="120" style="margin: 6px">
       <file-list-grid-item
         v-for="(fileInfo, index) in fileList"
         :key="index"
