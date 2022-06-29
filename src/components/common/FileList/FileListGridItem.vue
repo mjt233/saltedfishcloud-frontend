@@ -1,5 +1,5 @@
 <template>
-  <div class="file-grid-item">
+  <div class="file-grid-item" :class="{active}">
     <div class="item-icon">
       <file-icon
         :file-name="fileInfo?.name"
@@ -44,6 +44,10 @@ const props = defineProps({
   fileInfo: {
     type: Object as PropType<FileInfo>,
     default: () => { return {} }
+  },
+  active: {
+    type: Boolean,
+    default: false
   }
 })
 const inRename = ref(false)
@@ -105,6 +109,7 @@ export default defineComponent({
   padding: 16px;
   width: 100%;
   cursor: pointer;
+  transition: all .125s;
   .item-icon {
     display: inline-flex;
     justify-content: center;
@@ -132,7 +137,15 @@ export default defineComponent({
   }
 
   &:hover {
-    background-color: rgba(0, 0, 0, .05);
+    background-color:  rgba(0, 0, 0, 0.08);
+  }
+  &.active {
+    background-color:  rgba($color: var(--v-theme-primary), $alpha: .125)
+  }
+  &:hover,&.active {
+    .item-name {
+      color: var(--v-theme-primary)
+    }
   }
 }
 

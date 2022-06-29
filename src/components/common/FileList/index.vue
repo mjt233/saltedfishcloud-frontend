@@ -111,9 +111,12 @@
         ref="gridItemRef"
         v-ripple
         :file-info="fileInfo"
+        :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
+        @click="fileLClick($event, fileInfo)"
         @contextmenu.prevent="fileRClick($event, fileInfo)"
       />
     </grid-container>
+    <empty-tip v-if="type == 'grid' && fileList.length == 0" />
   </div>
 </template>
 
