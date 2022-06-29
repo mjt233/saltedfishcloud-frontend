@@ -141,6 +141,9 @@ const renameNewName = ref('')
 const renameIndex = ref(-1)
 let renamePromiseResolve: ((value: string | PromiseLike<string>) => void) | null= null
 let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null = null
+
+// 执行重命名取消动作的函数，在grid和list模式下是不同的，动态赋值
+let cancelRenameActionFun: Function
 const tableWidth = ref('100%')
 const rootRef = ref() as Ref<HTMLElement>
 const gridItemRef = ref()
@@ -158,8 +161,10 @@ const rename = (name: string, md5: string) => {
   renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
   renameNewName.value = name
   if (props.type == 'grid') {
+    const gridItemInst = gridItemRef.value[renameIndex.value]
+    cancelRenameActionFun = gridItemInst.cancelRename
     // 针对grid模式的重命名
-    return gridItemRef.value[renameIndex.value].rename().then((newName: string) => {
+    return gridItemInst.rename().then((newName: string) => {
       const sameNameIndex = props.fileList.findIndex((e, idx) => e.name == newName && idx != renameIndex.value)
       if (sameNameIndex != -1) {
         renameIndex.value = -1
@@ -174,7 +179,7 @@ const rename = (name: string, md5: string) => {
       renameIndex.value = -1
     })
   } else {
-
+    cancelRenameActionFun = cancelRename
     // 针对list模式的重命名
     return new LoadingControlPromise<string>((resolve, reject) => {
       renamePromiseResolve = resolve
@@ -208,14 +213,27 @@ const toggleSelectAll = () => {
     setSelectFile()
   }
 }
+/**
+ * 文件多选框勾选点击事件
+ * @param e 鼠标事件
+ * @param fileInfo 勾选的选择框所属的文件信息
+ */
 const checkClick = (e: MouseEvent, fileInfo: FileInfo) => {
   lastClickFile = fileInfo
   toggleSelectFile(fileInfo)
 }
+
+/**
+ * list模式的取消重命名
+ */
 const cancelRename = () => {
   renamePromiseReject && renamePromiseReject('重命名取消')
   renameIndex.value = -1
 }
+
+/**
+ * list模式的执行重命名
+ */
 const doRename = async() => {
   const sameNameIndex = props.fileList.findIndex(e => e.name == renameNewName.value)
   
@@ -250,6 +268,7 @@ const rootLClick = (e: MouseEvent) => {
   if (renameIndex.value != -1) {
     renameIndex.value = -1
     SfcUtils.snackbar('重命名已取消', 1000, {outClose: true})
+    cancelRenameActionFun && cancelRenameActionFun()
   }
 }
 /**
@@ -300,10 +319,15 @@ const toggleSelectFile = (...fileInfos: FileInfo[]) => {
     }
   })
 }
+
+/**
+ * 重置已选择的文件，清空
+ */
 const resetSelect = () => {
   Object.keys(selectedFile).forEach(key => {
     delete selectedFile[key]
   })
+  cancelRenameActionFun && cancelRenameActionFun()
 }
 
 const updateWidth = () => {

@@ -5,6 +5,8 @@
         :file-name="fileInfo?.name"
         :is-dir="fileInfo?.dir"
         :md5="fileInfo?.md5"
+        width="64"
+        height="64"
       />
       <div v-show="inRename" class="rename-handle">
         <v-btn
@@ -86,7 +88,9 @@ const cancelRename = () => {
   inRename.value = false
 }
 defineExpose({
-  rename
+  rename,
+  cancelRename,
+  confirmRename
 })
 </script>
 
