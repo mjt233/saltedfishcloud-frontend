@@ -19,7 +19,7 @@ const props = defineProps({
    */
   smWidth: {
     type: Number,
-    default: 320
+    default: undefined
   }
 })
 
