@@ -1,6 +1,9 @@
 
 .file-checkbox {
   padding-right: 0px !important;
+  &>* {
+    transform: scale(.85);
+  }
 }
 .file-table {
   max-width: 100%;

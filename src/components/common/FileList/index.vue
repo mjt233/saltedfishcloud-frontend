@@ -20,7 +20,7 @@
     >
       <thead>
         <tr>
-          <th width="16" class="file-checkbox" @click="toggleSelectAll">
+          <th width="72" class="file-checkbox" @click="toggleSelectAll">
             <v-checkbox
               inline
               color="primary"
@@ -39,7 +39,7 @@
       </thead>
       <tbody>
         <tr>
-          <td @click="toggleSelectAll">
+          <td class="file-checkbox" @click="toggleSelectAll">
             <v-checkbox
               inline
               color="primary"
@@ -381,7 +381,6 @@ defineExpose(fileListContext.modelHandler)
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
 import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
-import { MenuGroup } from '@/core/context'
 
 export default defineComponent({
   name: 'FileList'
