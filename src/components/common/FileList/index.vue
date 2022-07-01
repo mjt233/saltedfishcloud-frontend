@@ -108,11 +108,12 @@
         </tr>
       </tbody>
     </v-table>
+    <empty-tip v-if="type == 'grid' && fileList.length == 0" />
     <grid-container
-      v-else
+      v-if="type == 'grid'"
       :width="120"
       style="margin: 8px"
-      :style="{height: height ? (height + 'px') : 'auto'}"
+      class="grid-container"
     >
       <file-list-grid-item
         v-for="(fileInfo, index) in fileList"
@@ -126,7 +127,6 @@
         @check-change="toggleSelectFile(fileInfo)"
       />
     </grid-container>
-    <empty-tip v-if="type == 'grid' && fileList.length == 0" />
   </div>
 </template>
 
@@ -345,6 +345,10 @@ const updateWidth = () => {
   tableWidth.value = (el.clientWidth - 128)+ 'px'
 }
 
+const containerHeight = computed(() => {
+  return props.height ? ((props.height - 16) + 'px') : 'auto'
+})
+
 const formatSize = (size: number) => {
   return StringFormatter.toSize(size)
 }
@@ -390,4 +394,9 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @import './style.scss';
+.grid-container {
+  height: v-bind(containerHeight);
+  padding: 6px 0;
+  overflow: auto;
+}
 </style>

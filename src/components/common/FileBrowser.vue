@@ -213,7 +213,7 @@ const scrollBreadcrumbs = async() => {
 const updateListHeight = async() => {
   if (props.autoComputeHeight) {
     await nextTick()
-    listHeight.value = document.documentElement.clientHeight - (listRef.value.$el as HTMLElement).getBoundingClientRect().top - 8
+    listHeight.value = document.documentElement.clientHeight - (listRef.value.$el as HTMLElement).getBoundingClientRect().top
   }
 }
 const resizeHandler = async() => {

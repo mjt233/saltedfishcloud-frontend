@@ -7,22 +7,26 @@
 }
 
 html {
-  overflow: auto;
+  overflow-y: auto !important;
 }
 
 *::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
+*::-webkit-scrollbar:hover {
+  width: 10px;
+  height: 10px;
+}
 
 *::-webkit-scrollbar-track {
   background: #f6f6f6;
-  border-radius: 2px;
+  border-radius: 50%;
 }
 
 *::-webkit-scrollbar-thumb {
   background: #aaa;
-  border-radius: 2px;
+  border-radius: 24px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
