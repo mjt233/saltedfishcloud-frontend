@@ -27,7 +27,7 @@ export interface ValidateErrorMessage {
 
 export interface ValidateResult {
   valid: boolean,
-  errorMessages: ValidateErrorMessage[]
+  errors: ValidateErrorMessage[]
 }
 
 export interface AppFeature {

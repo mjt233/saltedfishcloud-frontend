@@ -132,7 +132,7 @@ export function defineForm(opt: CommonFormOpt): CommonForm {
     },
     async validate() {
       // 校验结果
-      const result: ValidateResult = { valid: true, errorMessages: [] }
+      const result: ValidateResult = { valid: true, errors: [] }
 
       // 待校验的表单
       const validForms: CommonForm[] = []
@@ -146,7 +146,7 @@ export function defineForm(opt: CommonFormOpt): CommonForm {
         const tempRes = await formInst.validate()
         if (!tempRes.valid) {
           result.valid = false
-          tempRes.errorMessages.forEach(e => result.errorMessages.push(e))
+          tempRes.errors.forEach(e => result.errors.push(e))
         }
       }
       return result

@@ -112,7 +112,7 @@ const sendNewEMailCode = async(e: Function) => {
     loading.value = true
     const ret = (await newMailInput.value.validate()) as ValidateResult
     if (!ret.valid) {
-      SfcUtils.snackbar(ret.errorMessages[0].errorMessages)
+      SfcUtils.snackbar(ret.errors[0].errorMessages)
       return
     }
     await SfcUtils.axios(API.user.sendBindEmail(formData.email))

@@ -34,7 +34,7 @@ const props = defineProps({
     default: ''
   },
   variant: {
-    type: String as PropType<'underlined' | 'filled' | 'outlined' | 'plain' | 'contained' | undefined>,
+    type: String as PropType<'filled' | 'outlined' | 'plain' | 'underlined' | 'solo'>,
     default: 'underlined'
   },
   color: {
@@ -57,7 +57,7 @@ let curVal = ''
 const validate = async():Promise<ValidateResult> => {
   const res:ValidateResult = {
     valid: true,
-    errorMessages: []
+    errors: []
   }
   try {
     if (props.rules && props.rules.length != 0) {
@@ -65,18 +65,18 @@ const validate = async():Promise<ValidateResult> => {
         const ret = await (rule as Function)(curVal)
         if (ret !== true) {
           res.valid = false,
-          res.errorMessages.push({ id: 1, errorMessages: ret })
+          res.errors.push({ id: 1, errorMessages: ret })
         }
       }
     }
   } catch(err: any) {
     res.valid = false,
-    res.errorMessages.push({ id: 1, errorMessages: err.toString() })
+    res.errors.push({ id: 1, errorMessages: err.toString() })
   }
 
   if (!res.valid) {
     error.value = true
-    errorMessage.value = res.errorMessages[0].errorMessages
+    errorMessage.value = res.errors[0].errorMessages
   } else {
     error.value = false
     errorMessage.value = ''
