@@ -36,6 +36,16 @@ const user = {
       method: 'post'
     }
   },
+  validResetPasswordEmailCode(account: string, code: string): CommonRequest<boolean> {
+    return {
+      url: `${this.prefix}/validResetPasswordEmailCode`,
+      data: {
+        account,
+        code
+      },
+      method: 'post'
+    }
+  },
   /**
    * 更新token
    */

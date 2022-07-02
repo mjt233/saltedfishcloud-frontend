@@ -53,6 +53,11 @@ export namespace MethodInterceptor {
    * @param handler 方法拦截处理器，当目标对象的方法被调用时会触发该方法，该方法的返回值将替代目标方法的返回值
    */
   export function createProxy<T extends Object>(target: T,handler: InterceptorHandler) {
+    if (target instanceof Function) {
+      return ((...args: any) => {
+        return handler(target, args, target.name)
+      }) as any as T
+    }
     return new Proxy(target, {
       get(target, key, recever) {
         const targetAtt = Reflect.get(target, key, recever)

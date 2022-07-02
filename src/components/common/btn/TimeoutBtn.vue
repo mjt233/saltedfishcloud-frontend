@@ -60,6 +60,9 @@ const startWait = () => {
     localStorage.setItem('timeout_' + props.uniqueKey, (new Date).getTime() + '')
   }
   updateStatus()
+  if (itv) {
+    return
+  }
   itv = setInterval(() => {
     updateStatus()
     if (available.value) {

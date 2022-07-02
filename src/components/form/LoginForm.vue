@@ -74,7 +74,14 @@
             align-self="center"
           >
             <div>
-              <a href="javascript:;" tabindex="-1" class="text-primary link">忘记密码?</a>
+              <router-link
+                to="/forget"
+                href="javascript:;"
+                tabindex="-1"
+                class="text-primary link"
+              >
+                忘记密码？
+              </router-link>
             </div>
           </v-col>
         </v-row>
