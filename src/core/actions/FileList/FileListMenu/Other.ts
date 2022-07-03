@@ -50,6 +50,9 @@ const otherGroup: MenuGroup<FileListContext> =
       icon: 'mdi-package-up',
       title: '解压缩',
       renderOn(ctx) {
+        if (ctx.readonly) {
+          return false
+        }
         if (archiveTypeCache.size == 0) {
           context.feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
         }
@@ -87,6 +90,9 @@ const otherGroup: MenuGroup<FileListContext> =
       title: '压缩',
       icon: 'mdi-package-down',
       renderOn(ctx) {
+        if (ctx.readonly) {
+          return false
+        }
         return ctx.selectFileList.length != 0
       },
       async action(ctx) {

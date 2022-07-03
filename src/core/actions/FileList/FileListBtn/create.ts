@@ -8,6 +8,9 @@ export default {
   id: 'create',
   name: '添加',
   icon: 'mdi-plus',
+  renderOn(ctx) {
+    return ctx != undefined && !ctx.readonly
+  },
   items: [
     {
       id: 'upload-file',
