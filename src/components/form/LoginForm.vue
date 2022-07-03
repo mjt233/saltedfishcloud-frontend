@@ -38,7 +38,7 @@
           </v-col>
           <v-col
             v-if="!plain"
-            :lg="3"
+            style="max-width: 120px"
             class="text-body-2"
             align-self="center"
           >
@@ -69,7 +69,7 @@
           </v-col>
           <v-col
             v-if="!plain"
-            :lg="3"
+            style="max-width: 120px"
             class="text-body-2"
             align-self="center"
           >
