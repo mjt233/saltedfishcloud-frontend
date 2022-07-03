@@ -17,9 +17,11 @@ import { context } from '@/core/context'
 import SfcUtils from '@/utils/SfcUtils'
 const form = ref() as Ref<CommonForm>
 const doReset = async() => {
-  const res = await form.value.submit()
-  await SfcUtils.alert('重置成功！即将转跳到登录页面')
-  context.routeInfo.value.router?.replace('/login')
+  const result = await form.value.submit()
+  if(result.success) {
+    await SfcUtils.alert('重置成功！即将转跳到登录页面')
+    context.routeInfo.value.router?.replace('/login')
+  }
 }
 </script>
 

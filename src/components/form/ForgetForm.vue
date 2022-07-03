@@ -107,30 +107,32 @@ const resendCode = async(doLoad: Function) => {
   await actions.sendCode()
   doLoad()
 }
-const actions = MethodInterceptor.createAutoCatch(MethodInterceptor.createAutoLoadingProxy({
-  /**
-   * 发送验证码
-   */
-  async sendCode() {
-    return await SfcUtils.request(API.user.sendResetPasswordEmail(formData.account))
-  },
-  /**
-   * 验证验证码
-   */
-  async validCode() {
-    const ret = await SfcUtils.request(API.user.validResetPasswordEmailCode(formData.account, formData.code))
-    if (!ret.data.data) {
-      return Promise.reject('验证码不正确')
+const actions = MethodInterceptor.createAutoCatch(
+  MethodInterceptor.createAutoLoadingProxy({
+    /**
+     * 发送验证码
+     */
+    async sendCode() {
+      return await SfcUtils.request(API.user.sendResetPasswordEmail(formData.account))
+    },
+    /**
+     * 验证验证码
+     */
+    async validCode() {
+      const ret = await SfcUtils.request(API.user.validResetPasswordEmailCode(formData.account, formData.code))
+      if (!ret.data.data) {
+        return Promise.reject('验证码不正确')
+      }
+    },
+    /**
+     * 执行重置密码（最终表单提交动作）
+     */
+    async reset() {
+      (confirmRef.value.$el.querySelector('input') as HTMLInputElement).blur()
+      await SfcUtils.request(API.user.resetPassword(formData.account, formData.code, formData.password))
     }
-  },
-  /**
-   * 执行重置密码（最终表单提交动作）
-   */
-  async reset() {
-    (confirmRef.value.$el.querySelector('input') as HTMLInputElement).blur()
-    await SfcUtils.request(API.user.resetPassword(formData.account, formData.code, formData.password))
-  }
-}, loadingManager), true)
+  }, loadingManager)
+  , true)
 
 
 const nextStep = async(nextStepNum: number) => {
