@@ -6,6 +6,7 @@ import BaseDialog from '@/components/common/BaseDialog.vue'
 import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
 import { ValidateRule } from '@/core/model/component/type'
 import { Validators } from '@/core/helper/Validators'
+import AlertDialog from '@/components/common/AlertDialog.vue'
 
 export interface DialogOpt {
   /**
@@ -90,6 +91,10 @@ export interface PromptOpt {
   cancelToReject?: boolean
 }
 
+/**
+ * 弹出对话框
+ * @param opt 对话框选项
+ */
 export function dialog(opt: DialogOpt) {
   const {
     title = '对话框',
@@ -150,6 +155,10 @@ export function dialog(opt: DialogOpt) {
   return ret
 }
 
+/**
+ * 弹出输入提示框
+ * @param opt 选项
+ */
 export function prompt(opt: PromptOpt): Promise<string> {
   const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true, cancelToReject = false } = opt
   const formValue = reactive({
@@ -168,7 +177,7 @@ export function prompt(opt: PromptOpt): Promise<string> {
           const form = forms[id]
           const result = (await form.validate())
           if (!result.valid) {
-            return Promise.reject('校验失败：' + result.errorMessages[0].errorMessages)
+            return Promise.reject('校验失败：' + result.errors[0].errorMessages)
           }
         }
         resolve(formValue.value)
@@ -200,6 +209,31 @@ export function prompt(opt: PromptOpt): Promise<string> {
   })
 }
 
+/**
+ * 弹出提示框
+ * @param message 消息
+ * @param title 标题
+ */
+export function alert(message: string, title: string = '提示') {
+  let inst: DyncComponentHandler<any>
+  return new Promise<void>((resolve, reject) => {
+    const attrs = reactive({
+      message,
+      title,
+      modelValue: true,
+      'onUpdate:modelValue'() {
+        attrs.modelValue = false
+        resolve()
+        setTimeout(() => {
+          inst.unmount()
+        }, 200)
+      },
+      hideBtn: true,
+      persistent: true
+    })
+    inst = dyncmount(AlertDialog, attrs)
+  })
+}
 /**
  * 打开一个确认对话框
  * @param message 提示的消息内容

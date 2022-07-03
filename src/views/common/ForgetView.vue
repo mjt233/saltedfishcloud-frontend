@@ -5,7 +5,7 @@
         <v-card-title>找回账号</v-card-title>
       </v-card-header>
       <v-card-content>
-        <forget-form />
+        <forget-form ref="form" @submit="doReset" />
       </v-card-content>
     </v-card>
   </div>
@@ -13,12 +13,19 @@
 
 <script setup lang="ts">
 import ForgetForm from '@/components/form/ForgetForm.vue'
-
+import { context } from '@/core/context'
+import SfcUtils from '@/utils/SfcUtils'
+const form = ref() as Ref<CommonForm>
+const doReset = async() => {
+  const res = await form.value.submit()
+  await SfcUtils.alert('重置成功！即将转跳到登录页面')
+  context.routeInfo.value.router?.replace('/login')
+}
 </script>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { context } from '@/core/context'
+import { defineComponent, Ref, ref } from 'vue'
+import { CommonForm } from '@/utils/FormUtils'
 
 export default defineComponent({
   name: 'ForgetView'

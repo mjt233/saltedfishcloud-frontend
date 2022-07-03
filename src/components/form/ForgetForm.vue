@@ -47,12 +47,14 @@
             :rules="validators.password"
           />
           <text-input
+            ref="confirmRef"
             v-model="formData.confirmPassword"
             label="请输入确认密码"
             type="password"
             :rules="validators.confirmPassword"
+            @keypress.enter="emits('submit')"
           />
-          <v-btn color="primary" style="width: 100%" @click="formInst.submit()">
+          <v-btn color="primary" style="width: 100%" @click="emits('submit')">
             重置
           </v-btn>
         </div>
@@ -77,6 +79,7 @@ const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const accountRef = ref() as Ref<CommonForm & ComponentPublicInstance>
 const sendBtnRef = ref() as Ref<TimeoutBtnModel>
+const confirmRef = ref() as Ref<ComponentPublicInstance>
 const form = ref()
 const step = ref(0)
 const formData = reactive({
@@ -99,6 +102,7 @@ const validators = reactive({
     }
   ]
 })
+const emits = defineEmits(['submit'])
 const resendCode = async(doLoad: Function) => {
   await actions.sendCode()
   doLoad()
@@ -120,14 +124,15 @@ const actions = MethodInterceptor.createAutoCatch(MethodInterceptor.createAutoLo
     }
   },
   /**
-   * 执行重置密码
+   * 执行重置密码（最终表单提交动作）
    */
   async reset() {
+    (confirmRef.value.$el.querySelector('input') as HTMLInputElement).blur()
     await SfcUtils.request(API.user.resetPassword(formData.account, formData.code, formData.password))
-    await SfcUtils.confirm('密码重置成功！', '提示')
-    context.routeInfo.value.router?.replace('/login')
   }
-}, loadingManager))
+}, loadingManager), true)
+
+
 const nextStep = async(nextStepNum: number) => {
   if (nextStepNum == 1) {
     const result = await accountRef.value.validate()
@@ -160,7 +165,7 @@ defineExpose(formInst)
 </script>
 
 <script lang="ts">
-import { ComponentPublicInstance, defineComponent, nextTick, reactive, Ref, ref } from 'vue'
+import { ComponentPublicInstance, defineComponent, defineEmits, nextTick, reactive, Ref, ref } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({
