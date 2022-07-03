@@ -108,7 +108,7 @@
         </tr>
       </tbody>
     </v-table>
-    <empty-tip v-if="type == 'grid' && fileList.length == 0" />
+    <empty-tip v-if="type == 'grid' && fileList.length == 0" style="position: absolute;width: 100%;" />
     <grid-container
       v-if="type == 'grid'"
       :width="120"
