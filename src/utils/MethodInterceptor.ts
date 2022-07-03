@@ -48,6 +48,15 @@ export interface ThrottleOptions {
 
 export namespace MethodInterceptor {
   /**
+   * 将函数封装为一个对象
+   * @param target 待封装的目标函数
+   */
+  export function wrapFun<T extends Function>(target: T): { invoke: T } {
+    return {
+      invoke: target
+    }
+  }
+  /**
    * 创建一个方法调用时会被自定义拦截器操作的被代理对象
    * @param target 被代理的目标对象
    * @param handler 方法拦截处理器，当目标对象的方法被调用时会触发该方法，该方法的返回值将替代目标方法的返回值

@@ -120,7 +120,15 @@ export interface AppContext {
      */
     mainMenu: AppMenu,
 
-    fileListMenu: MenuGroup<FileListContext>[]
+    /**
+     * 文件列表菜单
+     */
+    fileListMenu: MenuGroup<FileListContext>[],
+
+    /**
+     * 文件列表浏览器顶部按钮
+     */
+    fileBrowserBtn: MenuGroup<FileListContext>[]
   }
 
   /**

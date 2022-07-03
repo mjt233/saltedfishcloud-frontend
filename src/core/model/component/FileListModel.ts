@@ -1,5 +1,5 @@
 import { ComponentPublicInstance } from 'vue'
-import { FileInfo } from '../FileInfo'
+import { FileInfo, FileListContext } from '../FileInfo'
 export interface FileListModelHandler {
   /**
    * 通知列表执行新建文件夹
@@ -33,4 +33,6 @@ export interface FileListModelHandler {
    */
   delete: (name: string[]) => Promise<number> 
 }
-export type FileListModel = ComponentPublicInstance & FileListModelHandler
+export interface FileListModel extends ComponentPublicInstance {
+  context: FileListContext
+}

@@ -5,6 +5,7 @@
       :file-system-handler="handler"
       :read-only="readOnly"
       :uid="0"
+      :top-buttons="context.menu.value.fileBrowserBtn"
     />
   </div>
 </template>

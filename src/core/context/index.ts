@@ -5,6 +5,7 @@ import { emptySession } from './session'
 import { DefaultEventBus } from './EventBus'
 import { SystemFeature } from '../model'
 import { defaultFileOpenHandler } from './fileOpenHandler'
+import { defaultFileBrowserTopBtns } from '@/core/actions/FileList/FileListBtn'
 
 const defaultFeature: SystemFeature = {
   enableEmailReg: false,
@@ -23,7 +24,8 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   originTheme: 'default',
   menu: {
     mainMenu: defaultMainMenu,
-    fileListMenu: defaultFileListMenu
+    fileListMenu: defaultFileListMenu,
+    fileBrowserBtn: defaultFileBrowserTopBtns
   },
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,

@@ -6,6 +6,7 @@
       :file-system-handler="handler"
       :read-only="false"
       :uid="session.user.id"
+      :top-buttons="context.menu.value.fileBrowserBtn"
     />
   </div>
   <div v-else class="d-flex justify-center">

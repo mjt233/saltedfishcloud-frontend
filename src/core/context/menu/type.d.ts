@@ -23,7 +23,23 @@ export interface MenuGroup<T> {
   /**
    * 当函数返回true时才显示
    */
-  renderOn?: (element: T) => boolean
+  renderOn?: (ctx?: T) => boolean,
+
+  /**
+   * 菜单组颜色
+   */
+  color?: string
+
+  /**
+   * 菜单组图标
+   */
+  icon?: string
+
+  /**
+   * 整个分类的点击事件，一般在不存在子项的分类中使用（如整个按钮，该按钮下没有子按钮菜单）
+   * 取决于具体的组件实现
+   */
+  action?: (ctx: T) => any
 }
 
 /**

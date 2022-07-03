@@ -1,10 +1,11 @@
 import { StringUtils } from '@/utils/StringUtils'
 import { SfcUtils } from '@/utils/SfcUtils'
-import { FileClipBoard, FileClipBoardType } from './../../type'
+
+import { FileClipBoard, FileClipBoardType } from '@/core/context/type'
 import { FileListContext, FileTransferParam } from '@/core/model'
 import { reactive } from 'vue'
-import { context } from '../..'
-import { MenuGroup } from '../type'
+import { context } from '@/core/context'
+import { MenuGroup } from '@/core/context/menu/type'
 import API from '@/api'
 import { Validators } from '@/core/helper/Validators'
 

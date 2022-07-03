@@ -1,7 +1,78 @@
 <template>
   <div>
     <loading-mask :loading="loading" z-index="1000" />
+    
+    <!-- 顶部按钮 -->
+    <div
+      v-show="topButtons.length && topButtons.length"
+      ref="topBtnRef"
+      class="top-btn-group"
+      justify="start"
+    >
+      <div v-for="(group) in topButtons" :key="group.id">
+        <template v-if="group.renderOn ? group.renderOn(listContext) : true">
+          <!-- 单个按钮 -->
+          <v-btn
+            v-if="group.items.length == 0"
+            :color="group.color || 'primary'"
+            :icon="group.icon"
+            @click="topBtnClick(group)"
+          >
+            <v-icon
+              v-if="group.icon"
+              :size="18"
+              :icon="group.icon"
+              style="margin-right: 6px"
+            />
+            {{ group.name }}
+          </v-btn>
+
+          <!-- 按钮组 -->
+          <v-menu
+            v-else
+            open-on-focus
+            open-on-click
+          >
+            <!-- 触发按钮/标题 -->
+            <template #activator="{ props: a }">
+              <v-btn :color="group.color || 'primary'" v-bind="a">
+                
+                <v-icon
+                  v-if="group.icon"
+                  :size="18"
+                  :icon="group.icon"
+                  style="margin-right: 6px"
+                />
+                {{ group.name }}
+              </v-btn>
+            </template>
+
+            <!-- 子按钮菜单 -->
+            <v-list>
+              <template
+                v-for="(item) in group.items"
+                :key="item.id"
+              >
+                <v-list-item v-if="item.renderOn ? item.renderOn(listContext) : true" :value="item.title" @click="topBtnClick(item)">
+                  <v-icon
+                    v-if="item.icon"
+                    :size="18"
+                    style="margin-right: 6px"
+                    :icon="item.icon"
+                  />
+                  {{ item.title }}
+                </v-list-item>
+              </template> 
+            </v-list>
+          </v-menu>
+        </template>
+      </div>
+    </div>
+
+    <!-- 面包屑路径与视图切换 -->
     <v-row justify="space-between" style="max-width: 100%">
+
+      <!-- 面包屑 -->
       <v-col style="max-width: calc(100% - 140px)">
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
@@ -20,6 +91,8 @@
           </template>
         </v-breadcrumbs>
       </v-col>
+
+      <!-- 视图切换 -->
       <v-col :cols="1" style="min-width: 120px">
         <v-btn-toggle v-model="btnToggle">
           <v-btn
@@ -37,6 +110,8 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
+
+    <!-- 文件列表 -->
     <file-list
       ref="listRef"
       v-model:file-list="fileList"
@@ -58,6 +133,7 @@ import FileList from './FileList/index.vue'
 import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
+import { FileListModel } from '@/core/model/component/FileListModel'
 const props = defineProps({
   path: {
     type: String,
@@ -92,21 +168,48 @@ const props = defineProps({
   filter: {
     type: Function as PropType<(file: FileInfo) => boolean>,
     default: () => true
+  },
+  topButtons: {
+    type: Array as PropType<MenuGroup<FileListContext>[]>,
+    default: () => []
   }
 })
 
 // data
 type ListType = 'list' | 'grid'
+
+// 文件列表布局类型
 const listType: Ref<ListType> = ref('list')
+
+// 顶部按钮容器引用
+const topBtnRef = ref() as Ref<HTMLElement>
+
+// 面包屑组件引用
 const breadcrumbs = ref()
+
+// 文件列表高度
 const listHeight: Ref<undefined | number> = ref(undefined)
-const listRef = ref()
+
+// 文件列表组件实例引用
+const listRef = ref() as Ref<FileListModel>
+
+// 文件列表右键菜单
 const menu = context.menu
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
+
+// 当前的文件信息列表
 const fileList: Ref<FileInfo[]> = ref([])
+
+// 布局切换按钮组的值
 const btnToggle = ref(0)
+
+
+
 // computed
+const listContext = computed(() => {
+  return listRef.value?.context
+})
 const handler = computed(() => {
   let targetObj = props.fileSystemHandler
   if(targetObj == undefined) {
@@ -213,12 +316,21 @@ const scrollBreadcrumbs = async() => {
 const updateListHeight = async() => {
   if (props.autoComputeHeight) {
     await nextTick()
-    listHeight.value = document.documentElement.clientHeight - (listRef.value.$el as HTMLElement).getBoundingClientRect().top
+    listHeight.value = document.documentElement.clientHeight - (listRef.value.$el as HTMLElement).getBoundingClientRect().top - (topBtnRef.value as HTMLElement).clientHeight
   }
 }
 const resizeHandler = async() => {
   await scrollBreadcrumbs()
   await updateListHeight()
+}
+
+const topBtnClick = (item: MenuItem<FileListContext> | MenuGroup<FileListContext>) => {
+  if(!(item.action instanceof Function)) {
+    return
+  }
+  MethodInterceptor.createAutoCatch(
+    MethodInterceptor.createAutoLoadingProxy(MethodInterceptor.wrapFun(item.action), loadingManager)
+  ).invoke(listContext.value)
 }
 defineExpose({loadList})
 onMounted(() => {
@@ -237,8 +349,8 @@ onUnmounted(() => {
 import { FileInfo, FileListContext } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSystemHandler'
-import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive } from 'vue'
-import { context } from '@/core/context'
+import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive, ComponentPublicInstance } from 'vue'
+import { context, MenuGroup, MenuItem } from '@/core/context'
 import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from '@/core/serivce/FileUpload'
 
 export default defineComponent({
@@ -247,10 +359,18 @@ export default defineComponent({
 </script>
 
 
-<style>
+<style lang="scss">
 .path-breadcrumbs {
   white-space: nowrap;
   padding: 6px 0;
   scroll-behavior:smooth
+}
+.top-btn-group {
+  padding-left: 12px;
+  &>* {
+    display: inline-block;
+    margin-right: 12px;
+    margin-bottom: 12px;
+  }
 }
 </style>

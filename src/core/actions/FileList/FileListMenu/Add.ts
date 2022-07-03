@@ -2,7 +2,7 @@ import { Validators } from '@/core/helper/Validators'
 import { FileListContext } from '@/core/model'
 import { ValidateRule } from '@/core/model/component/type'
 import SfcUtils from '@/utils/SfcUtils'
-import { MenuGroup } from '../type'
+import { MenuGroup } from '@/core/context'
 
 const addGroup: MenuGroup<FileListContext> = {
   // 新增菜单

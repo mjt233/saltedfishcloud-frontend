@@ -378,7 +378,9 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', updateWidth)
 })
-defineExpose(fileListContext.modelHandler)
+defineExpose({
+  context: fileListContext
+})
 </script>
 
 <script lang="ts">
