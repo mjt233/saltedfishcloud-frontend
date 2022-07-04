@@ -26,7 +26,10 @@ export interface ValidateErrorMessage {
 }
 
 export interface ValidateResult {
+  /** 是否通过校验 */
   valid: boolean,
+
+  /** 错误信息 */
   errors: ValidateErrorMessage[]
 }
 

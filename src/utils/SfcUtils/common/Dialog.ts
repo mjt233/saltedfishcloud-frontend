@@ -1,6 +1,6 @@
 import SfcUtils from '@/utils/SfcUtils'
 import { DialogModel } from '@/core/model/component/DialogModel'
-import { ref, reactive, h, Ref, toRefs, VNode } from 'vue'
+import { ref, reactive, h, Ref, toRefs, VNode, DefineComponent } from 'vue'
 import { DyncComponentHandler, dyncmount } from './DyncMount'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
@@ -49,7 +49,24 @@ export class DialogPromise extends Promise<void> {
     super(executor)
   }
 
+  /**
+   * 关闭对话框（同doCancel）
+   */
   close() {
+    this.doCancel()
+  }
+
+  /**
+   * 执行确认
+   */
+  doConfirm() {
+
+  }
+
+  /**
+   * 执行取消
+   */
+  doCancel() {
 
   }
 
@@ -108,49 +125,55 @@ export function dialog(opt: DialogOpt) {
     extraProps.maxWidth = '99999px'
   }
   let vueInst = ref() as Ref<DyncComponentHandler<DialogModel>>
+  let close: () => void
+
+  // 构造组件参数
+  const attrs = reactive({
+    // 对话框显示控制
+    modelValue: true,
+    async 'onUpdate:modelValue'(e: any) {
+      attrs.modelValue = e
+      if (!e) {
+        if(await onCancel(ret.handler.value.getComponentInst())) {
+          close()
+        }
+      }
+    },
+    fullscreen,
+    title,
+    // 对话框确认
+    async onConfirm() {
+      try {
+        if(await onConfirm(vueInst.value.getComponentInst())) {
+          attrs.modelValue = false
+        }
+      } catch(err) {
+        SfcUtils.snackbar(err, 1500, {outClose: true})
+      }
+    },
+
+    // 对话框取消
+    async onCancel() {
+      if (await onCancel(vueInst.value.getComponentInst())) {
+        attrs.modelValue = false
+        setTimeout(vueInst.value.unmount, 120)
+      }
+    },
+    ...extraProps
+  })
+
   const ret = new DialogPromise((resolve, reject) => {
-    const close = () => {
+    close = () => {
       resolve()
       setTimeout(vueInst.value.unmount, 120)
     }
-    // 构造组件参数
-    const attrs = reactive({
-      // 对话框显示控制
-      modelValue: true,
-      async 'onUpdate:modelValue'(e: any) {
-        attrs.modelValue = e
-        if (!e) {
-          if(await onCancel(ret.handler.value.getComponentInst())) {
-            close()
-          }
-        }
-      },
-      fullscreen,
-      title,
-      // 对话框确认
-      async onConfirm() {
-        try {
-          if(await onConfirm(vueInst.value.getComponentInst())) {
-            attrs.modelValue = false
-          }
-        } catch(err) {
-          SfcUtils.snackbar(err, 1500, {outClose: true})
-        }
-      },
-
-      // 对话框取消
-      async onCancel() {
-        if (await onCancel(vueInst.value.getComponentInst())) {
-          attrs.modelValue = false
-          setTimeout(vueInst.value.unmount, 120)
-        }
-      },
-      ...extraProps
-    })
-
+    
     // 动态创建组件并挂载
     vueInst.value = dyncmount<DialogModel>(BaseDialog, attrs, children)
   })
+  ret.doConfirm = attrs.onConfirm
+  ret.doCancel = attrs.onCancel
+  ret.close = attrs.onCancel
   ret.handler = vueInst
   return ret
 }

@@ -41,6 +41,19 @@ export interface PageInfo<T> {
 }
 
 /**
+ * JPA分页查询结果信息
+ */
+export interface JpaPageInfo<T> {
+  content: T[]
+
+  size: number
+
+  totalPages: number
+
+  totalElements: number
+}
+
+/**
  * 分页请求标准参数
  */
 export interface PageRequestParam {
