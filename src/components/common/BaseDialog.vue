@@ -7,9 +7,9 @@
     :persistent="persistent"
   >
     <loading-mask :loading="loading" />
-    <v-card :title="title" color="background">
-      <v-card-content style="margin-top: 12px">
-        <div style="padding: 0 12px">
+    <v-card :title="title" color="background" :class="{'dialog-card': !dense}">
+      <v-card-content :class="{'dense-content': dense}">
+        <div>
           <!-- 对话框默认正文内容插槽 -->
           <slot />
         </div>
@@ -18,10 +18,10 @@
       <!-- 对话框操作按钮插槽 -->
       <v-card-actions v-show="!hideBtn || $slots.actions" class="justify-end">
         <template v-if="!hideBtn">
-          <v-btn color="primary" @click="emits('confirm')">
+          <v-btn v-if="showConfirm" color="primary" @click="emits('confirm')">
             确定
           </v-btn>
-          <v-btn color="primary" @click="emits('cancel')">
+          <v-btn v-if="showCancel" color="primary" @click="emits('cancel')">
             取消
           </v-btn>
         </template>
@@ -33,8 +33,15 @@
 
 <script setup lang="ts">
 import LoadingMask from './LoadingMask.vue'
-const showDialog = ref()
 defineProps({
+  showConfirm: {
+    type: Boolean,
+    default: true
+  },
+  showCancel: {
+    type: Boolean,
+    default: true
+  },
   title: {
     type: String,
     default: ''
@@ -65,6 +72,10 @@ defineProps({
   fullscreen: {
     type: Boolean,
     default: false
+  },
+  dense: {
+    type: Boolean,
+    defaule: false
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])
@@ -82,8 +93,20 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style lang="scss">
 .base-dialog .v-overlay__content {
   width: 100% !important;
+}
+
+.dialog-card {
+  .v-card-content {
+    margin-top: 12px;
+    &>div{
+      padding: 12px;
+    }
+  }
+}
+.v-card-content.dense-content {
+  padding: 0;
 }
 </style>

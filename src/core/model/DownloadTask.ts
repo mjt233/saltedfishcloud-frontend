@@ -16,7 +16,7 @@ export interface DownloadTaskInfo {
   state: DownloadTaskStatus
 
   /** 任务消息 */
-  message: string
+  message?: string
 
   /** 已完成的量 */
   loaded: number
@@ -34,10 +34,10 @@ export interface DownloadTaskInfo {
   savePath: string
 
   /** 创建日期 */
-  createdAt: Date
+  createdAt: Date | string
 
   /** 完成日期 */
-  finishAt: Date
+  finishAt?: Date | string
 
   /** 创建人 */
   createdBy: number

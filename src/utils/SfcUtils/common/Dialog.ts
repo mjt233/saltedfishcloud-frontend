@@ -1,6 +1,6 @@
 import SfcUtils from '@/utils/SfcUtils'
 import { DialogModel } from '@/core/model/component/DialogModel'
-import { ref, reactive, h, Ref, toRefs, VNode, DefineComponent } from 'vue'
+import { ref, reactive, h, Ref, toRefs, VNode, DefineComponent, ComponentPublicInstance } from 'vue'
 import { DyncComponentHandler, dyncmount } from './DyncMount'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
@@ -114,7 +114,7 @@ export interface PromptOpt {
  */
 export function dialog(opt: DialogOpt) {
   const {
-    title = '对话框',
+    title = null,
     onConfirm = () => true,
     onCancel = () => true,
     children,
@@ -177,6 +177,42 @@ export function dialog(opt: DialogOpt) {
   ret.handler = vueInst
   return ret
 }
+
+export interface OpenComponentDialogOption {
+  props?: any,
+  showConfirm?: boolean,
+  showCancel?: boolean,
+  onConfirm?: () => boolean | Promise<boolean>,
+  onCancel?: () => boolean | Promise<boolean>,
+  title?: string,
+  dense?: boolean,
+  extraDialogOptions?: any
+}
+
+export function openComponentDialog(component: any, opt?: OpenComponentDialogOption) {
+  const { dense = false, props = {}, showConfirm = true, showCancel = true, onConfirm = () => true, onCancel = () => true, title = '', extraDialogOptions = {}} = opt || {}
+  props.ref = 'component'
+  const dialogPromise = dialog({
+    children: () => h(component, props),
+    onConfirm,
+    onCancel,
+    title,
+    extraProps: {
+      dense,
+      showCancel,
+      showConfirm,
+      ...extraDialogOptions
+    }
+  })
+
+  return {
+    ...dialogPromise,
+    getComponentInstRef() {
+      return (dialogPromise.handler.value.getRoot().$refs.component) as ComponentPublicInstance
+    }
+  }
+}
+
 
 /**
  * 弹出输入提示框

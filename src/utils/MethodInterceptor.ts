@@ -194,4 +194,13 @@ export namespace MethodInterceptor {
       return returnInvalidVal(invalidStrategy)
     })
   }
+  /**
+   * 创建一个异步执行代理对象，组合了自动异常捕获处理和自动加载管理功能
+   * @param target 被代理对象
+   * @param throwErr 出错是否抛出错误
+   * @param manager 加载管理器
+   */
+  export function createAsyncActionProxy<T extends Object>(target: T, throwErr: boolean, manager: LoadingManager) {
+    return createAutoCatch(createAutoLoadingProxy(target, manager), throwErr)
+  }
 }

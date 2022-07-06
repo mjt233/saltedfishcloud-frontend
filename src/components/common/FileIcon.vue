@@ -3,6 +3,7 @@
     :src="imgUrl"
     style="display: inline-block"
     :transition="false"
+    class="file-icon-img"
   >
     <template #placeholder>
       <v-img :src="commonUrl" :transition="false" />
@@ -69,5 +70,7 @@ export default defineComponent({
 .v-img__img--preload {
   filter: none !important;
 }
-
+.file-icon-img {
+  width: 32px;
+}
 </style>

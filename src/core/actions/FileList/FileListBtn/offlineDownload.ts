@@ -4,6 +4,7 @@ import { FileListContext } from '@/core/model'
 import { h, reactive } from 'vue'
 import CreateDownloadForm from '@/components/form/CreateDownloadForm.vue'
 import { CommonForm } from '@/utils/FormUtils'
+import DownloadTaskView from '@/components/common/DownloadTask/DownloadTaskView.vue'
 const offlineDownload: MenuGroup<FileListContext> = reactive({
   id: 'offline-download',
   name: '离线下载',
@@ -49,7 +50,24 @@ const offlineDownload: MenuGroup<FileListContext> = reactive({
       id: 'view-download',
       icon: 'mdi-format-list-bulleted',
       name: '查看下载',
-      title: '查看下载'
+      title: '查看下载',
+      action(ctx) {
+        const dialog = SfcUtils.openComponentDialog(DownloadTaskView, {
+          props: {
+            uid: ctx.uid,
+            style: {
+              height: '80vh',
+              padding: '0 12px'
+            },
+          },
+          extraDialogOptions: {
+            maxWidth: '640px'
+          },
+          title: '下载任务',
+          dense: true,
+          showCancel: false
+        })
+      }
     }
   ]
 })

@@ -26,7 +26,7 @@ export namespace StringFormatter {
      * @param {Number|String} inputDate Unix时间戳（毫秒）
      * @returns {String}
      */
-  export function toDate(inputDate: number | string) {
+  export function toDate(inputDate: number | string | Date) {
     const date = new Date(inputDate)
     var month = date.getMonth() + 1
     var day = date.getDate()
