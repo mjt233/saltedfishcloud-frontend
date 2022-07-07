@@ -1,7 +1,7 @@
 import SfcUtils from '@/utils/SfcUtils'
 import { DialogModel } from '@/core/model/component/DialogModel'
 import { ref, reactive, h, Ref, toRefs, VNode, DefineComponent, ComponentPublicInstance } from 'vue'
-import { DyncComponentHandler, dyncmount } from './DyncMount'
+import { ChildrenType, DyncComponentHandler, dyncmount } from './DyncMount'
 import BaseDialog from '@/components/common/BaseDialog.vue'
 import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
 import { ValidateRule } from '@/core/model/component/type'
@@ -17,20 +17,23 @@ export interface DialogOpt {
   onConfirm(model: DialogModel): Promise<boolean> | boolean,
   onCancel(model: DialogModel): Promise<boolean> | boolean,
 
-  children?: VNode | Array<any> | string | Function,
+  children: ChildrenType,
   extraProps?: any
 
   /**
    * 是否全屏显示
    */
-  fullscreen?: boolean
+  fullscreen?: boolean,
+
+  header?: ChildrenType,
+  footer?: ChildrenType
 }
 
 export interface ConfirmOpt {
   /**
    * 额外附加的VNode子节点
    */
-  children?: VNode | Array<any> | string | Function
+  children?: ChildrenType
 
   /**
    * 当用户点击取消或关闭对话框时是否将Promise敲定为reject
@@ -42,8 +45,24 @@ export interface ConfirmOpt {
    */
   html?: string
 }
+export interface DialogHandler {
 
-export class DialogPromise extends Promise<void> {
+  /**
+   * 关闭对话框（同doCancel）
+   */
+  close: () => void
+
+  /**
+   * 执行确认
+   */
+  doConfirm: () => void
+
+  /**
+   * 执行取消
+   */
+  doCancel: () => void
+}
+export class DialogPromise extends Promise<void> implements DialogHandler {
   handler!: Ref<DyncComponentHandler<DialogModel>>
   constructor(executor: (resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void) => void) {
     super(executor)
@@ -52,21 +71,21 @@ export class DialogPromise extends Promise<void> {
   /**
    * 关闭对话框（同doCancel）
    */
-  close() {
+  public close() {
     this.doCancel()
   }
 
   /**
    * 执行确认
    */
-  doConfirm() {
+  public doConfirm() {
 
   }
 
   /**
    * 执行取消
    */
-  doCancel() {
+  public doCancel() {
 
   }
 
@@ -112,14 +131,16 @@ export interface PromptOpt {
  * 弹出对话框
  * @param opt 对话框选项
  */
-export function dialog(opt: DialogOpt) {
+export function dialog(opt: DialogOpt): DialogPromise {
   const {
     title = null,
     onConfirm = () => true,
     onCancel = () => true,
     children,
     extraProps = {},
-    fullscreen = false
+    fullscreen = false,
+    header = () => h('div'),
+    footer = () => h('div')
   } = opt
   if (fullscreen) {
     extraProps.maxWidth = '99999px'
@@ -169,7 +190,11 @@ export function dialog(opt: DialogOpt) {
     }
     
     // 动态创建组件并挂载
-    vueInst.value = dyncmount<DialogModel>(BaseDialog, attrs, children)
+    vueInst.value = dyncmount<DialogModel>(BaseDialog, attrs, {
+      default: children,
+      actions: footer,
+      header
+    })
   })
   ret.doConfirm = attrs.onConfirm
   ret.doCancel = attrs.onCancel
@@ -186,17 +211,32 @@ export interface OpenComponentDialogOption {
   onCancel?: () => boolean | Promise<boolean>,
   title?: string,
   dense?: boolean,
-  extraDialogOptions?: any
+  extraDialogOptions?: any,
+  header?: ChildrenType,
+  footer?: ChildrenType
 }
 
-export function openComponentDialog(component: any, opt?: OpenComponentDialogOption) {
-  const { dense = false, props = {}, showConfirm = true, showCancel = true, onConfirm = () => true, onCancel = () => true, title = '', extraDialogOptions = {}} = opt || {}
+export function openComponentDialog(component: any, opt?: OpenComponentDialogOption): DialogPromise & { getComponentInstRef: () => ComponentPublicInstance } {
+  const {
+    dense = false,
+    props = {},
+    showConfirm = true,
+    showCancel = true,
+    onConfirm = () => true,
+    onCancel = () => true,
+    title = '',
+    extraDialogOptions = {},
+    header,
+    footer
+  } = opt || {}
   props.ref = 'component'
   const dialogPromise = dialog({
     children: () => h(component, props),
     onConfirm,
     onCancel,
     title,
+    header,
+    footer,
     extraProps: {
       dense,
       showCancel,
@@ -209,7 +249,10 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     ...dialogPromise,
     getComponentInstRef() {
       return (dialogPromise.handler.value.getRoot().$refs.component) as ComponentPublicInstance
-    }
+    },
+    doConfirm: dialogPromise.doConfirm.bind(dialogPromise),
+    doCancel: dialogPromise.doCancel.bind(dialogPromise),
+    close: dialogPromise.close.bind(dialogPromise),
   }
 }
 

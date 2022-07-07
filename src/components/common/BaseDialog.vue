@@ -8,6 +8,9 @@
   >
     <loading-mask :loading="loading" />
     <v-card :title="title" color="background" :class="{'dialog-card': !dense}">
+      <v-card-header>
+        <slot name="header" />
+      </v-card-header>
       <v-card-content :class="{'dense-content': dense}">
         <div>
           <!-- 对话框默认正文内容插槽 -->
