@@ -70,10 +70,10 @@
     </div>
 
     <!-- 面包屑路径与视图切换 -->
-    <v-row justify="space-between" style="max-width: 100%">
+    <v-row justify="space-between" style="max-width: calc(100% - 12px);padding-left: 12px;">
 
       <!-- 面包屑 -->
-      <v-col style="max-width: calc(100% - 140px)">
+      <v-col style="max-width: calc(100% - 140px);">
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
             <a class="link" @click="jumpIndex(pathItems.length - 2)">返回上一级</a>
