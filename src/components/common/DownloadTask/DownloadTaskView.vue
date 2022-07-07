@@ -24,6 +24,7 @@
 import LoadingMask from '../LoadingMask.vue'
 import DownloadList from './DownloadList.vue'
 const loadingManager = new LoadingManager()
+let listLoading = false
 const loading = loadingManager.getLoadingRef()
 const props = defineProps({
   uid: {
@@ -36,14 +37,24 @@ const taskCollection = reactive({
   download: [] as DownloadTaskInfo[],
   finish: [] as DownloadTaskInfo[]
 })
-const actions = MethodInterceptor.createAsyncActionProxy({
-  async loadList() {
-    if(loading.value) {
-      return
-    }
+const loadList = async() => {
+  if (listLoading) {
+    return
+  }
+  try {
+    listLoading = true
     const allList = (await SfcUtils.request(API.task.download.getTaskList(props.uid, 'ALL', 1, 15))).data.data
     taskCollection.download = allList.content.filter(e => e.state == 'DOWNLOADING' || e.state == 'WAITING')
     taskCollection.finish = allList.content.filter(e => e.state != 'DOWNLOADING' && e.state != 'WAITING')
+  } finally {
+    listLoading = false
+  }
+}
+
+const actions = MethodInterceptor.createAsyncActionProxy({
+  async loadList() {
+    // 这里是为了让这里的支持
+    return await loadList()
   },
   async interruptTask(id: string) {
     await SfcUtils.request(API.task.download.interruptTask(props.uid, id))
@@ -55,7 +66,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 }, false, loadingManager)
 
 actions.loadList()
-const timer = setInterval(actions.loadList, 2000)
+const timer = setInterval(loadList, 5000)
 onUnmounted(() => {
   clearInterval(timer)
 })
