@@ -3,10 +3,10 @@
     <loading-mask :loading="loading" />
     <v-tabs v-model="tab" fixed-tabs color="primary">
       <v-tab value="DOWNLOAD">
-        下载中
+        下载中{{ taskCollection.downloadCount && `(${taskCollection.downloadCount})` || '' }}
       </v-tab>
       <v-tab value="FINISH">
-        已完成
+        已完成{{ taskCollection.finishCount && `(${taskCollection.finishCount})` || '' }}
       </v-tab>
     </v-tabs>
     <v-window :model-value="tab" style="padding: 0 12px; height: 70vh; overflow-y: auto;">
@@ -35,7 +35,9 @@ const props = defineProps({
 const tab = ref() as Ref<DownloadTaskType>
 const taskCollection = reactive({
   download: [] as DownloadTaskInfo[],
-  finish: [] as DownloadTaskInfo[]
+  finish: [] as DownloadTaskInfo[],
+  downloadCount: 0,
+  finishCount: 0
 })
 const loadList = async() => {
   if (listLoading) {
@@ -43,9 +45,11 @@ const loadList = async() => {
   }
   try {
     listLoading = true
-    const allList = (await SfcUtils.request(API.task.download.getTaskList(props.uid, 'ALL', 1, 15))).data.data
+    const allList = (await SfcUtils.request(API.task.download.getTaskList(props.uid, 'ALL', 1, 300))).data.data
     taskCollection.download = allList.content.filter(e => e.state == 'DOWNLOADING' || e.state == 'WAITING')
     taskCollection.finish = allList.content.filter(e => e.state != 'DOWNLOADING' && e.state != 'WAITING')
+    taskCollection.finishCount = taskCollection.finish.length
+    taskCollection.downloadCount = taskCollection.download.length
   } finally {
     listLoading = false
   }
