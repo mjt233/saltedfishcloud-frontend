@@ -24,6 +24,10 @@ const props = defineProps({
   type: {
     type: String as PropType<'around' | 'between' | 'evenly'>,
     default: 'evenly'
+  },
+  gap: {
+    type: String,
+    default: '10px'
   }
 })
 
@@ -65,7 +69,7 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(auto-fill, v-bind(itemWidth));
   justify-content: v-bind(justifyContent);
-  gap: 10px;
+  gap: v-bind('gap');
   grid-auto-rows: max-content;
 }
 </style>

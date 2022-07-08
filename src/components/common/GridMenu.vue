@@ -1,11 +1,15 @@
 <template>
-  <div class="box-view">
+  <div ref="rootRef" class="box-view">
     <div v-for="group in availableItems" :key="group.id" class="item-group">
       <div class="text-subtitle-1">
         {{ group.name }}
       </div>
       <v-divider />
-      <grid-container type="between" :width="boxSize" style="margin-top: 6px">
+      <grid-container
+        type="between"
+        :width="boxSize"
+        :gap="'0px'"
+      >
         <template v-for="item in group.items" :key="item.id">
           <div v-if="item.renderOn ? item.renderOn(context) : true" v-ripple class="grid-item">
             <div class="grid-item-icon">
@@ -53,10 +57,30 @@ const boxSizePx = computed(() => {
 const boxIconSize = computed(() => {
   return boxSize.value / 4 + 'px'
 })
+const rootRef = ref() as Ref<HTMLElement>
+const updateSize = () => {
+  const el = rootRef.value as HTMLElement
+  if (el.clientWidth < 480) {
+    boxSize.value = 96
+  } else {
+    boxSize.value = 120
+  }
+}
+onMounted(() => {
+  setTimeout(() => {
+    
+    updateSize()
+    window.addEventListener('resize', updateSize)
+  }, 200)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateSize)
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, ToRefs } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, ToRefs, ComponentPublicInstance, onMounted, onUnmounted, nextTick } from 'vue'
 
 export default defineComponent({
   name: 'GridMenu'
