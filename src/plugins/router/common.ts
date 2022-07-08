@@ -61,6 +61,10 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
     {
       path: '/forget',
       component: () => import('@/views/common/ForgetView.vue')
+    },
+    {
+      path: '/box',
+      component: () => import('@/views/common/BoxView.vue')
     }
   ]
 }

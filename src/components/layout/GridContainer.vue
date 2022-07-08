@@ -20,6 +20,10 @@ const props = defineProps({
   smWidth: {
     type: Number,
     default: undefined
+  },
+  type: {
+    type: String as PropType<'around' | 'between' | 'evenly'>,
+    default: 'evenly'
   }
 })
 
@@ -37,7 +41,9 @@ const itemWidth = computed(() => {
     return props.width + 'px'
   }
 })
-
+const justifyContent = computed(() => {
+  return 'space-' + props.type
+})
 onMounted(() => {
   updateWidth()
   window.addEventListener('resize', updateWidth)
@@ -48,7 +54,7 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { defineProps, defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
+import { defineProps, defineComponent, ref, computed, onMounted, onUnmounted, PropType } from 'vue'
 export default defineComponent({
   name: 'GridContainer'
 })
@@ -58,7 +64,7 @@ export default defineComponent({
 .fill-center {
   display: grid;
   grid-template-columns: repeat(auto-fill, v-bind(itemWidth));
-  justify-content: space-evenly;
+  justify-content: v-bind(justifyContent);
   gap: 10px;
   grid-auto-rows: max-content;
 }

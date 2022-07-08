@@ -26,6 +26,18 @@ const defaultMainMenu: MenuType.AppMenu = {
       ]
     },
 
+    {
+      id: 'other',
+      name: '便捷功能',
+      items: [
+        {
+          id: 'box',
+          title: '百宝箱',
+          route: '/box',
+          icon: 'mdi-view-grid'
+        }
+      ]
+    },
     // 账号
     {
       id: 'account',
