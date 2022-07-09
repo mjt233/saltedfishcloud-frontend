@@ -144,6 +144,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
   } = opt
   if (fullscreen) {
     extraProps.maxWidth = '99999px'
+    extraProps.width = '100vw'
   }
   let vueInst = ref() as Ref<DyncComponentHandler<DialogModel>>
   let close: () => void
