@@ -216,7 +216,17 @@ const handler = computed(() => {
     targetObj = FileSystemHandlerFactory.getFileSystemHandler(ref(0))
   }
   return MethodInterceptor.createAutoCatch(
-    MethodInterceptor.createAutoLoadingProxy(targetObj, loadingManager)
+    MethodInterceptor.createAutoLoadingProxy(
+      MethodInterceptor.createProxy(targetObj, (invoker, args, name) => {
+        const ret = invoker(args)
+        if (name != 'loadList') {
+          return ret
+        }
+
+        return (ret as ReturnType<FileSystemHandler['loadList']>).then(e => {
+          return e.filter(props.filter)
+        })
+      }), loadingManager)
   )
 })
 
@@ -236,7 +246,7 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
       ret = await handler.value.loadList(props.path)
       if (attr && attr.uid == props.uid && attr.path == props.path) {
         fileList.value.length = 0
-        ret.forEach(e => fileList.value.push(e))
+        ret.filter(props.filter).forEach(e => fileList.value.push(e))
         this.loading = false
       }
     }

@@ -1,16 +1,18 @@
 import { LoadingManager } from './LoadingManager'
 import SfcUtils from './SfcUtils'
+
+export type ObjectKey<T> = Exclude<keyof T, number | symbol>
 /**
  * 拦截处理器
  */
-export interface InterceptorHandler {
+export interface InterceptorHandler<T extends Object> {
   /**
    * @param targetInvoker 目标方法函数
    * @param args 调用原方法时传入的参数
    * @param name 被调用的方法名称
    * @returns 方法调用返回值
    */
-  (targetInvoker: Function, args: any[], name: string): any
+  (targetInvoker: Function, args: any[], name: ObjectKey<T>): any
 }
 
 /**
@@ -61,10 +63,10 @@ export namespace MethodInterceptor {
    * @param target 被代理的目标对象
    * @param handler 方法拦截处理器，当目标对象的方法被调用时会触发该方法，该方法的返回值将替代目标方法的返回值
    */
-  export function createProxy<T extends Object>(target: T,handler: InterceptorHandler) {
+  export function createProxy<T extends Object>(target: T,handler: InterceptorHandler<T>) {
     if (target instanceof Function) {
       return ((...args: any) => {
-        return handler(target, args, target.name)
+        return handler(target, args, target.name as ObjectKey<T>)
       }) as any as T
     }
     return new Proxy(target, {
@@ -79,7 +81,7 @@ export namespace MethodInterceptor {
         }
 
         return (...args: any) => {
-          return handler(invoker, args, String(key))
+          return handler(invoker, args, String(key) as ObjectKey<T>)
         }
       }
     })

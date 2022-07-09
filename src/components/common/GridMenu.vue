@@ -11,7 +11,12 @@
         :gap="'0px'"
       >
         <template v-for="item in group.items" :key="item.id">
-          <div v-if="item.renderOn ? item.renderOn(context) : true" v-ripple class="grid-item">
+          <div
+            v-if="item.renderOn ? item.renderOn(context) : true"
+            v-ripple
+            class="grid-item"
+            @click="itemClick(item)"
+          >
             <div class="grid-item-icon">
               <v-icon>
                 {{ item.icon || 'mdi-puzzle' }}
@@ -30,21 +35,12 @@
 
 <script setup lang="ts">
 import GridContainer from '@/components/layout/GridContainer.vue'
-import { AppContext, MenuGroup, context } from '@/core/context'
-const defaultBoxItems: MenuGroup<ToRefs<AppContext>>[] = [
-  {
-    id: 'shareAndCollection',
-    name: '分享与收集',
-    items: []
-  }
-]
+import { AppContext, MenuGroup, context, MenuItem } from '@/core/context'
+import SfcUtils from '@/utils/SfcUtils'
 const props = defineProps({
   items: {
     type: Array as PropType<MenuGroup<ToRefs<AppContext>>[]>,
-    default: () => {
-      return [
-      ]
-    }
+    default: () => []
   }
 })
 const availableItems = computed(() => {
@@ -66,6 +62,19 @@ const updateSize = () => {
     boxSize.value = 120
   }
 }
+const itemClick = (item: MenuItem<ToRefs<AppContext>>) => {
+  if (item.action) {
+    try {
+      item.action(context)
+    } catch (err) {
+      console.error(err)
+      SfcUtils.snackbar(err)
+    }
+  } else {
+    SfcUtils.snackbar('功能未实现')
+  }
+}
+
 onMounted(() => {
   setTimeout(() => {
     

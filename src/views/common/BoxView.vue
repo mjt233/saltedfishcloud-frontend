@@ -5,8 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import GridContainer from '@/components/layout/GridContainer.vue'
-import { AppContext, MenuGroup, context } from '@/core/context'
+import { AppContext, MenuGroup } from '@/core/context'
 import GridMenu from '@/components/common/GridMenu.vue'
 
 const items: MenuGroup<ToRefs<AppContext>>[] = [
