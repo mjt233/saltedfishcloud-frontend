@@ -246,7 +246,7 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
       ret = await handler.value.loadList(props.path)
       if (attr && attr.uid == props.uid && attr.path == props.path) {
         fileList.value.length = 0
-        ret.filter(props.filter).forEach(e => fileList.value.push(e))
+        ret.forEach(e => fileList.value.push(e))
         this.loading = false
       }
     }
@@ -285,7 +285,7 @@ const jumpIndex = (nodeIndex: number) => {
 }
 
 const loadList = async(path: string) => {
-  fileList.value = (await handler.value.loadList(path)).filter(props.filter)
+  fileList.value = await handler.value.loadList(path)
   if (props.path != path) {
     emits('update:path', path)
     scrollBreadcrumbs()
