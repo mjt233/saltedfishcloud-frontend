@@ -1,4 +1,4 @@
-import { ToRefs } from 'vue'
+import { ToRefs, VNode } from 'vue'
 import { AppContext } from '../type'
 
 /**
@@ -81,4 +81,17 @@ export interface MenuItem<T> {
 export interface AppMenu {
   backgroundImg: string,
   group: MenuGroup<ToRefs<AppContext>>[]
+}
+
+
+export interface BoxMenuContext {
+  /**
+   * 当前打开的组件VNode/组件名/或无
+   */
+  currentComponent?: VNode | string
+
+  /**
+   * 当前打开的窗口标题
+   */
+  title?: string
 }

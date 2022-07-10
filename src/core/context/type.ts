@@ -1,5 +1,5 @@
 import { Session } from './session'
-import { AppMenu, MenuGroup } from './menu/type'
+import { AppMenu, BoxMenuContext, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
 import { FileInfo, FileListContext, SystemFeature } from '../model'
@@ -131,7 +131,9 @@ export interface AppContext {
     /**
      * 文件列表浏览器顶部按钮
      */
-    fileBrowserBtn: MenuGroup<FileListContext>[]
+    fileBrowserBtn: MenuGroup<FileListContext>[],
+
+    boxMenu: MenuGroup<BoxMenuContext>[]
   }
 
   /**

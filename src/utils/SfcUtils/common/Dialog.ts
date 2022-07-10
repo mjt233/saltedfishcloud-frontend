@@ -214,7 +214,8 @@ export interface OpenComponentDialogOption {
   dense?: boolean,
   extraDialogOptions?: any,
   header?: ChildrenType,
-  footer?: ChildrenType
+  footer?: ChildrenType,
+  fullscreen?: boolean
 }
 
 export function openComponentDialog(component: any, opt?: OpenComponentDialogOption): DialogPromise & { getComponentInstRef: () => ComponentPublicInstance } {
@@ -228,7 +229,8 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     title = '',
     extraDialogOptions = {},
     header,
-    footer
+    footer,
+    fullscreen
   } = opt || {}
   props.ref = 'component'
   const dialogPromise = dialog({
@@ -238,6 +240,7 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     title,
     header,
     footer,
+    fullscreen,
     extraProps: {
       dense,
       showCancel,

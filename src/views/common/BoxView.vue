@@ -1,50 +1,49 @@
 <template>
-  <div style="padding: 12px">
-    <grid-menu :items="items" />
+  <div style="padding-top: 0">
+    <div class="tool-bar d-flex align-center" :class="{active: inActive == '1'}">
+      <v-btn
+        size="small"
+        icon="mdi-arrow-left"
+        flat
+        @click="menuContext.currentComponent = undefined"
+      />
+      {{ menuContext.title }}
+    </div>
+    <v-window :model-value="inActive">
+      <v-window-item value="0">
+        <grid-menu :items="context.menu.value.boxMenu" :arg-provider="argProvider" />
+      </v-window-item>
+      <v-window-item value="1">
+        <div style="padding-left: 16px">
+          <component :is="menuContext.currentComponent" v-if="menuContext.currentComponent" />
+        </div>
+        
+      </v-window-item>
+    </v-window>
+    
   </div>
 </template>
 
 <script setup lang="ts">
-import { AppContext, MenuGroup } from '@/core/context'
+import { AppContext, BoxMenuContext, context, MenuGroup } from '@/core/context'
 import GridMenu from '@/components/common/GridMenu.vue'
-
-const items: MenuGroup<ToRefs<AppContext>>[] = [
-  {
-    id: 'shareAndCollection',
-    name: '文件交流',
-    items: [
-      {
-        id: 'file-collect',
-        title: '文件收集',
-        icon: 'mdi-package-down'
-      },
-      {
-        id: 'file-share',
-        title: '文件分享',
-        icon: 'mdi-share-variant'
-      },
-      {
-        id: '1',
-        title: '测试1',
-        icon: 'mdi-bell-circle'
-      },
-      {
-        id: '2',
-        title: '测试2',
-        icon: 'mdi-bookmark'
-      },
-      {
-        id: '3',
-        title: '测试3',
-        icon: 'mdi-cached'
-      }
-    ]
+const menuContext: BoxMenuContext = reactive({
+  currentComponent: undefined,
+  title: ''
+})
+const argProvider: ArgumentProvider<BoxMenuContext> = {
+  getArgument(index, item) {
+    return menuContext
   }
-]
+}
+const inActive = computed(() => {
+  return menuContext.currentComponent ? '1' : '0'
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, ToRefs } from 'vue'
+import { computed, defineComponent, reactive } from 'vue'
+import { ArgumentProvider } from '@/core/model/component/GridMenuModel'
 
 export default defineComponent({
   name: 'BoxView'
@@ -52,5 +51,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-
+.tool-bar {
+  height: 0px;
+  opacity: 0;
+  transition: all .2s;
+  &.active {
+    opacity: 1;
+    height: 40px;
+  }
+}
 </style>

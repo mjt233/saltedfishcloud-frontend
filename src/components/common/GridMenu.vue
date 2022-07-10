@@ -10,12 +10,12 @@
         :width="boxSize"
         :gap="'0px'"
       >
-        <template v-for="item in group.items" :key="item.id">
+        <template v-for="(item, index) in group.items" :key="item.id">
           <div
             v-if="item.renderOn ? item.renderOn(context) : true"
             v-ripple
             class="grid-item"
-            @click="itemClick(item)"
+            @click="itemClick(item, index)"
           >
             <div class="grid-item-icon">
               <v-icon>
@@ -36,11 +36,18 @@
 <script setup lang="ts">
 import GridContainer from '@/components/layout/GridContainer.vue'
 import { AppContext, MenuGroup, context, MenuItem } from '@/core/context'
+import { ArgumentProvider } from '@/core/model/component/GridMenuModel'
 import SfcUtils from '@/utils/SfcUtils'
 const props = defineProps({
   items: {
-    type: Array as PropType<MenuGroup<ToRefs<AppContext>>[]>,
+    type: Array as PropType<MenuGroup<any>[]>,
     default: () => []
+  },
+  argProvider: {
+    type: Object as PropType<ArgumentProvider<any>>,
+    default: () => {
+      return { getArgument: () => undefined }
+    }
   }
 })
 const availableItems = computed(() => {
@@ -56,16 +63,20 @@ const boxIconSize = computed(() => {
 const rootRef = ref() as Ref<HTMLElement>
 const updateSize = () => {
   const el = rootRef.value as HTMLElement
+  if (!el) {
+    return
+  }
   if (el.clientWidth < 480) {
     boxSize.value = 96
   } else {
     boxSize.value = 120
   }
 }
-const itemClick = (item: MenuItem<ToRefs<AppContext>>) => {
+const itemClick = (item: MenuItem<any>, index: number) => {
   if (item.action) {
     try {
-      item.action(context)
+      const arg = props.argProvider.getArgument(index, item)
+      item.action(arg)
     } catch (err) {
       console.error(err)
       SfcUtils.snackbar(err)
