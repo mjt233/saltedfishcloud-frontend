@@ -17,7 +17,6 @@
         <div style="padding-left: 16px">
           <component :is="menuContext.currentComponent" v-if="menuContext.currentComponent" />
         </div>
-        
       </v-window-item>
     </v-window>
     
@@ -32,7 +31,7 @@ const menuContext: BoxMenuContext = reactive({
   title: ''
 })
 const argProvider: ArgumentProvider<BoxMenuContext> = {
-  getArgument(index, item) {
+  getArgument(index, id) {
     return menuContext
   }
 }
@@ -57,7 +56,8 @@ export default defineComponent({
   transition: all .2s;
   &.active {
     opacity: 1;
-    height: 40px;
+    height: 64px;
+    padding: 0 6px;
   }
 }
 </style>

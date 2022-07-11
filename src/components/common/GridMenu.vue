@@ -1,35 +1,37 @@
 <template>
   <div ref="rootRef" class="box-view">
     <div v-for="group in availableItems" :key="group.id" class="item-group">
-      <div class="text-subtitle-1">
-        {{ group.name }}
-      </div>
-      <v-divider />
-      <grid-container
-        type="between"
-        :width="boxSize"
-        :gap="'0px'"
-      >
-        <template v-for="(item, index) in group.items" :key="item.id">
-          <div
-            v-if="item.renderOn ? item.renderOn(context) : true"
-            v-ripple
-            class="grid-item"
-            @click="itemClick(item, index)"
-          >
-            <div class="grid-item-icon">
-              <v-icon>
-                {{ item.icon || 'mdi-puzzle' }}
-              </v-icon>
+      <template v-if="getCanRenderItems(group.items).length">
+        <div class="text-subtitle-1">
+          {{ group.name }}
+        </div>
+        <v-divider />
+        <grid-container
+          type="between"
+          :width="boxSize"
+          :gap="'0px'"
+        >
+          <template v-for="(item, index) in group.items.filter(e => canRender(e))" :key="item.id">
+            <div
+              v-if="item.renderOn ? item.renderOn(context) : true"
+              v-ripple
+              class="grid-item"
+              @click="itemClick(item, index)"
+            >
+              <div class="grid-item-icon">
+                <v-icon>
+                  {{ item.icon || 'mdi-puzzle' }}
+                </v-icon>
+              </div>
+              <div class="grid-item-title text-shade">
+                {{ item.title }}
+              </div>
             </div>
-            <div class="grid-item-title text-shade">
-              {{ item.title }}
-            </div>
-            
-          </div>
-        </template>
-      </grid-container>
+          </template>
+        </grid-container>
+      </template>
     </div>
+    <empty-tip v-if="canRenderCount == 0" />
   </div>
 </template>
 
@@ -38,6 +40,7 @@ import GridContainer from '@/components/layout/GridContainer.vue'
 import { AppContext, MenuGroup, context, MenuItem } from '@/core/context'
 import { ArgumentProvider } from '@/core/model/component/GridMenuModel'
 import SfcUtils from '@/utils/SfcUtils'
+import EmptyTip from './EmptyTip.vue'
 const props = defineProps({
   items: {
     type: Array as PropType<MenuGroup<any>[]>,
@@ -51,8 +54,18 @@ const props = defineProps({
   }
 })
 const availableItems = computed(() => {
-  return props.items.filter(e => e.renderOn ? e.renderOn(context) : true)
+  return props.items.filter((e, idx) => e.renderOn ? e.renderOn(props.argProvider.getArgument(idx, e.id)) : true)
 })
+const canRender = (item: MenuItem<any> | MenuGroup<any>) => {
+  return item.renderOn ? item.renderOn(context) : true
+}
+const canRenderCount = computed(() => {
+  let count = 0
+  return props.items.flatMap(e => e.items).filter(e => canRender(e)).length
+})
+const getCanRenderItems = (items: (MenuItem<any> | MenuGroup<any>)[]) => {
+  return items.filter(e => canRender(e))
+}
 const boxSize = ref(120)
 const boxSizePx = computed(() => {
   return boxSize.value + 'px'
@@ -75,7 +88,7 @@ const updateSize = () => {
 const itemClick = (item: MenuItem<any>, index: number) => {
   if (item.action) {
     try {
-      const arg = props.argProvider.getArgument(index, item)
+      const arg = props.argProvider.getArgument(index, item.id)
       item.action(arg)
     } catch (err) {
       console.error(err)
