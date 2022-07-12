@@ -2,7 +2,14 @@
   <div style="padding: 6px">
     <loading-mask :loading="loading" />
     <grid-container gap="12px" :width="360">
-      <file-collection-item v-for="(item, index) in collectionList" :key="index" :item="item" />
+      <file-collection-item
+        v-for="(item, index) in collectionList"
+        :key="index"
+        :item="item"
+        @delete="handler.deleteTask(item.id)"
+        @close="handler.closeTask(item.id)"
+        @reopen="handler.reopen(item.id)"
+      />
     </grid-container>
   </div>
 </template>
@@ -23,8 +30,41 @@ const loading = loadingManager.getLoadingRef()
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
     collectionList.value = (await SfcUtils.request(API.collection.getCreated())).data
+  },
+  async delete(cid: number) {
+    await SfcUtils.request(API.collection.delete(cid))
+  },
+  async stop(cid: number) {
+    await SfcUtils.request(API.collection.close(cid))
+  },
+  async close(cid: number) {
+    await SfcUtils.request(API.collection.close(cid))
+  },
+  async reopen(cid: number) {
+    await SfcUtils.request(API.collection.open(cid))
   }
 }, false, loadingManager)
+
+const handler = {
+  async deleteTask(cid: number) {
+    await SfcUtils.confirm('确定要删除这个收集任务吗？（文件不会删除）', '提示')
+    await actions.delete(cid)
+    SfcUtils.snackbar('删除成功')
+    await actions.loadList()
+  },
+
+  async closeTask(cid: number) {
+    await actions.close(cid)
+    SfcUtils.snackbar('已停止')
+    await actions.loadList()
+  },
+
+  async reopen(cid: number) {
+    await actions.reopen(cid)
+    SfcUtils.snackbar('已开启')
+    await actions.loadList()
+  }
+}
 actions.loadList()
 </script>
 

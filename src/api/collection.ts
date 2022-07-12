@@ -56,7 +56,7 @@ export interface CollectionParam {
 
 }
 
-export type CollectionState = 'OPEN' | 'CLOSE'
+export type CollectionState = 'OPEN' | 'CLOSED'
 
 export interface CollectionInfo extends CollectionParam {
   state: CollectionState

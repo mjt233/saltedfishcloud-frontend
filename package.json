@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vite preview",
     "build": "vite build",
-    "dev": "vite",
+    "dev": "vite --host",
     "preview": "vite preview",
     "build-extension": "vite build --config build/extension-build.ts"
   },
