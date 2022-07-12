@@ -1,7 +1,12 @@
 <template>
   <div style="padding: 6px">
     <loading-mask :loading="loading" />
-    <grid-container gap="12px" :width="360">
+    <sticky-container :top="80">
+      <v-btn color="primary">
+        <v-icon>mdi-plus</v-icon>新建收集
+      </v-btn>
+    </sticky-container>
+    <grid-container gap="12px" :width="360" style="margin-top: 16px">
       <file-collection-item
         v-for="(item, index) in collectionList"
         :key="index"
@@ -18,6 +23,7 @@
 import LoadingMask from '../LoadingMask.vue'
 import GridContainer from '@/components/layout/GridContainer.vue'
 import FileCollectionItem from './FileCollectionItem.vue'
+import StickyContainer from '../StickyContainer.vue'
 const props = defineProps({
   uid: {
     type: Number,
@@ -79,3 +85,4 @@ export default defineComponent({
   name: 'FileCollectionView'
 })
 </script>
+

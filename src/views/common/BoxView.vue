@@ -14,7 +14,7 @@
         <grid-menu :items="context.menu.value.boxMenu" :arg-provider="argProvider" />
       </v-window-item>
       <v-window-item value="1">
-        <div style="padding-left: 16px">
+        <div style="padding: 0 16px">
           <component :is="menuContext.currentComponent" v-if="menuContext.currentComponent" />
         </div>
       </v-window-item>
