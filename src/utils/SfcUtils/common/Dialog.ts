@@ -26,7 +26,12 @@ export interface DialogOpt {
   fullscreen?: boolean,
 
   header?: ChildrenType,
-  footer?: ChildrenType
+  footer?: ChildrenType,
+
+  /**
+   * 是否为持久弹框，无法通过ESC或点击外部关闭（默认为false）
+   */
+  persistent?: boolean
 }
 
 export interface ConfirmOpt {
@@ -140,7 +145,8 @@ export function dialog(opt: DialogOpt): DialogPromise {
     extraProps = {},
     fullscreen = false,
     header = () => h('div'),
-    footer = () => h('div')
+    footer = () => h('div'),
+    persistent = false
   } = opt
   if (fullscreen) {
     extraProps.maxWidth = '99999px'
@@ -153,6 +159,9 @@ export function dialog(opt: DialogOpt): DialogPromise {
   const attrs = reactive({
     // 对话框显示控制
     modelValue: true,
+    fullscreen,
+    title,
+    persistent,
     async 'onUpdate:modelValue'(e: any) {
       attrs.modelValue = e
       if (!e) {
@@ -161,8 +170,6 @@ export function dialog(opt: DialogOpt): DialogPromise {
         }
       }
     },
-    fullscreen,
-    title,
     // 对话框确认
     async onConfirm() {
       try {
@@ -216,6 +223,7 @@ export interface OpenComponentDialogOption {
   header?: ChildrenType,
   footer?: ChildrenType,
   fullscreen?: boolean
+  persistent?: boolean
 }
 
 export function openComponentDialog(component: any, opt?: OpenComponentDialogOption): DialogPromise & { getComponentInstRef: () => ComponentPublicInstance } {
@@ -230,7 +238,8 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     extraDialogOptions = {},
     header,
     footer,
-    fullscreen
+    fullscreen,
+    persistent
   } = opt || {}
   props.ref = 'component'
   const dialogPromise = dialog({
@@ -241,6 +250,7 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     header,
     footer,
     fullscreen,
+    persistent,
     extraProps: {
       dense,
       showCancel,

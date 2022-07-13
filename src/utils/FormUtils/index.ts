@@ -1,8 +1,35 @@
+import { LoadingManager } from './../LoadingManager'
 import { StringUtils } from '@/utils/StringUtils'
 import { ValidateResult } from '@/core/context'
-import { Ref } from 'vue'
+import { reactive, Ref, UnwrapNestedRefs } from 'vue'
 import SfcUtils from '../SfcUtils'
+import { MethodInterceptor } from '../MethodInterceptor'
+export type ValidatorFunction = (val: string) => boolean | Promise<boolean> | string | Promise<string>
+export interface FormValidators  { 
+  [ name:string ]: ValidatorFunction[]
+}
+/**
+ * 通用表单常用的属性的构造选项
+ */
+export interface CommonFormAttConstructOpt<V extends FormValidators, F extends object, A extends object> {
+  validators: V,
+  formData: F,
+  actions: A
+}
 
+export interface CommonFormAttExtraConstructOpt {
+  /** actions出错时是否抛出错误 */
+  throwError?: boolean
+}
+
+export interface CommonFormAtt<V extends FormValidators, F extends object, A extends object> extends CommonFormAttConstructOpt<V, F, A> {
+  loadingManager: LoadingManager,
+  loadingRef: Ref<boolean>
+}
+
+/**
+ * 用于构造通用表单实例的参数选项
+ */
 export interface CommonFormOpt {
   /**
    * vuetify表单组件引用实例
@@ -114,7 +141,7 @@ export interface FormSubmitResult {
  * @param opt 表单选项
  * @returns 标准表单方法对象
  */
-export function defineForm(opt: CommonFormOpt): CommonForm {
+export function defineBaseForm(opt: CommonFormOpt): CommonForm {
   const id = StringUtils.getRandomStr(32)
   return {
     getId() {
@@ -181,5 +208,20 @@ export function defineForm(opt: CommonFormOpt): CommonForm {
         }
       }
     }
+  }
+}
+
+/**
+ * 定义一个常用标准表单
+ * @param opt 表单构建选项
+ */
+export function defineForm<V extends FormValidators, F extends object, A extends object>(opt: CommonFormAttConstructOpt<V , F, A> & CommonFormAttExtraConstructOpt): CommonFormAtt<V , F, A> {
+  const manager = new LoadingManager()
+  return {
+    actions: MethodInterceptor.createAsyncActionProxy(opt.actions, opt.throwError || false, manager),
+    formData: reactive(opt.formData) as F,
+    loadingManager: manager,
+    loadingRef: manager.getLoadingRef(),
+    validators: opt.validators
   }
 }

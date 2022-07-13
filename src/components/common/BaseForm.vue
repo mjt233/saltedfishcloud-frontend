@@ -22,7 +22,7 @@ const props = defineProps({
 })
 const formManager = inject<FormManager>('formManager', new FormManager())
 defineEmits(['update:modelValue'])
-const formInst = defineForm({
+const formInst = defineBaseForm({
   formData: props.modelValue,
   formRef: form,
   sonForm: props.sonForms as any as Ref<CommonForm>[],
@@ -43,7 +43,7 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { defineComponent, defineProps, ref, defineExpose, defineEmits, Ref, inject, onUnmounted, onMounted } from 'vue'
-import { defineForm, CommonForm } from '@/utils/FormUtils'
+import { defineBaseForm, CommonForm } from '@/utils/FormUtils'
 import { FormManager } from '@/utils/FormUtils/FormManager'
 
 export default defineComponent({

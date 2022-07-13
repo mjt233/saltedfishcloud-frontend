@@ -1,11 +1,14 @@
 <template>
   <div style="padding: 6px">
     <loading-mask :loading="loading" />
-    <sticky-container :top="80">
-      <v-btn color="primary">
+    <sticky-container v-if="stickyButton" :top="stickyTop">
+      <v-btn color="primary" @click="openCreate">
         <v-icon>mdi-plus</v-icon>新建收集
       </v-btn>
     </sticky-container>
+    <v-btn v-else color="primary" @click="openCreate">
+      <v-icon>mdi-plus</v-icon>新建收集
+    </v-btn>
     <grid-container gap="12px" :width="360" style="margin-top: 16px">
       <file-collection-item
         v-for="(item, index) in collectionList"
@@ -28,6 +31,20 @@ const props = defineProps({
   uid: {
     type: Number,
     default: 0
+  },
+  /**
+   * 是否将顶部按钮设置为滚动粘性
+   */
+  stickyButton: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 顶部按钮粘性布局下距离页面顶部的高度，单位为px
+   */
+  stickyTop: {
+    type: Number,
+    default: 80
   }
 })
 const collectionList:Ref<CollectionInfo[]> = ref([])
@@ -72,9 +89,16 @@ const handler = {
   }
 }
 actions.loadList()
+const openCreate = () => {
+  SfcUtils.openComponentDialog(FileCollectionCreateForm, {
+    persistent: true,
+    title: '新建文件收集'
+  })
+}
 </script>
 
 <script lang="ts">
+import FileCollectionCreateForm from './FileCollectionCreateForm.vue'
 import { CollectionInfo } from '@/api/collection'
 import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'

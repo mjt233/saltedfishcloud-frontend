@@ -35,7 +35,7 @@ defineExpose(deconstructForm(codeForm))
 </script>
 
 <script lang="ts">
-import { defineForm, deconstructForm } from '@/utils/FormUtils'
+import { defineBaseForm, deconstructForm } from '@/utils/FormUtils'
 import { defineComponent, reactive, ref } from 'vue'
 import { Validators } from '@/core/helper/Validators'
 export default defineComponent({

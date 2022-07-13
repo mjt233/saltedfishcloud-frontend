@@ -47,7 +47,7 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { CommonForm, deconstructForm, defineForm } from '@/utils/FormUtils'
+import { CommonForm, deconstructForm, defineBaseForm } from '@/utils/FormUtils'
 import { defineComponent, defineProps, PropType, ref, Ref, defineExpose, defineEmits, onMounted, computed, ComponentPublicInstance } from 'vue'
 import { context } from '@/core/context'
 

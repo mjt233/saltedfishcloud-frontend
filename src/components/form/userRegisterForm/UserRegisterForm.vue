@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import BaseRegisterForm from './BaseRegisterForm.vue'
 import TextInput from '@/components/common/TextInput.vue'
-import { defineForm, CommonForm, deconstructForm } from '@/utils/FormUtils'
+import { defineBaseForm, CommonForm, deconstructForm } from '@/utils/FormUtils'
 import SfcUtils from '@/utils/SfcUtils'
 import API from '@/api'
 import LoadingMask from '@/components/common/LoadingMask.vue'
