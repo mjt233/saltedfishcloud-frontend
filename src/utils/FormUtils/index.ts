@@ -4,7 +4,8 @@ import { ValidateResult } from '@/core/context'
 import { reactive, Ref, UnwrapNestedRefs } from 'vue'
 import SfcUtils from '../SfcUtils'
 import { MethodInterceptor } from '../MethodInterceptor'
-export type ValidatorFunction = (val: string) => boolean | Promise<boolean> | string | Promise<string>
+export type FormFieldType = string | boolean | number
+export type ValidatorFunction = (val: FormFieldType) => boolean | Promise<boolean> | string | Promise<string>
 export interface FormValidators  { 
   [ name:string ]: ValidatorFunction[]
 }
@@ -19,7 +20,12 @@ export interface CommonFormAttConstructOpt<V extends FormValidators, F extends o
 
 export interface CommonFormAttExtraConstructOpt {
   /** actions出错时是否抛出错误 */
-  throwError?: boolean
+  throwError?: boolean,
+
+  /**
+   * BaseForm引用实例
+   */
+  formRef: Ref<any>
 }
 
 export interface CommonFormAtt<V extends FormValidators, F extends object, A extends object> extends CommonFormAttConstructOpt<V, F, A> {
@@ -215,13 +221,14 @@ export function defineBaseForm(opt: CommonFormOpt): CommonForm {
  * 定义一个常用标准表单
  * @param opt 表单构建选项
  */
-export function defineForm<V extends FormValidators, F extends object, A extends object>(opt: CommonFormAttConstructOpt<V , F, A> & CommonFormAttExtraConstructOpt): CommonFormAtt<V , F, A> {
+export function defineForm<V extends FormValidators, F extends object, A extends object>(opt: CommonFormAttConstructOpt<V , F, A> & CommonFormAttExtraConstructOpt): CommonFormAtt<V , F, A> & CommonForm {
   const manager = new LoadingManager()
   return {
     actions: MethodInterceptor.createAsyncActionProxy(opt.actions, opt.throwError || false, manager),
     formData: reactive(opt.formData) as F,
     loadingManager: manager,
     loadingRef: manager.getLoadingRef(),
-    validators: opt.validators
+    validators: opt.validators,
+    ...deconstructForm(opt.formRef)
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="form">
+  <v-form ref="form" class="base-form">
     <slot />
   </v-form>
 </template>

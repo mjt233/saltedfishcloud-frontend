@@ -90,21 +90,39 @@ const handler = {
 }
 actions.loadList()
 const openCreate = () => {
-  SfcUtils.openComponentDialog(FileCollectionCreateForm, {
+  const dialog = SfcUtils.openComponentDialog(FileCollectionCreateForm, {
     persistent: true,
-    title: '新建文件收集'
+    title: '新建文件收集',
+    props: {
+      uid: props.uid
+    },
+    extraDialogOptions: {
+      maxWidth: '810px'
+    },
+    async onConfirm() {
+      const ret = await (dialog.getComponentInstRef() as any as CommonForm).submit()
+      if (ret.success) {
+        SfcUtils.snackbar('创建成功')
+        actions.loadList()
+        return true
+      } else {
+        return false
+      }
+      
+    }
   })
 }
 </script>
 
 <script lang="ts">
-import FileCollectionCreateForm from './FileCollectionCreateForm.vue'
+import FileCollectionCreateForm from './form/FileCollectionCreateForm.vue'
 import { CollectionInfo } from '@/api/collection'
 import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 import API from '@/api'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
+import { CommonForm } from '@/utils/FormUtils'
 export default defineComponent({
   name: 'FileCollectionView'
 })

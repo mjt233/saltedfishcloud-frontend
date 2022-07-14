@@ -1,6 +1,5 @@
 import { h } from 'vue'
 import { MenuGroup, BoxMenuContext } from './type'
-import SfcUtils from '@/utils/SfcUtils'
 import FileCollectionView from '@/components/common/FileCollection/FileCollectionView.vue'
 import { context } from '..'
 
@@ -17,7 +16,9 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         title: '文件收集',
         icon: 'mdi-package-down',
         action(ctx) {
-          ctx.currentComponent = h(FileCollectionView)
+          ctx.currentComponent = h(FileCollectionView, {
+            uid: context.session.value.user.id
+          })
           ctx.title = '文件收集'
         },
         renderOn(ctx) {

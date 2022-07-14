@@ -80,7 +80,7 @@ const updateSize = () => {
     return
   }
   if (el.clientWidth < 480) {
-    boxSize.value = 96
+    boxSize.value = 120
   } else {
     boxSize.value = 120
   }
