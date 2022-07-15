@@ -56,7 +56,7 @@ const props = defineProps({
   }
 })
 const savePath = ref('/')
-const aloneDir = ref(false)
+const aloneDir = ref(true)
 // ===== 表单属性 =====
 const formInst = defineForm({
   formRef,
@@ -73,6 +73,12 @@ const formInst = defineForm({
   },
   actions: {
     async submit() {
+      // 单独文件夹的情况下，先创建文件夹后再取路径节点ID
+      if (aloneDir.value) {
+        await SfcUtils.request(API.file.mkdir(props.uid, savePath.value, formData.title))
+        const nodes = (await SfcUtils.request(API.resource.getNodeInfo(props.uid, StringUtils.appendPath(savePath.value, formData.title)))).data.data
+        formData.saveNode = nodes.pop()?.id || props.uid + ''
+      }
       // todo 待添加更多预设参数
       const conf = API.collection.create({
         title: formData.title,
@@ -122,6 +128,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } 
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { Validators } from '@/core/helper/Validators'
+import { StringUtils } from '@/utils/StringUtils'
 
 export default defineComponent({
   name: 'FileCollectionCreateForm'
