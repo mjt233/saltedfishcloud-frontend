@@ -62,7 +62,7 @@ const formInst = defineForm({
   formRef,
   formData: {
     title: '',
-    nickname: context.session.value.user.name,
+    nickname: '',
     expiredAt: 0,
     saveNode: props.uid + '',
     describe: ''
@@ -120,6 +120,8 @@ const selectPath = async() => {
 }
 
 defineExpose(formInst)
+
+formData.nickname = context.session.value.user.name
 </script>
 
 <script lang="ts">
