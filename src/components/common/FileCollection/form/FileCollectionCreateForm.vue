@@ -62,7 +62,7 @@ const formInst = defineForm({
   formRef,
   formData: {
     title: '',
-    nickname: '',
+    nickname: context.session.value.user.name,
     expiredAt: 0,
     saveNode: props.uid + '',
     describe: ''
@@ -123,6 +123,7 @@ defineExpose(formInst)
 </script>
 
 <script lang="ts">
+import { context } from '@/core/context'
 import { defineForm } from '@/utils/FormUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
 import API from '@/api'
