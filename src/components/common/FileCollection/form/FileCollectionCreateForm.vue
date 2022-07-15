@@ -3,7 +3,15 @@
     <loading-mask :loading="loadingRef" />
     <v-row>
       <v-col><text-input v-model="formData.title" label="标题" :rules="validators.title" /></v-col>
-      <v-col><text-input v-model="formData.nickname" label="接收者署名" :rules="validators.nickname" /></v-col>
+      <v-col>
+        <v-text-field
+          v-model="formData.nickname"
+          variant="underlined"
+          label="接收者署名"
+          :rules="validators.nickname"
+          color="primary"
+        />
+      </v-col>
     </v-row>
     <v-row>
       <v-col>

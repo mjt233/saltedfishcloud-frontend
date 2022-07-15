@@ -53,6 +53,7 @@ const props = defineProps({
     }
   }
 })
+const emits = defineEmits(['click'])
 const availableItems = computed(() => {
   return props.items.filter((e, idx) => e.renderOn ? e.renderOn(props.argProvider.getArgument(idx, e.id)) : true)
 })
@@ -86,6 +87,7 @@ const updateSize = () => {
   }
 }
 const itemClick = (item: MenuItem<any>, index: number) => {
+  emits('click', item)
   if (item.action) {
     try {
       const arg = props.argProvider.getArgument(index, item.id)

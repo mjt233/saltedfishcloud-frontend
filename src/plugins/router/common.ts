@@ -65,6 +65,10 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
     {
       path: '/box',
       component: () => import('@/views/common/BoxView.vue')
+    },
+    {
+      path: '/box/:itemId',
+      component: () => import('@/views/common/BoxView.vue')
     }
   ]
 }
