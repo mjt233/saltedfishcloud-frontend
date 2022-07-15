@@ -12,6 +12,7 @@
         return-object
         variant="underlined"
         density="comfortable"
+        class="hide-details no-padding"
         style="margin-top: 6px;"
       />
     </v-col>

@@ -47,11 +47,45 @@ html {
   color: #747474;
   font-size: 12px;
 }
+// .base-form {
+//   &>.v-row {
+//     height: 108px;
+//     &>.v-col.form-label,.form-label {
+//       margin-bottom: 24px;
+//     }
+//   }
+// }
 .base-form {
-  &>.v-row {
-    height: 108px;
-    &>.v-col.form-label,.form-label {
-      margin-bottom: 24px;
+  .v-field--variant-filled .v-field__overlay {
+    background-color: transparent;
+  }
+  .plain-textarea {
+    .v-field__input {
+      padding-inline-start: 0px;
+    }
+    .v-label {
+      margin-left: 0;
+    }
+    // .v-label.v-field-label--floating {
+    //   top: -16px !important;
+    // }
+  }
+  .hide-details {
+    .v-input__details {
+      display: none !important;
+    }
+  }
+  .dense,&.dense {
+    .v-field__field {
+      padding-bottom: 0;
+    }
+    .v-input__details {
+      margin: 0;
+    }
+  }
+  .no-padding {
+    .v-field__field {
+      padding: 0;
     }
   }
 }

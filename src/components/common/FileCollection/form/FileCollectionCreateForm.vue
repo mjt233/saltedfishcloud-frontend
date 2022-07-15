@@ -2,17 +2,18 @@
   <base-form ref="formRef" :model-value="formData" :submit-action="actions.submit">
     <loading-mask :loading="loadingRef" />
     <v-row>
-      <v-col><v-text-field v-model="formData.title" label="标题" :rules="validators.title" /></v-col>
-      <v-col><v-text-field v-model="formData.nickname" label="接收者署名" :rules="validators.nickname" /></v-col>
+      <v-col><text-input v-model="formData.title" label="标题" :rules="validators.title" /></v-col>
+      <v-col><text-input v-model="formData.nickname" label="接收者署名" :rules="validators.nickname" /></v-col>
     </v-row>
     <v-row>
       <v-col>
         <v-textarea
           v-model="formData.describe"
+          class="plain-textarea"
           label="描述"
           rows="1"
+          color="primary"
           auto-grow
-          :max-rows="6"
         />
       </v-col>
     </v-row>
@@ -22,11 +23,19 @@
       </v-col>
       <v-col>
         <div class="d-flex align-center">
-          <a class="link" style="padding: 0 8px" @click="selectPath">{{ savePath }} </a>
+          <a class="link" style="padding: 0 8px" @click="selectPath">{{ savePath }}{{ aloneDir ? (savePath.endsWith('/') ? '' : '/') + formData.title : '' }} </a>
           <v-btn flat @click="selectPath">
             浏览
           </v-btn>
         </div>
+      </v-col>
+    </v-row>
+    <v-row :align="'center'" :justify="'center'">
+      <v-col class="form-label">
+        <span>单独文件夹：</span>
+      </v-col>
+      <v-col>
+        <v-switch v-model="aloneDir" hide-details color="primary" />
       </v-col>
     </v-row>
     <!-- 过期策略选择 -->
@@ -38,6 +47,7 @@
 import LoadingMask from '@/components/common/LoadingMask.vue'
 import BaseForm from '@/components/common/BaseForm.vue'
 import FileCollectionCreateExpiredStrategy from './FileCollectionCreateExpiredStrategy.vue'
+import TextInput from '../../TextInput.vue'
 const formRef = ref()
 const props = defineProps({
   uid: {
@@ -46,7 +56,7 @@ const props = defineProps({
   }
 })
 const savePath = ref('/')
-
+const aloneDir = ref(false)
 // ===== 表单属性 =====
 const formInst = defineForm({
   formRef,

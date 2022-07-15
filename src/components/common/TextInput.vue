@@ -9,6 +9,7 @@
     :color="color"
     :error="error"
     :autofocus="autofocus"
+    :hide-details="hideDetails"
     @input="input"
     @keyup.enter="doEnter"
     @blur="validate"
@@ -17,6 +18,10 @@
 
 <script setup lang="ts">
 const props = defineProps({
+  hideDetails: {
+    type: Boolean,
+    default: false
+  },
   rules: {
     type: Array as PropType<ValidateRule[]>,
     default: () => []
