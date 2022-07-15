@@ -223,8 +223,9 @@ export function defineBaseForm(opt: CommonFormOpt): CommonForm {
  */
 export function defineForm<V extends FormValidators, F extends object, A extends object>(opt: CommonFormAttConstructOpt<V , F, A> & CommonFormAttExtraConstructOpt): CommonFormAtt<V , F, A> & CommonForm {
   const manager = new LoadingManager()
+  const { throwError = true } = opt
   return {
-    actions: MethodInterceptor.createAsyncActionProxy(opt.actions, opt.throwError || false, manager),
+    actions: MethodInterceptor.createAsyncActionProxy(opt.actions, throwError, manager),
     formData: reactive(opt.formData) as F,
     loadingManager: manager,
     loadingRef: manager.getLoadingRef(),
