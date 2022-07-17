@@ -43,6 +43,8 @@
         </div>
       </v-col>
     </v-row>
+    <!-- 过期策略选择 -->
+    <file-collection-create-expired-strategy v-model="formData.expiredAt" />
     <v-row>
       <v-col style="min-width: 240px;margin: 0; padding: 0 12px;">
         <v-row :align="'center'" :justify="'center'">
@@ -65,8 +67,6 @@
         </v-row>
       </v-col>
     </v-row>
-    <!-- 过期策略选择 -->
-    <file-collection-create-expired-strategy v-model="formData.expiredAt" />
     <v-row>
       <v-col>
         <v-divider style="margin-top: 16px" />

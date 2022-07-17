@@ -1,20 +1,23 @@
 <template>
-  <v-row :align="'center'">
-    <v-col class="form-label">
-      <span>有效天数：</span>
-    </v-col>
-    <v-col cols="4">
-      <v-select
-        v-model="expiredStrategy"
-        color="primary"
-        :items="expiredOptions"
-        :item-title="'title'"
-        return-object
-        variant="underlined"
-        density="comfortable"
-        class="hide-details no-padding"
-        style="margin-top: 6px;"
-      />
+  <v-row :align="'center'" class="form-row">
+    <v-col>
+      <v-row>
+        <v-col class="form-label">
+          <span>有效天数：</span>
+        </v-col>
+        <v-col>
+          <v-select
+            v-model="expiredStrategy"
+            color="primary"
+            :items="expiredOptions"
+            :item-title="'title'"
+            return-object
+            variant="underlined"
+            density="comfortable"
+            class="hide-details no-padding"
+          />
+        </v-col>
+      </v-row>
     </v-col>
   </v-row>
   <v-row v-if="expiredStrategy?.value == '0'" align="center">
@@ -33,13 +36,13 @@
       />
     </v-col>
   </v-row>
-  <v-row v-if="expiredStrategy?.value != '-1'">
+  <!-- <v-row v-if="expiredStrategy?.value != '-1'">
     <v-col cols="12">
       <div style="color: #555555;">
         将于 {{ toDate(expiredAt) }} 过期
       </div>
     </v-col>
-  </v-row>
+  </v-row> -->
 </template>
 
 <script setup lang="ts">

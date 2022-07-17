@@ -1,5 +1,10 @@
 <template>
-  <base-form ref="formRef" style="--row-height: 108px" :model-value="formData">
+  <base-form
+    ref="formRef"
+    style="--row-height: 108px"
+    :model-value="formData"
+    :son-forms="sonForm"
+  >
     <v-row :align="'center'">
       <v-col class="form-label" style="max-width: 140px">
         <span>开启高级选项：</span>
@@ -58,6 +63,7 @@
           />
         </v-col>
       </v-row>
+      <file-collection-type-strategy ref="sonformRef" />
     </template>
   </base-form>
 </template>
@@ -66,7 +72,10 @@
 import BaseForm from '@/components/common/BaseForm.vue'
 import FormSelect from '@/components/common/FormSelect.vue'
 import TextInput from '@/components/common/TextInput.vue'
+import FileCollectionTypeStrategy from './FileCollectionTypeStrategyForm.vue'
 const formRef = ref()
+const sonformRef = ref()
+const sonForm = [sonformRef]
 const useAdvanced = ref(false)
 const recvOption: SelectOption[] = [
   {

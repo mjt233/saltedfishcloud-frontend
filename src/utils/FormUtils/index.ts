@@ -167,7 +167,7 @@ export function defineBaseForm(opt: CommonFormOpt): CommonForm {
     getFormData() {
       const formData = {}
       if(opt.sonForm != null) {
-        opt.sonForm.forEach(sonForm => {
+        opt.sonForm.filter(e => e.value).forEach(sonForm => {
           Object.assign(formData, sonForm.value.getFormData())
         })
       }
@@ -187,6 +187,9 @@ export function defineBaseForm(opt: CommonFormOpt): CommonForm {
 
       // 对子表单和本表单进行校验
       for (const formInst of validForms) {
+        if (formInst == null) {
+          continue
+        }
         const tempRes = await formInst.validate()
         if (!tempRes.valid) {
           result.valid = false
