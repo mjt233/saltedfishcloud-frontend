@@ -3,7 +3,7 @@
     <v-col class="form-label">
       <span>有效天数：</span>
     </v-col>
-    <v-col cols="5">
+    <v-col cols="4">
       <v-select
         v-model="expiredStrategy"
         color="primary"
@@ -18,23 +18,24 @@
     </v-col>
   </v-row>
   <v-row v-if="expiredStrategy?.value == '0'" align="center">
-    <v-col class="form-label" style="margin-bottom: 24px">
+    <v-col class="form-label">
       自定义过期：
     </v-col>
-    <v-col cols="5">
+    <v-col cols="4" style="padding: 0 12px">
       <v-text-field
         v-model="customExpired"
         suffix="天"
-        label="过期时间"
+        placeholder="过期时间"
         variant="underlined"
+        class="dense-details"
         color="primary"
         :rules="validators"
       />
     </v-col>
   </v-row>
-  <v-row>
-    <v-col style="margin-bottom: 24px" cols="12">
-      <div v-show="expiredStrategy?.value != '-1'" style="color: #555555;">
+  <v-row v-if="expiredStrategy?.value != '-1'">
+    <v-col cols="12">
+      <div style="color: #555555;">
         将于 {{ toDate(expiredAt) }} 过期
       </div>
     </v-col>
@@ -49,7 +50,7 @@ interface ExpiredStrategyOption {
   strategy: () => any,
   value: string
 }
-const validators = [Validators.maxLen('最大不能超过6位数', 6)]
+const validators = [Validators.notNull('自定义过期时间不能为空'), Validators.maxLen('最大不能超过6位数', 6)]
 const toDate = StringFormatter.toDate
 const props = defineProps({
   modelValue: {

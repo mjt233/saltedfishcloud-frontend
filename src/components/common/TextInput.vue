@@ -1,10 +1,11 @@
 <template>
   <v-text-field
+    class="text-input"
     :variant="variant"
     :rules="rules"
     :type="type"
     :error-messages="errorMessage"
-    :model-value="value"
+    :model-value="modelValue"
     :label="label"
     :color="color"
     :error="error"
@@ -26,8 +27,8 @@ const props = defineProps({
     type: Array as PropType<ValidateRule[]>,
     default: () => []
   },
-  value: {
-    type: String,
+  modelValue: {
+    type: [String, Number],
     default: ''
   },
   type: {
@@ -53,11 +54,11 @@ const props = defineProps({
 })
 const error = ref(false)
 const errorMessage = ref('')
-const emit = defineEmits(['update:value', 'enter'])
+const emit = defineEmits(['update:modelValue', 'enter'])
 const doEnter = () => {
   emit('enter')
 }
-let curVal = ''
+let curVal: Number | String = ''
 
 const validate = async():Promise<ValidateResult> => {
   const res:ValidateResult = {
@@ -91,13 +92,13 @@ const validate = async():Promise<ValidateResult> => {
 const input = (e: any) => {
   curVal = e.target.value
   validate()
-  emit('update:value', e.target.value)
+  emit('update:modelValue', e.target.value)
 }
 defineExpose({
   validate
 })
 onMounted(() => {
-  curVal = props.value
+  curVal = props.modelValue
 })
 </script>
 

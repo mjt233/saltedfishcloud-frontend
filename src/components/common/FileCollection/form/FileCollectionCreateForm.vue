@@ -1,5 +1,10 @@
 <template>
-  <base-form ref="formRef" :model-value="formData" :submit-action="actions.submit">
+  <base-form
+    ref="formRef"
+    :model-value="formData"
+    :submit-action="actions.submit"
+    :son-forms="sonForms"
+  >
     <loading-mask :loading="loadingRef" />
     <v-row>
       <v-col><text-input v-model="formData.title" label="标题" :rules="validators.title" /></v-col>
@@ -17,7 +22,7 @@
       <v-col>
         <v-textarea
           v-model="formData.describe"
-          class="plain-textarea"
+          class="plain-textarea hide-details"
           label="描述"
           rows="1"
           color="primary"
@@ -38,16 +43,45 @@
         </div>
       </v-col>
     </v-row>
-    <v-row :align="'center'" :justify="'center'">
-      <v-col class="form-label">
-        <span>单独文件夹：</span>
+    <v-row>
+      <v-col style="min-width: 240px;margin: 0; padding: 0 12px;">
+        <v-row :align="'center'" :justify="'center'">
+          <v-col class="form-label">
+            <span>单独文件夹：</span>
+          </v-col>
+          <v-col>
+            <v-switch v-model="aloneDir" hide-details color="primary" />
+          </v-col>
+        </v-row>
       </v-col>
-      <v-col>
-        <v-switch v-model="aloneDir" hide-details color="primary" />
+      <v-col style="min-width: 240px;margin: 0; padding: 0 12px;">
+        <v-row :align="'center'" :justify="'center'">
+          <v-col class="form-label">
+            <span>要求登录：</span>
+          </v-col>
+          <v-col>
+            <v-switch v-model="requireLogin" hide-details color="primary" />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
     <!-- 过期策略选择 -->
     <file-collection-create-expired-strategy v-model="formData.expiredAt" />
+    <v-row>
+      <v-col>
+        <v-divider style="margin-top: 16px" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <file-collection-advanced-option ref="sonFormRef" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-divider />
+      </v-col>
+    </v-row>
   </base-form>
 </template>
 
@@ -56,7 +90,10 @@ import LoadingMask from '@/components/common/LoadingMask.vue'
 import BaseForm from '@/components/common/BaseForm.vue'
 import FileCollectionCreateExpiredStrategy from './FileCollectionCreateExpiredStrategy.vue'
 import TextInput from '../../TextInput.vue'
+import FileCollectionAdvancedOption from './FileCollectionAdvancedOption.vue'
 const formRef = ref()
+const sonFormRef = ref()
+const sonForms = [sonFormRef]
 const props = defineProps({
   uid: {
     type: Number,
@@ -65,6 +102,7 @@ const props = defineProps({
 })
 const savePath = ref('/')
 const aloneDir = ref(true)
+const requireLogin = ref(false)
 // ===== 表单属性 =====
 const formInst = defineForm({
   formRef,
@@ -81,25 +119,20 @@ const formInst = defineForm({
   },
   actions: {
     async submit() {
+      const allFormData = getFormData()
       // 单独文件夹的情况下，先创建文件夹后再取路径节点ID
       if (aloneDir.value) {
         await SfcUtils.request(API.file.mkdir(props.uid, savePath.value, formData.title))
         const nodes = (await SfcUtils.request(API.resource.getNodeInfo(props.uid, StringUtils.appendPath(savePath.value, formData.title)))).data.data
         formData.saveNode = nodes.pop()?.id || props.uid + ''
       }
-      // todo 待添加更多预设参数
-      const conf = API.collection.create({
-        title: formData.title,
-        nickname: formData.nickname,
-        expiredAt: formData.expiredAt,
-        saveNode: formData.saveNode,
-        describe: formData.describe
-      })
+      
+      const conf = API.collection.create(allFormData)
       return await SfcUtils.request(conf)
     }
   }
 })
-const { loadingRef, formData, validators, loadingManager, actions } = formInst
+const { loadingRef, formData, validators, loadingManager, actions, getFormData } = formInst
 
 /**
  * 选择保存路径

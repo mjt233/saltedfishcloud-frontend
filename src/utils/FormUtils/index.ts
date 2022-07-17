@@ -4,6 +4,7 @@ import { ValidateResult } from '@/core/context'
 import { reactive, Ref } from 'vue'
 import SfcUtils from '../SfcUtils'
 import { MethodInterceptor } from '../MethodInterceptor'
+import { FormManager } from './FormManager'
 export type FormFieldType = string | boolean | number
 export type ValidatorFunction = (val: FormFieldType) => boolean | Promise<boolean> | string | Promise<string>
 export interface FormValidators  { 
@@ -52,7 +53,9 @@ export interface CommonFormOpt {
   /**
    * 执行提交的方法
    */
-  submitAction: () => Promise<any> | null | undefined | void
+  submitAction: () => Promise<any> | null | undefined | void,
+
+  formManager: FormManager
 }
 
 export interface SubmitOpt {
@@ -101,6 +104,8 @@ export interface CommonForm {
    * 获取该表单的唯一标识符
    */
   getId: () => string
+
+  getFormManager: () => FormManager
 }
 
 /**
@@ -121,6 +126,9 @@ export function deconstructForm(form: Ref<any>): CommonForm {
     },
     getId() {
       return form.value.getId()
+    },
+    getFormManager() {
+      return form.value.getFormManager()
     }
   }
 }
@@ -150,6 +158,9 @@ export interface FormSubmitResult {
 export function defineBaseForm(opt: CommonFormOpt): CommonForm {
   const id = StringUtils.getRandomStr(32)
   return {
+    getFormManager() {
+      return opt.formManager
+    },
     getId() {
       return id
     },

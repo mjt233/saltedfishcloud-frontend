@@ -26,7 +26,8 @@ const formInst = defineBaseForm({
   formData: props.modelValue,
   formRef: form,
   sonForm: props.sonForms as any as Ref<CommonForm>[],
-  submitAction: props.submitAction as () => Promise<any> | null | undefined
+  submitAction: props.submitAction as () => Promise<any> | null | undefined,
+  formManager
 })
 
 if (formManager) {

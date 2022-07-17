@@ -17,4 +17,8 @@ export namespace Validators {
   export function isEmail(msg: string = '不是有效的邮箱格式') {
     return (e: FormFieldType) => StringUtils.isEmail('' + e) || msg
   }
+
+  export function minNum(min: number) {
+    return (e: FormFieldType) => e < min ? '不能小于' + min : true
+  }
 }

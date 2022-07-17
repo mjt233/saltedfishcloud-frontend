@@ -56,6 +56,21 @@ html {
 //   }
 // }
 .base-form {
+  --row-height: 108px;
+  .v-row.form-row {
+    &>.v-col {
+      display: flex;
+      align-items: center;
+      min-width: 320px;
+      max-width: 50%;
+      height: var(--row-height);
+      .text-input {
+        margin-top: 26px;
+      }
+    }
+  }
+}
+.base-form {
   .v-field--variant-filled .v-field__overlay {
     background-color: transparent;
   }
@@ -66,13 +81,15 @@ html {
     .v-label {
       margin-left: 0;
     }
-    // .v-label.v-field-label--floating {
-    //   top: -16px !important;
-    // }
   }
   .hide-details {
     .v-input__details {
       display: none !important;
+    }
+  }
+  .dense-details {
+    .v-input__details {
+      margin-bottom: 0 !important;
     }
   }
   .dense,&.dense {
@@ -88,9 +105,20 @@ html {
       padding: 0;
     }
   }
+  .no-margin {
+    margin: 0;
+  }
+  .no-padding {
+    padding: 0;
+  }
+  .margin-col,.margin-col .v-col {
+    padding: 0;
+    margin: 12px;
+  }
 }
 .v-col.form-label,.form-label,.v-col.common-label,.common-label {
   max-width: 120px;
+  min-width: 120px;
   color: #555555;
 }
 .text-gray {

@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import GridContainer from '@/components/layout/GridContainer.vue'
-import { AppContext, MenuGroup, context, MenuItem } from '@/core/context'
+import { MenuGroup, context, MenuItem } from '@/core/context'
 import { ArgumentProvider } from '@/core/model/component/GridMenuModel'
 import SfcUtils from '@/utils/SfcUtils'
 import EmptyTip from './EmptyTip.vue'
