@@ -21,4 +21,16 @@ export namespace Validators {
   export function minNum(min: number) {
     return (e: FormFieldType) => e < min ? '不能小于' + min : true
   }
+
+  export function isRegex(msg = '不是有效的正则表达式') {
+    return (e: FormFieldType) => {
+      const val = e ? e.toString() : ''
+      try {
+        new RegExp(val)
+      } catch(err) {
+        return msg
+      }
+      return true
+    }
+  }
 }

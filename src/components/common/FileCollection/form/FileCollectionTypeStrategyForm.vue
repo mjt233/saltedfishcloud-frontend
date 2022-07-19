@@ -25,6 +25,21 @@
           </v-col>
         </v-row>
       </v-col>
+      <v-col v-if="typeStrategy == 'regex'">
+        <v-row :align="'center'">
+          <v-col class="form-label">
+            自定义正则：
+          </v-col>
+          <v-col>
+            <text-input
+              v-model="regex"
+              class="dense-details"
+              style="margin-top: 6px"
+              :rules="validators.regex"
+            />
+          </v-col>
+        </v-row>
+      </v-col>
     </v-row>
   </base-form>
 </template>
@@ -32,6 +47,7 @@
 <script setup lang="ts">
 import BaseForm from '@/components/common/BaseForm.vue'
 import FormSelect from '@/components/common/FormSelect.vue'
+import TextInput from '../../TextInput.vue'
 const formRef = ref()
 const typeStrategy = ref('all')
 const typeStrategyOption: SelectOption[] = [
@@ -46,7 +62,20 @@ const typeStrategyOption: SelectOption[] = [
   },
   {
     title: '指定类型',
-    value: 'type'
+    value: 'type',
+    action() {
+      formData.extPattern = null
+      formData.pattern = ''
+    }
+  },
+  {
+    title: '正则表达式',
+    value: 'regex',
+    action() {
+      formData.field = []
+      formData.extPattern = null
+      formData.pattern = regex.value
+    }
   }
 ]
 const typeOption: SelectOption[] = [
@@ -87,6 +116,13 @@ watch(acceptType, () => {
   }
 })
 
+const regex = ref()
+watch(regex, () => {
+  if (typeStrategy.value == 'regex') {
+    formData.pattern = regex.value
+  }
+})
+
 const formInst = defineForm({
   formRef: formRef,
   formData: {
@@ -94,10 +130,12 @@ const formInst = defineForm({
     extPattern: null,
     field: []
   },
-  validators: {},
+  validators: {
+    regex: [Validators.isRegex()]
+  },
   actions: {}
 })
-const { formData } = formInst
+const { formData, validators } = formInst
 defineExpose(formInst)
 // const props = defineProps({})
 </script>
@@ -106,6 +144,7 @@ defineExpose(formInst)
 import { SelectOption } from '@/core/model/Common'
 import { defineForm } from '@/utils/FormUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, watch } from 'vue'
+import { Validators } from '@/core/helper/Validators'
 
 export default defineComponent({
   name: 'FileCollectionTypeStrategyForm'
