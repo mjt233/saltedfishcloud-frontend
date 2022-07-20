@@ -77,7 +77,7 @@ const isCollecting = computed(() => {
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
-import { CollectionInfo } from '@/api/collection'
+import { CollectionInfo } from '@/core/model/FileCollection'
 import { computed } from '@vue/reactivity'
 import { StringFormatter } from '@/utils/StringFormatter'
 import SfcUtils from '@/utils/SfcUtils'

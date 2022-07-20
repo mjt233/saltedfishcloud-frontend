@@ -41,6 +41,47 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-row v-if="typeStrategy == 'field'">
+      <v-col>
+        <v-row>
+          <v-col>
+            <file-collection-field-option />
+          </v-col>
+        </v-row>
+        <v-row class="form-row">
+          <v-col>
+            <v-row :align="'center'">
+              <v-col class="form-label" style="max-width: 140px">
+                文件名表达式：
+              </v-col>
+              <v-col>
+                <text-input
+                  v-model="regex"
+                  class="dense-details"
+                  style="margin-top: 6px;position: relative; left: -18px;width: calc(100% + 18px);"
+                  :rules="validators.regex"
+                />
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-col>
+            <v-row :align="'center'">
+              <v-col class="form-label">
+                后缀名正则：
+              </v-col>
+              <v-col>
+                <text-input
+                  v-model="extRegex"
+                  class="dense-details"
+                  style="margin-top: 6px;"
+                  :rules="validators.regex"
+                />
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
   </base-form>
 </template>
 
@@ -48,6 +89,7 @@
 import BaseForm from '@/components/common/BaseForm.vue'
 import FormSelect from '@/components/common/FormSelect.vue'
 import TextInput from '../../TextInput.vue'
+import FileCollectionFieldOption from './FileCollectionFieldOption.vue'
 const formRef = ref()
 const typeStrategy = ref('all')
 const typeStrategyOption: SelectOption[] = [
@@ -63,6 +105,14 @@ const typeStrategyOption: SelectOption[] = [
   {
     title: '指定类型',
     value: 'type',
+    action() {
+      formData.extPattern = null
+      formData.pattern = ''
+    }
+  },
+  {
+    title: '字段约束',
+    value: 'field',
     action() {
       formData.extPattern = null
       formData.pattern = ''
@@ -117,6 +167,7 @@ watch(acceptType, () => {
 })
 
 const regex = ref()
+const extRegex = ref()
 watch(regex, () => {
   if (typeStrategy.value == 'regex') {
     formData.pattern = regex.value

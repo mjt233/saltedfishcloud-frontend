@@ -116,7 +116,7 @@ const openCreate = () => {
 
 <script lang="ts">
 import FileCollectionCreateForm from './form/FileCollectionCreateForm.vue'
-import { CollectionInfo } from '@/api/collection'
+import { CollectionInfo } from '@/core/model/FileCollection'
 import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 import API from '@/api'
