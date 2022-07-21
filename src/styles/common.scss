@@ -115,10 +115,20 @@ html {
     padding: 0;
     margin: 12px;
   }
+  &.dense-form {
+    &>.v-row>.v-col {
+      width: 80%;
+    }
+  }
+  .prop-group {
+    .v-col {
+      padding: 0;
+    }
+  }
 }
 .v-col.form-label,.form-label,.v-col.common-label,.common-label {
-  max-width: 120px;
-  min-width: 120px;
+  max-width: var(--form-label-width);
+  min-width: var(--form-label-width);
   color: #555555;
 }
 .text-gray {

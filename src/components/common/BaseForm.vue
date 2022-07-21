@@ -1,5 +1,10 @@
 <template>
-  <v-form ref="form" class="base-form">
+  <v-form
+    ref="form"
+    class="base-form"
+    :style="{'--form-label-width': labelWidth}"
+    :class="{'dense-form': dense}"
+  >
     <slot />
   </v-form>
 </template>
@@ -18,6 +23,14 @@ const props = defineProps({
   modelValue: {
     type: Object,
     default: () => { {} }
+  },
+  labelWidth: {
+    type: String,
+    default: '120px'
+  },
+  dense: {
+    type: Boolean,
+    default: false
   }
 })
 const formManager = inject<FormManager>('formManager', new FormManager())

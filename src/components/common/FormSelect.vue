@@ -47,7 +47,8 @@ watch(currentSelect, () => {
   } else {
     if (props.multiple) {
       const options = currentSelect.value as any as SelectOption[]
-      emits('update:modelValue', options.map(e => e.value))
+      const updateVal = options.map(e => e.value)
+      emits('update:modelValue', updateVal)
       options.forEach(e => e.action && e.action())
     } else {
       emits('update:modelValue', currentSelect.value?.value)
@@ -56,19 +57,41 @@ watch(currentSelect, () => {
     
   }
 })
-const updateCurrent = () => {
-  const selectObjs = props.items?.filter(e => {
-    if (props.returnObject) {
-      return e == props.modelValue
-    } else {
-      return e.value == props.modelValue
+watch(() => props.modelValue, (newVal, oldVal) => {
+  if(newVal instanceof Array && oldVal instanceof Array) {
+    if (newVal.length != oldVal.length) {
+      updateCurrent()  
     }
-  }) || []
+    const len = newVal.length
+    for(let i = 0; i<len; i++) {
+      if(newVal[i] != oldVal[i]) {
+        updateCurrent()
+        return
+      }
+    }
+  } else if (newVal != oldVal) {
+    updateCurrent()
+  }
+})
+const updateCurrent = () => {
   if (props.multiple) {
-    (currentSelect.value as any) = selectObjs
+    (currentSelect.value as any) = props.items?.filter(e => {
+      return (props.modelValue as any[]).findIndex(e2 => {
+        if (props.returnObject) {
+          return e2.value == e.value
+        } else {
+          return e2 == e.value
+        }
+      }) != -1
+    }) || []
   } else {
-    const optObj = selectObjs.length ? selectObjs[0] : props.modelValue
-    currentSelect.value = optObj
+    currentSelect.value = props.items?.find(e => {
+      if (props.returnObject) {
+        return e.value == props.modelValue.value
+      } else {
+        return e.value == props.modelValue
+      }
+    })
   }
 }
 updateCurrent()
