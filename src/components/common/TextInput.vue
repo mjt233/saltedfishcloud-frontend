@@ -58,7 +58,6 @@ const emit = defineEmits(['update:modelValue', 'enter'])
 const doEnter = () => {
   emit('enter')
 }
-let curVal: Number | String = ''
 
 const validate = async():Promise<ValidateResult> => {
   const res:ValidateResult = {
@@ -68,7 +67,7 @@ const validate = async():Promise<ValidateResult> => {
   try {
     if (props.rules && props.rules.length != 0) {
       for(const rule of props.rules) {
-        const ret = await (rule as Function)(curVal)
+        const ret = await (rule as Function)(props.modelValue)
         if (ret !== true) {
           res.valid = false,
           res.errors.push({ id: 1, errorMessages: ret })
@@ -90,15 +89,11 @@ const validate = async():Promise<ValidateResult> => {
   return res
 }
 const input = (e: any) => {
-  curVal = e.target.value
   validate()
   emit('update:modelValue', e.target.value)
 }
 defineExpose({
   validate
-})
-onMounted(() => {
-  curVal = props.modelValue
 })
 </script>
 

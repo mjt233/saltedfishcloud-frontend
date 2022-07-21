@@ -26,7 +26,8 @@ const addField = () => {
     extraDialogOptions: {
       maxWidth: '720px'
     },
-    title: '新建字段'
+    title: '新建字段',
+    persistent: true
   })
 }
 </script>

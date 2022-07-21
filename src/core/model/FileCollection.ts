@@ -16,7 +16,7 @@ export interface CollectionInfoField {
   pattern: string
 
   /** 候选项字符串数组（仅当type为OPTION时有效） */
-  options: string
+  options: string[]
 }
 
 export interface CollectionParam {
