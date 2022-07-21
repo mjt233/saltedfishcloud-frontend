@@ -4,6 +4,7 @@
     dense
     style="padding: 12px"
     label-width="64px"
+    :model-value="formData"
   >
     <v-row class="form-row" :align="'center'">
       <v-col>
@@ -15,6 +16,7 @@
             v-model="formData.name"
             class="dense-details"
             style="margin: 12px 0 0 0"
+            :rules="validators.name"
           />
         </div>
       </v-col>
@@ -43,8 +45,8 @@
         </div>
       </v-col>
     </v-row>
-    <v-row class="form-row">
-      <v-col v-if="formData.type == 'OPTION'">
+    <v-row style="margin-top: 25px" class="form-row" :align="'center'">
+      <v-col v-if="formData.type == 'OPTION'" style="height: 58px">
         <div class="d-flex align-center" style="width: 100%">
           <span>候选值：</span>
           <text-input
@@ -53,7 +55,6 @@
             :items="typeOptions"
             style="width: 120px;margin-top: 0;margin-bottom: 12px;"
             hide-details
-            :rules="validators.optionEditor"
             @enter="addOption"
           />
           <v-btn
@@ -67,12 +68,10 @@
           
         </div>
       </v-col>
-    </v-row>
-    <v-row>
       <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
         <v-chip color="primary" style="margin: 6px">
-          {{ option }}
           <v-icon class="option-chip" icon="mdi-close" @click="removeOption(index)" />
+          {{ option }}
         </v-chip>
       </span>
     </v-row>
@@ -108,11 +107,14 @@ const typeOptions: SelectOption[] = [
     }
   }
 ]
-const addOption = async() => {
-  const result = await optionEditor.value.validate()
-  console.log(result)
-  if (!result.valid) {
-    SfcUtils.snackbar(result.errors[0].errorMessages)
+const addOption = () => {
+  const res = Validators.notNull('候选值不能为空')(editingOption.value)
+  if (res !== true) {
+    SfcUtils.snackbar(res)
+    return
+  }
+  if(formData.options.findIndex(e => e == editingOption.value) != -1) {
+    SfcUtils.snackbar('该值已存在，不能重复添加')
     return
   }
   formData.options.push(editingOption.value)
@@ -137,12 +139,13 @@ const formInst = defineForm({
   } as CollectionInfoField,
   actions: {},
   validators: {
-    optionEditor: [Validators.notNull('不能为空')]
+    name: [Validators.notNull('字段名称不能为空')]
   },
   formRef: formRef
 })
 
-const { formData, validators, actions } = formInst
+const { formData, validators, actions, getFormData } = formInst
+defineExpose(formInst)
 </script>
 
 <script lang="ts">
@@ -161,12 +164,11 @@ export default defineComponent({
 <style lang="scss">
 .option-chip {
   cursor: pointer;
-  margin: 6px;
   font-size: 12px;
+  margin-right: 6px;
   // transition: all .05s;
   &:hover {
-    font-size: 18px;
-    margin: 3px;
+    transform: scale(1.4);
   }
 }
 

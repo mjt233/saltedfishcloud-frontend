@@ -212,18 +212,22 @@ export function dialog(opt: DialogOpt): DialogPromise {
 }
 
 export interface OpenComponentDialogOption {
-  props?: any,
-  showConfirm?: boolean,
-  showCancel?: boolean,
-  onConfirm?: () => boolean | Promise<boolean>,
-  onCancel?: () => boolean | Promise<boolean>,
-  title?: string,
-  dense?: boolean,
-  extraDialogOptions?: any,
-  header?: ChildrenType,
-  footer?: ChildrenType,
+  props?: any
+  showConfirm?: boolean
+  showCancel?: boolean
+  onConfirm?: () => boolean | Promise<boolean>
+  onCancel?: () => boolean | Promise<boolean>
+  title?: string
+  dense?: boolean
+  extraDialogOptions?: any
+  header?: ChildrenType
+  footer?: ChildrenType
   fullscreen?: boolean
   persistent?: boolean
+
+  // 是否使用一个div对组件进行包装
+  inWrap?: boolean
+
 }
 
 export function openComponentDialog(component: any, opt?: OpenComponentDialogOption): DialogPromise & { getComponentInstRef: () => ComponentPublicInstance } {
