@@ -47,22 +47,18 @@ html {
   color: #747474;
   font-size: 12px;
 }
-// .base-form {
-//   &>.v-row {
-//     height: 108px;
-//     &>.v-col.form-label,.form-label {
-//       margin-bottom: 24px;
-//     }
-//   }
-// }
+
+.mw-50 {
+  max-width: 50% !important;
+}
+
 .base-form {
   --row-height: 108px;
   .v-row.form-row {
     &>.v-col {
       display: flex;
       align-items: center;
-      min-width: 320px;
-      max-width: 50%;
+      min-width: 280px;
       height: var(--row-height);
       .text-input {
         margin-top: 26px;

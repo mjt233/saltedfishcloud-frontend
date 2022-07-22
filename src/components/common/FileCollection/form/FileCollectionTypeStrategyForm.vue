@@ -1,44 +1,32 @@
 <template>
   <base-form ref="formRef" :model-value="formData">
     <v-row class="form-row">
-      <v-col>
-        <v-row>
-          <v-col class="form-label">
-            文件名约束：
-          </v-col>
-          <v-col>
-            <form-select v-model="typeStrategy" :items="typeStrategyOption" />
-          </v-col>
-        </v-row>
+      <v-col class="mw-50">
+        <span class="form-label">
+          文件名约束：
+        </span>
+        <form-select v-model="typeStrategy" :items="typeStrategyOption" />
       </v-col>
       <v-col v-if="typeStrategy == 'type'">
-        <v-row>
-          <v-col class="form-label">
-            选择类型：
-          </v-col>
-          <v-col>
-            <form-select
-              v-model="acceptType"
-              multiple
-              :items="typeOption"
-            />
-          </v-col>
-        </v-row>
+        <span class="form-label">
+          选择类型：
+        </span>
+        <form-select
+          v-model="acceptType"
+          multiple
+          :items="typeOption"
+        />
       </v-col>
       <v-col v-if="typeStrategy == 'regex'">
-        <v-row :align="'center'">
-          <v-col class="form-label">
-            自定义正则：
-          </v-col>
-          <v-col>
-            <text-input
-              v-model="formData.pattern"
-              class="dense-details"
-              style="margin-top: 6px"
-              :rules="validators.regex"
-            />
-          </v-col>
-        </v-row>
+        <div class="form-label">
+          自定义正则：
+        </div>
+        <text-input
+          v-model="formData.pattern"
+          class="dense-details"
+          style="margin-top: 6px"
+          :rules="validators.regex"
+        />
       </v-col>
     </v-row>
     <v-row v-if="typeStrategy == 'field'">

@@ -56,9 +56,9 @@
           <text-input v-model="formData.pattern" :items="typeOptions" :rules="validators.regex" />
         </div>
       </v-col>
-      <v-col v-if="formData.type == 'OPTION'" style="height: 58px">
+      <v-col v-if="formData.type == 'OPTION'">
         <div class="d-flex align-center" style="width: 100%">
-          <span>候选值：</span>
+          <span class="form-label">候选值：</span>
           <text-input
             ref="optionEditor"
             v-model="editingOption"
@@ -75,15 +75,18 @@
             <v-icon icon="mdi-plus" />
             添加
           </v-btn>
-          
         </div>
       </v-col>
-      <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
-        <v-chip color="primary" style="margin: 6px">
-          <v-icon class="option-chip" icon="mdi-close" @click="removeOption(index)" />
-          {{ option }}
-        </v-chip>
-      </span>
+    </v-row>
+    <v-row>
+      <v-col>
+        <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
+          <v-chip color="primary" style="margin: 6px">
+            <v-icon class="option-chip" icon="mdi-close" @click="removeOption(index)" />
+            {{ option }}
+          </v-chip>
+        </span>
+      </v-col>
     </v-row>
     <v-row style="margin-top: 25px" class="form-row" :align="'center'" />
   </base-form>

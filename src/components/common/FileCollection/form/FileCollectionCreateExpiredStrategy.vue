@@ -1,31 +1,23 @@
 <template>
   <v-row :align="'center'" class="form-row">
-    <v-col>
-      <v-row>
-        <v-col class="form-label">
-          <span>有效天数：</span>
-        </v-col>
-        <v-col>
-          <v-select
-            v-model="expiredStrategy"
-            color="primary"
-            :items="expiredOptions"
-            :item-title="'title'"
-            return-object
-            variant="underlined"
-            density="comfortable"
-            class="hide-details no-padding"
-          />
-        </v-col>
-      </v-row>
+    <v-col class="mw-50">
+      <span class="form-label">有效天数：</span>
+      <v-select
+        v-model="expiredStrategy"
+        color="primary"
+        :items="expiredOptions"
+        :item-title="'title'"
+        return-object
+        variant="underlined"
+        density="comfortable"
+        class="hide-details no-padding"
+      />
     </v-col>
   </v-row>
-  <v-row v-if="expiredStrategy?.value == '0'" align="center">
-    <v-col class="form-label">
-      自定义过期：
-    </v-col>
-    <v-col cols="4" style="padding: 0 12px">
-      <v-text-field
+  <v-row v-if="expiredStrategy?.value == '0'" align="center" class="form-row">
+    <v-col class="mw-50">
+      <span class="form-label">自定义过期：</span>
+      <text-input
         v-model="customExpired"
         suffix="天"
         placeholder="过期时间"
@@ -46,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-
+import TextInput from '../../TextInput.vue'
 // ===== 过期策略相关 =====
 interface ExpiredStrategyOption {
   title: string
@@ -129,6 +121,7 @@ defineExpose({select})
 import { Validators } from '@/core/helper/Validators'
 import { StringFormatter } from '@/utils/StringFormatter'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
+import TextInputVue from '../../TextInput.vue'
 
 export default defineComponent({
   name: 'FileCollectionCreateExpiredStrategy'

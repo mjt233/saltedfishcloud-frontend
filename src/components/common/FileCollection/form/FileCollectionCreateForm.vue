@@ -4,12 +4,13 @@
     :model-value="formData"
     :submit-action="actions.submit"
     :son-forms="sonForms"
+    label-width="120px"
   >
     <loading-mask :loading="loadingRef" />
-    <v-row>
+    <v-row class="form-row">
       <v-col><text-input v-model="formData.title" label="标题" :rules="validators.title" /></v-col>
       <v-col>
-        <v-text-field
+        <text-input
           v-model="formData.nickname"
           variant="underlined"
           label="接收者署名"
@@ -18,7 +19,7 @@
         />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="form-row">
       <v-col>
         <v-textarea
           v-model="formData.describe"
@@ -30,11 +31,9 @@
         />
       </v-col>
     </v-row>
-    <v-row :align="'center'" :justify="'start'">
-      <v-col class="common-label">
-        <span>保存位置：</span>
-      </v-col>
+    <v-row :align="'center'" :justify="'start'" class="form-row">
       <v-col>
+        <span class="form-label">保存位置：</span>
         <div class="d-flex align-center">
           <a class="link" style="padding: 0 8px" @click="selectPath">{{ savePath }}{{ aloneDir ? (savePath.endsWith('/') ? '' : '/') + formData.title : '' }} </a>
           <v-btn flat @click="selectPath">
@@ -45,26 +44,14 @@
     </v-row>
     <!-- 过期策略选择 -->
     <file-collection-create-expired-strategy v-model="formData.expiredAt" />
-    <v-row>
-      <v-col style="min-width: 240px;margin: 0; padding: 0 12px;">
-        <v-row :align="'center'" :justify="'center'">
-          <v-col class="form-label">
-            <span>单独文件夹：</span>
-          </v-col>
-          <v-col>
-            <v-switch v-model="aloneDir" hide-details color="primary" />
-          </v-col>
-        </v-row>
+    <v-row class="form-row">
+      <v-col>
+        <span class="form-label">单独文件夹：</span>
+        <v-switch v-model="aloneDir" hide-details color="primary" />
       </v-col>
-      <v-col style="min-width: 240px;margin: 0; padding: 0 12px;">
-        <v-row :align="'center'" :justify="'center'">
-          <v-col class="form-label">
-            <span>要求登录：</span>
-          </v-col>
-          <v-col>
-            <v-switch v-model="requireLogin" hide-details color="primary" />
-          </v-col>
-        </v-row>
+      <v-col>
+        <span class="form-label">要求登录：</span>
+        <v-switch v-model="requireLogin" hide-details color="primary" />
       </v-col>
     </v-row>
     <v-row>
@@ -74,7 +61,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <file-collection-advanced-option ref="sonFormRef" />
+        <file-collection-advanced-option ref="sonFormRef" label-width="120px" />
       </v-col>
     </v-row>
     <v-row>

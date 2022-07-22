@@ -1,9 +1,9 @@
 <template>
   <base-form
     ref="formRef"
-    style="--row-height: 108px"
     :model-value="formData"
     :son-forms="sonForm"
+    :label-width="labelWidth"
   >
     <v-row :align="'center'">
       <v-col class="form-label" style="max-width: 140px">
@@ -19,7 +19,7 @@
     </v-row>
     <template v-if="useAdvanced">
       <v-row :align="'center'" class="form-row">
-        <v-col>
+        <v-col class="mw-50">
           <v-row>
             <v-col class="form-label">
               <span>接受数量：</span>
@@ -44,7 +44,7 @@
         </v-col>
       </v-row>
       <v-row :align="'center'" class="form-row">
-        <v-col>
+        <v-col class="mw-50">
           <v-row>
             <v-col class="form-label">
               大小限制：
@@ -77,6 +77,12 @@ const formRef = ref()
 const sonformRef = ref()
 const sonForm = [sonformRef]
 const useAdvanced = ref(false)
+const props = defineProps({
+  labelWidth: {
+    type: String,
+    default: '120px'
+  }
+})
 const recvOption: SelectOption[] = [
   {
     title: '无限制',
