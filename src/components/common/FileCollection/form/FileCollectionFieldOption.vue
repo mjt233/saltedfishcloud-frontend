@@ -125,6 +125,11 @@ const validateFieldForm = async(form: CommonForm) => {
     SfcUtils.snackbar('校验错误：' + result.errors.map(e => e.errorMessages).join(';'))
     return false
   } else {
+    const formData = form.getFormData() as CollectionInfoField
+    if (formData.type == 'OPTION' && formData.value && formData.options.findIndex(e => e == formData.value) == -1) {
+      SfcUtils.alert('默认值不在候选值范围内')
+      return false
+    }
     return true
   }
 }
