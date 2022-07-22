@@ -28,12 +28,24 @@
           <form-select v-model="formData.type" :items="typeOptions" />
         </div>
       </v-col>
+    </v-row>
+    <v-row class="form-row" :align="'center'">
+      <v-col style="max-width: 100%">
+        <span class="form-label">
+          描述：
+        </span>
+        <div class="d-flex align-center" style="width: 100%">
+          <text-input v-model="formData.describe" />
+        </div>
+      </v-col>
+    </v-row>
+    <v-row class="form-row" :align="'center'">
       <v-col>
         <div class="d-flex align-center" style="width: 100%">
           <span class="form-label">
             默认值：
           </span>
-          <text-input v-model="formData.value" :items="typeOptions" />
+          <text-input v-model="formData.value" />
         </div>
       </v-col>
       <v-col v-if="formData.type == 'TEXT'">
@@ -44,8 +56,6 @@
           <text-input v-model="formData.pattern" :items="typeOptions" :rules="validators.regex" />
         </div>
       </v-col>
-    </v-row>
-    <v-row style="margin-top: 25px" class="form-row" :align="'center'">
       <v-col v-if="formData.type == 'OPTION'" style="height: 58px">
         <div class="d-flex align-center" style="width: 100%">
           <span>候选值：</span>
@@ -75,6 +85,7 @@
         </v-chip>
       </span>
     </v-row>
+    <v-row style="margin-top: 25px" class="form-row" :align="'center'" />
   </base-form>
 </template>
 
