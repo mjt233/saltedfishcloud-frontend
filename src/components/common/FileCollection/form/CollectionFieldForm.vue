@@ -41,7 +41,7 @@
           <span class="form-label" style="max-width: 120px">
             正则约束：
           </span>
-          <text-input v-model="formData.pattern" :items="typeOptions" />
+          <text-input v-model="formData.pattern" :items="typeOptions" :rules="validators.regex" />
         </div>
       </v-col>
     </v-row>
@@ -86,7 +86,10 @@ import { defineForm } from '@/utils/FormUtils'
 import FormSelect from '@/components/common/FormSelect.vue'
 const optionEditor = ref() as Ref<TextInputModel>
 const props = defineProps({
-  modelValue: {
+  /**
+   * 初始值
+   */
+  initValue: {
     type: Object as PropType<CollectionInfoField>,
     default: undefined
   }
@@ -123,8 +126,6 @@ const addOption = () => {
 const removeOption = (i: number) => {
   formData.options.splice(i, 1)
 }
-
-const emits = defineEmits(['update:modelValue'])
 const formRef = ref()
 const editingOption = ref('')
 
@@ -139,17 +140,30 @@ const formInst = defineForm({
   } as CollectionInfoField,
   actions: {},
   validators: {
-    name: [Validators.notNull('字段名称不能为空')]
+    name: [Validators.notNull('字段名称不能为空')],
+    regex: [Validators.isRegex()]
   },
   formRef: formRef
 })
 
 const { formData, validators, actions, getFormData } = formInst
 defineExpose(formInst)
+
+onMounted(() => {
+  if (props.initValue) {
+    Object.assign(formData, props.initValue)
+    if (props.initValue.options) {
+      formData.options = []
+      props.initValue.options.forEach(e => {
+        formData.options.push(e)
+      })
+    }
+  }
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch, onMounted } from 'vue'
 import { SelectOption } from '@/core/model/Common'
 import { TextInputModel } from '@/core/model/component/FormModel'
 import SfcUtils from '@/utils/SfcUtils'

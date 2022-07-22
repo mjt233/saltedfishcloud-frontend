@@ -32,7 +32,7 @@
           </v-col>
           <v-col>
             <text-input
-              v-model="regex"
+              v-model="formData.pattern"
               class="dense-details"
               style="margin-top: 6px"
               :rules="validators.regex"
@@ -45,7 +45,7 @@
       <v-col>
         <v-row>
           <v-col>
-            <file-collection-field-option />
+            <file-collection-field-option v-model="formData.field" />
           </v-col>
         </v-row>
         <v-row class="form-row">
@@ -56,10 +56,10 @@
               </v-col>
               <v-col>
                 <text-input
-                  v-model="regex"
+                  v-model="formData.pattern"
                   class="dense-details"
                   style="margin-top: 6px;position: relative; left: -18px;width: calc(100% + 18px);"
-                  :rules="validators.regex"
+                  :rules="validators.nameExpress"
                 />
               </v-col>
             </v-row>
@@ -71,10 +71,10 @@
               </v-col>
               <v-col>
                 <text-input
-                  v-model="extRegex"
+                  v-model="formData.extPattern"
                   class="dense-details"
                   style="margin-top: 6px;"
-                  :rules="validators.regex"
+                  :rules="validators.extRegex"
                 />
               </v-col>
             </v-row>
@@ -97,7 +97,7 @@ const typeStrategyOption: SelectOption[] = [
     title: '无限制',
     value: 'all',
     action() {
-      formData.extPattern = null
+      formData.extPattern = ''
       formData.pattern = ''
       formData.field = []
     }
@@ -106,15 +106,16 @@ const typeStrategyOption: SelectOption[] = [
     title: '指定类型',
     value: 'type',
     action() {
-      formData.extPattern = null
+      formData.extPattern = ''
       formData.pattern = ''
+      formData.field = []
     }
   },
   {
     title: '字段约束',
     value: 'field',
     action() {
-      formData.extPattern = null
+      formData.extPattern = ''
       formData.pattern = ''
     }
   },
@@ -123,8 +124,8 @@ const typeStrategyOption: SelectOption[] = [
     value: 'regex',
     action() {
       formData.field = []
-      formData.extPattern = null
-      formData.pattern = regex.value
+      formData.extPattern = ''
+      formData.pattern = ''
     }
   }
 ]
@@ -166,23 +167,25 @@ watch(acceptType, () => {
   }
 })
 
-const regex = ref()
-const extRegex = ref()
-watch(regex, () => {
-  if (typeStrategy.value == 'regex') {
-    formData.pattern = regex.value
-  }
-})
 
 const formInst = defineForm({
   formRef: formRef,
   formData: {
     pattern: '',
-    extPattern: null,
-    field: []
+    extPattern: '',
+    field: [] as CollectionInfoField[]
   },
   validators: {
-    regex: [Validators.isRegex()]
+    regex: [Validators.isRegex()],
+    nameExpress: [Validators.notNull('文件名表达式不能为空'), (e: FormFieldType) => {
+      // 校验当未添加字段时，文件名表达式是否为合法的正则
+      if (!formData.field || (formData.field && formData.field.length == 0)) {
+        return Validators.isRegex()(e)
+      } else {
+        return true
+      }
+    }],
+    extRegex: [Validators.isRegex()]
   },
   actions: {}
 })
@@ -193,9 +196,10 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { SelectOption } from '@/core/model/Common'
-import { defineForm } from '@/utils/FormUtils'
+import { defineForm, FormFieldType } from '@/utils/FormUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, watch } from 'vue'
 import { Validators } from '@/core/helper/Validators'
+import { CollectionInfoField } from '@/core/model/FileCollection'
 
 export default defineComponent({
   name: 'FileCollectionTypeStrategyForm'

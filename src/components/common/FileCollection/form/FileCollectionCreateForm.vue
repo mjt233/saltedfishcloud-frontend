@@ -124,7 +124,7 @@ const formInst = defineForm({
       if (aloneDir.value) {
         await SfcUtils.request(API.file.mkdir(props.uid, savePath.value, formData.title))
         const nodes = (await SfcUtils.request(API.resource.getNodeInfo(props.uid, StringUtils.appendPath(savePath.value, formData.title)))).data.data
-        formData.saveNode = nodes.pop()?.id || props.uid + ''
+        allFormData.saveNode = nodes[nodes.length - 1].id
       }
       
       const conf = API.collection.create(allFormData)

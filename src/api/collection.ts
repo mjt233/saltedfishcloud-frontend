@@ -34,7 +34,11 @@ const collection = {
       headers: {
         'Content-Type': 'application/json;charset=utf-8'
       },
-      data: collectionInfo
+      // 确保extPattern为空时，不是空字符串
+      data: {
+        ...collectionInfo,
+        extPattern: collectionInfo.extPattern || null
+      }
     }
   },
   /**

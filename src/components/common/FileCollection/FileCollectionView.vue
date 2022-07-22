@@ -76,6 +76,7 @@ const handler = {
     await actions.loadList()
   },
 
+
   async closeTask(cid: number) {
     await actions.close(cid)
     SfcUtils.snackbar('已停止')
@@ -100,7 +101,8 @@ const openCreate = () => {
       maxWidth: '810px'
     },
     async onConfirm() {
-      const ret = await (dialog.getComponentInstRef() as any as CommonForm).submit()
+      const form = dialog.getComponentInstRef() as any as CommonForm
+      const ret = await form.submit()
       if (ret.success) {
         SfcUtils.snackbar('创建成功')
         actions.loadList()
@@ -123,6 +125,7 @@ import API from '@/api'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { CommonForm } from '@/utils/FormUtils'
+import { Validators } from '@/core/helper/Validators'
 export default defineComponent({
   name: 'FileCollectionView'
 })
