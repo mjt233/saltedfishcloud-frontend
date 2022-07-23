@@ -9,12 +9,17 @@
     return-object
     :multiple="multiple"
     :label="placeholder"
+    :disabled="disabled"
   />
 </template>
 
 <script setup lang="ts">
 const currentSelect = ref() as Ref< SelectOption | undefined >
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   items: {
     type: Array as PropType<SelectOption[] | undefined>,
     default: () => []

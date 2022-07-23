@@ -11,6 +11,8 @@
     :error="error"
     :autofocus="autofocus"
     :hide-details="hideDetails"
+    :disabled="disabled"
+    :readonly="readonly"
     @input="input"
     @keyup.enter="doEnter"
     @blur="validate"
@@ -19,6 +21,14 @@
 
 <script setup lang="ts">
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  readonly: {
+    type: Boolean,
+    default: false
+  },
   hideDetails: {
     type: Boolean,
     default: false

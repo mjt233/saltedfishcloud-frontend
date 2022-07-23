@@ -1,5 +1,6 @@
 import { DefineComponent, createApp, h, App, Component, ComponentPublicInstance, VNode } from 'vue'
 import vuetify from '@/plugins/vuetify'
+import router from '@/plugins/router'
 
 export interface DyncComponentHandler<T> {
   /**
@@ -42,7 +43,7 @@ export function dyncmount<T = {}>(component: Component, props: Object = {}, chil
   })
 
   // 挂载
-  const inst = tempApp.use(vuetify).mount(tempDOM)
+  const inst = tempApp.use(router).use(vuetify).mount(tempDOM)
 
   return {
     unmount() {

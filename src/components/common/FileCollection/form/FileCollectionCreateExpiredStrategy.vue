@@ -1,5 +1,5 @@
 <template>
-  <v-row :align="'center'" class="form-row">
+  <v-row v-if="!readonly" :align="'center'" class="form-row">
     <v-col class="mw-50">
       <span class="form-label">有效天数：</span>
       <v-select
@@ -28,18 +28,18 @@
       />
     </v-col>
   </v-row>
-  <!-- <v-row v-if="expiredStrategy?.value != '-1'">
-    <v-col cols="12">
+  <v-row v-if="readonly" class="form-row">
+    <v-col>
+      <span>过期时间：</span>
       <div style="color: #555555;">
-        将于 {{ toDate(expiredAt) }} 过期
+        {{ toDate(expiredAt) }}
       </div>
     </v-col>
-  </v-row> -->
+  </v-row>
 </template>
 
 <script setup lang="ts">
 import TextInput from '../../TextInput.vue'
-// ===== 过期策略相关 =====
 interface ExpiredStrategyOption {
   title: string
   strategy: () => any,
@@ -51,6 +51,10 @@ const props = defineProps({
   modelValue: {
     type: Number,
     default: new Date().getTime()
+  },
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits(['update:modelValue'])
@@ -121,7 +125,6 @@ defineExpose({select})
 import { Validators } from '@/core/helper/Validators'
 import { StringFormatter } from '@/utils/StringFormatter'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
-import TextInputVue from '../../TextInput.vue'
 
 export default defineComponent({
   name: 'FileCollectionCreateExpiredStrategy'

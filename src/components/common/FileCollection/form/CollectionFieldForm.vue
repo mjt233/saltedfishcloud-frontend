@@ -17,6 +17,7 @@
             class="dense-details"
             style="margin: 12px 0 0 0"
             :rules="validators.name"
+            :readonly="readonly"
           />
         </div>
       </v-col>
@@ -25,7 +26,11 @@
           <span class="form-label">
             类型：
           </span>
-          <form-select v-model="formData.type" :items="typeOptions" />
+          <form-select
+            v-model="formData.type"
+            :items="typeOptions" 
+            :disabled="readonly"
+          />
         </div>
       </v-col>
     </v-row>
@@ -35,17 +40,23 @@
           描述：
         </span>
         <div class="d-flex align-center" style="width: 100%">
-          <text-input v-model="formData.describe" />
+          <text-input
+            v-model="formData.describe"
+            :readonly="readonly"
+          />
         </div>
       </v-col>
     </v-row>
     <v-row class="form-row" :align="'center'">
-      <v-col>
+      <v-col class="mw-50">
         <div class="d-flex align-center" style="width: 100%">
           <span class="form-label">
             默认值：
           </span>
-          <text-input v-model="formData.value" />
+          <text-input
+            v-model="formData.value"
+            :readonly="readonly"
+          />
         </div>
       </v-col>
       <v-col v-if="formData.type == 'TEXT'">
@@ -53,10 +64,15 @@
           <span class="form-label" style="max-width: 120px">
             正则约束：
           </span>
-          <text-input v-model="formData.pattern" :items="typeOptions" :rules="validators.regex" />
+          <text-input
+            v-model="formData.pattern"
+            :readonly="readonly"
+            :items="typeOptions"
+            :rules="validators.regex"
+          />
         </div>
       </v-col>
-      <v-col v-if="formData.type == 'OPTION'">
+      <v-col v-if="formData.type == 'OPTION' && !readonly">
         <div class="d-flex align-center" style="width: 100%">
           <span class="form-label">候选值：</span>
           <text-input
@@ -65,9 +81,11 @@
             :items="typeOptions"
             style="width: 120px;margin-top: 0;margin-bottom: 12px;"
             hide-details
+            :readonly="readonly"
             @enter="addOption"
           />
           <v-btn
+            v-if="!readonly"
             size="small"
             style="margin:0 12px"
             @click="addOption"
@@ -82,7 +100,12 @@
       <v-col>
         <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
           <v-chip color="primary" style="margin: 6px">
-            <v-icon class="option-chip" icon="mdi-close" @click="removeOption(index)" />
+            <v-icon 
+              v-if="!readonly"
+              class="option-chip"
+              icon="mdi-close"
+              @click="removeOption(index)"
+            />
             {{ option }}
           </v-chip>
         </span>
@@ -106,6 +129,10 @@ const props = defineProps({
   initValue: {
     type: Object as PropType<CollectionInfoField>,
     default: undefined
+  },
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 const typeOptions: SelectOption[] = [

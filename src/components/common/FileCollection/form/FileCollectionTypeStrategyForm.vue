@@ -5,7 +5,11 @@
         <span class="form-label">
           文件名约束：
         </span>
-        <form-select v-model="typeStrategy" :items="typeStrategyOption" />
+        <form-select
+          v-model="typeStrategy"
+          :items="typeStrategyOption"
+          :disabled="readonly"
+        />
       </v-col>
       <v-col v-if="typeStrategy == 'type'">
         <span class="form-label">
@@ -13,6 +17,7 @@
         </span>
         <form-select
           v-model="acceptType"
+          :disabled="readonly"
           multiple
           :items="typeOption"
         />
@@ -33,7 +38,7 @@
       <v-col>
         <v-row>
           <v-col>
-            <file-collection-field-option v-model="formData.field" />
+            <file-collection-field-option v-model="formData.field" :readonly="readonly" />
           </v-col>
         </v-row>
         <v-row class="form-row">
@@ -78,6 +83,16 @@ import BaseForm from '@/components/common/BaseForm.vue'
 import FormSelect from '@/components/common/FormSelect.vue'
 import TextInput from '../../TextInput.vue'
 import FileCollectionFieldOption from './FileCollectionFieldOption.vue'
+const props = defineProps({
+  initValue: {
+    type: Object as PropType<CollectionInfo>,
+    default: undefined
+  },
+  readonly: {
+    type: Boolean,
+    default: false
+  }
+})
 const formRef = ref()
 const typeStrategy = ref('all')
 const typeStrategyOption: SelectOption[] = [
@@ -120,36 +135,34 @@ const typeStrategyOption: SelectOption[] = [
 const typeOption: SelectOption[] = [
   {
     title: '文档',
-    value: '|docx|doc|ppt|pptx|xls|xls|txt|md|pdf'
+    value: 'docx|doc|ppt|pptx|xls|xls|txt|md|pdf'
   },
   {
     title: '视频',
-    value: '|mp4|mpeg|avi|mov|wmv|flv|3gp'
+    value: 'mp4|mpeg|avi|mov|wmv|flv|3gp'
   },
   {
     title: '图片',
-    value: '|jpg|jpeg|png|gif'
+    value: 'jpg|jpeg|png|gif'
   },
   {
     title: '音频',
-    value: '|mp3|wav|mid|asf|mpg|tti|flac|aif|aiff|ape'
+    value: 'mp3|wav|mid|asf|mpg|tti|flac|aif|aiff|ape'
   },
   {
     title: '压缩包',
-    value: '|7z|zip|rar|gz|img|iso|image|tar'
+    value: '7z|zip|rar|gz|img|iso|image|tar'
   }
 ]
 const acceptType = ref([]) as Ref<string[]>
 watch(acceptType, () => {
 
   // 将选择的类型拼接到正则表达式中
-  let ext = ''
   const selectType = acceptType.value.length ? acceptType.value : []
-  selectType.forEach(e => {
-    ext += e
-  })
+  
+  let ext = selectType.join('|')
   if (ext.length) {
-    formData.pattern = `\\.(${ext})$`.replace(/\(\|/, '(')
+    formData.pattern = `\\.(${ext})$`
   } else {
     formData.pattern = ''
   }
@@ -179,15 +192,40 @@ const formInst = defineForm({
 })
 const { formData, validators } = formInst
 defineExpose(formInst)
-// const props = defineProps({})
+
+
+
+onMounted(async() => {
+  if (props.initValue) {
+    const obj = props.initValue
+    if (obj.field && obj.field.length > 0) {
+      await nextTick()
+      typeStrategy.value = 'field'
+      obj.field.forEach(e => formData.field.push(e))
+      await nextTick()
+      formData.extPattern = obj.extPattern || ''
+      formData.pattern = obj.pattern || ''
+
+    }
+    if(obj.pattern) {
+      const matchOptions = typeOption.filter(e => obj.pattern && obj.pattern?.indexOf(e.value) != -1)
+      const restructPattern = `\\.(${matchOptions.map(e => e.value).join('|')})$`
+      if (matchOptions.length > 0 && restructPattern.length == obj.pattern.length) {
+        typeStrategy.value = 'type'
+        await nextTick()
+        acceptType.value = matchOptions.map(e => e.value)
+      }
+    }
+  }
+})
 </script>
 
 <script lang="ts">
 import { SelectOption } from '@/core/model/Common'
 import { defineForm, FormFieldType } from '@/utils/FormUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, watch, onMounted, nextTick } from 'vue'
 import { Validators } from '@/core/helper/Validators'
-import { CollectionInfoField } from '@/core/model/FileCollection'
+import { CollectionInfo, CollectionInfoField } from '@/core/model/FileCollection'
 
 export default defineComponent({
   name: 'FileCollectionTypeStrategyForm'

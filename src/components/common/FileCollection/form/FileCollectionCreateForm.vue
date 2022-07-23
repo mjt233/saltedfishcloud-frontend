@@ -8,13 +8,21 @@
   >
     <loading-mask :loading="loadingRef" />
     <v-row class="form-row">
-      <v-col><text-input v-model="formData.title" label="标题" :rules="validators.title" /></v-col>
+      <v-col>
+        <text-input 
+          v-model="formData.title"
+          :readonly="readonly"
+          label="标题"
+          :rules="validators.title"
+        />
+      </v-col>
       <v-col>
         <text-input
           v-model="formData.nickname"
           variant="underlined"
           label="接收者署名"
           :rules="validators.nickname"
+          :readonly="readonly"
           color="primary"
         />
       </v-col>
@@ -23,6 +31,7 @@
       <v-col>
         <v-textarea
           v-model="formData.describe"
+          :readonly="readonly"
           class="plain-textarea hide-details"
           label="描述"
           rows="1"
@@ -35,23 +44,49 @@
       <v-col>
         <span class="form-label">保存位置：</span>
         <div class="d-flex align-center">
-          <a class="link" style="padding: 0 8px" @click="selectPath">{{ savePath }}{{ aloneDir ? (savePath.endsWith('/') ? '' : '/') + formData.title : '' }} </a>
-          <v-btn flat @click="selectPath">
-            浏览
-          </v-btn>
+          <template v-if="!readonly">
+            <a class="link" style="padding: 0 8px" @click="selectPath">
+              {{ fullPath }}
+            </a>
+            <v-btn flat @click="selectPath">
+              浏览
+            </v-btn>
+          </template>
+          <router-link
+            v-else
+            class="link"
+            style="padding: 0 8px"
+            target="_blank"
+            :to="StringUtils.appendPath('/private', fullPath)"
+          >
+            {{ fullPath }}
+          </router-link>
         </div>
       </v-col>
     </v-row>
     <!-- 过期策略选择 -->
-    <file-collection-create-expired-strategy v-model="formData.expiredAt" />
+    <file-collection-create-expired-strategy
+      v-model="formData.expiredAt"
+      :readonly="readonly"
+    />
     <v-row class="form-row">
       <v-col>
         <span class="form-label">单独文件夹：</span>
-        <v-switch v-model="aloneDir" hide-details color="primary" />
+        <v-switch
+          v-model="aloneDir"
+          :readonly="readonly"
+          hide-details
+          color="primary"
+        />
       </v-col>
       <v-col>
         <span class="form-label">要求登录：</span>
-        <v-switch v-model="requireLogin" hide-details color="primary" />
+        <v-switch
+          v-model="requireLogin"
+          :readonly="readonly"
+          hide-details
+          color="primary"
+        />
       </v-col>
     </v-row>
     <v-row>
@@ -61,7 +96,12 @@
     </v-row>
     <v-row>
       <v-col>
-        <file-collection-advanced-option ref="sonFormRef" label-width="120px" />
+        <file-collection-advanced-option 
+          ref="sonFormRef"
+          :readonly="readonly"
+          label-width="120px"
+          :init-value="initValue"
+        />
       </v-col>
     </v-row>
     <v-row>
@@ -85,6 +125,14 @@ const props = defineProps({
   uid: {
     type: Number,
     default: 0
+  },
+  initValue: {
+    type: Object as PropType<CollectionInfo>,
+    default: undefined
+  },
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 const savePath = ref('/')
@@ -147,19 +195,39 @@ const selectPath = async() => {
   }
 }
 
+const fullPath = computed(() => {
+  return aloneDir.value ?
+    StringUtils.appendPath(savePath.value, formData.title) :
+    savePath.value
+})
+
 defineExpose(formInst)
 
 formData.nickname = context.session.value.user.name
+onMounted(() => {
+  if (props.initValue) {
+    const obj = props.initValue
+    Object.assign(formData, obj)
+    formData.expiredAt = new Date(obj.expiredAt).getTime()
+    const pathArr = obj.savePathSnapshot.split('/')
+    aloneDir.value = pathArr.pop() == obj.title
+    if (aloneDir.value) {
+      savePath.value = StringUtils.appendPath('/', pathArr.join('/'))
+    }
+
+  }
+})
 </script>
 
 <script lang="ts">
 import { context } from '@/core/context'
 import { defineForm } from '@/utils/FormUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch, onMounted, computed } from 'vue'
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { Validators } from '@/core/helper/Validators'
 import { StringUtils } from '@/utils/StringUtils'
+import { CollectionInfo } from '@/core/model/FileCollection'
 
 export default defineComponent({
   name: 'FileCollectionCreateForm'

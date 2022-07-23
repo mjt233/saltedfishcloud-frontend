@@ -14,6 +14,7 @@
         v-for="(item, index) in collectionList"
         :key="index"
         :item="item"
+        @show-detail="showDetail(item)"
         @delete="handler.deleteTask(item.id)"
         @close="handler.closeTask(item.id)"
         @reopen="handler.reopen(item.id)"
@@ -111,6 +112,17 @@ const openCreate = () => {
         return false
       }
       
+    }
+  })
+}
+
+const showDetail = (item: CollectionInfo) => {
+  const dialog = SfcUtils.openComponentDialog(FileCollectionCreateForm, {
+    title: '收集详情',
+    props: {
+      initValue: item,
+      readonly: true,
+      uid: props.uid
     }
   })
 }

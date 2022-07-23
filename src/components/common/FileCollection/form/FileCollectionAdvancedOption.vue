@@ -12,6 +12,7 @@
       <v-col>
         <v-switch
           v-model="useAdvanced"
+          :readonly="readonly"
           hide-details
           color="primary"
         />
@@ -27,6 +28,7 @@
             <v-col>
               <form-select
                 v-model="recvStrategy"
+                :disabled="readonly"
                 :items="recvOption"
               />
             </v-col>
@@ -37,6 +39,7 @@
             <v-col>
               <text-input
                 v-model="formData.allowMax"
+                :readonly="readonly"
                 label="最大接收数量"
               />
             </v-col>
@@ -50,20 +53,29 @@
               大小限制：
             </v-col>
             <v-col>
-              <form-select v-model="sizeStrategy" :items="sizeOption" />
+              <form-select
+                v-model="sizeStrategy"
+                :disabled="readonly"
+                :items="sizeOption"
+              />
             </v-col>
           </v-row>
         </v-col>
         <v-col v-if="sizeStrategy != '-1'">
           <text-input
             v-model="sizeValue"
+            :readonly="readonly"
             type="number"
             :label="'指定大小(' + sizeStrategy + ')'"
             :rules="validators.size"
           />
         </v-col>
       </v-row>
-      <file-collection-type-strategy ref="sonformRef" />
+      <file-collection-type-strategy
+        ref="sonformRef"
+        :init-value="initValue"
+        :readonly="readonly"
+      />
     </template>
   </base-form>
 </template>
@@ -81,6 +93,14 @@ const props = defineProps({
   labelWidth: {
     type: String,
     default: '120px'
+  },
+  initValue: {
+    type: Object as PropType<CollectionInfo>,
+    default: undefined
+  },
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 const recvOption: SelectOption[] = [
@@ -194,13 +214,43 @@ watch(useAdvanced, () => {
     initData()
   }
 })
+
+
+onMounted(async() => {
+  if (props.initValue) {
+    const obj = props.initValue
+    if(obj.allowMax != -1 || obj.maxSize != -1 || !obj.pattern) {
+      useAdvanced.value = true
+      await nextTick()
+      if (obj.allowMax != -1) {
+        recvStrategy.value = '1'
+        await nextTick()
+        formData.allowMax = obj.allowMax || 0
+      }
+
+      if (obj.maxSize != -1) {
+        let size = (obj.maxSize / 1024 / 1024)
+        if (size >= 1024) {
+          sizeStrategy.value = 'GiB'
+          size /= 1024
+        } else {
+          sizeStrategy.value = 'MiB'
+        }
+        
+        await nextTick()
+        sizeValue.value = parseFloat(size.toFixed(2))
+      }
+    }
+  }
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch, onMounted, nextTick } from 'vue'
 import { SelectOption } from '@/core/model/Common'
 import { defineForm, FormFieldType } from '@/utils/FormUtils'
 import { Validators } from '@/core/helper/Validators'
+import { CollectionInfo } from '@/core/model/FileCollection'
 
 export default defineComponent({
   name: 'FileCollectionAdvancedOption'

@@ -1,5 +1,5 @@
 <template>
-  <v-row>
+  <v-row v-if="!readonly">
     <v-col>
       <v-btn color="primary" @click="addField">
         <v-icon icon="mdi-plus" />新建字段
@@ -29,8 +29,11 @@
             <td>{{ field.type == 'OPTION' ? '下拉选择' : '文本输入' }}</td>
             <td>
               <div class="d-flex align-center justify-space-between">
-                <v-icon style="cursor:pointer" icon="mdi-pencil" @click="editField(index)" />
-                <v-icon style="cursor:pointer" icon="mdi-delete" @click="deleteField(index)" />
+                <template v-if="!readonly">
+                  <v-icon style="cursor:pointer" icon="mdi-pencil" @click="editField(index)" />
+                  <v-icon style="cursor:pointer" icon="mdi-delete" @click="deleteField(index)" />
+                </template>
+                <a class="link" @click="openFieldDetail(index)">详情</a>
               </div>
             </td>
           </tr>
@@ -46,6 +49,10 @@ const props = defineProps({
   modelValue: {
     type: Array as PropType<CollectionInfoField[]>,
     default: () => []
+  },
+  readonly: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -58,8 +65,22 @@ watch(fields.value, () => {
 })
 watch(props.modelValue, () => {
   fields.value = props.modelValue
-  console.log('change了')
 })
+
+onMounted(() => {
+  if(props.modelValue) {
+    fields.value = props.modelValue
+  }
+})
+
+const openFieldDetail = (index: number) => {
+  SfcUtils.openComponentDialog(CollectionFieldFormVue, {
+    props: {
+      initValue: fields.value[index],
+      readonly: true
+    }
+  })
+}
 
 const deleteField = async(index: number) => {
   await SfcUtils.confirm('确定要删除这个字段吗？', '删除确认')
@@ -136,7 +157,7 @@ const validateFieldForm = async(form: CommonForm) => {
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch, onMounted } from 'vue'
 import { CollectionInfoField } from '@/core/model/FileCollection'
 import SfcUtils from '@/utils/SfcUtils'
 import CollectionFieldFormVue from './CollectionFieldForm.vue'

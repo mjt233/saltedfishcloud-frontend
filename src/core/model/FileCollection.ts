@@ -38,11 +38,11 @@ export interface CollectionParam {
   /** 文件名匹配表达式 */
   pattern?: string
 
-  /** 最多接收的文件次数 */
-  allowMax?: number
+  /** 最多接收的文件次数，-1为无限制 */
+  allowMax: number
 
   /** 允许最大的文件大小，-1为无限制 */
-  maxSize?: number
+  maxSize: number
 
   /** 是否允许匿名用户上传 */
   allowAnonymous? : boolean
