@@ -30,7 +30,7 @@
   </v-row>
   <v-row v-if="readonly" class="form-row">
     <v-col>
-      <span>过期时间：</span>
+      <span class="form-label">过期时间：</span>
       <div style="color: #555555;">
         {{ toDate(expiredAt) }}
       </div>

@@ -219,7 +219,7 @@ watch(useAdvanced, () => {
 onMounted(async() => {
   if (props.initValue) {
     const obj = props.initValue
-    if(obj.allowMax != -1 || obj.maxSize != -1 || !obj.pattern) {
+    if(obj.allowMax != -1 || obj.maxSize != -1 || obj.pattern) {
       useAdvanced.value = true
       await nextTick()
       if (obj.allowMax != -1) {
