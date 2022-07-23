@@ -175,6 +175,9 @@ export function dialog(opt: DialogOpt): DialogPromise {
       try {
         if(await onConfirm(vueInst.value.getComponentInst())) {
           attrs.modelValue = false
+          if(await onCancel(ret.handler.value.getComponentInst())) {
+            close()
+          }
         }
       } catch(err) {
         SfcUtils.snackbar(err, 1500, {outClose: true})
