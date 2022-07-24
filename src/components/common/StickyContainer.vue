@@ -1,7 +1,7 @@
 <template>
   <div class="anchor">
-    <div ref="content" class="inner-content" :class="{'at-top':stickActive}">
-      <slot />  
+    <div ref="content" class="inner-content" :class="contentClass + (stickActive ? ' at-top' : ' ')">
+      <slot />
     </div>
     <div class="empty-padding" :style="{height: (stickActive ? (content?.clientHeight || 0) : 0) + 'px'}" />
   </div>
@@ -19,14 +19,31 @@ const props = defineProps({
   listenFullPath: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 包裹默认插槽的父级div class
+   */
+  contentClass: {
+    type: String,
+    default: ''
+  },
+  /**
+   * 触发吸顶效果时的top坐标
+   */
+  triggerTop: {
+    type: Number,
+    default: undefined
   }
 })
 const parentElements: HTMLElement[] = []
 let currentElement: HTMLElement
 const stickActive = ref(false)
 const content = ref() as Ref<HTMLElement>
+const triggerTopVal = computed(() => {
+  return props.triggerTop === undefined ? props.top : props.triggerTop
+})
 const scrollHandler = (e: Event) => {
-  if(currentElement.getBoundingClientRect().top <= props.top) {
+  if(currentElement.getBoundingClientRect().top <= triggerTopVal.value) {
     stickActive.value = true
   } else {
     stickActive.value = false
@@ -47,7 +64,6 @@ onMounted(() => {
     }
   
     parentElements.forEach(e => {
-      console.log(e)
       e.addEventListener('scroll', scrollHandler)
     })
   }
@@ -64,10 +80,14 @@ onUnmounted(() => {
   
   window.removeEventListener('scroll', scrollHandler)
 })
+const emits = defineEmits(['change'])
+watch(stickActive, () => {
+  emits('change', stickActive.value)
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted,getCurrentInstance, onUnmounted,computed } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted,getCurrentInstance, onUnmounted,computed, watch } from 'vue'
 
 export default defineComponent({
   name: 'StickContainer'

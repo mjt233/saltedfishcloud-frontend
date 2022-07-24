@@ -117,13 +117,17 @@ const openCreate = () => {
 }
 
 const showDetail = (item: CollectionInfo) => {
-  const dialog = SfcUtils.openComponentDialog(FileCollectionCreateForm, {
+  const dialog = SfcUtils.openComponentDialog(FileCollectionDetailVue, {
     title: '收集详情',
     props: {
-      initValue: item,
+      modelValue: item,
       readonly: true,
       uid: props.uid
-    }
+    },
+    dense: true,
+    extraDialogOptions: {
+      maxWidth: '810px'
+    },
   })
 }
 </script>
@@ -138,6 +142,7 @@ import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { CommonForm } from '@/utils/FormUtils'
 import { Validators } from '@/core/helper/Validators'
+import FileCollectionDetailVue from './form/FileCollectionDetail.vue'
 export default defineComponent({
   name: 'FileCollectionView'
 })

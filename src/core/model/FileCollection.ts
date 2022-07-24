@@ -20,6 +20,9 @@ export interface CollectionInfoField {
 }
 
 export interface CollectionParam {
+  /** 创建人id */
+  uid: number,
+
   /** 标题 */
   title : string
 
@@ -87,4 +90,36 @@ export interface CollectionSubmitInfo {
 
   /** 提交的字段数组信息 */
   field: FieldInfo[]
+}
+
+/**
+ * 文件收集提交记录
+ */
+export interface CollectionRecord {
+  /** 记录id */
+  id:number
+
+  /** 收集id */
+  cid:number
+
+  /** 提交者用户id */
+  uid:number
+
+  /** 文件名 */
+  filename:string
+
+  /** 文件大小 */
+  size:number
+
+  /** 文件md5 */
+  md5:string
+
+  /** 提交ip */
+  ip:string
+
+  /** 提交人用户名 */
+  username:string
+
+  /** 提交日期 */
+  createdAt: string
 }

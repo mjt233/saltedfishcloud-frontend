@@ -1,5 +1,6 @@
-import { ApiRequest } from '@/core/model'
-import { CollectionInfo, CollectionParam, CollectionSubmitInfo } from '@/core/model/FileCollection'
+import { CommonRequest, JpaPageInfo } from './../core/model/ApiRequest'
+import { ApiRequest, PageInfo } from '@/core/model'
+import { CollectionInfo, CollectionParam, CollectionRecord, CollectionSubmitInfo } from '@/core/model/FileCollection'
 
 const collection = {
   prefix: '/collection',
@@ -67,7 +68,7 @@ const collection = {
    * @param size 每页大小
    * @returns {import("axios").AxiosRequestConfig}
    */
-  getRecords(cid: number, page: number, size: number) {
+  getRecords(cid: number, page: number, size: number): CommonRequest<JpaPageInfo<CollectionRecord>> {
     return {
       url: `${this.prefix}/record/${cid}`,
       params: {
