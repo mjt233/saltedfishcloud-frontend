@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- 顶部分类页签按钮 -->
     <sticky-container
       listen-full-path
       content-class="collection-in-stick"
@@ -23,13 +24,14 @@
     </sticky-container>
     <div style="padding: 24px">
       <v-window v-model="tab">
+        <!-- 任务详情 -->
         <v-window-item value="detail">
           <file-collection-create-form :readonly="true" :init-value="modelValue" :uid="modelValue?.uid" />
         </v-window-item>
+
+        <!-- 接受的文件 -->
         <v-window-item value="file">
-          <div v-for="(item,index) in records" :key="index">
-            {{ item.filename }}
-          </div>
+          <file-collection-record-list :cid="modelValue?.id" />
         </v-window-item>
       </v-window>
     </div>
@@ -37,8 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import FileCollectionCreateForm from './FileCollectionCreateForm.vue'
-import StickyContainer from '../../StickyContainer.vue'
+import FileCollectionCreateForm from './form/FileCollectionCreateForm.vue'
+import StickyContainer from '../StickyContainer.vue'
+import FileCollectionRecordList from './FileCollectionRecordList.vue'
 const tab = ref('detail')
 const stickStatus = ref(false)
 const props = defineProps({
@@ -47,27 +50,11 @@ const props = defineProps({
     default: undefined
   }
 })
-
-const records = ref([]) as Ref<CollectionRecord[]>
-const loadList = async() => {
-  const list = (await SfcUtils.request(
-    API.collection.getRecords(props.modelValue?.id || context.session.value.user.id, 1, 500)
-  )).data
-
-  records.value = list.data.content
-}
-
-onMounted(() => {
-  loadList()
-})
 </script>
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
-import { CollectionInfo, CollectionRecord } from '@/core/model/FileCollection'
-import API from '@/api'
-import SfcUtils from '@/utils/SfcUtils'
-import { context } from '@/core/context'
+import { CollectionInfo } from '@/core/model/FileCollection'
 
 export default defineComponent({
   name: 'FileCollectionDetail'

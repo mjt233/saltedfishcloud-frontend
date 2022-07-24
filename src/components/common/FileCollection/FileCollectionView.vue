@@ -142,7 +142,7 @@ import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { CommonForm } from '@/utils/FormUtils'
 import { Validators } from '@/core/helper/Validators'
-import FileCollectionDetailVue from './form/FileCollectionDetail.vue'
+import FileCollectionDetailVue from './FileCollectionDetail.vue'
 export default defineComponent({
   name: 'FileCollectionView'
 })
