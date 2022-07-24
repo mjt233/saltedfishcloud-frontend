@@ -23,7 +23,7 @@
       </v-tabs>
     </sticky-container>
     <div style="padding: 24px">
-      <v-window v-model="tab">
+      <v-window v-model="tab" style="min-height: 300px">
         <!-- 任务详情 -->
         <v-window-item value="detail">
           <file-collection-create-form :readonly="true" :init-value="modelValue" :uid="modelValue?.uid" />
