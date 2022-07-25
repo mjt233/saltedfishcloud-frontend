@@ -20,7 +20,7 @@ export interface CommonFormAttConstructOpt<V extends FormValidators, F extends o
 }
 
 export interface CommonFormAttExtraConstructOpt {
-  /** actions出错时是否抛出错误 */
+  /** actions出错时是否抛出错误，默认为true */
   throwError?: boolean,
 
   /**

@@ -2,7 +2,7 @@
   <v-form
     ref="form"
     class="base-form"
-    :style="{'--form-label-width': labelWidth}"
+    :style="{'--form-label-width': labelWidth, '--row-height': rowHeight}"
     :class="{'dense-form': dense}"
   >
     <slot />
@@ -31,6 +31,10 @@ const props = defineProps({
   dense: {
     type: Boolean,
     default: false
+  },
+  rowHeight: {
+    type: String,
+    default: '108px'
   }
 })
 const formManager = inject<FormManager>('formManager', new FormManager())

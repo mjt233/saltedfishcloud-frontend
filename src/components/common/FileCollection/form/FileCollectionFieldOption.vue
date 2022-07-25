@@ -33,7 +33,7 @@
                   <v-icon style="cursor:pointer" icon="mdi-pencil" @click="editField(index)" />
                   <v-icon style="cursor:pointer" icon="mdi-delete" @click="deleteField(index)" />
                 </template>
-                <a class="link" @click="openFieldDetail(index)">详情</a>
+                <a v-else class="link" @click="openFieldDetail(index)">详情</a>
               </div>
             </td>
           </tr>

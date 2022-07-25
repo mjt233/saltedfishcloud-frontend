@@ -1,3 +1,4 @@
+<!-- 文件收集任务创建-总入口表单 -->
 <template>
   <base-form
     ref="formRef"
@@ -7,6 +8,17 @@
     label-width="120px"
   >
     <loading-mask :loading="loadingRef" />
+    <v-row v-if="readonly">
+      <v-col>
+        <span class="form-label">
+          文件提交链接：
+        </span>
+        <a class="link" target="_blank" :href="'/#/collect/' + initValue?.id + '/' + initValue?.verification">
+          {{ submitLink }}
+        </a> 
+        
+      </v-col>
+    </v-row>
     <v-row class="form-row">
       <v-col>
         <text-input 
@@ -133,6 +145,13 @@ const props = defineProps({
   readonly: {
     type: Boolean,
     default: false
+  }
+})
+const submitLink = computed(() => {
+  if (props.initValue) {
+    return StringUtils.appendPath(window.origin, 'collect', props.initValue.id + '', props.initValue.verification)
+  } else {
+    return ''
   }
 })
 const savePath = ref('/')

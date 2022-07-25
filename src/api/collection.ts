@@ -56,7 +56,7 @@ const collection = {
    * @param cid 收集ID
    * @param verification 校验码
    */
-  getCollectionInfo(cid: number, verification: string) {
+  getCollectionInfo(cid: number|string, verification: string): ApiRequest<CollectionInfo> {
     return {
       url: `${this.prefix}/${cid}/${verification}`
     }
@@ -66,7 +66,6 @@ const collection = {
    * @param cid 收集ID
    * @param page 页数
    * @param size 每页大小
-   * @returns {import("axios").AxiosRequestConfig}
    */
   getRecords(cid: number, page: number, size: number): CommonRequest<JpaPageInfo<CollectionRecord>> {
     return {
