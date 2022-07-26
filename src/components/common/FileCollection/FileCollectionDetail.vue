@@ -8,29 +8,29 @@
       @change="stickStatus = $event"
     >
       <v-tabs
-        v-model="tab"
+        :model-value="tab"
         color="primary"
         grow
         :class="{'in-stick': stickStatus}"
         background-color="background"
       >
-        <v-tab value="detail">
+        <v-tab value="detail" @click="tab = 'detail'">
           任务详情
         </v-tab>
-        <v-tab value="file">
+        <v-tab value="file" @click="tab = 'file'">
           接受文件
         </v-tab>
       </v-tabs>
     </sticky-container>
     <div style="padding: 24px">
-      <v-window v-model="tab" style="min-height: 300px">
+      <v-window :model-value="tab" style="min-height: 300px">
         <!-- 任务详情 -->
         <v-window-item value="detail">
           <file-collection-create-form :readonly="true" :init-value="modelValue" :uid="modelValue?.uid" />
         </v-window-item>
 
         <!-- 接受的文件 -->
-        <v-window-item value="file">
+        <v-window-item value="file" eager>
           <file-collection-record-list :cid="modelValue?.id" />
         </v-window-item>
       </v-window>
@@ -50,10 +50,13 @@ const props = defineProps({
     default: undefined
   }
 })
+watch(tab, () => {
+  console.log(tab.value)
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch } from 'vue'
 import { CollectionInfo } from '@/core/model/FileCollection'
 
 export default defineComponent({

@@ -3,7 +3,7 @@
     <v-expansion-panel-title>
       <div class="d-flex justify-space-between align-center" style="width: 100%">
         <span>{{ item?.filename }}</span>
-        <span class="download-icon" @click.stop="downloadFile(item)"><v-icon icon="mdi-download" /></span>
+        <span class="download-icon" @click.stop="item && downloadFile(item)"><v-icon icon="mdi-download" /></span>
       </div>
       
     </v-expansion-panel-title>
@@ -11,8 +11,10 @@
       <v-table>
         <tbody>
           <tr>
-            <td>MD5校验码</td>
-            <td>{{ item?.md5 }}</td>
+            <td style="width: 120px">
+              MD5
+            </td>
+            <td><span class="break-text">{{ item?.md5 }}</span></td>
           </tr>
           <tr>
             <td>提交者</td>
