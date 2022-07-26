@@ -1,4 +1,4 @@
-import { CommonRequest, JpaPageInfo } from './../core/model/ApiRequest'
+import { CommonPageInfo, CommonRequest, JpaPageInfo } from './../core/model/ApiRequest'
 import { ApiRequest, PageInfo } from '@/core/model'
 import { CollectionInfo, CollectionParam, CollectionRecord, CollectionSubmitInfo } from '@/core/model/FileCollection'
 
@@ -67,7 +67,7 @@ const collection = {
    * @param page 页数
    * @param size 每页大小
    */
-  getRecords(cid: number, page: number, size: number): CommonRequest<JpaPageInfo<CollectionRecord>> {
+  getRecords(cid: number, page: number, size: number): CommonRequest<CommonPageInfo<CollectionRecord>> {
     return {
       url: `${this.prefix}/record/${cid}`,
       params: {

@@ -54,6 +54,17 @@ export interface JpaPageInfo<T> {
 }
 
 /**
+ * 标准通用分页查询结果信息
+ */
+export interface CommonPageInfo<T> {
+  content: T[]
+
+  totalCount: number
+
+  totalPage: number
+}
+
+/**
  * 分页请求标准参数
  */
 export interface PageRequestParam {

@@ -23,7 +23,7 @@ const props = defineProps({
    * 进度条类型：linear或circular
    */
   type: {
-    type: String,
+    type: String as PropType<'linear' | 'circular'>,
     default: 'linear'
   },
   loading: {
@@ -62,7 +62,7 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, ref, } from 'vue'
+import { defineComponent, defineProps, PropType, ref, } from 'vue'
 import { context } from '@/core/context'
 import { computed } from '@vue/reactivity'
 

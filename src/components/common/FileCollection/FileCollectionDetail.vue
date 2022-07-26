@@ -30,7 +30,7 @@
         </v-window-item>
 
         <!-- 接受的文件 -->
-        <v-window-item value="file" eager>
+        <v-window-item value="file">
           <file-collection-record-list :cid="modelValue?.id" />
         </v-window-item>
       </v-window>
