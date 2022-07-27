@@ -12,7 +12,7 @@ const collection = {
    * @param file 文件
    * @returns {import("axios").AxiosRequestConfig}
    */
-  submit(cid: number, vid: string, submitInfo: CollectionSubmitInfo, file: File) {
+  submit(cid: number | string, vid: string, submitInfo: CollectionSubmitInfo, file: File): CommonRequest {
     console.log(submitInfo)
     const fd = new FormData()
     fd.append('submitInfo', new Blob([window.JSON.stringify(submitInfo)], { type: 'application/json' }))

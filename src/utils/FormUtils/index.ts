@@ -5,10 +5,11 @@ import { reactive, Ref } from 'vue'
 import SfcUtils from '../SfcUtils'
 import { MethodInterceptor } from '../MethodInterceptor'
 import { FormManager } from './FormManager'
+import { ValidateRule } from '@/core/model/component/type'
 export type FormFieldType = string | boolean | number
 export type ValidatorFunction = (val: FormFieldType) => boolean | Promise<boolean> | string | Promise<string>
 export interface FormValidators  { 
-  [ name:string ]: ValidatorFunction[]
+  [ name:string ]: ValidatorFunction[] | ValidateRule[]
 }
 /**
  * 通用表单常用的属性的构造选项
@@ -205,8 +206,12 @@ export function defineBaseForm(opt: CommonFormOpt): CommonForm {
         success: true
       }
       try {
-        if (!ignoreValidate && !(await this.validate()).valid) {
-          throw new Error('表单校验不通过')
+        if (!ignoreValidate) {
+          const validResult = await this.validate()
+          if (!validResult.valid) {
+            const errorMessage = validResult.errors.map(e => e.errorMessages).join(';')
+            throw new Error(errorMessage)
+          }
         }
         submitResult.data = await opt.submitAction()
         return submitResult

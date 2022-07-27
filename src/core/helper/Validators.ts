@@ -33,4 +33,17 @@ export namespace Validators {
       return true
     }
   }
+  
+  export function isMatchRegex(regex: string, msg?: string) {
+    return (e: FormFieldType) => {
+      try {
+        if(!e.toString().match(regex)) {
+          return msg || '不满足正则表达式：' + regex
+        }
+        return true
+      } catch(err) {
+        return (err as any).toString()
+      }
+    }
+  }
 }
