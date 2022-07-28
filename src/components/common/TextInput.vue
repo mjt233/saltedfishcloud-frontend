@@ -1,5 +1,6 @@
 <template>
   <v-text-field
+    ref="inputRef"
     class="text-input"
     :variant="variant"
     :rules="rules"
@@ -62,6 +63,7 @@ const props = defineProps({
     default: false
   }
 })
+const inputRef = ref()
 const error = ref(false)
 const errorMessage = ref('')
 const emit = defineEmits(['update:modelValue', 'enter'])
@@ -108,7 +110,7 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef, PropType, onMounted } from 'vue'
+import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef, PropType, onMounted, watch } from 'vue'
 import { context, ValidateResult } from '@/core/context'
 import { ValidateRule } from '@/core/model/component/type'
 

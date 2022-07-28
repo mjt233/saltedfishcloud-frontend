@@ -5,7 +5,7 @@
       :autofocus="autofocus"
       :label="label"
       :rules="rules"
-      :value="modelValue.value"
+      :model-value="modelValue.value"
       @enter="emits('enter')"
       @update:value="emits('update:modelValue', {value: $event});"
     />

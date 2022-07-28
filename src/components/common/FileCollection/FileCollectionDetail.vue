@@ -50,9 +50,6 @@ const props = defineProps({
     default: undefined
   }
 })
-watch(tab, () => {
-  console.log(tab.value)
-})
 </script>
 
 <script lang="ts">

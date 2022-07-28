@@ -1,3 +1,4 @@
+import { TextInputModel } from './../../../core/model/component/FormModel'
 import SfcUtils from '@/utils/SfcUtils'
 import { DialogModel } from '@/core/model/component/DialogModel'
 import { ref, reactive, h, Ref, toRefs, VNode, DefineComponent, ComponentPublicInstance } from 'vue'
@@ -7,6 +8,7 @@ import SingleFieldForm from '@/components/form/SingleFieldForm.vue'
 import { ValidateRule } from '@/core/model/component/type'
 import { Validators } from '@/core/helper/Validators'
 import AlertDialog from '@/components/common/AlertDialog.vue'
+import TextInputVue from '@/components/common/TextInput.vue'
 
 export interface DialogOpt {
   /**
@@ -284,26 +286,28 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
  */
 export function prompt(opt: PromptOpt): Promise<string> {
   const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true, cancelToReject = false } = opt
-  const formValue = reactive({
-    value: defaultValue
-  })
+  const val = ref(defaultValue)
   return new Promise((resolve, reject) => {
-    const dialogPromise = dialog({
-      title,
-      async onConfirm(e) {
-  
-        const forms = e.formManager.getForms()
-        const ids = Object.keys(forms)
-  
-        // 对对话框内的所有表单执行校验
-        for (const id of ids) {
-          const form = forms[id]
-          const result = (await form.validate())
-          if (!result.valid) {
-            return Promise.reject('校验失败：' + result.errors[0].errorMessages)
+    const inst = openComponentDialog(TextInputVue, {
+      props: reactive({
+        modelValue: val,
+        rules,
+        label,
+        'onUpdate:modelValue'(e: string) {
+          val.value = e
+        },
+        autofocus,
+        async onEnter() {
+          const result = await (inst.getComponentInstRef() as TextInputModel).validate()
+          if(result.valid) {
+            inst.doConfirm()
+          } else {
+            SfcUtils.snackbar(result.errors.map(e => e.errorMessages).join(','))
           }
-        }
-        resolve(formValue.value)
+        },
+      }),
+      onConfirm() {
+        resolve(val.value)
         return true
       },
       onCancel() {
@@ -312,24 +316,51 @@ export function prompt(opt: PromptOpt): Promise<string> {
         }
         return true
       },
-      children: () => [
-        h(SingleFieldForm, {
-          modelValue: formValue,
-          rules,
-          label,
-          'onUpdate:modelValue'(e: {value: string}) {
-            formValue.value = e.value
-          },
-          autofocus,
-          onEnter() {
-            dialogPromise.handler.value.getComponentInst().$emit('confirm')
-          },
-          ref: 'inputForm'
-        })
-      ]
+      title
     })
-    
   })
+  // return new Promise((resolve, reject) => {
+  //   const dialogPromise = dialog({
+  //     title,
+  //     async onConfirm(e) {
+  
+  //       const forms = e.formManager.getForms()
+  //       const ids = Object.keys(forms)
+  
+  //       // 对对话框内的所有表单执行校验
+  //       for (const id of ids) {
+  //         const form = forms[id]
+  //         const result = (await form.validate())
+  //         if (!result.valid) {
+  //           return Promise.reject('校验失败：' + result.errors[0].errorMessages)
+  //         }
+  //       }
+  //       resolve(formValue.value)
+  //       return true
+  //     },
+  //     onCancel() {
+  //       if (cancelToReject) {
+  //         reject('cancel')
+  //       }
+  //       return true
+  //     },
+  //     children: () => h(TextInputVue, {
+  //       modelValue: formValue.value,
+  //       rules,
+  //       label,
+  //       'onUpdate:modelValue'(e: string) {
+  //         formValue.value = e
+  //       },
+  //       autofocus,
+  //       onEnter() {
+          
+  //         console.log(dialogPromise.handler.value.getComponentInst())
+  //         // dialogPromise.handler.value.getComponentInst().$emit('confirm')
+  //       }
+  //     },)
+  //   })
+    
+  // })
 }
 
 /**
