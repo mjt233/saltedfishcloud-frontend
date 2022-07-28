@@ -157,6 +157,9 @@ const submitLink = computed(() => {
 const savePath = ref('/')
 const aloneDir = ref(true)
 const requireLogin = ref(false)
+watch(requireLogin, () => {
+  formData.allowAnonymous = !requireLogin.value
+})
 // ===== 表单属性 =====
 const formInst = defineForm({
   formRef,
@@ -165,7 +168,8 @@ const formInst = defineForm({
     nickname: '',
     expiredAt: 0,
     saveNode: props.uid + '',
-    describe: ''
+    describe: '',
+    allowAnonymous: true
   },
   validators: {
     title: [Validators.notNull('标题不能为空')],
@@ -233,7 +237,7 @@ onMounted(() => {
     if (aloneDir.value) {
       savePath.value = StringUtils.appendPath('/', pathArr.join('/'))
     }
-
+    requireLogin.value = !props.initValue.allowAnonymous
   }
 })
 </script>

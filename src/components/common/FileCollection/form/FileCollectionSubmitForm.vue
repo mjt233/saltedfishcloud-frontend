@@ -9,9 +9,13 @@
     row-height="64px"
   >
     <div v-if="notFound">
-      {{ msg }}
+      <div class="d-flex align-center">
+        <v-icon icon="mdi-alert-circle" color="warning" />
+        {{ msg }}
+      </div>
+      <not-found-tip />
     </div>
-    <div v-else>
+    <div v-if="collectionInfo?.state == 'OPEN'">
       <v-card :title="'文件收集：' + collectionInfo?.title">
         <v-card-content style="position: relative">
           <v-row class="form-row">
@@ -98,6 +102,12 @@
       </v-card>
     </div>
   </base-form>
+  <div v-if="collectionInfo?.state == 'CLOSED'" class="error-tip">
+    <v-icon icon="mdi-close-circle" color="error" /> 已停止接受提交
+  </div>
+  <div v-if="needLogin" class="error-tip">
+    <v-icon icon="mdi-alert-circle" color="warning" /> 访问受限，需要<span class="link" @click="toLogin">登录</span>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -111,7 +121,7 @@ import { AxiosError } from 'axios'
 import MultiLineText from '@/components/common/MultiLineText.vue'
 import TextInput from '@/components/common/TextInput.vue'
 import FormSelect from '../../FormSelect.vue'
-import LoadingMask from '../../LoadingMask.vue'
+import NotFoundTip from '../../NotFoundTip.vue'
 const toDate = StringFormatter.toDate
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
@@ -134,6 +144,7 @@ const props = defineProps({
     default: 128
   }
 })
+const needLogin = ref(false)
 const emits = defineEmits(['submit', 'finish'])
 const selectOptions = reactive({} as { [name: string]: SelectOption[] })
 const collectionInfo = ref() as Ref<CollectionInfo>
@@ -152,6 +163,7 @@ const uploadStatus = reactive({
 // 是否使用了字段约束
 const useField = ref(false)
 
+const session = context.session
 
 // 表单基本属性定义
 const formInst = defineForm({
@@ -219,9 +231,13 @@ const formInst = defineForm({
         }
       } catch(err) {
         if (err instanceof AxiosError) {
-          if (err.code && err.code == '404') {
-            notFound.value = true
-            msg.value = (err as any).msg
+          if (err.code) {
+            if ( err.code == '404') {
+              notFound.value = true
+              msg.value = (err as any).msg
+            } else if (err.code == '401') {
+              needLogin.value = true
+            }
           }
         }
         SfcUtils.snackbar(err)
@@ -295,6 +311,14 @@ const initFieldValidator = () => {
     fieldRules.value[index] = rules
   })
 }
+
+const toLogin = async() => {
+  await SfcUtils.openLoginDialog()
+  setTimeout(() => {
+    location.reload()  
+  }, 300)
+  
+}
 watch(file, () => {
   if(file.value && file.value.length > 0) {
     formData.filename = file.value[0].name
@@ -316,6 +340,7 @@ import { SelectOption } from '@/core/model/Common'
 import { Validators } from '@/core/helper/Validators'
 import { ValidateRule } from '@/core/model/component/type'
 import { Prog } from '@/utils/FileUtils/FileDataProcess'
+import { context } from '@/core/context'
 
 export default defineComponent({
   name: 'FileCollectionSubmitForm'
@@ -326,5 +351,17 @@ export default defineComponent({
 <style lang="scss" scoped>
 .submit-btn {
   width: 100%;
+}
+
+.error-tip {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  width:100%;
+  max-width: 320px;
+  font-size: 21px;
+  &>.v-icon {
+    margin-right: 12px;
+  }
 }
 </style>
