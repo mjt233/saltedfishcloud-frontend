@@ -1,6 +1,8 @@
-import { DefineComponent, createApp, h, App, Component, ComponentPublicInstance, VNode } from 'vue'
+import { createApp, h, App, Component, ComponentPublicInstance, VNode, reactive } from 'vue'
 import vuetify from '@/plugins/vuetify'
 import router from '@/plugins/router'
+import { context } from '@/core/context'
+import { VApp } from 'vuetify/components'
 
 export interface DyncComponentHandler<T> {
   /**
@@ -34,11 +36,19 @@ export function dyncmount<T = {}>(component: Component, props: Object = {}, chil
   Object.assign(props, {
     ref: ROOT_REF_NAME
   })
+  
   // 动态创建组件
   const tempApp = createApp({
     render() {
       // @ts-ignore
-      return h(component, props, children)
+      return h(
+        VApp, reactive({
+          theme: context.theme.value
+        }),
+        () => [
+          h(component as any, props, children as any)
+        ]
+      )
     }
   })
 
