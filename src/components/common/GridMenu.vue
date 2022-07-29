@@ -7,7 +7,7 @@
         </div>
         <v-divider />
         <grid-container
-          type="between"
+          type="evenly"
           :width="boxSize"
           :gap="'0px'"
         >
