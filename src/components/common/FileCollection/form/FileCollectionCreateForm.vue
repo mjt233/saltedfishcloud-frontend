@@ -149,7 +149,7 @@ const props = defineProps({
 })
 const submitLink = computed(() => {
   if (props.initValue) {
-    return StringUtils.appendPath(window.origin, 'collect', props.initValue.id + '', props.initValue.verification)
+    return StringUtils.appendPath(window.origin, '#','collect', props.initValue.id + '', props.initValue.verification)
   } else {
     return ''
   }
