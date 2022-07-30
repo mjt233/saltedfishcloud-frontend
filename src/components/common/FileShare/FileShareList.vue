@@ -23,6 +23,7 @@
                 class="icon"
                 :file-name="item.name"
                 :is-dir="item.type == 'DIR'"
+                :md5="item.nid"
                 style="margin-right: 12px"
               />
               <span style="color: #555555;">{{ item.name }}</span>
@@ -33,14 +34,38 @@
           </div>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <template v-if="isSelf">
-            <div v-if="item.extractCode">
-              提取码：{{ item.extractCode }}
-            </div>
-            <div v-else>
-              未设置提取码
-            </div>
-          </template>
+          <form-grid>
+            <v-row class="form-row" align="center">
+              <v-col style="height: auto; align-items: flex-start;">
+                <span class="form-label">分享链接：</span>
+                <a class="link break-text" :href="ShareService.getShareLink(item)" target="_blank">{{ ShareService.getShareLink(item) }}</a>
+              </v-col>
+            </v-row>
+            <v-row v-if="isSelf" class="form-row">
+              <v-col v-if="item.extractCode">
+                <span class="form-label">提取码：</span>
+                <span>{{ item.extractCode }}</span>
+              </v-col>
+              <v-col v-else>
+                未设置提取码
+              </v-col>
+            </v-row>
+            <v-row v-if="isSelf" :align="'start'">
+              <v-col class="share-handle-group">
+                <v-btn color="error" @click="actions.deleteShare(item)">
+                  <div class="d-flex align-center">
+                    <v-icon icon="mdi-delete" /> 取消分享
+                  </div>
+                </v-btn>
+                <v-btn color="primary" @click="ShareService.copyShareLinkText(item)">
+                  <div class="d-flex align-center">
+                    <v-icon icon="mdi-content-copy" />
+                    复制信息
+                  </div>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </form-grid>
           
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -54,6 +79,8 @@ import LoadingMask from '../LoadingMask.vue'
 import FileIcon from '../FileIcon.vue'
 import { StringFormatter } from '@/utils/StringFormatter'
 import EmptyTip from '../EmptyTip.vue'
+import { ShareService } from '@/core/serivce/ShareService'
+import FormGrid from '@/components/layout/FormGrid.vue'
 const props = defineProps({
   uid: {
     type: [Number, String],
@@ -90,6 +117,23 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     })
 
     shareList.value = data
+  },
+  doCopy(item: ShareInfo) {
+    ShareService.copyShareLinkText(item)
+  },
+  deleteShare(item: ShareInfo) {
+    SfcUtils.confirm('确定要取消该分享吗？', '取消确认', {cancelToReject: true})
+      .then(() => { loadingManager.beginLoading();ShareService.deleteShare(item.id) })
+      .then(async() => {
+        await SfcUtils.sleep(200)
+        const ret = await this.loadList(curPage.value, curSize.value)
+        SfcUtils.snackbar('删除成功')
+        return ret
+      })
+      .catch(err => err == 'cancel' && SfcUtils.snackbar(err))
+      .finally(() => {
+        loadingManager.closeLoading()
+      })
   }
 }, true, loadingManager)
 
@@ -149,5 +193,12 @@ export default defineComponent({
 
 .expired-date .date-text {
   color: rgb(var(--v-theme-error));
+}
+
+
+.share-handle-group {
+  &>* {
+    margin-right: 12px;
+  }
 }
 </style>

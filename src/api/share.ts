@@ -85,7 +85,7 @@ const share = {
    * 删除一个分享
    * @param sid 分享ID
    */
-  deleteShare(sid: string): CommonRequest {
+  deleteShare(sid: string | number): CommonRequest {
     return {
       url: `${this.prefix}/${sid}`,
       method: 'delete'

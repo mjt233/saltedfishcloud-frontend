@@ -5,10 +5,12 @@
         <span class="form-label">分享链接：</span>
         <a
           target="_blank"
-          :href="link"
           class="link break-text"
           style="font-size: 14px"
-        >{{ link }}</a>
+          @click="doCopy"
+        >
+          {{ link }}
+        </a>
       </v-col>
     </v-row>
     <v-row class="form-row">
@@ -28,13 +30,16 @@ const props = defineProps({
   }
 })
 const link = computed(() => {
-  return StringUtils.appendPath(location.origin, '#/s', (props.data?.id || '') + '', props.data?.verification || '')
+  return ShareService.getShareLink(props.data as ShareInfo)
 })
+const doCopy = () => {
+  ShareService.copyShareLinkText(props.data as ShareInfo)
+}
 </script>
 
 <script lang="ts">
 import { ShareInfo } from '@/api/share'
-import { StringUtils } from '@/utils/StringUtils'
+import { ShareService } from '@/core/serivce/ShareService'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 
 export default defineComponent({

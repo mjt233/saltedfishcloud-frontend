@@ -1,3 +1,4 @@
+import API from '@/api'
 import { ShareInfo } from '@/api/share'
 import FileShareSuccessVue from '@/components/common/FileShare/FileShareSuccess.vue'
 import FileShareCreateFormVue from '@/components/common/FileShare/Form/FileShareCreateForm.vue'
@@ -19,6 +20,34 @@ export interface CreateShareFormConfig {
 }
 
 export namespace ShareService {
+  /**
+   * 取消分享
+   * @param sid 待取消的分享id
+   */
+  export async function deleteShare(sid: number) {
+    return await SfcUtils.request(API.share.deleteShare(sid))
+  }
+  
+  /**
+   * 获取分享链接地址
+   */
+  export function getShareLink(shareInfo: ShareInfo) {
+    return StringUtils.appendPath(location.origin, '#/s', (shareInfo.id || '') + '', shareInfo.verification || '')
+  }
+
+  /**
+   * 复制分享链接信息到剪切板
+   * @param shareInfo 分享信息
+   */
+  export function copyShareLinkText(shareInfo: ShareInfo) {
+    const link = getShareLink(shareInfo)
+    
+    let res = `呐呐呐(。・∀・)ノ，我用咸鱼云向你分享了文件：${shareInfo.name}\n链接：${link}`
+    if (shareInfo.needExtractCode) res += `\n提取码：${shareInfo.extractCode}\n`
+    SfcUtils.copyToClipboard(res)
+    SfcUtils.snackbar('已复制分享信息到剪切板')
+  }
+
   export function createShare(opt: CreateShareFormConfig) {
     const createDialog = SfcUtils.openComponentDialog(FileShareCreateFormVue, {
       props: {
