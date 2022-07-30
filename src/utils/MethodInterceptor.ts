@@ -87,7 +87,7 @@ export namespace MethodInterceptor {
     })
   }
   /**
-   * 创建一个自动管理loading状态的代理对象，方法开始执行时loading设为true，结束后设置为false。
+   * 创建一个自动管理loading状态的代理对象，方法开始执行时启动loading，结束后关闭loading。
    * 支持Promise
    * @param target 被代理对象
    * @param loading loading控制响应式引用对象

@@ -56,6 +56,24 @@ const SfcUtils = {
         resolve()
       }, timeout)
     })
+  },
+  /**
+   * 将文本复制到剪切板
+   * @param text 待复制的文本
+   */
+  copyToClipboard(text: string) {
+    const input = document.createElement('input')
+    input.readOnly = true
+    input.value = text
+    document.body.appendChild(input)
+    input.select()
+    input.setSelectionRange(0, text.length)
+    try {
+      document.execCommand('copy')
+    } finally {
+      document.body.removeChild(input)
+    }
+
   }
 }
 

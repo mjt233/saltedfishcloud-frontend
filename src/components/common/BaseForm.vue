@@ -5,11 +5,13 @@
     :style="{'--form-label-width': labelWidth, '--row-height': rowHeight}"
     :class="{'dense-form': dense}"
   >
+    <loading-mask :loading="loading && autoLoading" />
     <slot />
   </v-form>
 </template>
 
 <script setup lang="ts">
+import LoadingMask from './LoadingMask.vue'
 const form = ref()
 const props = defineProps({
   submitAction: {
@@ -35,6 +37,13 @@ const props = defineProps({
   rowHeight: {
     type: String,
     default: '108px'
+  },
+  /**
+   * 是否自动管理表单提交时的loading
+   */
+  autoLoading: {
+    type: Boolean,
+    default: false
   }
 })
 const formManager = inject<FormManager>('formManager', new FormManager())
@@ -46,6 +55,8 @@ const formInst = defineBaseForm({
   submitAction: props.submitAction as () => Promise<any> | null | undefined,
   formManager
 })
+
+const loading = formInst.getFormLoadingRef()
 
 if (formManager) {
   formManager.register(formInst)

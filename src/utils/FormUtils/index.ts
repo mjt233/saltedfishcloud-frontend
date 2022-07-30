@@ -6,6 +6,7 @@ import SfcUtils from '../SfcUtils'
 import { MethodInterceptor } from '../MethodInterceptor'
 import { FormManager } from './FormManager'
 import { ValidateRule } from '@/core/model/component/type'
+import { AxiosResponse } from 'axios'
 export type FormFieldType = string | boolean | number
 export type ValidatorFunction = (val: FormFieldType) => boolean | Promise<boolean> | string | Promise<string>
 export interface FormValidators  { 
@@ -56,7 +57,9 @@ export interface CommonFormOpt {
    */
   submitAction: () => Promise<any> | null | undefined | void,
 
-  formManager: FormManager
+  formManager: FormManager,
+
+  loadingManager?: LoadingManager
 }
 
 export interface SubmitOpt {
@@ -107,10 +110,14 @@ export interface CommonForm {
   getId: () => string
 
   getFormManager: () => FormManager
+
+  getFormLoadingManager: () => LoadingManager
+
+  getFormLoadingRef: () => Ref<boolean>
 }
 
 /**
- * 解构Form
+ * 从BaseForm表组组件实例Ref引用中单独暴露出方法，以便进行解构赋值和对象属性打散合并操作
  * @param form baseForm实例
  * @returns 
  */
@@ -130,6 +137,12 @@ export function deconstructForm(form: Ref<any>): CommonForm {
     },
     getFormManager() {
       return form.value.getFormManager()
+    },
+    getFormLoadingManager() {
+      return form.value.getFormLoadingManager()
+    },
+    getFormLoadingRef() {
+      return form.value.getFormLoadingRef()
     }
   }
 }
@@ -148,7 +161,7 @@ export interface FormSubmitResult {
   /**
    * 表单提交后获得的数据
    */
-  data?: any
+  data?: AxiosResponse
 }
 
 /**
@@ -158,7 +171,14 @@ export interface FormSubmitResult {
  */
 export function defineBaseForm(opt: CommonFormOpt): CommonForm {
   const id = StringUtils.getRandomStr(32)
-  return {
+  const loadingManager = opt.loadingManager || new LoadingManager()
+  return MethodInterceptor.createAutoLoadingProxy({
+    getFormLoadingManager() {
+      return loadingManager
+    },
+    getFormLoadingRef() {
+      return loadingManager.getLoadingRef()
+    },
     getFormManager() {
       return opt.formManager
     },
@@ -233,7 +253,7 @@ export function defineBaseForm(opt: CommonFormOpt): CommonForm {
         }
       }
     }
-  }
+  }, loadingManager)
 }
 
 /**
