@@ -75,13 +75,13 @@
                   color="background"
                   size="small"
                   icon="mdi-format-list-bulleted"
-                  @click="listType = 'list'"
+                  @click="changeListType('list')"
                 />
                 <v-btn
                   color="background"
                   size="small"
                   icon="mdi-dots-grid"
-                  @click="listType = 'grid'"
+                  @click="changeListType('grid')"
                 />
               </v-btn-toggle>
             </div>
@@ -412,6 +412,22 @@ const resizeHandler = async() => {
 }
 
 /**
+ * 切换当前的列表展示类型
+ * @param type 文件列表展示类型
+ */
+const changeListType = (type: ListType) => {
+  listType.value = type
+
+  // 记忆习惯
+  localStorage.setItem('list-type', type)
+  if (type == 'grid') {
+    btnToggle.value = 1
+  } else {
+    btnToggle.value = 0
+  }
+}
+
+/**
  * 执行顶部的按钮点击事件
  * @param item 点击的菜单项
  */
@@ -429,6 +445,11 @@ onMounted(() => {
   loadList(props.path)
   window.addEventListener('resize', resizeHandler)
   updateListHeight()
+
+  const historyListType = localStorage.getItem('list-type')
+  if (historyListType) {
+    changeListType(historyListType as ListType)
+  }
 })
 onUnmounted(() => {
   window.removeEventListener('resize', resizeHandler)
