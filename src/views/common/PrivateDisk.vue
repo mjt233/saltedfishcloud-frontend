@@ -7,6 +7,7 @@
       :read-only="false"
       :uid="session.user.id"
       :top-buttons="context.menu.value.fileBrowserBtn"
+      auto-compute-height
     />
   </div>
   <div v-else class="d-flex justify-center">

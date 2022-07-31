@@ -5,7 +5,8 @@
     :file-system-handler="handler"
     :uid="shareInfo.uid"
     read-only
-    auto-compute-height
+    :auto-compute-height="autoComputeHeight"
+    :compensate-height="compensateHeight"
     :enable-menu="['refresh', 'wrap']"
   />
 </template>
@@ -16,6 +17,14 @@ const props = defineProps({
   shareInfo: {
     type: Object as PropType<ShareInfo>,
     default: undefined
+  },
+  autoComputeHeight: {
+    type: Boolean,
+    default: true
+  },
+  compensateHeight: {
+    type: Number,
+    default: -24
   }
 })
 

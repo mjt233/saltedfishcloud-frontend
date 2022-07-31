@@ -6,6 +6,7 @@
       :read-only="readOnly"
       :uid="0"
       :top-buttons="context.menu.value.fileBrowserBtn"
+      auto-compute-height
     />
   </div>
 </template>

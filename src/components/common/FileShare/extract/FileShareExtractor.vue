@@ -1,6 +1,6 @@
 <template>
   <div style="position: relative">
-    <div v-if="shareInfo && !shareInfo.validateSuccess" style="max-width: 640px;margin: 0 auto;">
+    <div v-if="shareInfo" style="max-width: 640px;margin: 0 auto;">
       <!-- 文件提取 -->
       <v-card style="overflow: hidden">
         <loading-mask :loading="loading" />
@@ -11,9 +11,9 @@
           {{ shareInfo.username }}的分享：{{ shareInfo.name }}
         </template>
         <template #subtitle>
-          过期于：{{ toDate(shareInfo.expiredAt) }}
+          创建于：{{ toDate(shareInfo.createdAt) }}
         </template>
-        <v-card-content>
+        <v-card-content v-if="!shareInfo.validateSuccess">
           <form-grid style="padding: 12px 0">
             <v-row
               class="form-row justify-center" 
@@ -34,12 +34,12 @@
             </v-row>
           </form-grid>
         </v-card-content>
+        <v-card-content v-else>
+          <file-share-dir-browser v-if="shareInfo.type == 'DIR'" :share-info="shareInfo" />
+          <file-share-file-extractor v-if="shareInfo.type == 'FILE'" :share-info="shareInfo" />
+        </v-card-content>
       </v-card>
     </div>
-    <template v-if="shareInfo?.validateSuccess">
-      <file-share-dir-browser v-if="shareInfo.type == 'DIR'" :share-info="shareInfo" />
-      <file-share-file-extractor v-if="shareInfo.type == 'FILE'" :share-info="shareInfo" />
-    </template>
     <not-found-tip v-if="notFound" />
   </div>
 </template>

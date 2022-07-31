@@ -1,42 +1,19 @@
 <template>
-  <div>
+  <div ref="rootWrapRef">
     <loading-mask :loading="loading" z-index="1000" />
-    
     <!-- 顶部按钮 -->
-    <div
-      v-show="topButtons.length && topButtons.length"
-      ref="topBtnRef"
-      class="top-btn-group"
-      justify="start"
-    >
-      <div v-for="(group) in topButtons" :key="group.id">
-        <template v-if="group.renderOn ? group.renderOn(listContext) : true">
-          <!-- 单个按钮 -->
-          <v-btn
-            v-if="group.items.length == 0"
-            :color="group.color || 'primary'"
-            :icon="group.icon"
-            @click="topBtnClick(group)"
-          >
-            <v-icon
-              v-if="group.icon"
-              :size="18"
-              :icon="group.icon"
-              style="margin-right: 6px"
-            />
-            {{ group.name }}
-          </v-btn>
-
-          <!-- 按钮组 -->
-          <v-menu
-            v-else
-            open-on-focus
-            open-on-click
-          >
-            <!-- 触发按钮/标题 -->
-            <template #activator="{ props: a }">
-              <v-btn :color="group.color || 'primary'" v-bind="a">
-                
+    <div compute-height>
+      <v-row>
+        <v-col class="top-btn-group" justify="start">
+          <div v-for="(group) in topButtons" v-show="topButtons.length && topButtons.length" :key="group.id">
+            <template v-if="group.renderOn ? group.renderOn(listContext) : true">
+              <!-- 单个按钮 -->
+              <v-btn
+                v-if="group.items.length == 0"
+                :color="group.color || 'primary'"
+                :icon="group.icon"
+                @click="topBtnClick(group)"
+              >
                 <v-icon
                   v-if="group.icon"
                   :size="18"
@@ -45,34 +22,69 @@
                 />
                 {{ group.name }}
               </v-btn>
-            </template>
 
-            <!-- 子按钮菜单 -->
-            <v-list>
-              <template
-                v-for="(item) in group.items"
-                :key="item.id"
+              <!-- 按钮组 -->
+              <v-menu
+                v-else
+                open-on-focus
+                open-on-click
               >
-                <v-list-item v-if="item.renderOn ? item.renderOn(listContext) : true" :value="item.title" @click="topBtnClick(item)">
-                  <v-icon
-                    v-if="item.icon"
-                    :size="18"
-                    style="margin-right: 6px"
-                    :icon="item.icon"
-                  />
-                  {{ item.title }}
-                </v-list-item>
-              </template> 
-            </v-list>
-          </v-menu>
-        </template>
-      </div>
+                <!-- 触发按钮/标题 -->
+                <template #activator="{ props: a }">
+                  <v-btn :color="group.color || 'primary'" v-bind="a">
+                
+                    <v-icon
+                      v-if="group.icon"
+                      :size="18"
+                      :icon="group.icon"
+                      style="margin-right: 6px"
+                    />
+                    {{ group.name }}
+                  </v-btn>
+                </template>
+
+                <!-- 子按钮菜单 -->
+                <v-list>
+                  <template
+                    v-for="(item) in group.items"
+                    :key="item.id"
+                  >
+                    <v-list-item v-if="item.renderOn ? item.renderOn(listContext) : true" :value="item.title" @click="topBtnClick(item)">
+                      <v-icon
+                        v-if="item.icon"
+                        :size="18"
+                        style="margin-right: 6px"
+                        :icon="item.icon"
+                      />
+                      {{ item.title }}
+                    </v-list-item>
+                  </template> 
+                </v-list>
+              </v-menu>
+            </template>
+          </div>
+        </v-col>
+        <!-- 视图切换 -->
+        <v-col :cols="1" style="min-width: 120px">
+          <v-btn-toggle v-model="btnToggle">
+            <v-btn
+              color="background"
+              size="small"
+              icon="mdi-format-list-bulleted"
+              @click="listType = 'list'"
+            />
+            <v-btn
+              color="background"
+              size="small"
+              icon="mdi-dots-grid"
+              @click="listType = 'grid'"
+            />
+          </v-btn-toggle>
+        </v-col>
+      </v-row>
     </div>
-
-    <!-- 面包屑路径与视图切换 -->
-    <v-row justify="space-between" style="max-width: calc(100% - 12px);padding-left: 12px;">
-
-      <!-- 面包屑 -->
+    <!-- 面包屑路径 -->
+    <v-row justify="space-between" style="max-width: calc(100% - 12px);padding-left: 12px;" compute-height>
       <v-col style="max-width: calc(100% - 140px);">
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
@@ -90,24 +102,6 @@
             </v-breadcrumbs-divider>
           </template>
         </v-breadcrumbs>
-      </v-col>
-
-      <!-- 视图切换 -->
-      <v-col :cols="1" style="min-width: 120px">
-        <v-btn-toggle v-model="btnToggle">
-          <v-btn
-            color="background"
-            size="small"
-            icon="mdi-format-list-bulleted"
-            @click="listType = 'list'"
-          />
-          <v-btn
-            color="background"
-            size="small"
-            icon="mdi-dots-grid"
-            @click="listType = 'grid'"
-          />
-        </v-btn-toggle>
       </v-col>
     </v-row>
 
@@ -134,6 +128,7 @@ import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { FileListModel } from '@/core/model/component/FileListModel'
+const rootWrapRef = ref() as Ref<HTMLElement>
 const props = defineProps({
   path: {
     type: String,
@@ -186,6 +181,13 @@ const props = defineProps({
   enableMenu: {
     type: Array as PropType<string[]>,
     default: () => []
+  },
+  /**
+   * 自动计算高度时补偿的高度差
+   */
+  compensateHeight: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -194,9 +196,6 @@ type ListType = 'list' | 'grid'
 
 // 文件列表布局类型
 const listType: Ref<ListType> = ref('list')
-
-// 顶部按钮容器引用
-const topBtnRef = ref() as Ref<HTMLElement>
 
 // 面包屑组件引用
 const breadcrumbs = ref()
@@ -359,7 +358,14 @@ const scrollBreadcrumbs = async() => {
 const updateListHeight = async() => {
   if (props.autoComputeHeight) {
     await nextTick()
-    listHeight.value = document.documentElement.clientHeight - (listRef.value.$el as HTMLElement).getBoundingClientRect().top - (topBtnRef.value as HTMLElement).clientHeight
+    const documentHeight = document.documentElement.clientHeight
+    let otherHeight = 0
+    rootWrapRef.value.querySelectorAll('[compute-height=""]').forEach(e => {
+      otherHeight += e.clientHeight
+    })
+    const positionTop = (listRef.value.$el as HTMLElement).getBoundingClientRect().top
+    // 列表的高度 = 文档高度 - 列表在文档中的top - 其他组件的高度 + 高度补偿参数
+    listHeight.value = documentHeight - positionTop + props.compensateHeight
   }
 }
 const resizeHandler = async() => {
@@ -409,7 +415,7 @@ export default defineComponent({
   scroll-behavior:smooth
 }
 .top-btn-group {
-  padding-left: 12px;
+  margin-left: 12px;
   &>* {
     display: inline-block;
     margin-right: 12px;
