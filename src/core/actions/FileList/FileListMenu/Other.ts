@@ -34,13 +34,15 @@ const otherGroup: MenuGroup<FileListContext> =
         return ctx.selectFileList.length > 1 || ctx.selectFileList.find(e => e.dir) != undefined
       },
       async action(ctx) {
-        const wrapId = await SfcUtils.request(API.file.createWrap(ctx.uid as number, {
+        const wid = (await SfcUtils.request(API.wrap.createWrap({
           filenames: ctx.selectFileList.map(e => e.name),
-          source: ctx.path as string
-        }))
+          source: 'file',
+          sourceId: ctx.uid,
+          path: ctx.path
+        }))).data.data
         const nodeName = (ctx.path as string).split('/').pop()
         const wrapName = nodeName ? `${nodeName}.zip` : '打包下载.zip' 
-        const url = API.file.downloadWrap(wrapId.data.data, wrapName).url
+        const url = API.wrap.downloadWrap(wid, wrapName).url
         const fullUrl = StringUtils.appendPath(API.getDefaultPrefix(), url)
         window.open(fullUrl)
       }
