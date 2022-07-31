@@ -188,8 +188,16 @@ const props = defineProps({
   compensateHeight: {
     type: Number,
     default: 0
+  },
+  appendMenu: {
+    type: Array as PropType<MenuGroup<FileListContext>[]>,
+    default: () => []
   }
 })
+
+const emits = defineEmits<{
+  (event: 'update:path', path: string): void
+}>()
 
 // data
 type ListType = 'list' | 'grid'
@@ -209,7 +217,7 @@ const listRef = ref() as Ref<FileListModel>
 // 文件列表右键菜单
 const menu = context.menu
 const listMenu = computed(() => {
-  const allMenu = menu.value.fileListMenu
+  const allMenu = menu.value.fileListMenu.concat(props.appendMenu)
   const enableSet = new Set(props.enableMenu)
   const disabledSet = new Set(props.disabledMenu)
   const ret = allMenu.map(group => {
@@ -311,11 +319,19 @@ const pathItems = computed(() => {
   return itemArr
 })
 
+/**
+ * 跳转到指定路径的某个目录节点
+ * @param nodeIndex 路径节点索引，0为根目录
+ */
 const jumpIndex = (nodeIndex: number) => {
   const newArr = pathArr.value.filter((e, i) => i < nodeIndex)
   loadList('/' + newArr.join('/'))
 }
 
+/**
+ * 加载目录下的文件列表
+ * @param path 待加载的目录
+ */
 const loadList = async(path: string) => {
   fileList.value = await handler.value.loadList(path)
   if (props.path != path) {
@@ -324,6 +340,9 @@ const loadList = async(path: string) => {
   }
 }
 
+/**
+ * 返回上一级
+ */
 const back = async() => {
   if (props.path == '/') return
   const pathArr = props.path.split('/')
@@ -331,6 +350,11 @@ const back = async() => {
   await loadList(StringUtils.appendPath('/', pathArr.join('/')))
 }
 
+/**
+ * 文件列表文件被点击事件回调
+ * @param ctx 文件列表上下文信息
+ * @param e 点击的文件
+ */
 const clickItem = async(ctx: FileListContext, e: FileInfo) => {
   if (e.dir) {
     const newPath = StringUtils.appendPath(props.path, e.name)
@@ -344,17 +368,20 @@ const clickItem = async(ctx: FileListContext, e: FileInfo) => {
   }
 }
 
-const emits = defineEmits<{
-  (event: 'update:path', path: string): void
-}>()
 
-
+/**
+ * 面包屑导航栏自动滚动到末尾
+ */
 const scrollBreadcrumbs = async() => {
   const el = breadcrumbs.value.$el as HTMLElement
   await nextTick()
   el.scrollLeft = el.scrollWidth
 
 }
+
+/**
+ * 更新FileList组件的高度（自动计算高度）
+ */
 const updateListHeight = async() => {
   if (props.autoComputeHeight) {
     await nextTick()
@@ -368,11 +395,19 @@ const updateListHeight = async() => {
     listHeight.value = documentHeight - positionTop + props.compensateHeight
   }
 }
+
+/**
+ * 窗口尺寸变化回调
+ */
 const resizeHandler = async() => {
   await scrollBreadcrumbs()
   await updateListHeight()
 }
 
+/**
+ * 执行顶部的按钮点击事件
+ * @param item 点击的菜单项
+ */
 const topBtnClick = (item: MenuItem<FileListContext> | MenuGroup<FileListContext>) => {
   if(!(item.action instanceof Function)) {
     return

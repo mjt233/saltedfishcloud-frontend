@@ -73,7 +73,20 @@ const SfcUtils = {
     } finally {
       document.body.removeChild(input)
     }
+  },
 
+  /**
+   * 在新窗口中打开url
+   * @param url 要打开的url
+   */
+  openUrl(url: string) {
+    const a = document.createElement('a')
+    a.target = '_blank'
+    a.href = url
+    a.text = url
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 }
 
