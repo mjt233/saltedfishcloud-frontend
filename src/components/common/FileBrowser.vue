@@ -117,7 +117,7 @@
       v-model:file-list="fileList"
       :type="listType"
       :loading-manager="loadingManager"
-      :menu="menu.fileListMenu"
+      :menu="listMenu"
       :path="path"
       :uid="uid"
       :read-only="readOnly"
@@ -172,6 +172,20 @@ const props = defineProps({
   topButtons: {
     type: Array as PropType<MenuGroup<FileListContext>[]>,
     default: () => []
+  },
+  /**
+   * 停用的右键菜单id
+   */
+  disabledMenu: {
+    type: Array as PropType<string[]>,
+    default: () => []
+  },
+  /**
+   * 启用的右键菜单id，若为空则表示默认全部启用。否则只启用指定的菜单id
+   */
+  enableMenu: {
+    type: Array as PropType<string[]>,
+    default: () => []
   }
 })
 
@@ -195,6 +209,25 @@ const listRef = ref() as Ref<FileListModel>
 
 // 文件列表右键菜单
 const menu = context.menu
+const listMenu = computed(() => {
+  const allMenu = menu.value.fileListMenu
+  const enableSet = new Set(props.enableMenu)
+  const disabledSet = new Set(props.disabledMenu)
+  const ret = allMenu.map(group => {
+    // 浅拷贝
+    const newObj = {}
+    Object.assign(newObj, group)
+    return newObj as MenuGroup<FileListContext>
+  })
+  ret.forEach(group => {
+    group.items = group.items.filter(menu => {
+      // 未被停用 且 在启用范围内
+      return !disabledSet.has(menu.id + '') && (enableSet.size == 0 || enableSet.has(menu.id + ''))
+    })
+  })
+  
+  return ret
+})
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 

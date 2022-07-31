@@ -130,7 +130,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
         SfcUtils.snackbar('删除成功')
         return ret
       })
-      .catch(err => err == 'cancel' && SfcUtils.snackbar(err))
+      .catch(err => err != 'cancel' && SfcUtils.snackbar(err))
       .finally(() => {
         loadingManager.closeLoading()
       })

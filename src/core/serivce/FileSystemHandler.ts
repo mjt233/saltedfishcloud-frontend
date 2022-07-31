@@ -3,6 +3,8 @@ import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { Ref } from 'vue'
 import { FileInfo } from '../model'
+import { ShareInfo } from '@/api/share'
+import { ShareService } from './ShareService'
 
 export interface FileSystemHandler {
   /**
@@ -79,5 +81,9 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
 export class FileSystemHandlerFactory {
   public static getFileSystemHandler(uid: Ref<number>): FileSystemHandler {
     return new DefaultFileSystemHandler(uid)
+  }
+
+  public static getShareFileSystemhandler(shareInfo: ShareInfo): FileSystemHandler {
+    return new ShareService.ShareFileSystemHandler(shareInfo)
   }
 }

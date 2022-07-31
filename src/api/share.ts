@@ -58,6 +58,9 @@ export interface ShareInfo {
 
   /** 分享者用户名 */
   username: string
+
+  /** 是否校验成功 */
+  validateSuccess?: boolean
 }
 
 const share = {
@@ -123,7 +126,7 @@ const share = {
    * @param verification 分享校验码
    * @param extractCode 资源提取码
    */
-  getBaseShareInfo(sid: string, verification: string, extractCode: string): CommonRequest<CommonPageInfo<ShareInfo>> {
+  getBaseShareInfo(sid: string | number, verification: string, extractCode: string | null | undefined): CommonRequest<ShareInfo> {
     const params: {code?: string} = {}
     if (extractCode) { params.code = extractCode }
     return {
@@ -136,8 +139,9 @@ const share = {
    * @param sid 收集ID
    * @param verification 校验码
    * @param extractCode 提取码
+   * @returns 数组下标0为目录，1为文件
    */
-  browseDirShare(sid: string, verification: string, extractCode: string, path: string): CommonRequest<FileInfo> {
+  browseDirShare(sid: string, verification: string, extractCode: string | null | undefined, path: string): CommonRequest<FileInfo[][]> {
     path = path.split('/').map(e => encodeURIComponent(e)).join('/')
     let url = `${this.prefix}/view/${sid}/${verification}/${path}`
     url = url.replace(/\/\/+/, '/')

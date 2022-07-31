@@ -73,6 +73,10 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
     {
       path: '/collect/:cid/:vid',
       component: () => import('@/views/common/CollectionSubmitView.vue')
+    },
+    {
+      path: '/s/:sid/:vid',
+      component: () => import('@/views/common/FileShareView.vue')
     }
   ]
 }

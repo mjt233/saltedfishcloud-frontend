@@ -1,3 +1,4 @@
+import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import API from '@/api'
 import { ShareInfo } from '@/api/share'
 import FileShareSuccessVue from '@/components/common/FileShare/FileShareSuccess.vue'
@@ -7,6 +8,7 @@ import SfcUtils from '@/utils/SfcUtils'
 import { StringUtils } from '@/utils/StringUtils'
 import { h } from 'vue'
 import { VBtn } from 'vuetify/components'
+import { FileInfo } from '../model'
 
 export interface CreateShareFormConfig {
   /** 用户id */
@@ -33,6 +35,10 @@ export namespace ShareService {
    */
   export function getShareLink(shareInfo: ShareInfo) {
     return StringUtils.appendPath(location.origin, '#/s', (shareInfo.id || '') + '', shareInfo.verification || '')
+  }
+
+  export async function getShareInfo(sid: number | string, vid: string, extractCode: string | null | undefined) {
+    return (await SfcUtils.request(API.share.getBaseShareInfo(sid, vid, extractCode))).data.data
   }
 
   /**
@@ -94,5 +100,29 @@ export namespace ShareService {
         h(VBtn, { color: 'primary', onClick: () => { successDialog.close() } }, () => '取消')
       ]
     })
+  }
+
+  export class ShareFileSystemHandler implements FileSystemHandler {
+    private shareInfo: ShareInfo
+    constructor(shareInfo: ShareInfo) {
+      this.shareInfo = shareInfo
+    }
+    async loadList(path: string): Promise<FileInfo[]> {
+      const ret = await SfcUtils.request(API.share.browseDirShare(this.shareInfo.id + '', this.shareInfo.verification + '', this.shareInfo.extractCode || null, path))
+      return ret.data.data[0].concat(ret.data.data[1])
+    }
+    mkdir(path: string, name: string): Promise<null> {
+      throw new Error('Method not implemented.')
+    }
+    deleteFile(path: string, names: string[]): Promise<number> {
+      throw new Error('Method not implemented.')
+    }
+    uploadDirect(path: string, file: File): Promise<any> {
+      throw new Error('Method not implemented.')
+    }
+    rename(path: string, oldName: string, newName: string): Promise<string> {
+      throw new Error('Method not implemented.')
+    }
+    
   }
 }
