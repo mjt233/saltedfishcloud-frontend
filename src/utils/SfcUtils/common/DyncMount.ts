@@ -33,6 +33,9 @@ export type ChildrenType = VNode | Array<any> | string | Function | {
 export function dyncmount<T = {}>(component: Component, props: Object = {}, children?: ChildrenType): DyncComponentHandler<T> {
   const tempDOM = document.createElement('div')
   document.body.appendChild(tempDOM)
+  tempDOM.style.position = 'fixed'
+  tempDOM.style.left = '0'
+  tempDOM.style.top = '0'
   Object.assign(props, {
     ref: ROOT_REF_NAME
   })
