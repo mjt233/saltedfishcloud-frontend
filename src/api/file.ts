@@ -1,3 +1,4 @@
+import { IdType } from './../core/model/index'
 import { FileTransferInfo } from './../core/model/FileInfo'
 import { CommonRequest, FileInfo, FileTransferParam, PageRequest } from '@/core/model'
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
@@ -16,7 +17,7 @@ const file = {
    * @param {String} md5 文件MD5
    * @returns 是否保存成功
    */
-  quickSave(uid: number, path: string, name: string, md5: string): CommonRequest<Boolean> {
+  quickSave(uid: IdType, path: string, name: string, md5: string): CommonRequest<Boolean> {
     return {
       url: `${this.prefix}/${uid}/quickSave`,
       method: 'post',
@@ -44,7 +45,7 @@ const file = {
    * @param {FileTransferObj} fileTransferObj 文件操作对象，dest不要求
    * @returns 打包id
    */
-  createWrap(uid: number, fileTransferObj: FileTransferInfo): CommonRequest<string> {
+  createWrap(uid: IdType, fileTransferObj: FileTransferInfo): CommonRequest<string> {
     return useJsonBody({
       url: `/${this.prefix}/${uid}/wrap`,
       method: 'post',
@@ -57,7 +58,7 @@ const file = {
    * @param {FileTransferObj} fileTransferObj 文件操作对象
    * @returns {import('axios').AxiosRequestConfig}
    */
-  compress(uid: number, fileTransferObj: FileTransferInfo): CommonRequest {
+  compress(uid: IdType, fileTransferObj: FileTransferInfo): CommonRequest {
     return useJsonBody({
       url: `/${this.prefix}/${uid}/compress`,
       method: 'post',
@@ -100,7 +101,7 @@ const file = {
    * @param {String} path 路径
    * @returns 下标0 - 目录，下标1 - 文件
    */
-  getFileList(uid: number, path: string): CommonRequest<FileInfo[][]> {
+  getFileList(uid: IdType, path: string): CommonRequest<FileInfo[][]> {
     if (path == '/') path = ''
     path = StringUtils.encodeURLPath(path)
     return {
@@ -115,7 +116,7 @@ const file = {
    * @param {String} name 文件夹名
    * @returns
    */
-  mkdir(uid: number, path: string, name: string): CommonRequest {
+  mkdir(uid: IdType, path: string, name: string): CommonRequest {
     if (path == '/') path = ''
     let url = `/${this.prefix}/${uid}/dir/${path}`
     url = url.replace(/\/\/+/g, '/')
@@ -135,7 +136,7 @@ const file = {
    * @param {String} md5 文件MD5
    * @returns 新文件- 1，覆盖旧文件 - 0
    */
-  upload(uid: number, path: string, file: File | undefined | null, md5: string): CommonRequest<number> {
+  upload(uid: IdType, path: string, file: File | undefined | null, md5: string): CommonRequest<number> {
     path = path.split('/').map(e => encodeURIComponent(e)).join('/')
     const fd = new FormData()
     fd.set('md5', md5)
@@ -156,7 +157,7 @@ const file = {
    * @param {String[]} names 文件名
    * @returns 删除数量
    */
-  delete(uid: number, path: string, names: string[]): CommonRequest<number> {
+  delete(uid: IdType, path: string, names: string[]): CommonRequest<number> {
     const u = `/${this.prefix}/${uid}/content/${path}`
     return {
       url: u.replace(/\/+/g, '/'),
@@ -177,7 +178,7 @@ const file = {
    * @param {String} newName 新文件名
    * @returns
    */
-  rename(uid: number, path: string, oldName: string, newName: string): CommonRequest {
+  rename(uid: IdType, path: string, oldName: string, newName: string): CommonRequest {
     if (path == '/') path = ''
     return {
       url: `${this.prefix}/${uid}/name/${path}`,
@@ -193,7 +194,7 @@ const file = {
    * @param {Number} uid 用户ID
    * @param {String} filePath 文件在网盘中的完整路径
    */
-  getContent(uid: number, filePath: string) {
+  getContent(uid: IdType, filePath: string) {
     return {
       url: `${this.prefix}/${uid}/content/${filePath}`
     }
@@ -205,7 +206,7 @@ const file = {
    * @param {String} name 压缩文件名
    * @param {String} dest 解压位置
    */
-  unzip(uid: number, path: string, name: string, dest: string): CommonRequest {
+  unzip(uid: IdType, path: string, name: string, dest: string): CommonRequest {
     return {
       url: StringUtils.encodeURLPath(`${this.prefix}/${uid}/extractArchive/${path}`),
       method: 'post',

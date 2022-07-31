@@ -1,4 +1,5 @@
 import FileBrowser from '@/components/common/FileBrowser.vue'
+import { IdType } from '@/core/model'
 import { FileInfo } from '@/core/model/FileInfo'
 import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 import { computed, h, reactive, ref } from 'vue'
@@ -6,7 +7,7 @@ import { dialog } from '../common/Dialog'
 
 
 export interface FileSelectParam {
-    uid: number
+    uid: IdType
 
     title?: string,
 

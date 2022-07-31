@@ -32,7 +32,7 @@ const propsOptions = {
     default: undefined
   },
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   loadingManager: {

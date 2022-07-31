@@ -2,7 +2,7 @@ import { DiskFileUploadService, fileUploadTaskManager } from './FileUpload'
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { Ref } from 'vue'
-import { FileInfo } from '../model'
+import { FileInfo, IdType } from '../model'
 import { ShareInfo } from '@/api/share'
 import { ShareService } from './ShareService'
 
@@ -49,9 +49,9 @@ export interface FileSystemHandler {
 }
 
 export class DefaultFileSystemHandler implements FileSystemHandler {
-  uid: Ref<number>
+  uid: Ref<IdType>
   
-  constructor(uid: Ref<number>) {
+  constructor(uid: Ref<IdType>) {
     this.uid = uid
   }
   async rename(path: string, oldName: string, newName: string): Promise<string> {
@@ -79,7 +79,7 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
 }
 
 export class FileSystemHandlerFactory {
-  public static getFileSystemHandler(uid: Ref<number>): FileSystemHandler {
+  public static getFileSystemHandler(uid: Ref<IdType>): FileSystemHandler {
     return new DefaultFileSystemHandler(uid)
   }
 

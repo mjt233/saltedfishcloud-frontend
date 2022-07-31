@@ -1,4 +1,3 @@
-import { FileListEmits } from './emits'
 import FileUtils from '@/utils/FileUtils'
 import { ExtractPropTypes, reactive, Ref } from 'vue'
 import { FileListContext, FileInfo } from '../../../core/model'

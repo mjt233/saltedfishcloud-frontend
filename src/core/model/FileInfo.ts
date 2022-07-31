@@ -1,3 +1,4 @@
+import { IdType } from './index'
 import { FileListModel, FileListModelHandler } from './component/FileListModel'
 
 export namespace FileTypeConstant {
@@ -56,7 +57,7 @@ export interface FileListContext {
   name?: string
 
   /** 该列表所展示的文件的用户id */
-  uid: number
+  uid: IdType
 
   /** 文件列表是否只读 */
   readonly: boolean

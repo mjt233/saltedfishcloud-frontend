@@ -3,8 +3,8 @@
     <loading-mask :loading="loading" z-index="1000" />
     <!-- 顶部按钮 -->
     <div compute-height>
-      <v-row>
-        <v-col class="top-btn-group" justify="start">
+      <v-row class="justify-space-between">
+        <v-col class="top-btn-group" justify="start" style="min-width: 360px">
           <div v-for="(group) in topButtons" v-show="topButtons.length && topButtons.length" :key="group.id">
             <template v-if="group.renderOn ? group.renderOn(listContext) : true">
               <!-- 单个按钮 -->
@@ -64,28 +64,34 @@
             </template>
           </div>
         </v-col>
-        <!-- 视图切换 -->
-        <v-col :cols="1" style="min-width: 120px">
-          <v-btn-toggle v-model="btnToggle">
-            <v-btn
-              color="background"
-              size="small"
-              icon="mdi-format-list-bulleted"
-              @click="listType = 'list'"
-            />
-            <v-btn
-              color="background"
-              size="small"
-              icon="mdi-dots-grid"
-              @click="listType = 'grid'"
-            />
-          </v-btn-toggle>
+        <v-col style="margin: 0 12px;">
+          <!-- TODO: 窄屏下收起 -->
+          <div class="d-flex align-center justify-end">
+            <slot name="top-bar" />
+            <!-- 视图切换 -->
+            <div style="min-width: 120px;max-width: 120px;" class="d-flex">
+              <v-btn-toggle v-model="btnToggle">
+                <v-btn
+                  color="background"
+                  size="small"
+                  icon="mdi-format-list-bulleted"
+                  @click="listType = 'list'"
+                />
+                <v-btn
+                  color="background"
+                  size="small"
+                  icon="mdi-dots-grid"
+                  @click="listType = 'grid'"
+                />
+              </v-btn-toggle>
+            </div>
+          </div>
         </v-col>
       </v-row>
     </div>
     <!-- 面包屑路径 -->
-    <v-row justify="space-between" style="max-width: calc(100% - 12px);padding-left: 12px;" compute-height>
-      <v-col style="max-width: calc(100% - 140px);">
+    <v-row justify="space-between" compute-height>
+      <v-col>
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
             <a class="link" @click="jumpIndex(pathItems.length - 2)">返回上一级</a>
@@ -128,6 +134,7 @@ import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { FileListModel } from '@/core/model/component/FileListModel'
+import FormGrid from '../layout/FormGrid.vue'
 const rootWrapRef = ref() as Ref<HTMLElement>
 const props = defineProps({
   path: {
@@ -154,7 +161,7 @@ const props = defineProps({
    * （疑问：既然都传uid了，为什么还要由外部传入fileSystemHandler....)
    */
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   /**
@@ -447,7 +454,8 @@ export default defineComponent({
 .path-breadcrumbs {
   white-space: nowrap;
   padding: 6px 0;
-  scroll-behavior:smooth
+  scroll-behavior:smooth;
+  margin: 0 12px;
 }
 .top-btn-group {
   margin-left: 12px;
