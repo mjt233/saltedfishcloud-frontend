@@ -367,11 +367,7 @@ const clickItem = async(ctx: FileListContext, e: FileInfo) => {
     const newPath = StringUtils.appendPath(props.path, e.name)
     await loadList(newPath)
   } else {
-    const files = [e]
-    const handlers = context.fileOpenHandler.value.filter(handler => handler.matcher(ctx, files))
-    if (handlers.length == 1) {
-      handlers[0].action(ctx, files)
-    }
+    SfcUtils.openFile(ctx, e)
   }
 }
 
@@ -439,7 +435,12 @@ const topBtnClick = (item: MenuItem<FileListContext> | MenuGroup<FileListContext
     MethodInterceptor.createAutoLoadingProxy(MethodInterceptor.wrapFun(item.action), loadingManager)
   ).invoke(listContext.value)
 }
-defineExpose({loadList})
+defineExpose({
+  loadList,
+  getListContext() {
+    return listRef.value.context
+  }
+})
 onMounted(() => {
   fileUploadTaskManager.addEventListener('success', successListener)
   loadList(props.path)
@@ -464,6 +465,7 @@ import {FileSystemHandler, FileSystemHandlerFactory} from '@/core/serivce/FileSy
 import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive, ComponentPublicInstance } from 'vue'
 import { context, MenuGroup, MenuItem } from '@/core/context'
 import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from '@/core/serivce/FileUpload'
+import SfcUtils from '@/utils/SfcUtils'
 
 export default defineComponent({
   name: 'FileBrowser'

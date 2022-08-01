@@ -36,3 +36,14 @@ export interface FileListModelHandler {
 export interface FileListModel extends ComponentPublicInstance {
   context: FileListContext
 }
+
+export interface FileBrowserModel extends ComponentPublicInstance {
+  
+  loadList(path: string): Promise<void>
+  getListContext(): FileListContext
+}
+
+export interface FileSearchListModel extends ComponentPublicInstance {
+  
+  getListContext(): FileListContext
+}

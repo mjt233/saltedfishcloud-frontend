@@ -160,7 +160,6 @@ export function dialog(opt: DialogOpt): DialogPromise {
   }
   let vueInst = ref() as Ref<DyncComponentHandler<DialogModel>>
   let close: () => void
-
   // 构造组件参数
   const attrs = reactive({
     // 对话框显示控制

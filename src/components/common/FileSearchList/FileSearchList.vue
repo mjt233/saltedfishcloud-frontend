@@ -11,6 +11,7 @@
     <span class="tip" style="margin-left: 12px;">共{{ searchResult.total }}条结果</span>
     
     <file-list
+      ref="listRef"
       :file-list="searchResult.list"
       :uid="uid"
       :loading-manager="loadingManager"
@@ -35,6 +36,7 @@
 import LoadingMask from '../LoadingMask.vue'
 import FileList from '../FileList/index.vue'
 import type { SearchFileInfo } from '@/core/model'
+const listRef = ref() as Ref<FileListModel>
 const props = defineProps({
   uid: {
     type: [Number, String],
@@ -78,6 +80,11 @@ onMounted(() => {
 watch(curPage, () => {
   actions.search(curPage.value)
 })
+defineExpose({
+  getListContext() {
+    return listRef.value.context
+  }
+})
 </script>
 
 <script lang="ts">
@@ -87,6 +94,7 @@ import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch } from 'vue'
 import { FileInfo, FileListContext } from '@/core/model'
+import { FileListModel } from '@/core/model/component/FileListModel'
 
 export default defineComponent({
   name: 'FileSearchList'

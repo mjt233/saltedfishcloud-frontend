@@ -49,6 +49,7 @@
       />
       <loading-mask :loading="loadingManager.getLoadingRef().value" />
       <file-search-list
+        ref="searchListRef"
         :uid="uid"
         :keywork="searchName"
         @click-parent="clickSearchParent"
@@ -64,6 +65,7 @@ import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 import TextInput from '@/components/common/TextInput.vue'
 import FileSearchList from './FileSearchList/FileSearchList.vue'
 import LoadingMask from './LoadingMask.vue'
+const searchListRef = ref() as Ref<FileSearchListModel>
 const props = defineProps({
   uid: {
     type: [Number, String],
@@ -118,7 +120,7 @@ const clickSearchParent = async(item: SearchFileInfo) => {
 }
 
 const clickSearchItem = (item: SearchFileInfo) => {
-  SfcUtils.openUrl(StringUtils.appendPath(API.getDefaultPrefix(), API.resource.downloadFileByMD5(item.md5, item.name).url))
+  SfcUtils.openFile(searchListRef.value.getListContext(), item)
 }
 </script>
 
@@ -130,6 +132,7 @@ import API from '@/api'
 import { SearchFileInfo } from '@/core/model'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { StringUtils } from '@/utils/StringUtils'
+import { FileSearchListModel } from '@/core/model/component/FileListModel'
 export default defineComponent({
   name: 'UserFileBrowser'
 })

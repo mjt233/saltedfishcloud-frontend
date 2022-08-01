@@ -61,7 +61,7 @@ export interface FileOpenHandler {
   /**
    * 匹配器，返回true表示待打开的文件可以被该文件处理器处理
    */
-  matcher: (ctx: FileListContext, files: FileInfo[]) => boolean
+  matcher: (ctx: FileListContext, files: FileInfo) => boolean
 
   /**
    * 排序，越小越靠前
@@ -73,7 +73,7 @@ export interface FileOpenHandler {
    */
   id: string
 
-  action: (ctx: FileListContext, files: FileInfo[]) => Promise<any> | void
+  action: (ctx: FileListContext, files: FileInfo) => Promise<any> | void
 }
 
 export type FileClipBoardType = 'cut' | 'copy'

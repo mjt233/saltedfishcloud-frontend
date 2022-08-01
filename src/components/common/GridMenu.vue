@@ -2,10 +2,10 @@
   <div ref="rootRef" class="box-view">
     <div v-for="group in availableItems" :key="group.id" class="item-group">
       <template v-if="getCanRenderItems(group.items).length">
-        <div class="text-subtitle-1">
+        <div v-if="!hideGroupName" class="text-subtitle-1">
           {{ group.name }}
         </div>
-        <v-divider />
+        <v-divider v-if="!hideGroupName" />
         <grid-container
           type="evenly"
           :width="boxSize"
@@ -51,6 +51,14 @@ const props = defineProps({
     default: () => {
       return { getArgument: () => undefined }
     }
+  },
+  hideGroupName: {
+    type: Boolean,
+    default: false
+  },
+  itemSize: {
+    type: Number,
+    default: 120
   }
 })
 const emits = defineEmits(['click'])
@@ -67,12 +75,13 @@ const canRenderCount = computed(() => {
 const getCanRenderItems = (items: (MenuItem<any> | MenuGroup<any>)[]) => {
   return items.filter(e => canRender(e))
 }
-const boxSize = ref(120)
+const boxSize = computed(() => props.itemSize)
+const sizeRatio = ref(1)
 const boxSizePx = computed(() => {
-  return boxSize.value + 'px'
+  return boxSize.value * sizeRatio.value + 'px'
 })
 const boxIconSize = computed(() => {
-  return boxSize.value / 4 + 'px'
+  return boxSize.value * sizeRatio.value / 4 + 'px'
 })
 const rootRef = ref() as Ref<HTMLElement>
 const updateSize = () => {
@@ -81,9 +90,9 @@ const updateSize = () => {
     return
   }
   if (el.clientWidth < 480) {
-    boxSize.value = 120
+    sizeRatio.value = 0.8
   } else {
-    boxSize.value = 120
+    sizeRatio.value = 1
   }
 }
 const itemClick = (item: MenuItem<any>, index: number) => {
@@ -103,15 +112,19 @@ const itemClick = (item: MenuItem<any>, index: number) => {
 
 onMounted(() => {
   setTimeout(() => {
-    
     updateSize()
     window.addEventListener('resize', updateSize)
   }, 200)
+  updateSize()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateSize)
 })
+
+if (!props.argProvider) {
+  console.warn('未提供argProvider！将影响点击事件')
+}
 </script>
 
 <script lang="ts">

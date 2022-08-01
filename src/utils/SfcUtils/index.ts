@@ -1,3 +1,5 @@
+import { FileOpenHandler } from './../../core/context/type'
+import { FileInfo, FileListContext } from '@/core/model/FileInfo'
 
 import { ApiRequest } from '@/core/model'
 // import selectFile from './file/fileSelector'
@@ -7,6 +9,8 @@ import axios from '@/plugins/axios'
 import { AxiosResponse } from 'axios'
 import * as dialog from './common/Dialog'
 import * as fileSelector from './file/fileSelector'
+import { context } from '@/core/context'
+import FileOpenSelectorVue from '@/components/common/FileOpenSelector.vue'
 
 const SfcUtils = {
   snackbar,
@@ -87,6 +91,28 @@ const SfcUtils = {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
+  },
+  openFile(ctx: FileListContext, file: FileInfo) {
+    const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))
+    if (handlers.length == 1) {
+      handlers[0].action(ctx, file)
+    } else if (handlers.length == 0) {
+      SfcUtils.snackbar('无合适的打开方式')
+    } else {
+      const inst = SfcUtils.openComponentDialog(FileOpenSelectorVue, {
+        props: {
+          ctx,
+          file,
+          handlers,
+          onSelect(handler: FileOpenHandler) {
+            handler.action(ctx, file)
+            inst.close()
+          }
+        },
+        title: '选择打开方式',
+        dense: true
+      })
+    }
   }
 }
 

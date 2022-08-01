@@ -1,3 +1,4 @@
+import { IdType } from './../index'
 /**
  * 菜单项点击动作时，调用action执行时传入的参数提供者
  */
@@ -7,5 +8,5 @@ export interface ArgumentProvider<T> {
    * @param index 被点击项的索引
    * @param id 被点击项对象id
    */
-  getArgument: (index: number, id: string | number) => T
+  getArgument: (index: number, id: IdType) => T
 }
