@@ -1,12 +1,12 @@
 import FileUtils from '@/utils/FileUtils'
 import { ExtractPropTypes, reactive, Ref } from 'vue'
-import { FileListContext, FileInfo } from '../../../core/model'
+import { FileListContext, FileInfo } from '@/core/model'
 import propsOptions from './props'
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 
 export interface FileListContextBuilderOptions {
   props: Readonly<ExtractPropTypes<typeof propsOptions>>,
-  emits: FileListEmits
+  emits: any
   handler: Ref<FileSystemHandler> | undefined,
   rename(name: string, md5: string): Promise<string>
 }

@@ -1,4 +1,4 @@
-import { CommonRequest, NodeInfo } from '@/core/model'
+import { CommonRequest, IdType, NodeInfo } from '@/core/model'
 
 const resource = {
   prefix: 'resource',
@@ -73,9 +73,9 @@ const resource = {
    * 解析节点ID取路径
    * @param uid 用户ID
    * @param nodeId 节点ID
-   * @returns
+   * @returns 路径
    */
-  parseNodeId(uid: number, nodeId: string) {
+  parseNodeId(uid: IdType, nodeId: string):CommonRequest<string> {
     return {
       url: `${this.prefix}/${uid}/path/${nodeId}`
     }

@@ -45,6 +45,13 @@ const propsOptions = {
   type: {
     type: String as PropType<'list' | 'grid'>,
     default: 'list'
+  },
+  /**
+   * 是否启用选择功能
+   */
+  useSelect: {
+    type: Boolean,
+    default: true
   }
 }
 export default propsOptions

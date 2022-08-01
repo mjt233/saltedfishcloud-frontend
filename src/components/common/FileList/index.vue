@@ -5,6 +5,7 @@
     @click="rootLClick"
   >
     <file-menu
+      v-if="menu.length > 0"
       :container="$el"
       :menu="menu"
       :list-context="fileListContext"
@@ -20,7 +21,12 @@
     >
       <thead>
         <tr>
-          <th width="72" class="file-checkbox" @click="toggleSelectAll">
+          <th
+            v-if="useSelect"
+            width="72"
+            class="file-checkbox"
+            @click="toggleSelectAll"
+          >
             <v-checkbox
               inline
               color="primary"
@@ -35,11 +41,12 @@
           <!-- <th width="128">
             大小
           </th> -->
+          <slot name="thead" />
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td class="file-checkbox" @click="toggleSelectAll">
+        <tr v-if="showBack">
+          <td v-if="useSelect" class="file-checkbox" @click="toggleSelectAll">
             <v-checkbox
               inline
               color="primary"
@@ -67,7 +74,7 @@
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
         >
-          <td class="file-checkbox" @click="checkClick($event ,fileInfo)">
+          <td v-if="useSelect" class="file-checkbox" @click="checkClick($event ,fileInfo)">
             <v-checkbox
               inline
               hide-details
@@ -105,6 +112,7 @@
           <!-- <td>
             {{ fileInfo.size == -1 ? '-' : StringFormatter.toSize(fileInfo.size) }}
           </td> -->
+          <slot name="tbody" :file-info="fileInfo" />
         </tr>
       </tbody>
     </v-table>
@@ -207,7 +215,7 @@ const emits = defineEmits<{
   (event: 'update:file-list', fileList: FileInfo[]): void
 }>()
 
-const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler') as Ref<FileSystemHandler>
+const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
 const fileListContext: FileListContext = FileListContextBuilder.getFileListContext({
   props,
   emits,

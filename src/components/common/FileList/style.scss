@@ -40,6 +40,9 @@
       background-color: rgb(var(--v-theme-background)) !important;
       z-index: 1 !important;
     }
+    td:first-child {
+      padding-left: 12px;
+    }
   }
 }
 .file-icon-group {

@@ -1,6 +1,5 @@
-import { IdType } from './../core/model/index'
-import { FileTransferInfo } from './../core/model/FileInfo'
-import { CommonRequest, FileInfo, FileTransferParam, PageRequest } from '@/core/model'
+import { FileTransferInfo, SearchFileInfo } from './../core/model/FileInfo'
+import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from '@/core/model'
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from '@/utils/StringUtils'
 
@@ -72,7 +71,7 @@ const file = {
    * @param {Number} [page = 1] 页码
    * @returns
    */
-  search(uid: string, key: string, page: number = 1): PageRequest<FileInfo> {
+  search(uid: IdType, key: string, page: number = 1): CommonRequest<PageInfo<SearchFileInfo>> {
     return {
       url: `${this.prefix}/${uid}/fileList/byName/${key}`,
       method: 'get',

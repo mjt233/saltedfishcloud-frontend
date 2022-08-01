@@ -18,6 +18,10 @@ export interface FileInfo {
   suffix: string
 }
 
+export interface SearchFileInfo extends FileInfo {
+  parent: string
+}
+
 export interface FileItemTransferParam {
   /** 文件原位置 */
   source: string
