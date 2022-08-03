@@ -7,8 +7,10 @@
     read-only
     :auto-compute-height="autoComputeHeight"
     :compensate-height="compensateHeight"
-    :enable-menu="['refresh', 'share-wrap']"
+    :enable-menu="['refresh', 'share-download']"
     :append-menu="shareMenu"
+    :top-buttons="topButtons"
+    :top-button-min-width="'120px'"
   />
 </template>
 
@@ -30,45 +32,82 @@ const props = defineProps({
 })
 
 const handler = computed(() => {
-  console.log(props.shareInfo)
   return FileSystemHandlerFactory.getShareFileSystemhandler(props.shareInfo as ShareInfo)
 })
 
+/**
+ * 执行打包下载
+ * @param path 文件所在目录路径
+ * @param files 文件列表
+ */
+const wrapDownload = async(path: string, files: FileInfo[]) => {
+  const wid = (await SfcUtils.request(API.wrap.createWrap({
+    filenames: files.map(e => e.name),
+    path: path,
+    source: 'share',
+    sourceId: (props.shareInfo as ShareInfo).id,
+    otherData: {
+      extractCode: props.shareInfo?.extractCode,
+      vid: props.shareInfo?.verification
+    }
+  }))).data.data
+
+  SfcUtils.openApiUrl(API.wrap.downloadWrap(wid, props.shareInfo?.name + '_打包下载.zip'))
+}
+
+/**
+ * 右键菜单
+ */
 const shareMenu:MenuGroup<FileListContext>[] = [
   {
     id: 'share-menu',
     name: '分享菜单',
     items: [
       {
-        id: 'share-wrap',
-        title: '打包下载',
+        id: 'share-download',
+        title: '下载',
         icon: 'mdi-download',
-        renderOn(ctx) {
-          return ctx.selectFileList.length > 1 || ctx.selectFileList.findIndex(e => e.dir) != -1
-        },
         async action(ctx) {
-          if (props.shareInfo) {
-            const conf = API.wrap.createWrap({
-              filenames: ctx.selectFileList.map(e => e.name),
-              path: ctx.path,
-              source: 'share',
-              sourceId: props.shareInfo.id,
-              otherData: {
-                extractCode: props.shareInfo.extractCode,
-                vid: props.shareInfo.verification
-              }
-            })
-            const ret = await SfcUtils.request(conf)
-            const wid = ret.data.data
-            const url = StringUtils.appendPath(API.getDefaultPrefix(), API.wrap.downloadWrap(wid, (ctx.path.split('/').pop() || props.shareInfo.name) + '_打包下载.zip' ).url)
-            SfcUtils.openUrl(url)
+          if (ctx.selectFileList.length == 1) {
+            const file = ctx.selectFileList[0]
+            SfcUtils.openApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
+          } else {
+            return wrapDownload(ctx.path, ctx.selectFileList)
           }
+          
         }
       }
     ]
   }
 ]
 
+/**
+ * 顶部按钮
+ */
+const topButtons: MenuGroup<FileListContext>[] = [
+  {
+    id: 'download',
+    items: [],
+    name: '下载',
+    icon: 'mdi-download',
+    async action(ctx: FileListContext) {
+      if (ctx.selectFileList.length == 0) {
+        SfcUtils.snackbar('请选择文件')
+        return
+      }
+      // 选择单个文件
+      if (ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir) {
+        const file = ctx.selectFileList[0]
+        SfcUtils.openApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
+      }
+
+      // 选择文件夹或多个文件
+      if (ctx.selectFileList.length > 1 || ctx.selectFileList[0].dir) {
+        wrapDownload(ctx.path, ctx.selectFileList)
+      }
+    }
+  }
+]
 const path = ref('/')
 </script>
 
@@ -77,7 +116,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed
 import { ShareInfo } from '@/api/share'
 import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 import { MenuGroup } from '@/core/context'
-import { FileListContext } from '@/core/model'
+import { FileInfo, FileListContext } from '@/core/model'
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { StringUtils } from '@/utils/StringUtils'

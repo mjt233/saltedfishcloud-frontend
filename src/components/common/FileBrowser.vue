@@ -4,14 +4,13 @@
     <!-- 顶部按钮 -->
     <div compute-height>
       <v-row class="justify-space-between">
-        <v-col class="top-btn-group" justify="start" style="min-width: 360px">
+        <v-col class="top-btn-group" justify="start" :style="{minWidth: topButtonMinWidth}">
           <div v-for="(group) in topButtons" v-show="topButtons.length && topButtons.length" :key="group.id">
             <template v-if="group.renderOn ? group.renderOn(listContext) : true">
               <!-- 单个按钮 -->
               <v-btn
                 v-if="group.items.length == 0"
                 :color="group.color || 'primary'"
-                :icon="group.icon"
                 @click="topBtnClick(group)"
               >
                 <v-icon
@@ -199,6 +198,10 @@ const props = defineProps({
   appendMenu: {
     type: Array as PropType<MenuGroup<FileListContext>[]>,
     default: () => []
+  },
+  topButtonMinWidth: {
+    type: String,
+    default: '360px'
   }
 })
 

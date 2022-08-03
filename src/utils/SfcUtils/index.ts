@@ -1,3 +1,5 @@
+import API from '@/api'
+import { StringUtils } from '@/utils/StringUtils'
 import { VBtn } from 'vuetify/components'
 import { FileOpenHandler } from './../../core/context/type'
 import { FileInfo, FileListContext } from '@/core/model/FileInfo'
@@ -94,6 +96,13 @@ const SfcUtils = {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
+  },
+  /**
+   * 新窗口打开API配置中的URL
+   * @param apiConfig API配置
+   */
+  openApiUrl(apiConfig: any) {
+    SfcUtils.openUrl(StringUtils.appendPath(API.getDefaultPrefix(), apiConfig.url))
   },
   openFile(ctx: FileListContext, file: FileInfo) {
     const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))
