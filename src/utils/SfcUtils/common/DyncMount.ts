@@ -24,18 +24,30 @@ export type ChildrenType = VNode | Array<any> | string | Function | {
   default: ChildrenType,
   [slotName: string]: ChildrenType
 }
+
+export interface MountOption {
+  wrapVApp?: boolean,
+  vappProps?: any,
+  tempDOMHandler?: (dom: HTMLElement) => void
+  children?: ChildrenType | undefined | null
+  props?: any
+}
 /**
  * 动态挂载一个组件
  * @param component 组件
  * @param props     附加的props或事件监听函数
  * @returns         动态组件操作器
  */
-export function dyncmount<T = {}>(component: Component, props: Object = {}, children?: ChildrenType): DyncComponentHandler<T> {
+export function dyncmount<T = {}>(component: Component,  mountOption?: MountOption): DyncComponentHandler<T> {
+  const { wrapVApp = true, vappProps = {}, tempDOMHandler = ()=> {}, children, props = {} } = mountOption || {}
   const tempDOM = document.createElement('div')
   document.body.appendChild(tempDOM)
   tempDOM.style.position = 'fixed'
   tempDOM.style.left = '0'
   tempDOM.style.top = '0'
+  tempDOM.style.width = '100vw'
+  tempDOM.style.height = '100vh'
+  tempDOMHandler(tempDOM)
   Object.assign(props, {
     ref: ROOT_REF_NAME
   })
@@ -44,14 +56,19 @@ export function dyncmount<T = {}>(component: Component, props: Object = {}, chil
   const tempApp = createApp({
     render() {
       // @ts-ignore
-      return h(
-        VApp, reactive({
-          theme: context.theme.value
-        }),
-        () => [
-          h(component as any, props, children as any)
-        ]
-      )
+      if (wrapVApp) {
+        return h(
+          VApp, reactive({
+            theme: context.theme.value,
+            ...vappProps
+          }),
+          () => [
+            h(component as any, props, children as any)
+          ]
+        )
+      } else {
+        return h(component as any, props, children as any)
+      }
     }
   })
 

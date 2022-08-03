@@ -206,10 +206,13 @@ export function dialog(opt: DialogOpt): DialogPromise {
     }
     
     // 动态创建组件并挂载
-    vueInst.value = dyncmount<DialogModel>(BaseDialog, attrs, {
-      default: children,
-      actions: footer,
-      header
+    vueInst.value = dyncmount<DialogModel>(BaseDialog, {
+      props: attrs,
+      children: {
+        default: children,
+        actions: footer,
+        header
+      }
     })
   })
   ret.doConfirm = attrs.onConfirm
@@ -346,7 +349,9 @@ export function alert(message: string, title: string = '提示') {
       hideBtn: true,
       persistent: true
     })
-    inst = dyncmount(AlertDialog, attrs)
+    inst = dyncmount(AlertDialog, {
+      props: attrs
+    })
   })
 }
 /**

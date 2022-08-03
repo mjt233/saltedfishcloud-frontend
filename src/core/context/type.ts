@@ -74,6 +74,11 @@ export interface FileOpenHandler {
   id: string
 
   action: (ctx: FileListContext, files: FileInfo) => Promise<any> | void
+
+  /**
+   * 除了自己以外，另外匹配的文件打开方式只有默认的情况下，是否默认使用该打开方式（即优先级高于浏览器打开）
+   */
+  isDefault?: boolean
 }
 
 export type FileClipBoardType = 'cut' | 'copy'

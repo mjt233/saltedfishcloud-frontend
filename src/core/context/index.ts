@@ -4,7 +4,7 @@ import { reactive, Ref, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
 import { DefaultEventBus } from './EventBus'
 import { SystemFeature } from '../model'
-import { cancelFileOpenHandler, defaultFileOpenHandler, textFileOpenHandler } from './fileOpenHandler'
+import { defaultFileOpenHandlers } from './fileOpenHandler'
 import { defaultFileBrowserTopBtns } from '@/core/actions/FileList/FileListBtn'
 import defaultBoxMenu from './menu/BoxMenu'
 
@@ -34,11 +34,7 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   routeInfo: {},
   eventBus: new DefaultEventBus(),
   feature: defaultFeature,
-  fileOpenHandler: reactive([
-    defaultFileOpenHandler,
-    textFileOpenHandler,
-    cancelFileOpenHandler
-  ]),
+  fileOpenHandler: defaultFileOpenHandlers,
   fileClipBoard: undefined as unknown as FileClipBoard,
   visiableWindows: reactive({
     uploadList: false

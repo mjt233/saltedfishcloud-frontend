@@ -34,14 +34,16 @@ export function snackbar(message: string | any, timeout: number = 2000, { showCl
   if (timeout == null || timeout == undefined) {
     timeout = 2000
   }
-  const handler = dyncmount(SnackBar, {
-    text,
-    timeout,
-    showClose,
-    outClose,
-    onClose: () => {
-      handler.unmount()
-      onClose && onClose()
+  const handler = dyncmount(SnackBar, { 
+    props: {
+      text,
+      timeout,
+      showClose,
+      outClose,
+      onClose: () => {
+        handler.unmount()
+        onClose && onClose()
+      }
     }
   })
 

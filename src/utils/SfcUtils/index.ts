@@ -11,8 +11,9 @@ import * as dialog from './common/Dialog'
 import * as fileSelector from './file/fileSelector'
 import { context } from '@/core/context'
 import FileOpenSelectorVue from '@/components/common/FileOpenSelector.vue'
-
+import { dyncmount } from './common/DyncMount'
 const SfcUtils = {
+  dyncmount,
   snackbar,
   /**
    * 原始默认预设配置的axios对象
