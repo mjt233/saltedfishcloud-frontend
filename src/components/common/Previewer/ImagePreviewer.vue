@@ -54,17 +54,23 @@ const props = defineProps({
   fileList: {
     type: Array as PropType<FileInfo[]>,
     default: () => []
+  },
+  imageIndex: {
+    type: Number,
+    default: 0
   }
 })
 
 const selectImage = (idx: number) => {
   activeIdx.value = idx
+  emits('update:imageIndex', idx)
 }
 
 const imgSrc = computed(() => {
   const targetFile = props.fileList[activeIdx.value]
   return StringUtils.appendPath(API.getDefaultPrefix(), API.resource.downloadFileByMD5(targetFile.md5, targetFile.name).url)
 })
+
 watch(imgSrc, async() => {
   showMainImg.value = false
   await nextTick()
@@ -72,7 +78,7 @@ watch(imgSrc, async() => {
   updateBarScrollTop()
 })
 
-const emits = defineEmits(['close'])
+const emits = defineEmits(['close', 'update:imageIndex'])
 
 const hid = ref(false)
 const toClose = () => {
@@ -90,7 +96,7 @@ const barRef = ref() as Ref<HTMLElement>
 const updateBarScrollTop = () => {
   const thumb = barItemsRef.value[activeIdx.value]
   const bar = barRef.value
-  bar.scrollTop = thumb.offsetTop - (bar.clientHeight / 2 - thumb.clientHeight / 2)
+  bar.scrollTop = thumb.offsetTop - (bar.clientHeight / 2 - thumb.clientHeight)
 }
 
 const escHandler = (e: KeyboardEvent) => {
@@ -100,6 +106,13 @@ const escHandler = (e: KeyboardEvent) => {
 }
 onMounted(() => {
   window.addEventListener('keydown', escHandler)
+  activeIdx.value = props.imageIndex
+})
+
+watch(() => props.imageIndex, () => {
+  if (props.imageIndex != activeIdx.value) {
+    selectImage(props.imageIndex)
+  }
 })
 </script>
 
@@ -122,6 +135,7 @@ export default defineComponent({
   padding: 21px;
   border-radius: 50%;
   z-index: 114514;
+  text-shadow: 0px 0px 6px black;
 }
 
 @keyframes fade-in {
@@ -160,19 +174,20 @@ export default defineComponent({
     .bar-item {
       display: flex;
       flex-direction: column;
-      height: 96px;
-      margin:0 16px;
+      height: 114px;
+      margin: 3px 18px;
       align-items: center;
     }
     .bar-title {
       width: 100%;
       opacity: .8;
+      height: 28px;
       transition: all .1s;
     }
 
     .bar-img-container {
       width: 100%;
-      height: 100%;
+      height: 80%;
       display: flex;
       border: 4px rgb(173, 173, 173) solid;
       transition: all .1s;
@@ -185,11 +200,6 @@ export default defineComponent({
       .bar-title {
         color: rgb(var(--v-theme-primary));
       }
-    }
-    .bar-img {
-      --bar-img-size: 64px;
-      height: var(--bar-img-size);
-      width: var(--bar-img-size);
     }
   }
 

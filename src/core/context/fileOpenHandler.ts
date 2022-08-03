@@ -26,6 +26,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
   {
     icon: 'mdi-image',
     id: 'img-preview',
+    isDefault: true,
     matcher(ctx, file) {
       if(isImgType(file.name)) {
         return true
@@ -37,8 +38,10 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
     sort: 2,
     action(ctx, file) {
       const files = ctx.fileList.filter(e => !e.dir && isImgType(e.name))
+      const index = files.findIndex(e => e.md5 == file.md5 && e.name == file.name)
       const inst = dyncmount( ImagePreviewerVue, {
         props: {
+          imageIndex: index == -1 ? 0 : index,
           fileList: files,
           style: {
             position: 'fixed',

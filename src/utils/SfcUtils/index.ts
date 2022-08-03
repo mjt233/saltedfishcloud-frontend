@@ -1,3 +1,4 @@
+import { VBtn } from 'vuetify/components'
 import { FileOpenHandler } from './../../core/context/type'
 import { FileInfo, FileListContext } from '@/core/model/FileInfo'
 
@@ -12,6 +13,7 @@ import * as fileSelector from './file/fileSelector'
 import { context } from '@/core/context'
 import FileOpenSelectorVue from '@/components/common/FileOpenSelector.vue'
 import { dyncmount } from './common/DyncMount'
+import { h } from 'vue'
 const SfcUtils = {
   dyncmount,
   snackbar,
@@ -99,6 +101,8 @@ const SfcUtils = {
       handlers[0].action(ctx, file)
     } else if (handlers.length == 0) {
       SfcUtils.snackbar('无合适的打开方式')
+    } else if (handlers.length == 2 && handlers[1].isDefault) {
+      handlers[1].action(ctx, file)
     } else {
       const inst = SfcUtils.openComponentDialog(FileOpenSelectorVue, {
         props: {
@@ -111,7 +115,10 @@ const SfcUtils = {
           }
         },
         title: '选择打开方式',
-        dense: true
+        dense: true,
+        showConfirm: false,
+        showCancel: false,
+        footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
       })
     }
   }
