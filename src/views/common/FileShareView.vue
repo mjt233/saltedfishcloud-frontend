@@ -1,5 +1,5 @@
 <template>
-  <base-view max-width="960px">
+  <base-view max-width="960px" style="min-height: 300px">
     <file-share-extractor :sid="sid" :vid="vid" />
   </base-view>
 </template>

@@ -1,5 +1,6 @@
 <template>
-  <div style="position: relative">
+  <div style="position: relative; width: 100%; min-height: 300px;">
+    <loading-mask :type="'circular'" :loading="!shareInfo" />
     <div v-if="shareInfo" style="max-width: 640px;margin: 0 auto;">
       <!-- 文件提取 -->
       <v-card style="overflow: hidden">
