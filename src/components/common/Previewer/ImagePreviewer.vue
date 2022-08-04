@@ -48,6 +48,23 @@
           <loading-mask :loading="true" :type="'circular'" />
         </template>
       </v-img>
+      <div class="image-tool-bar">
+        <div class="image-switch">
+          <v-icon
+            v-ripple
+            class="pre-btn"
+            icon="mdi-arrow-left"
+            @click="selectImage(activeIdx > 0 ? activeIdx - 1 : fileList.length - 1)"
+          />
+          <span>{{ activeIdx + 1 }}/{{ fileList.length }}</span>
+          <v-icon
+            v-ripple
+            class="next-btn"
+            icon="mdi-arrow-right"
+            @click="selectImage(activeIdx < fileList.length - 1 ? activeIdx + 1 : 0)"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -133,7 +150,7 @@ const hid = ref(false)
  */
 const toClose = () => {
   // 移除键盘按键监听，并添加隐藏过渡效果，过渡结束后抛出close事件
-  window.removeEventListener('keydown', escHandler)
+  window.removeEventListener('keydown', keyHandler)
   hid.value = true
   setTimeout(() => {
     emits('close')  
@@ -165,16 +182,20 @@ const updateBarScrollTop = () => {
  * 键盘按下Esc按的处理函数
  * @param e 事件
  */
-const escHandler = (e: KeyboardEvent) => {
+const keyHandler = (e: KeyboardEvent) => {
   if (e.key == 'Escape') {
     toClose()
+  } else if (e.key == 'ArrowLeft') {
+    selectImage(activeIdx.value > 0 ? activeIdx.value - 1 : props.fileList.length - 1)
+  } else if (e.key == 'ArrowRight') {
+    selectImage(activeIdx.value < props.fileList.length - 1 ? activeIdx.value + 1 : 0)
   }
 }
 
 
 onMounted(() => {
   // 挂载后，添加键盘按键监听，并更新预览下标（监听的移除在toClose中，所以如果需要关闭该组件，应统一调用toClose方法）
-  window.addEventListener('keydown', escHandler)
+  window.addEventListener('keydown', keyHandler)
   activeIdx.value = props.imageIndex
 })
 
@@ -192,6 +213,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+
+
 .close-btn {
   position: absolute;
   top: 6px;
@@ -277,11 +300,32 @@ export default defineComponent({
   .image-container {
     width: 100%;
     height: 100%;
+    position: relative;
     
     // 预览主图
     .main-img {
       width: 100%;
       height: 100%;
+    }
+    .image-tool-bar {
+      position: absolute;
+      width: 100%;
+      height: 60px;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .image-switch {
+        display: flex;
+        .pre-btn {
+          cursor: pointer;
+          min-width: 36px;
+        }
+        .next-btn {
+          cursor: pointer;
+          min-width: 36px;
+        }
+      }
     }
   }
 }
