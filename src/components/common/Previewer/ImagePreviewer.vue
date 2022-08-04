@@ -52,14 +52,14 @@
         <div class="image-switch">
           <v-icon
             v-ripple
-            class="pre-btn"
+            class="btn"
             icon="mdi-arrow-left"
             @click="selectImage(activeIdx > 0 ? activeIdx - 1 : fileList.length - 1)"
           />
           <span>{{ activeIdx + 1 }}/{{ fileList.length }}</span>
           <v-icon
             v-ripple
-            class="next-btn"
+            class="btn"
             icon="mdi-arrow-right"
             @click="selectImage(activeIdx < fileList.length - 1 ? activeIdx + 1 : 0)"
           />
@@ -317,13 +317,15 @@ export default defineComponent({
       align-items: center;
       .image-switch {
         display: flex;
-        .pre-btn {
+        justify-content: center;
+        align-items: center;
+
+        &>.btn {
           cursor: pointer;
           min-width: 36px;
-        }
-        .next-btn {
-          cursor: pointer;
-          min-width: 36px;
+          padding: 21px;
+          margin: 0 6px;
+          border-radius: 50%;
         }
       }
     }
