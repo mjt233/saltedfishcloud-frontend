@@ -41,7 +41,6 @@ const props = defineProps({
 
 const itemWidth = ref()
 const updateWidth = () => {
-  console.log('update')
   const clientWidth = document.documentElement.clientWidth
   isSm.value = clientWidth <= 640
   isMd.value = clientWidth <= 1024

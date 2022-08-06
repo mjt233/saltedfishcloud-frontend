@@ -196,10 +196,8 @@ const scrollAnchor = computed(() => {
 })
 const fileElementsGetter = () => {
   if (props.type == 'list') {
-    console.log('list的元素')
     return tableRef.value?.$el.querySelectorAll('tbody>tr[file-item=""]') as HTMLElement[]
   } else {
-    console.log('grid的元素')
     return (gridRef as Ref<ComponentPublicInstance>).value?.$el.querySelectorAll('.file-grid-item')
   }
 }
