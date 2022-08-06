@@ -1,7 +1,7 @@
 <template>
   <div style="position: relative; width: 100%; min-height: 300px;">
     <loading-mask :type="'circular'" :loading="loading" />
-    <div v-if="shareInfo" style="max-width: 640px;margin: 0 auto;">
+    <div v-if="shareInfo" :class="{'code-input-card': !shareInfo.validateSuccess}">
       <!-- 文件提取 -->
       <v-card style="overflow: hidden">
         <loading-mask :loading="loading" />
@@ -129,3 +129,10 @@ export default defineComponent({
   name: 'FileShareExtractor'
 })
 </script>
+
+<style>
+.code-input-card {
+  max-width: 640px;
+  margin: 0 auto;
+}
+</style>
