@@ -4,7 +4,12 @@
     @contextmenu="rootRClick"
     @click="rootLClick"
   >
-    <select-area :scroll-anchor="scrollAnchor" />
+    <select-area
+      :scroll-anchor="scrollAnchor"
+      :select-elements-getter="fileElementsGetter"
+      @select-start="selectStart"
+      @select-move="selectMove"
+    />
     <file-menu
       v-if="menu.length > 0"
       :container="$el"
@@ -74,6 +79,7 @@
           v-for="(fileInfo, index) in fileList"
           :key="fileInfo.name + fileInfo.md5"
           v-ripple
+          file-item
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
         >
@@ -122,6 +128,7 @@
     <empty-tip v-if="type == 'grid' && fileList.length == 0" style="position: absolute;width: 100%;" />
     <grid-container
       v-if="type == 'grid'"
+      ref="gridRef"
       :width="120"
       style="margin: 8px"
       class="grid-container"
@@ -169,7 +176,10 @@ let cancelRenameActionFun: Function
 const tableWidth = ref('100%')
 const rootRef = ref() as Ref<HTMLElement>
 const tableRef = ref() as Ref<ComponentPublicInstance>
+const gridRef = ref() as Ref<ComponentPublicInstance>
 const gridItemRef = ref()
+
+let inSelect = false
 
 const partInSelect = computed(() => {
   return fileListContext.selectFileList.length > 0 && fileListContext.selectFileList.length != props.fileList.length
@@ -181,9 +191,32 @@ const scrollAnchor = computed(() => {
   if (props.type == 'list') {
     return tableRef.value?.$el.querySelector('.v-table__wrapper')
   } else {
-    return undefined
+    return gridRef.value?.$el
   }
 })
+const fileElementsGetter = () => {
+  if (props.type == 'list') {
+    console.log('list的元素')
+    return tableRef.value?.$el.querySelectorAll('tbody>tr[file-item=""]') as HTMLElement[]
+  } else {
+    console.log('grid的元素')
+    return (gridRef as Ref<ComponentPublicInstance>).value?.$el.querySelectorAll('.file-grid-item')
+  }
+}
+const selectMove = (e:SelectResult) => {
+  if (!e.event.ctrlKey) {
+    resetSelect()
+  }
+  
+  e.index.forEach(index => {
+    const fileInfo = props.fileList[index]
+    const key = fileInfo.name + fileInfo.md5
+    selectedFile[key] = fileInfo
+  })
+}
+const selectStart = () => {
+  inSelect = true
+}
 
 const rename = (name: string, md5: string) => {
   resetSelect()
@@ -290,10 +323,11 @@ const doRename = async() => {
  * @param e 鼠标事件
  */
 const rootLClick = (e: MouseEvent) => {
-  if (!lastClickFile && !e.ctrlKey) {
+  if (!lastClickFile && !e.ctrlKey && !inSelect) {
     resetSelect()
   }
   lastClickFile = null
+  inSelect = false
   if (renameIndex.value != -1) {
     renameIndex.value = -1
     SfcUtils.snackbar('重命名已取消', 1000, {outClose: true})
@@ -406,6 +440,7 @@ defineExpose({
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
 import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
+import { SelectResult } from '@/core/model/component/SelectArea'
 
 export default defineComponent({
   name: 'FileList'

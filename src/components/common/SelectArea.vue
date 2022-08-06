@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="areaRef"
     class="select-area"
     :class="{active: active && areaWidth > 5 && areaHeight > 5}"
     :style="areaStyle"
@@ -8,6 +9,9 @@
 
 <script setup lang="ts">
 const props = defineProps({
+  /**
+   * 滚动监听锚点DOM
+   */
   scrollAnchor: {
     type: HTMLElement,
     default: undefined
@@ -18,8 +22,17 @@ const props = defineProps({
   triggerSize: {
     type: Number,
     default: 6
+  },
+  /**
+   * 待选则的元素
+   */
+  selectElementsGetter: {
+    type: Function as PropType<() => (HTMLElement[] | NodeList)>,
+    default: () => () => []
   }
 })
+const areaRef = ref() as Ref<HTMLElement>
+const emits = defineEmits(['selectStart', 'selectMove', 'selectEnd'])
 const active = ref(false)
 const parentEl = ref() as Ref<HTMLElement>
 const moveEvent = ref() as Ref<MouseEvent>
@@ -50,12 +63,7 @@ const areaStyle = computed(() => {
   }
 })
 
-const wrapperStyle = computed(() => {
-  return {
-    height: '0px',
-    width: '0px'
-  }
-})
+let selectElements: HTMLElement[]
 
 /**
  * 鼠标按下时执行的回调，执行初始化操作，记录各项初始值以判断后续操作中鼠标移动、元素滚动的方向和距离
@@ -85,6 +93,7 @@ const downHandler = (e: MouseEvent) => {
   scrollAnchorEl.value.addEventListener('scroll', scrollHandler)
 
   scrollAnchorEl.value.appendChild(thisEl)
+  selectElements = props.selectElementsGetter() as HTMLElement[]
 }
 
 /**
@@ -94,7 +103,6 @@ const downHandler = (e: MouseEvent) => {
 const scrollHandler = (e: Event) => {
   scrollTop = scrollAnchorEl.value.scrollTop
   scrollLeft = scrollAnchorEl.value.scrollLeft
-  
   updateArea()
 }
 
@@ -132,8 +140,31 @@ const updateArea = () => {
   // 非激活状态下，框选区域长或宽大于触发阈值时 激活框选显示
   if (!active.value && (areaHeight.value > props.triggerSize || areaWidth.value > props.triggerSize)) {
     active.value = true
+    emits('selectStart')
+  }
+
+  if (active.value) {
+    selectElement()
   }
   
+}
+
+const selectElement = () => {
+  const selectResult: SelectResult = {
+    index: [],
+    elements: [],
+    event: moveEvent.value
+  }
+  const areaEl = areaRef.value
+  selectElements.forEach((el, index) => {
+    if(DOMUtils.isCollide(areaEl, el as HTMLElement)) {
+      selectResult.elements.push(el as HTMLElement)
+      selectResult.index.push(index)
+    }
+  })
+
+  emits('selectMove', selectResult)
+
 }
 
 /**
@@ -147,6 +178,9 @@ const upHandler = (e: MouseEvent) => {
   if (active.value) {
     e.stopImmediatePropagation()
     e.stopPropagation()
+  }
+  if (active.value) {
+    emits('selectEnd')
   }
   active.value = false
   parentEl.value.appendChild(thisEl)
@@ -164,7 +198,9 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, Ref, ref } from 'vue'
+import { SelectResult } from '@/core/model/component/SelectArea.js'
+import DOMUtils from '@/utils/DOMUtils'
+import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, PropType, reactive, Ref, ref } from 'vue'
 
 export default defineComponent({
   name: 'SelectArea'

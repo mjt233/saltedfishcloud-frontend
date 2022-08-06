@@ -49,6 +49,24 @@ const DOMUtils = {
     } else {
       return t
     }
+  },
+  /**
+   * 判断两个DOM元素是否存在体积碰撞
+   * @param el 元素1
+   * @param el2 元素2
+   */
+  isCollide(el: HTMLElement, el2: HTMLElement): boolean {
+    const rect1 = el.getBoundingClientRect()
+    const rect2 = el2.getBoundingClientRect()
+    const maxX: number = Math.max(rect1.x + rect1.width, rect2.x + rect2.width)
+    const maxY: number = Math.max(rect1.y + rect1.height, rect2.y + rect2.height)
+    const minX: number = Math.min(rect1.x, rect2.x)
+    const minY: number = Math.min(rect1.y, rect2.y)
+    if (maxX - minX <= rect1.width + rect2.width && maxY - minY <= rect1.height + rect2.height) {
+      return true
+    } else {
+      return false
+    }
   }
 }
 export default DOMUtils
