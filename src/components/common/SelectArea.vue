@@ -29,18 +29,17 @@ let downX: number
 let downY: number
 let downScrollX: number
 let downScrollY: number
-let scrollHeight: number = 0
-let scrollWidth: number = 0
+let scrollTop: number = 0
+let scrollLeft: number = 0
 let anchorTop: number = 0
 let anchorLeft: number = 0
 
 const areaLeft = ref(0)
 const areaTop = ref(0)
-const viewTop = ref(0)
-const areaWidth = ref(0)
-const areaHeight = ref(0)
-const maxWidth = ref(0)
-const maxHeight = ref(0)
+const areaWidth = ref(110)
+const areaHeight = ref(110)
+let thisEl: HTMLElement
+let originPosition
 
 const areaStyle = computed(() => {
   return {
@@ -65,21 +64,27 @@ const wrapperStyle = computed(() => {
 const downHandler = (e: MouseEvent) => {
 
 
+  // 数据初始化，记录锚点DOM在全页面的位置，滚动高度
   scrollAnchorEl.value = props.scrollAnchor || parentEl.value
   anchorLeft = scrollAnchorEl.value.getBoundingClientRect().left
   anchorTop = scrollAnchorEl.value.getBoundingClientRect().top
+  downScrollX = scrollLeft = scrollAnchorEl.value.scrollLeft
+  downScrollY = scrollTop = scrollAnchorEl.value.scrollTop
+
+  originPosition = getComputedStyle(scrollAnchorEl.value, null).position
+  if (originPosition == 'static') {
+    scrollAnchorEl.value.classList.add('relative-position')
+  }
   parentEl.value.style.userSelect = 'none'
+ 
 
-  downX = e.pageX
-  downY = e.pageY
-  downScrollX = scrollAnchorEl.value.scrollLeft
-  downScrollY = scrollAnchorEl.value.scrollTop
-  scrollWidth = 0
-  scrollHeight = 0
-
+  downX = e.pageX - anchorLeft
+  downY = e.pageY - anchorTop + downScrollY
   window.addEventListener('mousemove', moveHandler)
   window.addEventListener('mouseup', upHandler)
   scrollAnchorEl.value.addEventListener('scroll', scrollHandler)
+
+  scrollAnchorEl.value.appendChild(thisEl)
 }
 
 /**
@@ -87,8 +92,9 @@ const downHandler = (e: MouseEvent) => {
  * @param e 滚动事件
  */
 const scrollHandler = (e: Event) => {
-  scrollHeight = downScrollY - scrollAnchorEl.value.scrollTop
-  scrollWidth = downScrollX - scrollAnchorEl.value.scrollLeft
+  scrollTop = scrollAnchorEl.value.scrollTop
+  scrollLeft = scrollAnchorEl.value.scrollLeft
+  
   updateArea()
 }
 
@@ -108,31 +114,25 @@ const updateArea = () => {
   const e = moveEvent.value
 
   // 元素的滚动距离叠加到鼠标下按的初始坐标，即滚动时，带着初始坐标移动
-  const startX = downX + scrollWidth
-  const startY = downY + scrollHeight
+  const startX = downX 
+  const startY = downY
+  const endX = e.pageX - anchorLeft + scrollLeft
+  const endY = e.pageY - anchorTop + scrollTop
 
   // 高/宽度 = 初始坐标 与 当前坐标的差值的绝对值
-  const width = Math.abs(startX - e.pageX)
-  const height = Math.abs(startY - e.pageY)
+  const width = Math.abs(startX - endX)
+  const height = Math.abs(startY - endY)
   areaHeight.value = height
   areaWidth.value = width
 
-  
-  areaLeft.value = startX < e.pageX ? startX : (startX - width)
-  areaTop.value = startY < e.pageY ? startY : (startY - height)
+  areaLeft.value = startX < endX ? startX : (startX - width)
+  areaTop.value = startY < endY ? startY : (startY - height)
 
-  // if (startY < e.pageY) {
-  //   maxHeight.value = scrollAnchorEl.value.clientHeight - (downY - anchorTop)
-  // } else {
-  //   maxHeight.value = downY - anchorTop
-  // }
 
   // 非激活状态下，框选区域长或宽大于触发阈值时 激活框选显示
   if (!active.value && (areaHeight.value > props.triggerSize || areaWidth.value > props.triggerSize)) {
     active.value = true
   }
-
-  // viewTop.value = viewStartY < e.pageY ? viewStartY : (viewStartY - height)
   
 }
 
@@ -143,15 +143,18 @@ const updateArea = () => {
 const upHandler = (e: MouseEvent) => {
   window.removeEventListener('mousemove', moveHandler)
   scrollAnchorEl.value.removeEventListener('scroll', scrollHandler)
+  scrollAnchorEl.value.classList.remove('relative-position')
   if (active.value) {
     e.stopImmediatePropagation()
     e.stopPropagation()
   }
   active.value = false
+  parentEl.value.appendChild(thisEl)
 }
 
 onMounted(() => {
-  parentEl.value = getCurrentInstance()?.proxy?.$parent?.$el || document.body
+  parentEl.value = getCurrentInstance()?.proxy?.$parent?.$el
+  thisEl = getCurrentInstance()?.proxy?.$el
   window.addEventListener('mousedown', downHandler)
 })
 
@@ -162,8 +165,6 @@ onUnmounted(() => {
 
 <script lang="ts">
 import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, Ref, ref } from 'vue'
-import { context } from '@/core/context'
-import DOMUtils from '@/utils/DOMUtils'
 
 export default defineComponent({
   name: 'SelectArea'
@@ -173,7 +174,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .select-area {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   background-color: rgba(var(--v-theme-primary), .6);
@@ -189,4 +190,10 @@ export default defineComponent({
   }
 }
 
+</style>
+
+<style>
+.relative-position {
+  position: relative !important;
+}
 </style>

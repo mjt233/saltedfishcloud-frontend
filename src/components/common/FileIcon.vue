@@ -3,10 +3,17 @@
     :src="imgUrl"
     style="display: inline-block"
     :transition="false"
+    draggable="false"
     class="file-icon-img"
+    @mousedown.prevent
   >
     <template #placeholder>
-      <v-img :src="commonUrl" :transition="false" />
+      <v-img
+        draggable="false"
+        :src="commonUrl"
+        :transition="false" 
+        @mousedown.prevent
+      />
     </template>
   </v-img>
 </template>
