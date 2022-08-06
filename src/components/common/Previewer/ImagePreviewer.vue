@@ -215,6 +215,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 
 
+
 .close-btn {
   position: absolute;
   top: 6px;
@@ -259,6 +260,17 @@ export default defineComponent({
     &::-webkit-scrollbar-track {
       background: rgb(0, 0, 0);
     }
+    @media screen and (max-width: 1024px) {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 360px;
+      overflow: auto;
+    }
+    @media screen and (max-height: 480px) {
+      height: 140px;
+    }
     
     // 预览条中的预览项
     .bar-item {
@@ -301,6 +313,12 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     position: relative;
+    @media screen and (max-width: 1024px) {
+      height: calc(100% - 360px)
+    }
+    @media screen and (max-height: 480px) {
+      height: calc(100% - 140px)
+    }
     
     // 预览主图
     .main-img {
