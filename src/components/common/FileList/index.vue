@@ -4,6 +4,7 @@
     @contextmenu="rootRClick"
     @click="rootLClick"
   >
+    <select-area :scroll-anchor="scrollAnchor" />
     <file-menu
       v-if="menu.length > 0"
       :container="$el"
@@ -13,9 +14,11 @@
     />
     <v-table
       v-if="type == 'list'"
+      ref="tableRef"
       fixed-header
       class="file-table"
       color="background"
+      style="overflow: hidden"
       :style="{'--table-width': tableWidth}"
       :height="height"
     >
@@ -149,6 +152,7 @@ import { LoadingControlPromise } from '@/utils/LoadingManager'
 import EmptyTip from '../EmptyTip.vue'
 import GridContainer from '@/components/layout/GridContainer.vue'
 import FileListGridItem from './FileListGridItem.vue'
+import SelectArea from '../SelectArea.vue'
 
 
 const props = defineProps(propsOptions)
@@ -164,6 +168,7 @@ let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null 
 let cancelRenameActionFun: Function
 const tableWidth = ref('100%')
 const rootRef = ref() as Ref<HTMLElement>
+const tableRef = ref() as Ref<ComponentPublicInstance>
 const gridItemRef = ref()
 
 const partInSelect = computed(() => {
@@ -172,7 +177,13 @@ const partInSelect = computed(() => {
 const allInSelect = computed(() => {
   return props.fileList.length != 0 && props.fileList.length == fileListContext.selectFileList.length
 })
-
+const scrollAnchor = computed(() => {
+  if (props.type == 'list') {
+    return tableRef.value?.$el.querySelector('.v-table__wrapper')
+  } else {
+    return undefined
+  }
+})
 
 const rename = (name: string, md5: string) => {
   resetSelect()
@@ -394,7 +405,7 @@ defineExpose({
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
-import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
 
 export default defineComponent({
   name: 'FileList'
