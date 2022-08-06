@@ -13,7 +13,14 @@
     <div ref="barRef" class="bar">
 
       <!-- 预览条自动布局容器 -->
-      <grid-container :type="'evenly'" :width="180" style="width: 100%;margin-top: 20px">
+      <grid-container
+        gap="0px"
+        :type="'evenly'"
+        :width="180"
+        :md-width="160"
+        :sm-width="120"
+        style="width: 100%;margin-top: 20px"
+      >
         <div
           v-for="(file, index) in fileList"
           ref="barItemsRef"
@@ -260,17 +267,6 @@ export default defineComponent({
     &::-webkit-scrollbar-track {
       background: rgb(0, 0, 0);
     }
-    @media screen and (max-width: 1024px) {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 360px;
-      overflow: auto;
-    }
-    @media screen and (max-height: 480px) {
-      height: 140px;
-    }
     
     // 预览条中的预览项
     .bar-item {
@@ -306,6 +302,29 @@ export default defineComponent({
         color: rgb(var(--v-theme-primary));
       }
     }
+    
+    @media screen and (max-width: 1024px) {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 360px;
+      box-shadow: 0 0 25px 3px black;
+      z-index: 1;
+      overflow: auto;
+      .bar-item {
+        width: 128px;
+        margin: 0 auto;
+      }
+    }
+    @media (max-width: 640px) {
+      .bar-item {
+        width: 96px;
+      }
+    }
+    @media screen and (max-height: 480px) {
+      height: 140px;
+    }
   }
 
   // 预览主图容器
@@ -325,6 +344,8 @@ export default defineComponent({
       width: 100%;
       height: 100%;
     }
+
+    // 主图下凡的工具按钮栏
     .image-tool-bar {
       position: absolute;
       width: 100%;
@@ -333,6 +354,7 @@ export default defineComponent({
       display: flex;
       justify-content: center;
       align-items: center;
+      text-shadow: 0 0 5px black;
       .image-switch {
         display: flex;
         justify-content: center;

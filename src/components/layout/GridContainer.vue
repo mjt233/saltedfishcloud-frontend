@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 const isSm = ref(false)
+const isMd = ref(false)
 const props = defineProps({
   /**
    * 元素宽度
@@ -21,6 +22,13 @@ const props = defineProps({
     type: Number,
     default: undefined
   },
+  /**
+   * 中屏尺寸下的元素宽度
+   */
+  mdWidth: {
+    type: Number,
+    default: undefined
+  },
   type: {
     type: String as PropType<'around' | 'between' | 'evenly'>,
     default: 'evenly'
@@ -31,20 +39,22 @@ const props = defineProps({
   }
 })
 
+const itemWidth = ref()
 const updateWidth = () => {
-  if (document.documentElement.clientWidth < 640) {
-    isSm.value = true
-  } else {
-    isSm.value = false
+  console.log('update')
+  const clientWidth = document.documentElement.clientWidth
+  isSm.value = clientWidth <= 640
+  isMd.value = clientWidth <= 1024
+
+  itemWidth.value = props.width + 'px'
+  if (isMd.value) {
+    itemWidth.value = (props.mdWidth || props.width) + 'px'
+  }
+  if (isSm.value) {
+    itemWidth.value = (props.smWidth || props.mdWidth || props.width) + 'px'
   }
 }
-const itemWidth = computed(() => {
-  if (isSm.value) {
-    return (props.smWidth || props.width) + 'px'
-  } else {
-    return props.width + 'px'
-  }
-})
+
 const justifyContent = computed(() => {
   return 'space-' + props.type
 })
