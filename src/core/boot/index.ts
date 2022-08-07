@@ -8,6 +8,9 @@ import { context } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
 import { extensionManager } from '../serivce/Extension'
 
+/**
+ * 加载插件拓展
+ */
 export async function loadPlugin() {
   return await extensionManager.mountAll()
 }

@@ -1,3 +1,4 @@
+import SfcUtils from '@/utils/SfcUtils'
 import { StringUtils } from '@/utils/StringUtils'
 export interface ExtensionResource {
   css?: string[],
@@ -19,21 +20,28 @@ export interface ExtensionManager extends ExtensionLoader {
   mountAll(): Promise<any>
 }
 
+/**
+ * 抓取URL响应内容
+ * @param url url
+ */
+const fetchContent = async(url: string) => {
+  return (await SfcUtils.axios(url)).data
+}
+
 const extensionManager: ExtensionManager = {
   async getExtensionResource() {
-    return [
-      {
-        name: 'demo',
-        resource: {
-          js: ['/ext-demo/extension-demo.umd.js'],
-          css: ['/ext-demo/style.css']
-        },
-        type: 'static'
-      }
-    ]
+    // 获取前端中内置的拓展（实验性）
+    // 后期将可从后端API中获取拓展内容
+    const defautExtensions = await fetchContent(location.origin + '/static-extension.json')
+    const extensionResources = [].concat(defautExtensions)
+    return extensionResources
   },
   async mount(extension) {
     const tags: HTMLElement[] = []
+
+    // todo: 实现识别加载失败和加载成功，进度提示
+
+    // 加载CSS资源
     extension.resource.css?.forEach(css => {
       const tag = document.createElement('link')
       tags.push(tag)
@@ -45,6 +53,7 @@ const extensionManager: ExtensionManager = {
       tag.rel = 'stylesheet'
     })
 
+    // 加载JS资源
     extension.resource.js?.forEach(js => {
       const tag = document.createElement('script')
       tags.push(tag)

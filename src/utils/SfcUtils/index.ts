@@ -98,11 +98,18 @@ const SfcUtils = {
     document.body.removeChild(a)
   },
   /**
+   * 获取api配置中对应的绝对路径
+   * @param apiConfig api配置
+   */
+  getApiUrl(apiConfig: any) {
+    return StringUtils.appendPath(API.getDefaultPrefix(), apiConfig.url)
+  },
+  /**
    * 新窗口打开API配置中的URL
    * @param apiConfig API配置
    */
   openApiUrl(apiConfig: any) {
-    SfcUtils.openUrl(StringUtils.appendPath(API.getDefaultPrefix(), apiConfig.url))
+    SfcUtils.openUrl(SfcUtils.getApiUrl(apiConfig))
   },
   openFile(ctx: FileListContext, file: FileInfo) {
     const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))

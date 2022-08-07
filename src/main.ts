@@ -1,9 +1,12 @@
 import '@/styles/common.scss'
 import * as boot from './core/boot'
 import './core/boot/globalmount'
+
+// 拓展调试用的导入
+// import '@/extension/video-player/main'
+
+
 type BootProcessor = typeof boot & { [key: string]: () => Promise<void> }
-
-
 const mountApp = boot.mountApp
 
 /**
