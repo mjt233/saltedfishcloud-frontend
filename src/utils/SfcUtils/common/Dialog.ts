@@ -24,7 +24,7 @@ export interface DialogOpt {
   onCancel(model: DialogModel): Promise<boolean> | boolean,
 
   children: ChildrenType,
-  extraProps?: any
+  extraProps?: DialogProps
 
   /**
    * 是否全屏显示
@@ -222,6 +222,65 @@ export function dialog(opt: DialogOpt): DialogPromise {
   return ret
 }
 
+export interface DialogProps {
+  /**
+   * 是否显示确认按钮
+   */
+  showConfirm?: boolean
+
+  /**
+   * 是否显示取消按钮
+   */
+  showCancel?: boolean
+
+  /**
+   * 标题
+   */
+  title?: string
+
+  /**
+   * 宽度（默认90%）
+   */
+  width?: string
+
+  /**
+   * 是否持久显示
+   */
+  persistent?: string
+
+  /**
+   * 加载中
+   */
+  loading?: string
+
+  /**
+   * 隐藏默认按钮
+   */
+  hideBtn?: boolean
+
+  /**
+   * 最大宽度（默认：640px）
+   */
+  maxWidth?: string
+
+  /**
+   * 是否全屏显示
+   */
+  fullscreen?: boolean
+
+  /**
+   * 是否紧凑布局
+   */
+  dense?: boolean
+
+  /**
+   * 是否使用卡片样式
+   */
+  useCard?: boolean
+
+  [other: string]: any
+}
+
 export interface OpenComponentDialogOption {
   props?: any
   showConfirm?: boolean
@@ -230,7 +289,7 @@ export interface OpenComponentDialogOption {
   onCancel?: () => boolean | Promise<boolean>
   title?: string
   dense?: boolean
-  extraDialogOptions?: any
+  extraDialogOptions?: DialogProps
   header?: ChildrenType
   footer?: ChildrenType
   fullscreen?: boolean

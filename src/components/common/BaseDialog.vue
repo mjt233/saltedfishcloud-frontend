@@ -7,7 +7,15 @@
     :persistent="persistent"
   >
     <loading-mask :loading="loading" />
-    <v-card :title="title" color="background" :class="{'dialog-card': !dense}">
+    <div v-if="!useCard">
+      <slot />
+    </div>
+    <v-card
+      v-else
+      :title="title"
+      color="background"
+      :class="{'dialog-card': !dense}"
+    >
       <v-card-header>
         <slot name="header" />
       </v-card-header>
@@ -79,6 +87,10 @@ defineProps({
   dense: {
     type: Boolean,
     defaule: false
+  },
+  useCard: {
+    type: Boolean,
+    default: true
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])
