@@ -1,15 +1,20 @@
 <template>
   <div class="not-found-tip">
-    `(*>﹏&lt;*)′你要找的资源不见啦
+    `(*>﹏&lt;*)′{{ text }}
   </div>
 </template>
 
 <script setup lang="ts">
-const session = context.session
+defineProps({
+  text: {
+    type: String,
+    default: '你要找的资源不见啦'
+  }
+})
 </script>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, defineProps } from 'vue'
 import { context } from '@/core/context'
 
 export default defineComponent({

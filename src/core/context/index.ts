@@ -7,7 +7,6 @@ import { SystemFeature } from '../model'
 import { defaultFileOpenHandlers } from './fileOpenHandler'
 import { defaultFileBrowserTopBtns } from '@/core/actions/FileList/FileListBtn'
 import defaultBoxMenu from './menu/BoxMenu'
-import { defaultAdminMenu } from './menu/AdminMenu'
 
 const defaultFeature: SystemFeature = {
   enableEmailReg: false,
@@ -28,8 +27,7 @@ const context: ToRefs<AppContext> = toRefs(reactive({
     mainMenu: defaultMainMenu,
     fileListMenu: defaultFileListMenu,
     fileBrowserBtn: defaultFileBrowserTopBtns,
-    boxMenu: defaultBoxMenu,
-    adminMenu: defaultAdminMenu
+    boxMenu: defaultBoxMenu
   },
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,

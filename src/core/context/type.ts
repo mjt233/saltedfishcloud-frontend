@@ -129,8 +129,6 @@ export interface AppContext {
      */
     mainMenu: AppMenu,
 
-    adminMenu: MenuGroup<AdminContext>[]
-
     /**
      * 文件列表菜单
      */

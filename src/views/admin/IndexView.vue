@@ -24,8 +24,9 @@
     <!-- 抽屉菜单列表本体 -->
     <v-list v-model:opened="openGroup" bg-color="background">
       <template v-for="(group) in menuObj" :key="group.id">
-        <template v-if="!group.renderOn || group.renderOn()">
+        <template v-if="!group.renderOn || group.renderOn(adminContext)">
 
+          <!-- 没有子项的菜单组，独立存在 -->
           <template v-if="group.items.length == 0">
             <v-list-item
               :key="group.id"
@@ -33,11 +34,13 @@
               active-color="primary"
               :active="adminContext.group == group.id"
               :prepend-icon="group.icon"
-              @click="adminContext.group = group.id"
+              @click="groupClick(group)"
             />
           </template>
+          <!-- 有子项的菜单组 -->
           <template v-else>
             <v-list-group :value="group.id">
+              <!-- 菜单组下拉项 -->
               <template #activator="{ props }">
                 <v-list-item
                   v-bind="props"
@@ -80,9 +83,10 @@
 import UserCard from '@/components/common/UserCard.vue'
 import DarkSwitch from '@/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from '@/core/serivce/FileUpload'
-const menuObj = context.menu.value.adminMenu
+const menuObj = getDefaultAdminMenu()
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
+const router = useRouter()
 const session = context.session
 
 const adminContext: AdminContext = reactive({
@@ -91,28 +95,96 @@ const adminContext: AdminContext = reactive({
   item: 'overview'
 })
 
+/**
+ * 当前展开的菜单组
+ */
 const openGroup = ref(['general'])
 
-
+/**
+ * 菜单项点击
+ * @param group 所属菜单组
+ * @param menuItem 菜单项
+ */
 const itemClick = (group: MenuGroup<AdminContext>, menuItem: MenuItem<AdminContext>) => {
-  menuItem.action && menuItem.action(adminContext)
-  adminContext.group = group.id
-  adminContext.item = menuItem.id
+  router.replace(`/admin/${group.id}/${menuItem.id}`)
+}
+
+/**
+ * 执行单独的菜单组动作
+ * @param group 菜单组
+ */
+const groupClick = (group: MenuGroup<AdminContext>) => {
+  router.replace(`/admin/${group.id}`)
 }
 
 const loadView = (groupId: string, itemId: string) => {
-  const itemObj = menuObj.find(e => e.id == groupId)?.items.find(e => e.id == itemId)
-  itemObj && itemObj.action && itemObj.action(adminContext)
+  const groupObj = menuObj.find(e => e.id == groupId)
+
+  const itemObj = groupObj?.items.find(e => e.id == itemId)
+
+  if (groupObj) {
+    if(!openGroup.value.find(e => e == groupObj.id)) {
+      openGroup.value.push(groupObj.id + '')
+    }
+  }
+  
+  if (!itemId && groupObj?.items?.length == 0) {
+    openGroup.value = [groupId]
+    adminContext.item = ''
+    adminContext.group = groupObj.id
+    adminContext.component = undefined
+    groupObj.action && groupObj.action(adminContext)
+    return true
+  } else if (groupObj && itemObj) {
+    adminContext.group = groupObj.id
+    adminContext.item = itemObj.id
+    adminContext.component = undefined
+    itemObj.action && itemObj.action(adminContext)
+    return true
+  } else {
+    adminContext.component = h(NotFoundTipVue, { text: '找不到该管理页面'})
+    return false
+  }
+}
+
+const loadViewFromRoute = () => {
+  const nodes = context.routeInfo.value.curr?.params.configNode as string[]
+  let res
+  if (!nodes || nodes.length == 0) {
+    router.replace('/admin/general/overview')
+    return true
+  } else {
+    const [groupId, itemId] = nodes
+    res = loadView(groupId, itemId)
+  }
+
+  if (!res) {
+    SfcUtils.snackbar('找不到该管理页面')
+    adminContext.group = adminContext.item = ''
+    openGroup.value = []
+  }
 }
 
 onMounted(() => {
   loadView(adminContext.group + '', adminContext.item + '')
+  loadViewFromRoute()
 })
+
+watch(
+  () => router.currentRoute.value,
+  () => {
+    loadViewFromRoute()
+  }
+)
 </script>
 
 <script lang="ts">
-import { ref, defineComponent, ToRefs, reactive, onMounted } from 'vue'
+import { ref, defineComponent, ToRefs, reactive, onMounted, h, watch } from 'vue'
 import { AdminContext, AppContext, context, MenuGroup, MenuItem } from '@/core/context/'
+import { getDefaultAdminMenu } from '@/core/context/menu/AdminMenu'
+import NotFoundTipVue from '@/components/common/NotFoundTip.vue'
+import { useRouter } from 'vue-router'
+import SfcUtils from '@/utils/SfcUtils'
 
 export default defineComponent({
   name: 'AdminIndex'
