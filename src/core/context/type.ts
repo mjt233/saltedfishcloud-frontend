@@ -1,3 +1,4 @@
+import { AdminContext } from './menu/type.d'
 import { Session } from './session'
 import { AppMenu, BoxMenuContext, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
@@ -127,6 +128,8 @@ export interface AppContext {
      * 用户界面主菜单
      */
     mainMenu: AppMenu,
+
+    adminMenu: MenuGroup<AdminContext>[]
 
     /**
      * 文件列表菜单

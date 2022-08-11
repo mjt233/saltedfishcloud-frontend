@@ -1,5 +1,14 @@
+import { IdType } from '@/core/model'
+import { ChildrenType } from '@/utils/SfcUtils/common/DyncMount'
 import { ToRefs, VNode } from 'vue'
 import { AppContext } from '../type'
+
+export interface AdminContext {
+  component?: ChildrenType,
+  group?: IdType,
+  item?: IdType
+}
+
 
 /**
  * 菜单组

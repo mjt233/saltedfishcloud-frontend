@@ -1,4 +1,4 @@
-import { AppContext, FileClipBoard, RouteInfo, VisiableWindows } from './type'
+import { AppContext, FileClipBoard, VisiableWindows } from './type'
 import { defaultFileListMenu, defaultMainMenu } from './menu'
 import { reactive, Ref, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
@@ -7,6 +7,7 @@ import { SystemFeature } from '../model'
 import { defaultFileOpenHandlers } from './fileOpenHandler'
 import { defaultFileBrowserTopBtns } from '@/core/actions/FileList/FileListBtn'
 import defaultBoxMenu from './menu/BoxMenu'
+import { defaultAdminMenu } from './menu/AdminMenu'
 
 const defaultFeature: SystemFeature = {
   enableEmailReg: false,
@@ -27,7 +28,8 @@ const context: ToRefs<AppContext> = toRefs(reactive({
     mainMenu: defaultMainMenu,
     fileListMenu: defaultFileListMenu,
     fileBrowserBtn: defaultFileBrowserTopBtns,
-    boxMenu: defaultBoxMenu
+    boxMenu: defaultBoxMenu,
+    adminMenu: defaultAdminMenu
   },
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,
