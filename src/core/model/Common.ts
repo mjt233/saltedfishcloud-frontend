@@ -1,3 +1,4 @@
+import { ChildrenType } from '@/utils/SfcUtils/common/DyncMount'
 /**
  * 下拉选择选项
  */
@@ -16,20 +17,27 @@ export type IdType = number | string
 /**
  * 配置节点类型
  */
-export type ConfigNodeInputType = 'switch' | 'select' | 'multi-select' | 'ratio' | 'checkbox' | 'text' | 'form'
+export type ConfigNodeInputType = 'switch' | 'select' | 'multi-select' | 'ratio' | 'checkbox' | 'text' | 'form' | 'template'
 
 /**
  * 属性配置节点
  */
-export interface ConfigNode {
+export interface ConfigNodeModel {
   /* 节点名 */
   name: string
+
+  /* 配置标题 */
+  title: string
 
   /* 节点值 */
   value: string
 
   /* 描述 */
-  descript?: string
+  describe?: string
+
+  readonly?: boolean
+
+  disabled?: boolean
 
   /* 数据编辑输入方式 */
   inputType: ConfigNodeInputType
@@ -38,16 +46,19 @@ export interface ConfigNode {
   options?: SelectOption[]
 
   /* 子节点，用于为form表单类型提供子表单数据，子表单的值为json格式化字符串 */
-  subNode?: ConfigNodeGroup[]
+  subNode?: ConfigNodeGroupModel[]
 
   /* 图标 */
   icon?: string
+
+  /* 当类型为template时使用模板内容作为内容编辑 */
+  template?: string | ChildrenType
 }
 
-export interface ConfigNodeGroup {
+export interface ConfigNodeGroupModel {
   /* 配置组名称 */
   name: string
 
   /* 配置组 */
-  nodes: ConfigNode[]
+  nodes: ConfigNodeModel[]
 }
