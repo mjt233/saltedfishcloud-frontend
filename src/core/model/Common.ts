@@ -20,6 +20,11 @@ export type IdType = number | string
 export type ConfigNodeInputType = 'switch' | 'select' | 'multi-select' | 'ratio' | 'checkbox' | 'text' | 'form' | 'template'
 
 /**
+ * 基本原始数据类型
+ */
+export type RawType = number | string | boolean
+
+/**
  * 属性配置节点
  */
 export interface ConfigNodeModel {
@@ -30,7 +35,11 @@ export interface ConfigNodeModel {
   title: string
 
   /* 节点值 */
-  value: string
+  value: RawType
+
+  defaultValue: RawType
+
+  hide?: boolean
 
   /* 描述 */
   describe?: string
@@ -46,7 +55,7 @@ export interface ConfigNodeModel {
   options?: SelectOption[]
 
   /* 子节点，用于为form表单类型提供子表单数据，子表单的值为json格式化字符串 */
-  subNode?: ConfigNodeGroupModel[]
+  nodes?: ConfigNodeModel[]
 
   /* 图标 */
   icon?: string
@@ -55,10 +64,29 @@ export interface ConfigNodeModel {
   template?: string | ChildrenType
 }
 
-export interface ConfigNodeGroupModel {
-  /* 配置组名称 */
+export interface PluginConfigNodeInfo {
+  /**
+   * 插件名称
+   */
   name: string
 
-  /* 配置组 */
-  nodes: ConfigNodeModel[]
+  /**
+   * 插件别名
+   */
+  alias: string
+
+  /**
+   * 插件图标
+   */
+  icon: string
+
+  /**
+   * 该插件下的配置组
+   */
+  groups: ConfigNodeModel[]
+}
+
+export interface NameValueType<T = any> {
+  name: string,
+  value: T
 }

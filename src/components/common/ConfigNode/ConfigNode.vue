@@ -75,7 +75,4 @@ export default defineComponent({
   /* background-color: black; */
   transition: all .2s;
 }
-.config-node:hover {
-  background-color: rgba(var(--v-theme-primary), .05);
-}
 </style>

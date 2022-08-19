@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div v-for="(group, idx) in items" :key="idx">
+    <div v-for="(group, idx) in items" :key="idx" class="node-group">
       <sticky-container :top="64" content-class="node-title" style="width: 100%">
-        {{ group.name }}
+        {{ group.title || group.name }}
       </sticky-container>
       <config-node
         v-for="(node, index) in group.nodes"
@@ -19,7 +19,7 @@ import ConfigNode from './ConfigNode.vue'
 import StickyContainer from '../StickyContainer.vue'
 const props = defineProps({
   items: {
-    type: Array as PropType<ConfigNodeGroupModel[]>,
+    type: Array as PropType<ConfigNodeModel[]>,
     default: () => []
   }
 })
@@ -32,7 +32,7 @@ const nodeValueChange = (node: ConfigNodeModel, val: string) => {
 </script>
 
 <script lang="ts">
-import { ConfigNodeModel as ConfigNodeModel, ConfigNodeGroupModel } from '@/core/model'
+import { ConfigNodeModel } from '@/core/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 
 export default defineComponent({
@@ -43,10 +43,11 @@ export default defineComponent({
 <style>
 .node-title {
   position: relative;
-  font-size: 21px;
-  padding-left: 12px;
+  font-size: 23px;
+  padding: 6px 12px;
   background-color: rgb(var(--v-theme-background));
   width: 100%;
+  transition: all .2s;
   font-weight: 600;
 }
 
@@ -58,5 +59,10 @@ export default defineComponent({
   width: 3px;
   height: 100%;
   background-color: rgb(var(--v-theme-primary));
+}
+
+
+.node-group>*:hover,.node-title:hover {
+  background-color: rgba(var(--v-theme-primary), .05);
 }
 </style>

@@ -1,4 +1,5 @@
 <template>
+  <loading-mask :loading="loadingManager.getLoadingRef().value" />
   <!-- 顶部栏 -->
   <v-app-bar color="header">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
@@ -83,11 +84,14 @@
 import UserCard from '@/components/common/UserCard.vue'
 import DarkSwitch from '@/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from '@/core/serivce/FileUpload'
-const menuObj = getDefaultAdminMenu()
+import LoadingMask from '@/components/common/LoadingMask.vue'
+const loadingManager = new LoadingManager()
+const menuObj = ref(getDefaultAdminMenu()) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 const router = useRouter()
 const session = context.session
+let initPromise:Promise<any>
 
 const adminContext: AdminContext = reactive({
   component: undefined,
@@ -109,6 +113,35 @@ const itemClick = (group: MenuGroup<AdminContext>, menuItem: MenuItem<AdminConte
   router.replace(`/admin/${group.id}/${menuItem.id}`)
 }
 
+const actions = MethodInterceptor.createAsyncActionProxy({
+  async loadConfig() {
+    const pluginConfigs = (await SfcUtils.request(API.admin.sys.listPluginConfig())).data.data
+    return pluginConfigs
+  }
+}, false, loadingManager)
+
+const initMenu = async() => {
+  const pluginConfigs = await actions.loadConfig()
+  pluginConfigs.forEach(pc => {
+    menuObj.value.push({
+      name: pc.alias,
+      id: pc.name,
+      icon: pc.icon || 'mdi-puzzle',
+      items: pc.groups.map(g => {
+        return {
+          id: g.name,
+          title: g.title,
+          action(ctx) {
+            ctx.component = h(ConfigNodeGroupVue, {
+              items: g.nodes
+            })
+          }
+        }
+      })
+    })
+  })
+}
+
 /**
  * 执行单独的菜单组动作
  * @param group 菜单组
@@ -118,7 +151,7 @@ const groupClick = (group: MenuGroup<AdminContext>) => {
 }
 
 const loadView = (groupId: string, itemId: string) => {
-  const groupObj = menuObj.find(e => e.id == groupId)
+  const groupObj = menuObj.value.find(e => e.id == groupId)
 
   const itemObj = groupObj?.items.find(e => e.id == itemId)
 
@@ -147,12 +180,12 @@ const loadView = (groupId: string, itemId: string) => {
   }
 }
 
-const loadViewFromRoute = () => {
+const loadViewFromRoute = async() => {
+  await initPromise
   const nodes = context.routeInfo.value.curr?.params.configNode as string[]
   let res
   if (!nodes || nodes.length == 0) {
-    router.replace('/admin/general/overview')
-    return true
+    return loadView('general', 'overview')
   } else {
     const [groupId, itemId] = nodes
     res = loadView(groupId, itemId)
@@ -166,6 +199,7 @@ const loadViewFromRoute = () => {
 }
 
 onMounted(() => {
+  initPromise = initMenu()
   loadView(adminContext.group + '', adminContext.item + '')
   loadViewFromRoute()
 })
@@ -179,12 +213,16 @@ watch(
 </script>
 
 <script lang="ts">
-import { ref, defineComponent, ToRefs, reactive, onMounted, h, watch } from 'vue'
+import { ref, defineComponent, ToRefs, reactive, onMounted, h, watch, Ref } from 'vue'
 import { AdminContext, AppContext, context, MenuGroup, MenuItem } from '@/core/context/'
 import { getDefaultAdminMenu } from '@/core/context/menu/AdminMenu'
 import NotFoundTipVue from '@/components/common/NotFoundTip.vue'
 import { useRouter } from 'vue-router'
 import SfcUtils from '@/utils/SfcUtils'
+import { MethodInterceptor } from '@/utils/MethodInterceptor'
+import { LoadingManager } from '@/utils/LoadingManager'
+import API from '@/api'
+import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
 
 export default defineComponent({
   name: 'AdminIndex'
