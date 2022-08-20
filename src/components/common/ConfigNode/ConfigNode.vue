@@ -27,6 +27,9 @@
     <template v-if="node.inputType == 'select'">
       <form-select v-model="nodeValue" :items="selectOptions" class="config-simple-input" />
     </template>
+    <template v-if="node.inputType == 'form'">
+      <config-node-form-input :node="node" />
+    </template>
   </div>
 </template>
 
@@ -34,6 +37,7 @@
 import TextInput from '../TextInput.vue'
 import MultiLineText from '../MultiLineText.vue'
 import FormSelect from '../FormSelect.vue'
+import ConfigNodeFormInput from './ConfigNodeFormInput.vue'
 const props = defineProps({
   node: {
     type: Object as PropType<ConfigNodeModel>,
@@ -87,6 +91,7 @@ export default defineComponent({
 <style scoped>
 .config-title {
   font-weight: 600;
+  color: rgba(var(--v-theme-primary));
 }
 
 .config-node {
