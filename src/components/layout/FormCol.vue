@@ -1,6 +1,6 @@
 <template>
   <v-col>
-    <span class="form-label">{{ label }}:</span>
+    <span v-if="label" class="form-label">{{ label }}:</span>
     <slot />
   </v-col>
 </template>

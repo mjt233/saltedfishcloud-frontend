@@ -28,7 +28,7 @@
       <form-select v-model="nodeValue" :items="selectOptions" class="config-simple-input" />
     </template>
     <template v-if="node.inputType == 'form'">
-      <config-node-form-input :node="node" />
+      <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
     </template>
   </div>
 </template>
@@ -56,6 +56,9 @@ const updateValue = (val: string) => {
 onMounted(() => {
 })
 
+const formChange = (newVal: string) => {
+  emits('change', newVal)
+}
 const selectOptions = computed(() => {
   if (props.node.inputType == 'select') {
     return props.node.options

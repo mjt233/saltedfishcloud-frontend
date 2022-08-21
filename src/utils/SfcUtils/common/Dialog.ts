@@ -29,7 +29,7 @@ export interface DialogOpt {
   /**
    * 是否全屏显示
    */
-  fullscreen?: boolean,
+  fullscreen?: boolean | 'auto',
 
   header?: ChildrenType,
   footer?: ChildrenType,
@@ -154,7 +154,9 @@ export function dialog(opt: DialogOpt): DialogPromise {
     footer = () => h('div'),
     persistent = false
   } = opt
-  if (fullscreen) {
+
+  const finalUseFullScreen = fullscreen == true || (fullscreen == 'auto' && document.documentElement.clientWidth <= 640)
+  if (finalUseFullScreen) {
     extraProps.maxWidth = '99999px'
     extraProps.width = '100vw'
   }
@@ -164,7 +166,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
   const attrs = reactive({
     // 对话框显示控制
     modelValue: true,
-    fullscreen,
+    fullscreen: finalUseFullScreen,
     title,
     persistent,
     async 'onUpdate:modelValue'(e: any) {
@@ -292,7 +294,7 @@ export interface OpenComponentDialogOption {
   extraDialogOptions?: DialogProps
   header?: ChildrenType
   footer?: ChildrenType
-  fullscreen?: boolean
+  fullscreen?: boolean | 'auto'
   persistent?: boolean
 
   // 是否使用一个div对组件进行包装
@@ -312,7 +314,7 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     extraDialogOptions = {},
     header,
     footer,
-    fullscreen,
+    fullscreen = 'auto',
     persistent
   } = opt || {}
   props.ref = 'component'
@@ -354,6 +356,7 @@ export function prompt(opt: PromptOpt): Promise<string> {
   const val = ref(defaultValue)
   return new Promise((resolve, reject) => {
     const inst = openComponentDialog(TextInputVue, {
+      fullscreen: false,
       props: reactive({
         modelValue: val,
         rules,
@@ -424,6 +427,7 @@ export function confirm(message: string, title: string, opt: ConfirmOpt = {}) :P
   let isConfirm = false
   return new Promise((resolve, reject) => {
     dialog({
+      fullscreen: false,
       children: () => {
         // 默认的纯文本消息
         const renderArr: any[] = [

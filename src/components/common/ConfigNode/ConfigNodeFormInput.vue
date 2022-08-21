@@ -17,7 +17,7 @@
         </form-row>
       </template>
     </form-grid>
-    <v-btn color="primary">
+    <v-btn color="primary" @click="edit">
       编辑
     </v-btn>
   </div>
@@ -31,17 +31,43 @@ const props = defineProps({
   node: {
     type: Object as PropType<ConfigNodeModel>,
     default: () => {return{}}
+  },
+  modelValue: {
+    type: String,
+    default: ''
   }
 })
 const valObj = computed(() => {
-  return JSON.parse(props.node.value + '')
+  return JSON.parse(props.modelValue || props.node.value + '')
 })
+
+const emits = defineEmits(['update:model-value'])
+
+const edit = () => {
+  const inst = SfcUtils.openComponentDialog(ConfigFormVue, {
+    props: {
+      groups: props.node.nodes,
+      modelValue: valObj.value
+    },
+    title: props.node.title,
+    inWrap: false,
+    fullscreen: 'auto',
+    onConfirm() {
+      const form = (inst.getComponentInstRef() as any as CommonForm)
+      emits('update:model-value', JSON.stringify(form.getFormData()))
+      return true
+    }
+  })
+}
 
 </script>
 
 <script lang="ts">
 import { ConfigNodeModel } from '@/core/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, reactive } from 'vue'
+import SfcUtils from '@/utils/SfcUtils'
+import ConfigFormVue from '../ConfigForm.vue'
+import { CommonForm } from '@/utils/FormUtils'
 
 export default defineComponent({
   name: 'ConfigNodeFormInput'

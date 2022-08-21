@@ -133,7 +133,10 @@ const initMenu = async() => {
           title: g.title,
           action(ctx) {
             ctx.component = h(ConfigNodeGroupVue, {
-              items: g.nodes
+              items: g.nodes,
+              onNodeChange(changeValue: NameValueType) {
+                console.log(`节点:${changeValue.name} 发生变更，新值为：${changeValue.value}`)
+              }
             })
           }
         }
@@ -223,6 +226,7 @@ import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import API from '@/api'
 import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
+import { NameValueType } from '@/core/model'
 
 export default defineComponent({
   name: 'AdminIndex'
