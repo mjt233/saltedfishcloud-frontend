@@ -122,22 +122,30 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 
 const initMenu = async() => {
   const pluginConfigs = await actions.loadConfig()
+  const nodeMap = {} as {[key: string]: ConfigNodeModel}
   pluginConfigs.forEach(pc => {
     menuObj.value.push({
       name: pc.alias,
       id: pc.name,
       icon: pc.icon || 'mdi-puzzle',
       items: pc.groups.map(g => {
+        g.nodes?.flatMap(e => e.nodes).forEach(e => {
+          if (e) {
+            e.originValue = e.value
+            nodeMap[e.name] = e
+          }
+        })
         return {
           id: g.name,
           title: g.title,
           action(ctx) {
-            ctx.component = h(ConfigNodeGroupVue, {
+            ctx.component = h(ConfigNodeGroupVue, reactive({
               items: g.nodes,
-              onNodeChange(changeValue: NameValueType) {
-                console.log(`节点:${changeValue.name} 发生变更，新值为：${changeValue.value}`)
+              onNodeChange(changeInfo: NameValueType) {
+                console.log(`节点:${changeInfo.name} 发生变更，新值为：${changeInfo.value}`)
+                nodeMap[changeInfo.name].value = changeInfo.value
               }
-            })
+            }))
           }
         }
       })
@@ -226,7 +234,7 @@ import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import { LoadingManager } from '@/utils/LoadingManager'
 import API from '@/api'
 import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
-import { NameValueType } from '@/core/model'
+import { ConfigNodeModel, NameValueType } from '@/core/model'
 
 export default defineComponent({
   name: 'AdminIndex'

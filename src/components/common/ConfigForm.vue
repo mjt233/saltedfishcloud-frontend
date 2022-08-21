@@ -13,7 +13,7 @@
           class="mw-50"
         >
           <template v-if="field.inputType == 'text'">
-            <text-input v-model="formData[field.name]" />
+            <text-input v-model="formData[field.name]" :type="field.mask ? 'password': 'text'" />
           </template>
           <template v-if="field.inputType == 'checkbox'">
             <v-switch

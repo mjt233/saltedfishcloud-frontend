@@ -12,7 +12,7 @@
             style="max-width: 280px;"
             :label="field.title"
           >
-            {{ valObj[field.name] }}
+            {{ field.mask ? '******': valObj[field.name] }}
           </form-col>
         </form-row>
       </template>

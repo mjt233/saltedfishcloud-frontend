@@ -37,7 +37,14 @@ export interface ConfigNodeModel {
   /* 节点值 */
   value: RawType
 
+  /* 是否使用掩码*显示 */
+  mask?: boolean
+
+  /* 默认值 */
   defaultValue: RawType
+
+  /* 原值（被修改前） */
+  originValue: RawType
 
   hide?: boolean
 

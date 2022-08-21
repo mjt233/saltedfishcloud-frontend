@@ -1,35 +1,45 @@
 <template>
-  <div class="config-node">
+  <div class="config-node" :class="{ 'change': hasChange }">
     <div class="config-title">
       {{ node.title }}
     </div>
-    <div class="config-describe tip">
-      <v-checkbox
-        v-if="node.inputType == 'switch'"
-        color="primary"
-        :hide-details="true"
-        :label="node.describe"
-        :model-value="nodeValue"
-        :disabled="node.readonly"
-        @update:model-value="nodeValue = $event; updateValue($event)"
-      />
-      <multi-line-text v-else :text="node.describe" />
+    <div class="config-content">
+      <!-- 值修改时的左侧小绿条 -->
+      <div class="change-flag" />
+      <div class="config-describe tip">
+        <v-checkbox
+          v-if="node.inputType == 'switch'"
+          color="primary"
+          :hide-details="true"
+          :label="node.describe"
+          :model-value="nodeValue == true || nodeValue == 'true'"
+          :disabled="node.readonly"
+          @update:model-value="nodeValue = $event; updateValue($event)"
+        />
+        <multi-line-text v-else :text="node.describe" />
+      </div>
+      <template v-if="node.inputType == 'text'">
+        <text-input
+          :model-value="nodeValue"
+          class="config-simple-input"
+          :readonly="node.readonly"
+          :type="node.mask ? 'password': 'text'"
+          @update:model-value="nodeValue = $event"
+          @blur="updateValue(nodeValue)"
+        />
+      </template>
+      <template v-if="node.inputType == 'select'">
+        <form-select
+          v-model="nodeValue"
+          :items="selectOptions"
+          class="config-simple-input"
+          @change="nodeValue = $event.value; updateValue($event.value)"
+        />
+      </template>
+      <template v-if="node.inputType == 'form'">
+        <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
+      </template>
     </div>
-    <template v-if="node.inputType == 'text'">
-      <text-input
-        :model-value="nodeValue"
-        class="config-simple-input"
-        :readonly="node.readonly"
-        @update:model-value="nodeValue = $event"
-        @blur="updateValue(nodeValue)"
-      />
-    </template>
-    <template v-if="node.inputType == 'select'">
-      <form-select v-model="nodeValue" :items="selectOptions" class="config-simple-input" />
-    </template>
-    <template v-if="node.inputType == 'form'">
-      <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
-    </template>
   </div>
 </template>
 
@@ -47,18 +57,6 @@ const props = defineProps({
 const nodeValue = ref('') as Ref<any>
 const emits = defineEmits(['change'])
 
-const updateValue = (val: string) => {
-  if (val != props.node.value) {
-    emits('change', val)
-  }
-  
-}
-onMounted(() => {
-})
-
-const formChange = (newVal: string) => {
-  emits('change', newVal)
-}
 const selectOptions = computed(() => {
   if (props.node.inputType == 'select') {
     return props.node.options
@@ -66,6 +64,27 @@ const selectOptions = computed(() => {
     return []
   }
 })
+
+/**
+ * 值是否被修改过
+ */
+const hasChange = ref(false)
+
+const updateValue = (val: string) => {
+  if (val != props.node.value) {
+    emits('change', val)
+  }
+  if (props.node.originValue + '' != props.node.value + '') {
+    hasChange.value = true
+  } else {
+    hasChange.value = false
+  }
+}
+
+const formChange = (newVal: string) => {
+  updateValue(newVal)
+}
+
 
 const initValue = () => {
   nodeValue.value = props.node.value
@@ -91,7 +110,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .config-title {
   font-weight: 600;
   color: rgba(var(--v-theme-primary));
@@ -99,8 +118,28 @@ export default defineComponent({
 
 .config-node {
   padding: 12px;
-  /* background-color: black; */
+  position: relative;
   transition: all .2s;
+
+  .change-flag {
+    position: absolute;
+    top: 0;
+    left: 3px;
+    width: 0px;
+    height: 100%;
+    cursor: pointer;
+    background-color: rgb(var(--v-theme-success));
+    transition: all .1s;
+  }
+
+  &.change .change-flag {
+    left: 3px;
+    width: 3px;
+  }
+  &.change .change-flag:hover {
+    left: 0;
+    width: 6px;
+  }
 }
 
 .config-simple-input {

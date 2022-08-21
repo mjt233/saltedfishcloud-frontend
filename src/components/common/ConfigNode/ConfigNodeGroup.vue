@@ -52,13 +52,13 @@ export default defineComponent({
 }
 
 .node-title::after {
-  content: '';
+  /* content: '';
   position: absolute;
   left: 0;
   top: 0;
   width: 3px;
   height: 100%;
-  background-color: rgb(var(--v-theme-primary));
+  background-color: rgb(var(--v-theme-primary)); */
 }
 
 
