@@ -162,8 +162,10 @@ const groupClick = (group: MenuGroup<AdminContext>) => {
 }
 
 const loadView = (groupId: string, itemId: string) => {
+  // 搜索一级菜单
   const groupObj = menuObj.value.find(e => e.id == groupId)
 
+  // 搜索二级菜单
   const itemObj = groupObj?.items.find(e => e.id == itemId)
 
   if (groupObj) {
@@ -172,6 +174,7 @@ const loadView = (groupId: string, itemId: string) => {
     }
   }
   
+  // 若未传入二级菜单id，且一级菜单中不存在二级菜单，则直接加载一级菜单的视图
   if (!itemId && groupObj?.items?.length == 0) {
     openGroup.value = [groupId]
     adminContext.item = ''
@@ -196,7 +199,8 @@ const loadViewFromRoute = async() => {
   const nodes = context.routeInfo.value.curr?.params.configNode as string[]
   let res
   if (!nodes || nodes.length == 0) {
-    return loadView('general', 'overview')
+    // 未从路由中获取到一级和二级菜单id，则默认加载总览e'e页面
+    return loadView('overview', '')
   } else {
     const [groupId, itemId] = nodes
     res = loadView(groupId, itemId)

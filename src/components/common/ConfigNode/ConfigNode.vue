@@ -5,7 +5,11 @@
     </div>
     <div class="config-content">
       <!-- 值修改时的左侧小绿条 -->
-      <div class="change-flag" />
+      <div class="change-flag">
+        <div class="change-detail">
+          <config-node-change-detail :node="node" :current-value="nodeValue" />
+        </div>
+      </div>
       <div class="config-describe tip">
         <v-checkbox
           v-if="node.inputType == 'switch'"
@@ -48,6 +52,7 @@ import TextInput from '../TextInput.vue'
 import MultiLineText from '../MultiLineText.vue'
 import FormSelect from '../FormSelect.vue'
 import ConfigNodeFormInput from './ConfigNodeFormInput.vue'
+import ConfigNodeChangeDetail from './ConfigNodeChangeDetail.vue'
 const props = defineProps({
   node: {
     type: Object as PropType<ConfigNodeModel>,
@@ -82,6 +87,7 @@ const updateValue = (val: string) => {
 }
 
 const formChange = (newVal: string) => {
+  nodeValue.value = newVal
   updateValue(newVal)
 }
 
@@ -98,7 +104,11 @@ watch(() => props.node.value, () => {
   nodeValue.value = props.node.value
 })
 
-initValue()
+onMounted(() => {
+  initValue()
+  updateValue(nodeValue.value)
+})
+
 </script>
 
 <script lang="ts">
@@ -130,6 +140,28 @@ export default defineComponent({
     cursor: pointer;
     background-color: rgb(var(--v-theme-success));
     transition: all .1s;
+
+    &>.change-detail {
+      margin: 0;
+      width: 640px;
+      max-height: 100%;
+      overflow-y: auto;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: all .1s;
+      pointer-events: none;
+    }
+    &:hover>.change-detail {
+      padding: 6px 12px;
+      margin-left: 6px;
+      z-index: 100;
+      pointer-events: all;
+      opacity: 1;
+      background-color: rgb(var(--v-theme-background));
+      box-shadow: 0px 0px 5px 1px rgb(var(--v-theme-success));
+    }
   }
 
   &.change .change-flag {
