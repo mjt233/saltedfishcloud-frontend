@@ -28,8 +28,7 @@
           class="config-simple-input"
           :readonly="node.readonly"
           :type="node.mask ? 'password': 'text'"
-          @update:model-value="nodeValue = $event"
-          @blur="updateValue(nodeValue)"
+          @update:model-value="nodeValue = $event;updateValue(nodeValue)"
         />
       </template>
       <template v-if="node.inputType == 'select'">
@@ -97,11 +96,7 @@ const initValue = () => {
 }
 
 watch(() => props.node.value, () => {
-  if (props.node.value == nodeValue.value) {
-    return
-  }
-
-  nodeValue.value = props.node.value
+  updateValue(props.node.value as string)
 })
 
 onMounted(() => {

@@ -78,19 +78,22 @@
       <component :is="adminContext.component" v-if="adminContext.component" />
     </div>
   </v-main>
+  <fixed-btn :hide="hideConfirm" @click="confirmChange" />
 </template>
 
 <script setup lang="ts">
+import FixedBtn from '@/components/common/btn/FixedBtn.vue'
 import UserCard from '@/components/common/UserCard.vue'
 import DarkSwitch from '@/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from '@/core/serivce/FileUpload'
 import LoadingMask from '@/components/common/LoadingMask.vue'
 const loadingManager = new LoadingManager()
-const menuObj = ref(getDefaultAdminMenu()) as Ref<MenuGroup<AdminContext>[]>
+const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 const router = useRouter()
 const session = context.session
+const hideConfirm = ref(true)
 let initPromise:Promise<any>
 
 const adminContext: AdminContext = reactive({
@@ -120,11 +123,15 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   }
 }, false, loadingManager)
 
+
+
+const nodeMap = {} as {[key: string]: ConfigNodeModel}
 const initMenu = async() => {
   const pluginConfigs = await actions.loadConfig()
-  const nodeMap = {} as {[key: string]: ConfigNodeModel}
+  menuObj.value.length = 0
+  menuObj.value = menuObj.value.concat(getDefaultAdminMenu())
   pluginConfigs.forEach(pc => {
-    menuObj.value.push({
+    menuObj.value.push(reactive({
       name: pc.alias,
       id: pc.name,
       icon: pc.icon || 'mdi-puzzle',
@@ -135,21 +142,53 @@ const initMenu = async() => {
             nodeMap[e.name] = e
           }
         })
-        return {
+        return reactive({
           id: g.name,
           title: g.title,
           action(ctx) {
             ctx.component = h(ConfigNodeGroupVue, reactive({
               items: g.nodes,
               onNodeChange(changeInfo: NameValueType) {
-                console.log(`节点:${changeInfo.name} 发生变更，新值为：${changeInfo.value}`)
                 nodeMap[changeInfo.name].value = changeInfo.value
+                updateHideConfirm()
               }
             }))
           }
-        }
+        })
       })
-    })
+    }))
+  })
+}
+
+const updateHideConfirm = () => {
+  const changeObj = Object.keys(nodeMap).find(nodeName => nodeMap[nodeName].originValue + '' != nodeMap[nodeName].value + '')
+  hideConfirm.value = changeObj == undefined
+}
+
+const confirmChange = () => {
+  const changeList = Object.keys(nodeMap)
+    .filter(nodeName => nodeMap[nodeName].originValue + '' != nodeMap[nodeName].value + '')
+    .map(nodeName => nodeMap[nodeName])
+
+  const dialogInst = SfcUtils.openComponentDialog(ConfigNodeChangeListVue, {
+    props: {
+      nodes: changeList
+    },
+    title: '配置修改确认',
+    async onConfirm() {
+      dialogInst.beginLoading()
+      try {
+        await SfcUtils.request(API.admin.sys.batchSetConfig(changeList))
+        await initMenu()
+        await loadView(adminContext.group as string, adminContext.item as string)
+        updateHideConfirm()
+        dialogInst.closeLoading()
+        SfcUtils.snackbar('修改成功')
+        return true
+      } finally {
+        dialogInst.closeLoading()
+      }
+    }
   })
 }
 
@@ -225,6 +264,8 @@ watch(
     loadViewFromRoute()
   }
 )
+
+
 </script>
 
 <script lang="ts">
@@ -239,6 +280,7 @@ import { LoadingManager } from '@/utils/LoadingManager'
 import API from '@/api'
 import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
 import { ConfigNodeModel, NameValueType } from '@/core/model'
+import ConfigNodeChangeListVue from '@/components/common/ConfigNode/ConfigNodeChangeList.vue'
 
 export default defineComponent({
   name: 'AdminIndex'

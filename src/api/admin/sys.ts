@@ -1,5 +1,6 @@
+import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
 import { CommonRequest } from '@/core/model'
-import { PluginConfigNodeInfo } from './../../core/model/Common'
+import { NameValueType, PluginConfigNodeInfo } from './../../core/model/Common'
 // /**
 //  * @typedef {Object} ProxyInfo
 //  * @property {String} name
@@ -9,64 +10,6 @@ import { PluginConfigNodeInfo } from './../../core/model/Common'
 //  */
 const sys = {
   prefix: '/admin/sys',
-  // proxy: {
-  //   prefix: '/admin/sys/proxy',
-  //   /**
-  //    * 删除一个代理
-  //    * @param {String} name 代理名称
-  //    * @returns {import("axios").AxiosRequestConfig}
-  //    */
-  //   deleteProxy(name) {
-  //     return {
-  //       url: this.prefix,
-  //       method: 'delete',
-  //       params: {
-  //         proxyName: name
-  //       }
-  //     }
-  //   },
-  //   /**
-  //    * 添加一个代理节点
-  //    * @param {ProxyInfo} proxy 代理信息
-  //    * @returns {import("axios").AxiosRequestConfig}
-  //    */
-  //   addProxy(proxy) {
-  //     return {
-  //       url: this.prefix,
-  //       method: 'post',
-  //       data: proxy
-  //     }
-  //   },
-  //   /**
-  //        * 获取所有代理信息
-  //        * @returns {import("axios").AxiosRequestConfig}
-  //        */
-  //   getAllProxy() {
-  //     return {
-  //       url: this.prefix,
-  //       method: 'get'
-  //     }
-  //   },
-  //   /**
-  //    * 更新一个代理信息
-  //    * @param {String} name 原代理名称
-  //    * @param {ProxyInfo} proxy 代理信息
-  //    * @returns {import("axios").AxiosRequestConfig}
-  //    */
-  //   updateProxy(name, proxy) {
-  //     return {
-  //       url: this.prefix,
-  //       method: 'put',
-  //       params: {
-  //         proxyName: name,
-  //         type: proxy.type,
-  //         port: proxy.port,
-  //         address: proxy.address,
-  //         name: proxy.name
-  //       }
-  //     }
-  //   }
-  // },
   /**
    * 读取所有配置项信息
    */
@@ -109,8 +52,15 @@ const sys = {
    */
   listPluginConfig(): CommonRequest<PluginConfigNodeInfo[]> {
     return {
-      url: `${this.prefix}/listPluginConfig`
+      url: `${this.prefix}/config/listPluginConfig`
     }
+  },
+  batchSetConfig(config: NameValueType[]): CommonRequest {
+    return useJsonBody({
+      url: `${this.prefix}/config/batchSetConfig`,
+      data: config,
+      method: 'put'
+    })
   }
 }
 

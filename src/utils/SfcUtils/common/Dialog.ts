@@ -72,11 +72,19 @@ export interface DialogHandler {
    * 执行取消
    */
   doCancel: () => void
+
+  beginLoading(): void
+
+  closeLoading(): void
 }
 export class DialogPromise extends Promise<void> implements DialogHandler {
   handler!: Ref<DyncComponentHandler<DialogModel>>
   constructor(executor: (resolve: (value: void | PromiseLike<void>) => void, reject: (reason?: any) => void) => void) {
     super(executor)
+  }
+  beginLoading(): void {
+  }
+  closeLoading(): void {
   }
 
   /**
@@ -221,6 +229,8 @@ export function dialog(opt: DialogOpt): DialogPromise {
   ret.doCancel = attrs.onCancel
   ret.close = attrs.onCancel
   ret.handler = vueInst
+  ret.closeLoading = vueInst.value.getComponentInst().closeLoading
+  ret.beginLoading = vueInst.value.getComponentInst().beginLoading
   return ret
 }
 
@@ -249,11 +259,6 @@ export interface DialogProps {
    * 是否持久显示
    */
   persistent?: string
-
-  /**
-   * 加载中
-   */
-  loading?: string
 
   /**
    * 隐藏默认按钮
@@ -335,6 +340,8 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     }
   })
 
+  const dialogInst = dialogPromise.handler.value.getComponentInst()
+
   return {
     ...dialogPromise,
     getComponentInstRef() {
@@ -343,6 +350,8 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     doConfirm: dialogPromise.doConfirm.bind(dialogPromise),
     doCancel: dialogPromise.doCancel.bind(dialogPromise),
     close: dialogPromise.close.bind(dialogPromise),
+    beginLoading: dialogInst.beginLoading,
+    closeLoading: dialogInst.closeLoading
   }
 }
 

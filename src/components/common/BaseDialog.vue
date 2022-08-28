@@ -6,7 +6,7 @@
     :fullscreen="fullscreen"
     :persistent="persistent"
   >
-    <loading-mask :loading="loading" />
+    <loading-mask :loading="loading || loadingRef" />
     <div v-if="!useCard">
       <slot />
     </div>
@@ -94,14 +94,22 @@ defineProps({
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])
+const loadingManager = new LoadingManager()
+const loadingRef = loadingManager.getLoadingRef()
 const formManager = new FormManager()
 provide('formManager', formManager)
-defineExpose({ formManager })
+defineExpose({
+  formManager,
+  beginLoading: () => loadingManager.beginLoading(),
+  closeLoading: () => loadingManager.closeLoading()
+} as DialogModel )
 </script>
 
 <script lang="ts">
 import { FormManager } from '@/utils/FormUtils/FormManager'
 import { defineComponent, ref, defineProps, onMounted, provide } from 'vue'
+import { LoadingManager } from '@/utils/LoadingManager'
+import { DialogModel } from '@/core/model/component/DialogModel'
 
 export default defineComponent({
   name: 'BaseDialog'

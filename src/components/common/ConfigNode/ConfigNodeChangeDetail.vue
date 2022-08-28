@@ -4,10 +4,10 @@
       {{ node.originValue }} -> {{ currentValue }}
     </div>
     <div v-else>
-      <div v-for="item in fieldsDiff" :key="item.name">
+      <div v-for="(item, index) in fieldsDiff" :key="item.name">
         <span style="font-weight:600">{{ item.title }}</span><br>
         {{ item.before }} -> {{ item.after }}
-        <v-divider />
+        <v-divider v-show="index != (fieldsDiff.length - 1)" style="margin: 12px 0" />
       </div>
     </div>
   </div>
@@ -20,7 +20,7 @@ const props = defineProps({
     default: () => { return {} }
   },
   currentValue: {
-    type: [String, Boolean],
+    type: [Number, Boolean, String] as PropType<RawType>,
     default: ''
   }
 })
@@ -57,7 +57,7 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { ConfigNodeModel } from '@/core/model'
+import { ConfigNodeModel, RawType } from '@/core/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, watch, onMounted } from 'vue'
 
 export default defineComponent({
