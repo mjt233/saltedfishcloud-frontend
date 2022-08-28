@@ -5,13 +5,5 @@
       "js": ["/ext/video-player/index.umd.js"]
     },
     "type": "static"
-  },
-  {
-    "name": "demo",
-    "resource": {
-      "js": ["/ext/demo/index.umd.js"],
-      "style": ["/ext/demo/style.css"]
-    },
-    "type": "static"
   }
 ]

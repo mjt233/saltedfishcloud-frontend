@@ -6,6 +6,7 @@ import { AxiosRequestConfig } from 'axios'
  * 最原始的API请求类型封装，仅使用泛型作为Axios响应data类型
  */
 export interface ApiRequest<T> extends AxiosRequestConfig {
+  url: string
   [otherKey: string]: any
 }
 

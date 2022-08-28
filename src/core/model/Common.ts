@@ -71,26 +71,61 @@ export interface ConfigNodeModel {
   template?: string | ChildrenType
 }
 
+/**
+ * 拓展插件基本信息
+ */
 export interface PluginConfigNodeInfo {
-  /**
-   * 插件名称
-   */
+  /* 插件名称 */
   name: string
 
-  /**
-   * 插件别名
-   */
+  /* 插件别名 */
   alias: string
 
-  /**
-   * 插件图标
-   */
+  /* 插件图标 */
   icon: string
 
-  /**
-   * 该插件下的配置组
-   */
+  /* 插件版本 */
+  version: string
+
+  /* 该插件下的配置组 */
   groups: ConfigNodeModel[]
+}
+
+
+
+/**
+ * 拓展插件基本信息
+ */
+export interface PluginInfo {
+  /* 插件名称 */
+  name: string
+
+  /* 插件别名 */
+  alias: string
+
+  /* 插件图标 */
+  icon: string
+
+  /* 加载类型 */
+  loadType: 'MERGE'
+
+  /* 插件描述 */
+  describe: string
+
+  /* 插件作者 */
+  author: string
+
+  /* 作者邮箱 */
+  email: string
+
+  /* 插件版本 */
+  version: string
+
+  /* 插件构建时使用的咸鱼云API版本 */
+  apiVersion: string
+  
+  /* 该插件内需要自动加载的资源列表 */
+  autoLoad: string[]
 }
 
 export interface NameValueType<T = any> {
