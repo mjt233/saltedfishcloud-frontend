@@ -12,6 +12,12 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
         ctx.component = h(AdminOverviewVue)
       },
       items: []
+    },
+    {
+      id: 'plugin-manager',
+      name: '插件管理',
+      icon: 'mdi-puzzle',
+      items: []
     }
   ]
 } 

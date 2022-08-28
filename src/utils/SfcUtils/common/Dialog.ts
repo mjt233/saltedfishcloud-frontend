@@ -158,8 +158,8 @@ export function dialog(opt: DialogOpt): DialogPromise {
     children,
     extraProps = {},
     fullscreen = false,
-    header = () => h('div'),
-    footer = () => h('div'),
+    header = undefined,
+    footer = undefined,
     persistent = false
   } = opt
 
@@ -221,7 +221,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
       children: {
         default: children,
         actions: footer,
-        header
+        header: header
       }
     })
   })

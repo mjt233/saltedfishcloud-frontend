@@ -126,10 +126,18 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 
 
 const nodeMap = {} as {[key: string]: ConfigNodeModel}
+
+
+/**
+ * 菜单初始化操作
+ */
 const initMenu = async() => {
   const pluginConfigs = await actions.loadConfig()
-  menuObj.value.length = 0
-  menuObj.value = menuObj.value.concat(getDefaultAdminMenu())
+
+  // 先获取默认的管理员菜单
+  menuObj.value = [...getDefaultAdminMenu()]
+
+  // 再追加动态菜单
   pluginConfigs.forEach(pc => {
     menuObj.value.push(reactive({
       name: pc.alias,

@@ -29,7 +29,7 @@ export interface MountOption {
   wrapVApp?: boolean,
   vappProps?: any,
   tempDOMHandler?: (dom: HTMLElement) => void
-  children?: ChildrenType | undefined | null
+  children?: ChildrenType | undefined | null | {[slotName: string]: ChildrenType | undefined}
   props?: any
 }
 /**

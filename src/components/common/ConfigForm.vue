@@ -1,6 +1,11 @@
 <!-- 采用配置方式生成的表单 -->
 <template>
-  <base-form ref="formRef" v-model="valObj">
+  <base-form
+    ref="formRef"
+    v-model="valObj"
+    row-height="56px"
+    :label-width="labelWidth"
+  >
     <template v-for="item in groups" :key="item.name">
       <div class="group-title">
         {{ item.title }}
@@ -9,7 +14,7 @@
         <form-col
           v-for="field in item.nodes"
           :key="field.name"
-          :label="field.inputType == 'checkbox' ? '' : field.title"
+          :label="field.title"
           class="mw-50"
         >
           <template v-if="field.inputType == 'text'">
@@ -20,7 +25,6 @@
               v-model="formData[field.name]"
               hide-details
               color="primary"
-              :label="field.title"
             />
           </template>
         </form-col>
@@ -50,8 +54,21 @@ const props = defineProps({
 })
 
 const valObj = {} as any
+const maxLabelWidth = 120
 
 Object.assign(valObj, props.modelValue)
+
+const labelWidth = computed(() => {
+  let currentWidth = 0
+  props.groups.flatMap(e => e.nodes).forEach(e => {
+    const width = ((e?.title.length || 0) * 16)
+    if (currentWidth < width) {
+      currentWidth = width
+    }
+  })
+  console.log(currentWidth)
+  return (currentWidth > maxLabelWidth ? maxLabelWidth : currentWidth) + 'px'
+})
 
 const form = defineForm({
   actions: {},
@@ -67,7 +84,7 @@ defineExpose(form)
 
 <script lang="ts">
 import { ConfigNodeModel } from '@/core/model'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, computed } from 'vue'
 import { defineBaseForm, defineForm } from '@/utils/FormUtils'
 
 export default defineComponent({
@@ -79,5 +96,7 @@ export default defineComponent({
 .group-title {
   color: rgb(var(--v-theme-primary));
   font-weight: 600;
+  margin-bottom: 12px;
+  padding: 12px 0 6px 0;
 }
 </style>

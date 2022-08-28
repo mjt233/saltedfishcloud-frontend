@@ -16,14 +16,12 @@
       color="background"
       :class="{'dialog-card': !dense}"
     >
-      <v-card-header>
+      <v-card-header v-if="$slots.header">
         <slot name="header" />
       </v-card-header>
       <v-card-content :class="{'dense-content': dense}">
-        <div>
-          <!-- 对话框默认正文内容插槽 -->
-          <slot />
-        </div>
+        <!-- 对话框默认正文内容插槽 -->
+        <slot />
       </v-card-content>
 
       <!-- 对话框操作按钮插槽 -->
@@ -123,10 +121,7 @@ export default defineComponent({
 
 .dialog-card {
   .v-card-content {
-    margin-top: 12px;
-    &>div{
-      padding: 12px;
-    }
+    padding: 24px;
   }
 }
 .v-card-content.dense-content {
