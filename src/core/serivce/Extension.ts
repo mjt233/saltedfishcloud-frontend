@@ -73,6 +73,9 @@ const extensionManager: ExtensionManager = {
     // 加载JS资源
     extension.resource.js?.forEach(jspath => {
       const tag = document.createElement('script')
+      tag.onprogress = e => {
+        console.log(e)
+      }
       tags.push(tag)
       if (extension.type == 'extension') {
         tag.src = SfcUtils.getApiUrl(API.sys.getPluginResource(extension.name, jspath))

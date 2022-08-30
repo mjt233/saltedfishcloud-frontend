@@ -1,4 +1,5 @@
 import { ChildrenType } from '@/utils/SfcUtils/common/DyncMount'
+import { App } from 'vue'
 /**
  * 下拉选择选项
  */
@@ -131,4 +132,68 @@ export interface PluginInfo {
 export interface NameValueType<T = any> {
   name: string,
   value: T
+}
+
+/**
+ * 启动流程任务处理器，用于在挂载Vue实例前进行各项前置任务的处理
+ */
+export interface BootProcessor {
+  /**
+   * 执行启动流程任务
+   * @param app Vue App实例
+   * @param handler 启动上下文操作器
+   */
+  execute?: (app: App<Element>, handler: BootContextHandler) => Promise<any> | void
+
+  /**
+   * 任务名称
+   */
+  taskName: string
+
+  /**
+   * 启动完成时执行操作
+   */
+  onFinish?: (app: App<Element>, handler: BootContextHandler) => void
+
+  [other: string]: any
+}
+
+export interface BootContext {
+  addProcessor(executor: BootProcessor): BootContext
+
+  start(): Promise<any>
+}
+
+/**
+ * 启动流程上下文操作器，用于调整启动流程中的各项数据
+ */
+export interface BootContextHandler {
+  /**
+   * 设置当前启动任务的标题
+   * @param title 标题
+   */
+  setBootTaskTitle(title: string): void
+
+  /**
+   * 获取启动信息展示DOM元素
+   */
+  getBootInfoElement(): HTMLElement
+
+  /**
+   * 输出错误级别启动消息
+   * @param msg 消息
+   */
+   logError(msg: string): void
+
+   /**
+    * 输出警告级别启动消息
+    * @param msg 消息
+    */
+   logWarning(msg: string): void
+
+  /**
+   * 输出INFO级别启动消息
+   * @param msg 消息
+   */
+  logInfo(msg: string): void
 }

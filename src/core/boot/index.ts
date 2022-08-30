@@ -1,61 +1,61 @@
 import API from '@/api'
-import router from '@/plugins/router'
-import vuetify from '@/plugins/vuetify'
 import SfcUtils from '@/utils/SfcUtils'
-import App from '@/App.vue'
-import { createApp, reactive } from 'vue'
+import { reactive } from 'vue'
 import { context } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
 import { extensionManager } from '../serivce/Extension'
+import { bootContext } from './BootCore'
 
-/**
- * 加载插件拓展
- */
-export async function loadPlugin() {
-  return await extensionManager.mountAll()
-}
+let isValidSessionSuccess = false
 
-/**
- * 校验token是否有效以保持登录状态
- */
-async function validSession() {
-
-  const session = context.session.value
-  session.loadToken()
-  try {
-    if (ConditionFunction.hasLogin(context)) {
-      const userInfo = ( await SfcUtils.request(API.user.getUserInfo())).data.data
-      session.setUserInfo(userInfo)
-      SfcUtils.snackbar(`欢迎回来，${context.session.value.user.name}`, 1500, { showClose: false, outClose: true })
-      return true
-    } else {
-      return false
+bootContext
+  .addProcessor({
+    taskName: '获取服务器信息',
+    async execute() {
+      const data = (await SfcUtils.request(API.sys.getFeature())).data
+      context.feature.value = reactive(data)
     }
-  } catch (err) {
-    console.log('登录已过期')
-    context.session.value.setToken('')
-    return false
-  }
+  })
+  .addProcessor({
+    taskName: '验证登录状态',
+    async execute() {
+      const session = context.session.value
+      session.loadToken()
+      try {
+        if (ConditionFunction.hasLogin(context)) {
+          const userInfo = ( await SfcUtils.request(API.user.getUserInfo())).data.data
+          session.setUserInfo(userInfo)
+          isValidSessionSuccess = true
+        }
+      } catch (err) {
+        console.log('登录已过期')
+        context.session.value.setToken('')
+        return false
+      }
+    },
+    onFinish() {
+      if (isValidSessionSuccess) {
+        SfcUtils.snackbar(`欢迎回来，${context.session.value.user.name}`, 1500, { showClose: false, outClose: true })
+      }
+    }
+  })
+  .addProcessor({
+    taskName: '加载插件',
+    async execute() {
+      return await extensionManager.mountAll()
+    }
+  })
+  .addProcessor({
+    taskName: '清理',
+    onFinish(app, handler) {
+      handler.getBootInfoElement().remove()
+    }
+  })
+
+
+
+const bootApp = () => {
+  bootContext.start()
 }
 
-/**
- * 获取后端系统开放的特性
- */
-async function getFeature() {
-  const data = (await SfcUtils.request(API.sys.getFeature())).data
-  context.feature.value = reactive(data)
-}
-
-
-async function mountApp() {
-  const app = createApp(App)
-  app.use(router)
-    .use(vuetify)
-    .mount('#app')
-  createApp(App)
-}
-export {
-  validSession,
-  getFeature,
-  mountApp
-}
+export default bootApp
