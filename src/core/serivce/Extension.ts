@@ -1,6 +1,8 @@
+import { BootContextHandler } from './../model/Common'
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { StringUtils } from '@/utils/StringUtils'
+import { App } from 'vue'
 export interface ExtensionResource {
   css?: string[],
   js?: string[]
@@ -12,6 +14,11 @@ export interface ExtensionInfo {
   type: 'extension'|'static'
 }
 
+export interface ExtensionContext {
+  app: App<Element>
+
+  bootContextHandler: BootContextHandler
+}
 export interface ExtensionLoader {
   mount(extension: ExtensionInfo): Promise<any>
 }
@@ -45,60 +52,90 @@ const fetchPluginAutoLoadResource = async(): Promise<ExtensionInfo[]> => {
   })
 }
 
-const extensionManager: ExtensionManager = {
-  async getExtensionResource() {
-    // 获取前端中内置的拓展
-    const defautExtensions = (await fetchContent(location.origin + '/static-extension.json')) 
-    const pluginResource = await fetchPluginAutoLoadResource()
-    const extensionResources = [...defautExtensions].concat(pluginResource)
-    return extensionResources
-  },
-  async mount(extension) {
-    const tags: HTMLElement[] = []
+function waitDOMLoaded(dom: HTMLElement) {
+  return new Promise((resolve, reject) => {
+    dom.addEventListener('load', resolve)
+    dom.addEventListener('error', reject)
+  })
+}
 
-    // todo: 实现识别加载失败和加载成功，进度提示
+function buildExtensionManager(context: ExtensionContext): ExtensionManager {
+  return {
+    async getExtensionResource() {
+      // 获取前端中内置的拓展
+      const defautExtensions = (await fetchContent(location.origin + '/static-extension.json')) 
+      const pluginResource = await fetchPluginAutoLoadResource()
+      const extensionResources = [...defautExtensions].concat(pluginResource)
+      return extensionResources
+    },
+    async mount(extension) {
+      const tags: HTMLElement[] = []
+      context.bootContextHandler.logInfo('[加载拓展]' + extension.name)
+      const waitPromises: Promise<any>[] = []
+  
+      // todo: 实现识别加载失败和加载成功，进度提示
+  
+      // 加载CSS资源
+      extension.resource.css?.map(cssPath => {
+        const tag = document.createElement('link')
+        tags.push(tag)
+        if (extension.type == 'extension') {
+          tag.href = SfcUtils.getApiUrl(API.sys.getPluginResource(extension.name, cssPath))
+        } else {
+          tag.href = cssPath
+        }
+        tag.rel = 'stylesheet'
+        context.bootContextHandler.logInfo(`[加载资源-${extension.name}]: ${cssPath}`)
 
-    // 加载CSS资源
-    extension.resource.css?.forEach(cssPath => {
-      const tag = document.createElement('link')
-      tags.push(tag)
-      if (extension.type == 'extension') {
-        tag.href = SfcUtils.getApiUrl(API.sys.getPluginResource(extension.name, cssPath))
-      } else {
-        tag.href = cssPath
-      }
-      tag.rel = 'stylesheet'
-    })
+        return waitDOMLoaded(tag).then(() => {
+          context.bootContextHandler.logInfo(`[加载成功-${extension.name}]: ${cssPath}`)
+        }).catch(err => {
+          context.bootContextHandler.logWarning(`[加载失败-${extension.name}]: ${cssPath}`)
+          return Promise.reject(err)
+        })
+      }).forEach(p => waitPromises.push(p))
+  
+      // 加载JS资源
+      extension.resource.js?.map(jspath => {
+        const tag = document.createElement('script')
+        tag.onprogress = e => {
+          console.log(e)
+        }
+        tags.push(tag)
+        if (extension.type == 'extension') {
+          tag.src = SfcUtils.getApiUrl(API.sys.getPluginResource(extension.name, jspath))
+        } else {
+          tag.src = jspath
+        }
+        context.bootContextHandler.logInfo(`[加载成功-${extension.name}]: ${jspath}`)
+        return waitDOMLoaded(tag).then(() => {
+          context.bootContextHandler.logInfo(`[加载成功-${extension.name}]: ${jspath}`)
+        }).catch(err => {
+          context.bootContextHandler.logWarning(`[加载失败-${extension.name}]: ${jspath}`)
+          return Promise.reject(err)
+        })
+      }).forEach(p => waitPromises.push(p))
+  
+      tags.forEach(tag => {
+        document.documentElement.appendChild(tag)
+        
+      })
 
-    // 加载JS资源
-    extension.resource.js?.forEach(jspath => {
-      const tag = document.createElement('script')
-      tag.onprogress = e => {
-        console.log(e)
-      }
-      tags.push(tag)
-      if (extension.type == 'extension') {
-        tag.src = SfcUtils.getApiUrl(API.sys.getPluginResource(extension.name, jspath))
-      } else {
-        tag.src = jspath
-      }
-    })
-
-    tags.forEach(tag => {
-      document.documentElement.appendChild(tag)
-    })
-  },
-  async mountAll() {
-    const extensions = await this.getExtensionResource()
-    const task: (Promise<any>)[] = []
-    extensions.forEach(ext => {
-      task.push(this.mount(ext))
-    })
-    return await Promise.all(task)
+      return Promise.all(waitPromises)
+    },
+    async mountAll() {
+      const extensions = await this.getExtensionResource()
+      const task: (Promise<any>)[] = []
+      extensions.forEach(ext => {
+        task.push(this.mount(ext))
+      })
+      return await Promise.all(task)
+    }
   }
 }
 
 
+
 export {
-  extensionManager
+  buildExtensionManager
 }

@@ -175,11 +175,6 @@ export interface BootContextHandler {
   setBootTaskTitle(title: string): void
 
   /**
-   * 获取启动信息展示DOM元素
-   */
-  getBootInfoElement(): HTMLElement
-
-  /**
    * 输出错误级别启动消息
    * @param msg 消息
    */
@@ -196,4 +191,17 @@ export interface BootContextHandler {
    * @param msg 消息
    */
   logInfo(msg: string): void
+
+  /**
+   * 更新启动进度
+   * @param max 目标进度
+   * @param value 当前进度
+   */
+  updateProgress(max: number, value: number): void
+
+  /**
+   * 设置流程中断消息
+   * @param msg 消息
+   */
+  setInterruptMsg(msg: string): void
 }

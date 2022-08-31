@@ -3,7 +3,7 @@ import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
 import { context } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
-import { extensionManager } from '../serivce/Extension'
+import { buildExtensionManager } from '../serivce/Extension'
 import { bootContext } from './BootCore'
 
 let isValidSessionSuccess = false
@@ -41,14 +41,18 @@ bootContext
   })
   .addProcessor({
     taskName: '加载插件',
-    async execute() {
-      return await extensionManager.mountAll()
+    async execute(app, handler) {
+      return buildExtensionManager({app, bootContextHandler: handler}).mountAll()
     }
   })
   .addProcessor({
     taskName: '清理',
     onFinish(app, handler) {
-      handler.getBootInfoElement().remove()
+      const bootDom = document.querySelector('#boot-info') as HTMLElement
+      bootDom.classList.add('hide')
+      setTimeout(() => {
+        bootDom.remove()
+      }, 250)
     }
   })
 

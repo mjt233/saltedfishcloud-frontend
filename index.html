@@ -5,17 +5,36 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vuetify 3 Vite Preview</title>
+    <title>咸鱼云网盘</title>
+    <style>
+        #boot-info {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: white;
+            opacity: 1;
+            z-index: 1000;
+            transition: all .25s;
+        }
+
+        #boot-info.hide {
+            opacity: 0;
+        }
+    </style>
 </head>
 
 <body>
     <div id="app"></div>
-    <div id="boot-info-container">
-        <div class="title"></div>
-        <div class="log-box">
-            <div>正在加载...</div>
+    <div id="boot-info">
+        <div style="max-width: 640px; width: 100%; margin: 64px auto 0 auto;">
+            <h2 style="text-align: center">咸鱼云网盘 - Salted Fish Cloud</h2>
+            <div id="boot-info-container"></div>
         </div>
     </div>
+    
     <script type="module" src="/src/main.ts"></script>
 </body>
 
