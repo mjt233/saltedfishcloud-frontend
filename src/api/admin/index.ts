@@ -12,7 +12,8 @@
 
 
 import sys from './sys'
-
+import proxy from './proxy'
 export {
-  sys
+  sys,
+  proxy
 }

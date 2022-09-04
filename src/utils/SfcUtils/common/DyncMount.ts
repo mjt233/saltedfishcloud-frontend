@@ -3,6 +3,7 @@ import vuetify from '@/plugins/vuetify'
 import router from '@/plugins/router'
 import { context } from '@/core/context'
 import { VApp } from 'vuetify/components'
+import { buildApp } from '@/core/boot/AppFactory'
 
 export interface DyncComponentHandler<T> {
   /**
@@ -53,7 +54,7 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
   })
   
   // 动态创建组件
-  const tempApp = createApp({
+  const tempApp = buildApp({
     render() {
       // @ts-ignore
       if (wrapVApp) {
@@ -73,7 +74,7 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
   })
 
   // 挂载
-  const inst = tempApp.use(router).use(vuetify).mount(tempDOM)
+  const inst = tempApp.mount(tempDOM)
 
   return {
     unmount() {

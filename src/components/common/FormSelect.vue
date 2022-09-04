@@ -4,6 +4,7 @@
     variant="underlined"
     density="comfortable"
     class="hide-details no-padding"
+    :class="{' dense-select': dense}"
     color="primary"
     :items="items"
     return-object
@@ -16,6 +17,10 @@
 <script setup lang="ts">
 const currentSelect = ref() as Ref< SelectOption | undefined >
 const props = defineProps({
+  dense: {
+    type: Boolean,
+    default: false
+  },
   disabled: {
     type: Boolean,
     default: false
@@ -111,3 +116,13 @@ export default defineComponent({
   name: 'FormSelect'
 })
 </script>
+
+<style lang="scss">
+.dense-select {
+  .v-select__selection-text {
+    top: 5px !important;
+    position: relative !important;
+  }
+}
+  
+</style>

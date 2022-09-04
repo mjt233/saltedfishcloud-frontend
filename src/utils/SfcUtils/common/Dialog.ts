@@ -195,6 +195,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
           }
         }
       } catch(err) {
+        console.log(err)
         SfcUtils.snackbar(err, 1500, {outClose: true})
       }
     },
