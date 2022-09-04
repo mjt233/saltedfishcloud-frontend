@@ -91,6 +91,7 @@ function buildExtensionManager(context: ExtensionContext): ExtensionManager {
           context.bootContextHandler.logInfo(`[加载成功-${extension.name}]: ${cssPath}`)
         }).catch(err => {
           context.bootContextHandler.logWarning(`[加载失败-${extension.name}]: ${cssPath}`)
+          context.bootContextHandler.logError(err)
           return Promise.reject(err)
         })
       }).forEach(p => waitPromises.push(p))
@@ -112,6 +113,7 @@ function buildExtensionManager(context: ExtensionContext): ExtensionManager {
           context.bootContextHandler.logInfo(`[加载成功-${extension.name}]: ${jspath}`)
         }).catch(err => {
           context.bootContextHandler.logWarning(`[加载失败-${extension.name}]: ${jspath}`)
+          context.bootContextHandler.logError(err)
           return Promise.reject(err)
         })
       }).forEach(p => waitPromises.push(p))
@@ -124,12 +126,19 @@ function buildExtensionManager(context: ExtensionContext): ExtensionManager {
       return Promise.all(waitPromises)
     },
     async mountAll() {
-      const extensions = await this.getExtensionResource()
-      const task: (Promise<any>)[] = []
-      extensions.forEach(ext => {
-        task.push(this.mount(ext))
-      })
-      return await Promise.all(task)
+      try {
+        const extensions = await this.getExtensionResource()
+        const task: (Promise<any>)[] = []
+        extensions.forEach(ext => {
+          task.push(this.mount(ext))
+        })
+        return await Promise.all(task)
+      } catch(err) {
+        if (err) {
+          context.bootContextHandler.logError((err as any).toString())
+          return Promise.reject(err)
+        }
+      }
     }
   }
 }
