@@ -1,0 +1,1 @@
+export { default as ImagePreviewer } from './ImagePreviewer.vue'

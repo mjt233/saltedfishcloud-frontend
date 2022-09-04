@@ -14,3 +14,7 @@ export default (app: App) => {
     app.component(componentName, component)
   })
 }
+
+export * from './common'
+export * from './form'
+export * from './layout'
