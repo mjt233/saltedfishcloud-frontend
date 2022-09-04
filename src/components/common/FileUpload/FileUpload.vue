@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-import FileUploadList from './FileUploadList.vue'
 const session = context.session
 const tab = ref('upload')
 const props = defineProps({

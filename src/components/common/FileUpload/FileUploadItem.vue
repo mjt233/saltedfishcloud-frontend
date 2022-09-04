@@ -40,7 +40,6 @@
 
 <script setup lang="ts">
 import { StringFormatter } from '@/utils/StringFormatter'
-import FileIcon from '../FileIcon.vue'
 const props = defineProps({
   uploadInfo: {
     type: Object as PropType<FileUploadInfo>,

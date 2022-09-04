@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
+import Components from 'unplugin-vue-components/vite'
 
 const path = require('path')
 
@@ -11,7 +12,8 @@ export default defineConfig({
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({
       autoImport: true,
-    })
+    }),
+    Components()
   ],
   define: { 'process.env': {} },
   resolve: {

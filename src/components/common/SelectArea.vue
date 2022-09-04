@@ -198,7 +198,7 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { SelectResult } from '@/core/model/component/SelectArea.js'
+import { SelectResult } from '@/core/model/component/SelectArea'
 import DOMUtils from '@/utils/DOMUtils'
 import { computed, defineComponent, getCurrentInstance, onMounted, onUnmounted, PropType, reactive, Ref, ref } from 'vue'
 
