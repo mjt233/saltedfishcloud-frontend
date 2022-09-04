@@ -10,7 +10,7 @@ declare module '@vue/runtime-core' {
     AlertDialog: typeof import('./src/components/common/AlertDialog.vue')['default']
     BaseDialog: typeof import('./src/components/common/BaseDialog.vue')['default']
     BaseForm: typeof import('./src/components/common/BaseForm.vue')['default']
-    BaseRegisterForm: typeof import('./src/components/form/userRegisterForm/BaseRegisterForm.vue')['default']
+    BaseRegisterForm: typeof import('./src/components/form/UserRegisterForm/BaseRegisterForm.vue')['default']
     BaseView: typeof import('./src/components/common/BaseView.vue')['default']
     BindEmailForm: typeof import('./src/components/form/BindEmailForm.vue')['default']
     BootLoader: typeof import('./src/components/common/BootLoader/BootLoader.vue')['default']
@@ -86,6 +86,6 @@ declare module '@vue/runtime-core' {
     UserAvatar: typeof import('./src/components/common/UserAvatar.vue')['default']
     UserCard: typeof import('./src/components/common/UserCard.vue')['default']
     UserFileBrowser: typeof import('./src/components/common/UserFileBrowser.vue')['default']
-    UserRegisterForm: typeof import('./src/components/form/userRegisterForm/UserRegisterForm.vue')['default']
+    UserRegisterForm: typeof import('./src/components/form/UserRegisterForm/UserRegisterForm.vue')['default']
   }
 }
