@@ -1,7 +1,7 @@
 <template>
   <div>
     <loading-mask :loading="loading" />
-    <v-btn color="primary" style="margin: 6px 0" @click="openProxyForm()">
+    <v-btn color="primary" style="margin: 6px 0" @click="openProxyForm(undefined)">
       <v-icon>mdi-plus</v-icon>
       新增节点
     </v-btn>
@@ -70,7 +70,7 @@ const deleteProxy = async(name: string) => {
   await actions.loadList()
 }
 
-const openProxyForm = (val: ProxyInfo) => {
+const openProxyForm = (val?: ProxyInfo) => {
   const isEdit = val
   const formInst = SfcUtils.openComponentDialog(ProxyConfigFormVue, {
     title: isEdit ? '修改代理节点' : '新增代理节点',

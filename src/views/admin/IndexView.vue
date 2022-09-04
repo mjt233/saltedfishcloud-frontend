@@ -143,9 +143,6 @@ const initMenu = async() => {
       name: pc.alias,
       id: pc.name,
       icon: pc.icon || 'mdi-puzzle',
-      action() {
-        console.log('action')
-      },
       items: pc.groups.map(g => {
         g.nodes?.flatMap(e => e.nodes).forEach(e => {
           if (e) {
@@ -230,7 +227,14 @@ const loadView = (groupId: string, itemId: string) => {
     adminContext.item = ''
     adminContext.group = groupObj.id
     adminContext.component = undefined
-    groupObj.action && groupObj.action(adminContext)
+    if (groupObj.action) {
+      groupObj.action(adminContext)
+    } else {
+      adminContext.component = h(NotFoundTipVue, {
+        text: '页面未配置'
+      })
+    }
+    
     return true
   } else if (groupObj && itemObj) {
     adminContext.group = groupObj.id
@@ -292,6 +296,7 @@ import API from '@/api'
 import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
 import { ConfigNodeModel, NameValueType } from '@/core/model'
 import ConfigNodeChangeListVue from '@/components/common/ConfigNode/ConfigNodeChangeList.vue'
+import EmptyTipVue from '@/components/common/EmptyTip.vue'
 
 export default defineComponent({
   name: 'AdminIndex'
