@@ -8,8 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import EmptyTip from '../EmptyTip.vue'
-import DownloadListItem from './DownloadListItem.vue'
+import { EmptyTip,DownloadListItem } from '@/components'
 const props = defineProps({
   downloadList: {
     type: Array as PropType<DownloadTaskInfo[]>,

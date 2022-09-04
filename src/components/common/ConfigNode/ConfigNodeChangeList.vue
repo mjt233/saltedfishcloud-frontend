@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import ConfigNodeChangeDetail from './ConfigNodeChangeDetail.vue'
+import { ConfigNodeChangeDetail } from '@/components'
 const props = defineProps({
   nodes: {
     type: Array as PropType<ConfigNodeModel[]>,

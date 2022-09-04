@@ -50,11 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import TextInput from '../TextInput.vue'
-import MultiLineText from '../MultiLineText.vue'
-import FormSelect from '../FormSelect.vue'
-import ConfigNodeFormInput from './ConfigNodeFormInput.vue'
-import ConfigNodeChangeDetail from './ConfigNodeChangeDetail.vue'
+import { TextInput, MultiLineText, FormSelect, ConfigNodeFormInput, ConfigNodeChangeDetail } from '@/components'
 const props = defineProps({
   node: {
     type: Object as PropType<ConfigNodeModel>,

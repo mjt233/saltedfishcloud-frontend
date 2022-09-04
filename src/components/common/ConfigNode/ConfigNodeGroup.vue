@@ -21,8 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import ConfigNode from './ConfigNode.vue'
-import StickyContainer from '../StickyContainer.vue'
+import { ConfigNode ,StickyContainer } from '@/components'
 const props = defineProps({
   items: {
     type: Array as PropType<ConfigNodeModel[]>,

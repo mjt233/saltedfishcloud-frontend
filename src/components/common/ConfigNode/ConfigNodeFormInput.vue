@@ -24,9 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import FormGrid from '@/components/layout/FormGrid.vue'
-import FormRow from '../../layout/FormRow.vue'
-import FormCol from '../../layout/FormCol.vue'
+import { FormGrid,FormRow, FormCol } from '@/components'
 const props = defineProps({
   node: {
     type: Object as PropType<ConfigNodeModel>,
