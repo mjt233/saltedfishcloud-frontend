@@ -31,8 +31,9 @@ const updateFormDiff = () => {
     fieldsDiff.value = []
   } else {
     // 对于form类型，逐个key去对比差异
+    const originVal = (( props.node.originValue || (props.node.originValue as string).length == 0 ) ? '{}' :props.node.originValue) as string
     const curValObj = JSON.parse(props.currentValue as string || '{}')
-    const originValObj = JSON.parse(props.node.originValue as string)
+    const originValObj = JSON.parse(originVal)
     fieldsDiff.value = Object.keys(curValObj).filter(key => {
       return curValObj[key] != originValObj[key]
     }).map(key => {

@@ -24,7 +24,6 @@
 </template>
 
 <script setup lang="ts">
-import { FormGrid,FormRow, FormCol } from '@/components'
 const props = defineProps({
   node: {
     type: Object as PropType<ConfigNodeModel>,
@@ -36,7 +35,7 @@ const props = defineProps({
   }
 })
 const valObj = computed(() => {
-  return JSON.parse(props.modelValue || props.node.value + '')
+  return StringUtils.parseJSON(props.modelValue || props.node.value + '')
 })
 
 const emits = defineEmits(['update:model-value'])
@@ -66,6 +65,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed
 import SfcUtils from '@/utils/SfcUtils'
 import ConfigFormVue from '../ConfigForm.vue'
 import { CommonForm } from '@/utils/FormUtils'
+import { StringUtils } from '@/utils/StringUtils'
 
 export default defineComponent({
   name: 'ConfigNodeFormInput'

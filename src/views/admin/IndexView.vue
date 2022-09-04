@@ -138,7 +138,6 @@ const initMenu = async() => {
 
   // 再追加动态菜单
   pluginConfigs.filter(pc => {
-    console.log(pc)
     return pc.groups.length != 0
   }).forEach(pc => {
     menuObj.value.push(reactive({

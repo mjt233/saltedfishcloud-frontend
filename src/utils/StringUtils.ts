@@ -83,6 +83,18 @@ export namespace StringUtils {
     })
     return res
   }
+
+  /**
+   * 安全地转换json，允许空字符串转为空对象
+   * @param json json字符串
+   */
+  export function parseJSON(json?: string) {
+    if (!json || json.length == 0) {
+      return {}
+    } else {
+      return JSON.parse(json)
+    }
+  }
   /**
    * 只对URL的路径进行URL解码
    * @param {String} url 完整URL

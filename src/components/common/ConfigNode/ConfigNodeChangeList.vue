@@ -14,18 +14,11 @@
 </template>
 
 <script setup lang="ts">
-import { ConfigNodeChangeDetail } from '@/components'
 const props = defineProps({
   nodes: {
     type: Array as PropType<ConfigNodeModel[]>,
     default: () => []
   }
-})
-
-onMounted(() => {
-  props.nodes.forEach(e => {
-    console.log(e)
-  })
 })
 </script>
 
