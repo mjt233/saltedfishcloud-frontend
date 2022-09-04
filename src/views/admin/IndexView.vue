@@ -133,12 +133,14 @@ const nodeMap = {} as {[key: string]: ConfigNodeModel}
  */
 const initMenu = async() => {
   const pluginConfigs = await actions.loadConfig()
-
   // 先获取默认的管理员菜单
   menuObj.value = [...getDefaultAdminMenu()]
 
   // 再追加动态菜单
-  pluginConfigs.forEach(pc => {
+  pluginConfigs.filter(pc => {
+    console.log(pc)
+    return pc.groups.length != 0
+  }).forEach(pc => {
     menuObj.value.push(reactive({
       name: pc.alias,
       id: pc.name,
