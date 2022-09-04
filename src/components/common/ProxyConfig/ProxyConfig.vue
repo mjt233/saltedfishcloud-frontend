@@ -46,10 +46,12 @@
         </tr>
       </tbody>
     </v-table>
+    <empty-tip v-if="proxyList.length == 0" />
   </div>
 </template>
 
 <script setup lang="ts">
+import EmptyTip from '../EmptyTip.vue'
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const proxyList: Ref<ProxyInfo[]> = ref([])

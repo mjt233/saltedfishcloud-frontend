@@ -3,6 +3,5 @@ import { BootContextHandler } from './../model/Common'
 import { buildApp } from './AppFactory'
 
 const bootApp = buildApp(BootLoaderVue)
-bootApp.mount('#boot-info-container')
-const handler =  bootApp._instance?.exposeProxy as BootContextHandler
+const handler = bootApp.mount('#boot-info-container') as any as BootContextHandler
 export default handler
