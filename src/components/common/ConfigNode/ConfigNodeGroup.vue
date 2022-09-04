@@ -1,13 +1,19 @@
 <template>
   <div>
     <div v-for="(group, idx) in items" :key="idx" class="node-group">
-      <sticky-container :top="64" content-class="node-title" style="width: 100%">
+      <sticky-container
+        v-if="group.title || group.name"
+        :top="64"
+        content-class="node-title"
+        style="width: 100%"
+      >
         {{ group.title || group.name }}
       </sticky-container>
       <config-node
         v-for="(node) in group.nodes"
         :key="node.name"
         :node="node"
+        :class="{'template-node': node.inputType == 'template'}"
         @change="nodeValueChange(node, $event)"
       />
     </div>
@@ -53,5 +59,10 @@ export default defineComponent({
 
 .node-group>*:hover,.node-title:hover {
   background-color: rgba(var(--v-theme-primary), .05);
+}
+
+/* Vue模板组件类型的不悬浮高亮了 */
+.node-group>.template-node:hover {
+  background-color: rgb(var(--v-theme-background));
 }
 </style>

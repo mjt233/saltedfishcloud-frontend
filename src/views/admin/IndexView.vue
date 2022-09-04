@@ -143,6 +143,9 @@ const initMenu = async() => {
       name: pc.alias,
       id: pc.name,
       icon: pc.icon || 'mdi-puzzle',
+      action() {
+        console.log('action')
+      },
       items: pc.groups.map(g => {
         g.nodes?.flatMap(e => e.nodes).forEach(e => {
           if (e) {

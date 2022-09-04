@@ -1,7 +1,6 @@
 import { BootContextHandler } from './../model/Common'
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
-import { StringUtils } from '@/utils/StringUtils'
 import { App } from 'vue'
 export interface ExtensionResource {
   css?: string[],

@@ -42,6 +42,9 @@
       <template v-if="node.inputType == 'form'">
         <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
       </template>
+      <template v-if="node.inputType == 'template'">
+        <component :is="node.template" />
+      </template>
     </div>
   </div>
 </template>
