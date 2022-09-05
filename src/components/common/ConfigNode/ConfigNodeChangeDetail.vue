@@ -31,9 +31,8 @@ const updateFormDiff = () => {
     fieldsDiff.value = []
   } else {
     // 对于form类型，逐个key去对比差异
-    const originVal = (( props.node.originValue || (props.node.originValue as string).length == 0 ) ? '{}' :props.node.originValue) as string
-    const curValObj = JSON.parse(props.currentValue as string || '{}')
-    const originValObj = JSON.parse(originVal)
+    const curValObj = StringUtils.parseJSON(props.currentValue as string || '{}')
+    const originValObj = StringUtils.parseJSON((props.node.originValue || props.node.originValue) as string)
     fieldsDiff.value = Object.keys(curValObj).filter(key => {
       return curValObj[key] != originValObj[key]
     }).map(key => {
@@ -59,6 +58,7 @@ onMounted(() => {
 
 <script lang="ts">
 import { ConfigNodeModel, RawType } from '@/core/model'
+import { StringUtils } from '@/utils/StringUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, watch, onMounted } from 'vue'
 
 export default defineComponent({
