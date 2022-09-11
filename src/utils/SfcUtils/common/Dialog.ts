@@ -33,6 +33,7 @@ export interface DialogOpt {
 
   header?: ChildrenType,
   footer?: ChildrenType,
+  autoShowError?: boolean
 
   /**
    * 是否为持久弹框，无法通过ESC或点击外部关闭（默认为false）
@@ -160,7 +161,8 @@ export function dialog(opt: DialogOpt): DialogPromise {
     fullscreen = false,
     header = undefined,
     footer = undefined,
-    persistent = false
+    persistent = false,
+    autoShowError = false
   } = opt
 
   const finalUseFullScreen = fullscreen == true || (fullscreen == 'auto' && document.documentElement.clientWidth <= 640)
@@ -196,7 +198,9 @@ export function dialog(opt: DialogOpt): DialogPromise {
         }
       } catch(err) {
         console.log(err)
-        SfcUtils.snackbar(err, 1500, {outClose: true})
+        if (autoShowError) {
+          SfcUtils.snackbar(err, 1500, {outClose: true})
+        }
       }
     },
 
