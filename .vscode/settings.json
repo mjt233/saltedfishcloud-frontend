@@ -1,0 +1,14 @@
+{
+    "eslint.validate": ["javascript", "javascriptreact", "vue", "html", "typescript"],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+    "editor.tabSize": 2,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "auto-close-tag.disableOnLanguage": [
+        "typescript"
+    ],
+    "vite.autoStart": true,
+    "vite.devCommand": "npm run dev",
+    "vite.browserType": "system"
+}

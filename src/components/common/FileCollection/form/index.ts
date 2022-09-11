@@ -1,0 +1,7 @@
+export { default as CollectionFieldForm } from './CollectionFieldForm.vue'
+export { default as FileCollectionAdvancedOption } from './FileCollectionAdvancedOption.vue'
+export { default as FileCollectionCreateExpiredStrategy } from './FileCollectionCreateExpiredStrategy.vue'
+export { default as FileCollectionCreateForm } from './FileCollectionCreateForm.vue'
+export { default as FileCollectionFieldOption } from './FileCollectionFieldOption.vue'
+export { default as FileCollectionSubmitForm } from './FileCollectionSubmitForm.vue'
+export { default as FileCollectionTypeStrategyForm } from './FileCollectionTypeStrategyForm.vue'

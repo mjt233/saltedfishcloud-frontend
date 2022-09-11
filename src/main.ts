@@ -1,0 +1,8 @@
+import '@/styles/common.scss'
+import bootApp, * as boot from './core/boot'
+import './core/boot/globalmount'
+
+// 拓展调试用的导入
+// import '@/extension/video-player/main'
+
+bootApp()

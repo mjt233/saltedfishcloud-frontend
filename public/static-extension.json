@@ -1,0 +1,9 @@
+[
+  {
+    "name": "video-player",
+    "resource": {
+      "js": ["/ext/video-player/index.umd.js"]
+    },
+    "type": "static"
+  }
+]

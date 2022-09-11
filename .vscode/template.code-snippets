@@ -1,0 +1,94 @@
+{
+	// Place your saltedfishcloud-frontend 工作区 snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"vue3 component template": {
+		"scope": "vue",
+		"prefix": "compo",
+		"body": [
+			"<template>",
+			"  <div>",
+			"    <h1>Hello World</h1>",
+			"  </div>",
+			"</template>",
+			"",
+			"<script setup lang=\"ts\">",
+			"const props = defineProps({})",
+			"</script>",
+			"",
+			"<script lang=\"ts\">",
+			"import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'",
+			"",
+			"export default defineComponent({",
+			"  name: '$1'",
+			"})",
+			"</script>"
+		]
+	},
+	"vue3 setup function": {
+		"scope": "vue",
+		"prefix": "vsetup",
+		"body": [
+			"<script setup lang=\"ts\">",
+			"$1",
+			"</script>"
+		]
+	},
+	"form template": {
+		"scope": "vue",
+		"prefix": "vform",
+		"body": [
+			"<template>",
+			"  <base-form ref=\"formRef\" :model-value=\"formData\" :submit-action=\"actions.submit\">",
+			"    <h1>Hello World</h1>",
+			"  </base-form>",
+			"</template>",
+			"",
+			"<script setup lang=\"ts\">",
+			"import BaseForm from '@/components/common/BaseForm.vue'",
+			"import { CommonForm, defineForm } from '@/utils/FormUtils'",
+			"const formRef = ref() as Ref<CommonForm>",
+			"const props = defineProps({})",
+			"const emits = defineEmits(['submit'])",
+			"",
+			"const formInst = defineForm({",
+			"  actions: {",
+			"    submit() {",
+			"    ",
+			"    }",
+			"  },",
+			"  formData: {",
+			"  },",
+			"  formRef: formRef,",
+			"  validators: {},",
+			"  throwError: true",
+			"})",
+			"const { formData, actions, validators, loadingRef, loadingManager  } = formInst",
+			"",
+			"",
+			"defineExpose(formInst)",
+			"</script>",
+			"",
+			"<script lang=\"ts\">",
+			"import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'",
+			"",
+			"export default defineComponent({",
+			"  name: '$1Form'",
+			"})",
+			"</script>",
+		]
+	}
+}
