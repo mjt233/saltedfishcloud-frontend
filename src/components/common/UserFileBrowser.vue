@@ -119,8 +119,20 @@ const clickSearchParent = async(item: SearchFileInfo) => {
   }
 }
 
-const clickSearchItem = (item: SearchFileInfo) => {
-  SfcUtils.openFile(searchListRef.value.getListContext(), item)
+const clickSearchItem = async(item: SearchFileInfo) => {
+  try {
+    if (item.dir) {
+      const path = (await SfcUtils.request(API.resource.parseNodeId(props.uid, item.md5))).data.data
+      emits('update:path', path)
+      showSearch.value = false
+    } else {
+      SfcUtils.openFile(searchListRef.value.getListContext(), item)
+    }
+  } catch (err) {
+    console.error(err)
+    SfcUtils.snackbar(err)
+  }
+  
 }
 </script>
 
@@ -131,7 +143,6 @@ import SfcUtils from '@/utils/SfcUtils'
 import API from '@/api'
 import { SearchFileInfo } from '@/core/model'
 import { LoadingManager } from '@/utils/LoadingManager'
-import { StringUtils } from '@/utils/StringUtils'
 import { FileSearchListModel } from '@/core/model/component/FileListModel'
 export default defineComponent({
   name: 'UserFileBrowser'
