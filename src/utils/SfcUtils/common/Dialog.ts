@@ -312,7 +312,19 @@ export interface OpenComponentDialogOption {
 
 }
 
-export function openComponentDialog(component: any, opt?: OpenComponentDialogOption): DialogPromise & { getComponentInstRef: () => ComponentPublicInstance } {
+export interface ComponentDialogInstance {
+  /**
+   * 获取挂载的组件实例
+   */
+  getComponentInstRef: () => ComponentPublicInstance
+
+  /**
+   * 获取挂载的表单组件实例
+   */
+  getInstAsForm: () => CommonForm
+}
+
+export function openComponentDialog(component: any, opt?: OpenComponentDialogOption): DialogPromise & ComponentDialogInstance {
   const {
     dense = false,
     props = {},
@@ -351,6 +363,9 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     ...dialogPromise,
     getComponentInstRef() {
       return (dialogPromise.handler.value.getRoot().$refs.component) as ComponentPublicInstance
+    },
+    getInstAsForm() {
+      return this.getComponentInstRef() as any as CommonForm
     },
     doConfirm: dialogPromise.doConfirm.bind(dialogPromise),
     doCancel: dialogPromise.doCancel.bind(dialogPromise),

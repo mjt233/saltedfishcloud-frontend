@@ -24,6 +24,7 @@ declare module '@vue/runtime-core' {
     ConfigNodeGroup: typeof import('./src/components/common/ConfigNode/ConfigNodeGroup.vue')['default']
     CreateDownloadForm: typeof import('./src/components/form/CreateDownloadForm.vue')['default']
     CreateFileCollection: typeof import('./src/components/form/CreateFileCollection.vue')['default']
+    CreateLinkForm: typeof import('./src/components/form/CreateLinkForm.vue')['default']
     DarkSwitch: typeof import('./src/components/common/DarkSwitch.vue')['default']
     DeleteConfirm: typeof import('./src/components/common/DeleteConfirm.vue')['default']
     DownloadList: typeof import('./src/components/common/DownloadTask/DownloadList.vue')['default']
