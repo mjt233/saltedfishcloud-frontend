@@ -1,4 +1,5 @@
 import { CommonRequest, IdType, NodeInfo } from '@/core/model'
+import { StringUtils } from '@/utils/StringUtils'
 
 const resource = {
   prefix: 'resource',
@@ -60,8 +61,9 @@ const resource = {
    * @returns
    */
   getFileDC(uid: IdType, path: string, name: string, md5: string, expr: number): CommonRequest<string> {
+    const baseUrl = `${this.prefix}/${uid}/FDC`
     return {
-      url: `${this.prefix}/${uid}/FDC/${path}`,
+      url: StringUtils.appendPath(baseUrl, path),
       params: {
         name: name,
         md5: md5,
