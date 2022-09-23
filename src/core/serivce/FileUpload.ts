@@ -457,7 +457,7 @@ const DiskFileUploadService: FileUploadService & any = {
       })
     }
 
-    if (file.size < _8MiB) {
+    if (file.size < MIN_CHUNK_SIZE) {
       return directUploadToDisk()
     } else {
       return breakpointUpload()
@@ -592,8 +592,10 @@ function getPartRange(startPos: number, count: number, chunkCount: number) {
 }
 
 
+// const MIN_CHUNK_SIZE = 1024 * 1024 * 20
+// 暂时不使用断点续传功能
+const MIN_CHUNK_SIZE = Number.MAX_SAFE_INTEGER
 
-const _8MiB = 1024 * 1024 * 8
 export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
   private breakPointOpt: ExecutorOption
   private metaData: BreakPointTaskMetaData | undefined
@@ -647,7 +649,7 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
   private async createBreakPointTask(): Promise<BreakPointTaskMetaData> {
     const name = this.breakPointOpt.file.name
     const size = this.breakPointOpt.file.size
-    let chunkSize = _8MiB
+    let chunkSize = MIN_CHUNK_SIZE
     if(size < chunkSize) {
       chunkSize = size
     }
