@@ -1,4 +1,5 @@
 import { CommonRequest, IdType, NodeInfo } from '@/core/model'
+import { StringUtils } from '@/utils/StringUtils'
 
 const resource = {
   prefix: 'resource',
@@ -44,11 +45,11 @@ const resource = {
    * @param directDownload 是否直接下载
    * @param name 文件名
    */
-  downloadUseFileDC(dc: string, directDownload = false, name = '') {
+  downloadUseFileDC(dc: string, directDownload = false, name = ''):CommonRequest<string> {
     let baseURI = `${this.prefix}/0/fileContentByFDC/${dc}`
     if (name !== '') baseURI += `/${encodeURIComponent(name)}`
     if (directDownload) baseURI += '?download=true'
-    return baseURI
+    return { url: baseURI }
   },
   /**
    *
@@ -59,9 +60,10 @@ const resource = {
    * @param expr 有效期（单位：天，负数为无限制）
    * @returns
    */
-  getFileDC(uid: number, path: string, name: string, md5: string, expr: number) {
+  getFileDC(uid: IdType, path: string, name: string, md5: string, expr: number): CommonRequest<string> {
+    const baseUrl = `${this.prefix}/${uid}/FDC`
     return {
-      url: `${this.prefix}/${uid}/FDC/${path}`,
+      url: StringUtils.appendPath(baseUrl, path),
       params: {
         name: name,
         md5: md5,

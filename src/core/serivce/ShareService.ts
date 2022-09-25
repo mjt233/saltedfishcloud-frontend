@@ -1,3 +1,4 @@
+import { IdType } from '@/core/model'
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import API from '@/api'
 import { ShareInfo } from '@/api/share'
@@ -12,7 +13,7 @@ import { FileInfo } from '../model'
 
 export interface CreateShareFormConfig {
   /** 用户id */
-  uid: number
+  uid: IdType
 
   /** 被分享的文件所在路径 */
   path: string
