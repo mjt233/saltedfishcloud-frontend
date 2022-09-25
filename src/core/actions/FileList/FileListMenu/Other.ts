@@ -52,19 +52,25 @@ const otherGroup: MenuGroup<FileListContext> =
       icon: 'mdi-package-up',
       title: '解压缩',
       renderOn(ctx) {
+        // 只读模式不允许解压
         if (ctx.readonly) {
           return false
         }
-        if (archiveTypeCache.size == 0) {
-          context.feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
-        }
+        // 选择的文件数量必须是1
         if (ctx.selectFileList.length != 1) {
           return false
         }
         const name = ctx.selectFileList[0].name
         const idx = name.lastIndexOf('.')
+
+        // 没有拓展名，排除
         if (idx == -1) {
           return false
+        }
+
+        // 判断拓展名是否在支持的压缩类型范围内
+        if (archiveTypeCache.size == 0) {
+          context.feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
         }
         const extName = name.substring(idx + 1)
         return archiveTypeCache.get(extName) == true
@@ -76,7 +82,7 @@ const otherGroup: MenuGroup<FileListContext> =
             uid: ctx.uid,
             path: ctx.path
           })
-          await SfcUtils.request(API.file.unzip(ctx.uid, ctx.path, ctx.fileList[0].name, path))
+          await SfcUtils.request(API.file.unzip(ctx.uid, ctx.path, ctx.selectFileList[0].name, path))
           if (path == ctx.path) {
             await ctx.modelHandler.refresh()
           }
