@@ -7,6 +7,9 @@ export namespace StringFormatter {
      * @return {String}
      */
   export function toSize(size: number, B = false) {
+    if (size == null || size == undefined) {
+      return ''
+    }
     let showSize = size
     let suffix = B ? 'Byte' : 'B'
     if (size > 1024 && size <= 1048576) {
@@ -19,7 +22,7 @@ export namespace StringFormatter {
       suffix = 'GiB'
       showSize = size / 1073741824
     }
-    return showSize.toFixed(2) + suffix
+    return Number(showSize).toFixed(2) + suffix
   }
   /**
      * 将Unix时间戳格式化为方便阅读的格式

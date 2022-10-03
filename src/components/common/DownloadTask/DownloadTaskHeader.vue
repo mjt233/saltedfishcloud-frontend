@@ -21,7 +21,7 @@
 <script setup lang="ts">
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   path: {

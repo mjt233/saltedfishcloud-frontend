@@ -37,13 +37,24 @@
 import TextInput from '../common/TextInput.vue'
 import BaseForm from '../common/BaseForm.vue'
 import LoadingMask from '../common/LoadingMask.vue'
+const props = defineProps({
+  uid: {
+    type: Number,
+    default: 0
+  },
+  savePath: {
+    type: String,
+    default: '/'
+  }
+})
 const urlRef = ref() as Ref<ComponentPublicInstance>
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const formData = reactive({
   url: '',
   proxy: '',
-  useProxy: false
+  useProxy: false,
+  savePath: props.savePath
 })
 const form = ref() as Ref<CommonForm>
 const validators = {
@@ -79,16 +90,6 @@ const actions = MethodInterceptor.createAutoCatch(
   )
   ,true
 )
-const props = defineProps({
-  uid: {
-    type: Number,
-    default: 0
-  },
-  savePath: {
-    type: String,
-    default: '/'
-  }
-})
 const formInst = deconstructForm(form)
 const emit = defineEmits(['submit'])
 const emitSubmit = async() => {

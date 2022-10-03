@@ -1,3 +1,4 @@
+import { IdType } from './../model/Common'
 import { VBtn } from 'vuetify/components'
 import DownloadTaskView from '@/components/common/DownloadTask/DownloadTaskView.vue'
 import DownloadTaskHeader from '@/components/common/DownloadTask/DownloadTaskHeader.vue'
@@ -16,7 +17,7 @@ export namespace DownloadTaskService {
    * @param path 当前浏览路径
    * @param canOpenCreate 是否能够打开创建对话框
    */
-  export function openTaskView(uid: number, path: string, canOpenCreate: boolean) {
+  export function openTaskView(uid: IdType, path: string, canOpenCreate: boolean) {
     return SfcUtils.openComponentDialog(DownloadTaskView, {
       header: () => h(DownloadTaskHeader, {
         uid,
@@ -45,11 +46,11 @@ export namespace DownloadTaskService {
    * @param path 默认下载路径
    * @param canOpenView 是否允许下载对话框中打开查看下载任务详情的对话框
    */
-  export function openCreateTask(uid: number, path: string, canOpenView: boolean) {
+  export function openCreateTask(uid: IdType, path: string, canOpenView: boolean) {
     const inst = SfcUtils.openComponentDialog(CreateDownloadForm, {
       props: {
         uid,
-        path,
+        savePath: path,
         onSubmit: () => {
           inst.doConfirm()
         }
