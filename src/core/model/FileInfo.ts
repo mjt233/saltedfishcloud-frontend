@@ -16,6 +16,9 @@ export interface FileInfo {
   type: FileType
   createdAt: Date
   suffix: string
+  mountId: string,
+  /* 是否来自挂载的文件系统 */
+  mount: boolean
 }
 
 export interface SearchFileInfo extends FileInfo {

@@ -26,7 +26,13 @@ inst.interceptors.request.use(conf => {
 })
 // axios响应拦截器 拦截所有错误请求 默认弹框
 inst.interceptors.response.use(
-  conf => conf,
+  conf => {
+    if(conf.data.code && conf.data.code != 200) {
+      throw new Error(conf.data.msg)
+    } else {
+      return conf
+    }
+  },
   err => {
     if (!err.response) {
       err.msg = '网络错误'
