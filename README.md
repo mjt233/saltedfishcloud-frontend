@@ -35,22 +35,25 @@ npm run build
 
 2. 部署项目，复制`/dist`目录下的文件到Web服务器
    1. 使用Docker部署（待完善）
-      1. 构建docker镜像
+      1. 拉取镜像
         ```shell
-        docker build -t sfc-web .
+        $ docker pull farmerchillax/sfc-web
         ```
-      2. 创建容器
+      2. 运行容器
         ```shell
-        docker run -d -p 80:80 -e API_ADDR=后端API地址 sfc-web
+        $ docker run -d -p 80:80 -e API_ADDR=后端API地址 sfc-web
         ```
       3. 环境变量  
-
         |名称|默认值|描述|
         |-|-|-|
         |API_ADDR|http://127.0.0.1:8087|后端API地址|
         |MAX_BODY_SIZE|8192m|文件上传大小限制|
         |SERVER_NAME|_|绑定的HTTP Host|
         |HTTP_PORT|80|Nginx HTTP服务端口|
+      4. 如果你想自己构建
+        ```shell
+        $ docker build -t <your docker image name> .
+        ```
    2. 使用Nginx部署  
     ```nginx
     server{
