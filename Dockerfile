@@ -15,11 +15,10 @@ npm run build
 
 FROM nginx:latest
 
-# ENV \
-# MAX_BODY_SIZE=8192m \
-# SERVER_NAME=_ \
-# API_ADDR=http://127.0.0.1:8087 \
-# HTTP_PORT=80
+ENV \
+MAX_BODY_SIZE=8192m \
+SERVER_NAME=_ \
+HTTP_PORT=80
 
 
 COPY --from=build /saltedfish-web/dist /var/www/saltefish-web
