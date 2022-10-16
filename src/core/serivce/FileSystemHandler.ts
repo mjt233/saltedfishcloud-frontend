@@ -7,6 +7,13 @@ import { ShareInfo } from '@/api/share'
 import { ShareService } from './ShareService'
 
 export interface FileSystemHandler {
+  
+  getFileUrl: (path: string, file: FileInfo) => string
+  /**
+   * 获取缩略图自定义url
+   * 若返回undefined则表示使用默认根据md5获取
+   */
+  getCustomThumbnailUrl: (path:string, file: FileInfo) => string | undefined
   /**
    * 获取文件列表
    * @param uid 用户ID
@@ -54,6 +61,33 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
   constructor(uid: Ref<IdType>) {
     this.uid = uid
   }
+  getFileUrl(path: string, file: FileInfo) {
+    if (!file.mount) {
+      // 在主文件系统的非挂载目录中的文件浏览直接使用按md5获取
+      return SfcUtils.getApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
+    } else {
+      return SfcUtils.getApiUrl(API.resource.getCommonResource({
+        name: file.name,
+        path: path,
+        protocol: 'main',
+        targetId: this.uid.value
+      }))
+    }
+  }
+  getCustomThumbnailUrl(path: string, file: FileInfo) {
+    if (!file.mount) {
+      // 在主文件系统的非挂载目录中的文件浏览直接使用缩略图组件内置的路径
+      return undefined
+    } else {
+      return SfcUtils.getApiUrl(API.resource.getCommonResource({
+        isThumbnail: true,
+        name: file.name,
+        path: path,
+        protocol: 'main',
+        targetId: this.uid.value
+      }))
+    }
+  }
   async rename(path: string, oldName: string, newName: string): Promise<string> {
     await SfcUtils.request(API.file.rename(this.uid.value, path, oldName, newName))
     return newName
@@ -76,6 +110,8 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
     const executor = DiskFileUploadService.uploadToDisk(this.uid.value, path, file)
     fileUploadTaskManager.addExecutor(executor)
   }
+
+  
 }
 
 export class FileSystemHandlerFactory {

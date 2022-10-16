@@ -36,6 +36,7 @@
               :file-name="file.name"
               :dir="false"
               :show-thumb="true"
+              :custom-thumbnail-url="thumbnailUrlGenerator && thumbnailUrlGenerator(file)"
             />
           </div>
           <div class="bar-title text-truncate">
@@ -108,6 +109,13 @@ const props = defineProps({
    * 主图的url生成策略函数，默认使用根据md5加载
    */
   urlGenerator: {
+    type: Function as PropType<((fileInfo: FileInfo) => string)>,
+    default: undefined
+  },
+  /**
+   * 缩略图的自定义url生成器
+   */
+  thumbnailUrlGenerator: {
     type: Function as PropType<((fileInfo: FileInfo) => string)>,
     default: undefined
   }

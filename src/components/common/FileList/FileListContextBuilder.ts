@@ -3,6 +3,8 @@ import { ExtractPropTypes, reactive, Ref } from 'vue'
 import { FileListContext, FileInfo } from '@/core/model'
 import propsOptions from './props'
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
+import SfcUtils from '@/utils/SfcUtils'
+import API from '@/api'
 
 export interface FileListContextBuilderOptions {
   props: Readonly<ExtractPropTypes<typeof propsOptions>>,
@@ -22,6 +24,12 @@ const FileListContextBuilder = {
       name: '',
       selectFileList: [],
       path: props.path,
+      getFileUrl(file) {
+        return handler?.value.getFileUrl(props.path, file)
+      },
+      getThumbnailUrl(file) {
+        return handler?.value.getCustomThumbnailUrl(props.path, file)
+      },
       modelHandler: {
         async mkdir(name) {
           await handler?.value.mkdir(props.path, name)

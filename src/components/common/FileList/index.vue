@@ -103,7 +103,7 @@
                 :file-name="fileInfo.name"
                 :is-dir="fileInfo.dir"
                 :md5="fileInfo.md5"
-                :custom-thumbnail-url="getCustomThumbnailUrl(fileInfo)"
+                :custom-thumbnail-url="handler.getCustomThumbnailUrl(path, fileInfo)"
               />
               <div class="file-detail">
                 <div class="d-inline-block text-truncate file-name">
@@ -219,17 +219,6 @@ const selectMove = (e:SelectResult) => {
 }
 const selectStart = () => {
   inSelect = true
-}
-
-const getCustomThumbnailUrl = (file: FileInfo) => {
-  const url = SfcUtils.getApiUrl(API.resource.getCommonResource({
-    isThumbnail: true,
-    name: file.name,
-    path: props.path,
-    protocol: props.protocol,
-    targetId: props.targetId || props.uid
-  }))
-  return url
 }
 
 const rename = (name: string, md5: string) => {

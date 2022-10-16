@@ -15,7 +15,7 @@ export interface SelectOption {
 export interface ResourceRequest {
   /** 请求的资源所在路径 */
   path: string
-  
+
   /** 资源文件名 */
   name: string
 
@@ -26,7 +26,10 @@ export interface ResourceRequest {
   protocol: string
 
   /** 是否为缩略图资源请求 */
-  isThumbnail: boolean
+  isThumbnail: ?boolean
+
+  /** 其他自定义附加参数 */
+  [key:string]:any
 }
 
 

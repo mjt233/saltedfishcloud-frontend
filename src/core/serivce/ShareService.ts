@@ -108,9 +108,31 @@ export namespace ShareService {
     constructor(shareInfo: ShareInfo) {
       this.shareInfo = shareInfo
     }
+    getFileUrl(path: string, file: FileInfo) {
+      return SfcUtils.getApiUrl(API.resource.getCommonResource({
+        name: file.name,
+        path: path,
+        protocol: 'share',
+        targetId: this.shareInfo.id,
+        vid: this.shareInfo.verification,
+        code: this.shareInfo.extractCode
+      }))
+    }
     async loadList(path: string): Promise<FileInfo[]> {
       const ret = await SfcUtils.request(API.share.browseDirShare(this.shareInfo.id + '', this.shareInfo.verification + '', this.shareInfo.extractCode || null, path))
       return ret.data.data[0].concat(ret.data.data[1])
+    }
+    
+    getCustomThumbnailUrl(path: string, file: FileInfo) {
+      return SfcUtils.getApiUrl(API.resource.getCommonResource({
+        isThumbnail: true,
+        name: file.name,
+        path: path,
+        protocol: 'share',
+        targetId: this.shareInfo.id,
+        vid: this.shareInfo.verification,
+        code: this.shareInfo.extractCode
+      }))
     }
     mkdir(path: string, name: string): Promise<null> {
       throw new Error('Method not implemented.')

@@ -1,3 +1,4 @@
+import { FileInfo } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import API from '@/api'
 import { FileOpenHandler } from './type'
@@ -20,13 +21,10 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
     title: '浏览器打开',
     async action(ctx, file) {
       try {
-        let url: string
-        if (file.mount) {
-          // 挂载的外部文件系统无法通过md5直接下载，需要通过路径下载
-          const res = await SfcUtils.request(API.resource.getFileDC(file.uid, ctx.path, file.name, file.md5, 1))
-          url = SfcUtils.getApiUrl(API.resource.downloadUseFileDC(res.data.data, false, file.name))
-        } else {
-          url = StringUtils.appendPath(API.getDefaultPrefix(), API.resource.downloadFileByMD5(file.md5, file.name).url)
+        const url = ctx.getFileUrl(file)
+        if (!url) {
+          SfcUtils.alert('获取文件' + file.name + '的url失败')
+          return
         }
         SfcUtils.openUrl(url)
       } catch (err) {
@@ -39,14 +37,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
     id: 'img-preview',
     isDefault: true,
     matcher(ctx, file) {
-      /**
-       * 挂载的文件系统中的图片暂不处理，后续再想办法解决下
-       */
-      if(!file.mount && isImgType(file.name)) {
-        return true
-      } else {
-        return false
-      }
+      return isImgType(file.name)
     },
     title: '图像预览',
     sort: 2,
@@ -54,7 +45,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
       /**
        * 挂载的文件系统中的图片暂不处理，后续再想办法解决下
        */
-      const files = ctx.fileList.filter(e => !e.dir && !e.mount && isImgType(e.name))
+      const files = ctx.fileList.filter(e => !e.dir && isImgType(e.name))
       const index = files.findIndex(e => e.md5 == file.md5 && e.name == file.name)
       const inst = dyncmount( ImagePreviewerVue, {
         props: {
@@ -70,6 +61,12 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
           },
           onClose() {
             inst.unmount()
+          },
+          urlGenerator(file: FileInfo) {
+            return ctx.getFileUrl(file)
+          },
+          thumbnailUrlGenerator(file: FileInfo) {
+            return ctx.getThumbnailUrl(file)
           }
         },
         vappProps: {

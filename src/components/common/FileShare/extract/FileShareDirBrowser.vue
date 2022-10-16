@@ -70,7 +70,12 @@ const shareMenu:MenuGroup<FileListContext>[] = [
         async action(ctx) {
           if (ctx.selectFileList.length == 1) {
             const file = ctx.selectFileList[0]
-            SfcUtils.openApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
+            const url = ctx.getFileUrl(file)
+            if (!url) {
+              SfcUtils.alert('无法获取文件url')
+              return
+            }
+            SfcUtils.openUrl(url)
           } else {
             return wrapDownload(ctx.path, ctx.selectFileList)
           }
@@ -98,7 +103,12 @@ const topButtons: MenuGroup<FileListContext>[] = [
       // 选择单个文件
       if (ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir) {
         const file = ctx.selectFileList[0]
-        SfcUtils.openApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
+        const url = ctx.getFileUrl(file)
+        if (!url) {
+          SfcUtils.alert('无法获取文件url')
+          return
+        }
+        SfcUtils.openUrl(url)
       }
 
       // 选择文件夹或多个文件
