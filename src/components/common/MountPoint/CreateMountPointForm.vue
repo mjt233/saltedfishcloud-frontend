@@ -4,6 +4,7 @@
     :model-value="formData"
     :submit-action="actions.submit"
     label-width="auto"
+    :auto-loading="true"
     dense
   >
     <form-row style="padding: 0 12px">
@@ -118,7 +119,7 @@ const formInst = defineForm({
     protocol: '',
     name: '挂载点1',
     params: '{}',
-    nid: ''
+    nid: props.uid
   } as MountPoint,
   formRef: formRef,
   validators: {},
