@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vite preview",
     "build": "vite build",
-    "dev": "npm run build-ext-demo && npm run build-ext-video-player && vite --host --port=4000",
+    "dev": "vite --host",
     "preview": "vite preview",
     "build-ext-demo": "vite build --config build/extension/demo.ts",
     "build-ext-video-player": "vite build --config build/extension/video-player.ts"
@@ -42,7 +42,7 @@
     "vite": "^2.9.5",
     "vite-plugin-vuetify": "^1.0.0-alpha.10",
     "vue-cli-plugin-vuetify": "~2.4.8",
-    "vue-tsc": "^0.34.7",
+    "vue-tsc": "^1.0.8",
     "vuetify-loader": "^2.0.0-alpha.0"
   }
 }

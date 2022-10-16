@@ -24,9 +24,8 @@
     <template #prepend>
 
       <!-- 抽屉菜单顶部图 -->
-      <img :src="menuObj.backgroundImg" style="width: 100%">
+      <!-- <img :src="menuObj.backgroundImg" style="width: 100%"> -->
     </template>
-
     <!-- 抽屉菜单列表本体 -->
     <v-list bg-color="background">
       <template v-for="(group) in menuObj.group" :key="group.id">
