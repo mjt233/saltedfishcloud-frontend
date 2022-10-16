@@ -145,6 +145,7 @@
         v-ripple
         :file-info="fileInfo"
         :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
+        :path="path"
         @click="fileLClick($event, fileInfo)"
         @contextmenu.prevent="fileRClick($event, fileInfo)"
         @check-change="toggleSelectFile(fileInfo)"

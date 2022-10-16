@@ -1,5 +1,5 @@
 <template>
-  <v-col>
+  <v-col :class="{'top-label':topLabel}">
     <span v-if="label" class="form-label">{{ label }}:</span>
     <slot />
   </v-col>
@@ -10,6 +10,10 @@ const props = defineProps({
   label: {
     type: String,
     default: ''
+  },
+  topLabel: {
+    type: [Boolean, String],
+    default: false
   }
 })
 </script>
@@ -22,9 +26,16 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .form-label {
   margin-right: 6px;
   font-size: 14px;
+}
+.top-label {
+  position: relative;
+  .form-label {
+    position: absolute;
+    top: 14px;
+  }
 }
 </style>

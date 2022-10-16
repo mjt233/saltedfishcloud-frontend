@@ -11,6 +11,7 @@
         :file-name="fileInfo?.name"
         :is-dir="fileInfo?.dir"
         :md5="fileInfo?.md5"
+        :custom-thumbnail-url="handler.getCustomThumbnailUrl(path, fileInfo)"
       />
       <div v-show="inRename" class="rename-handle">
         <v-btn
@@ -54,8 +55,13 @@ const props = defineProps({
   active: {
     type: Boolean,
     default: false
+  },
+  path: {
+    type: String,
+    default: ''
   }
 })
+const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
 const inRename = ref(false)
 const newName = ref('')
 const textarea = ref() as Ref<HTMLTextAreaElement>
@@ -103,8 +109,9 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, nextTick, defineEmits, PropType, Ref, ref } from 'vue'
+import { defineComponent, defineProps, nextTick, defineEmits, PropType, Ref, ref, inject } from 'vue'
 import { FileInfo } from '@/core/model'
+import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 
 export default defineComponent({
   name: 'FileListGridItem'

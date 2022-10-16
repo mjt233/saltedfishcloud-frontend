@@ -75,17 +75,6 @@ const addGroup: MenuGroup<FileListContext> = {
         return !ctx.readonly
       },
       icon: 'mdi-folder-plus'
-    },
-    {
-      id: 'mount',
-      title: '云挂载',
-      icon: 'mdi-cloud',
-      renderOn(ctx) {
-        return !ctx.readonly && ctx.selectFileList.length == 0
-      },
-      action(ctx) {
-        SfcUtils.snackbar('未实现')
-      },
     }
   ]
 }

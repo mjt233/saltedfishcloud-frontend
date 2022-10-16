@@ -31,7 +31,7 @@ const resource = {
    * @param uid 用户ID
    * @param path 路径
    */
-  getNodeInfo(uid: number, path: string): CommonRequest<NodeInfo[]> {
+  getNodeInfo(uid: IdType, path: string): CommonRequest<NodeInfo[]> {
     path = path.replace(/\/+/g, '/')
     if (path.startsWith('/')) {
       path = path.substring(1)

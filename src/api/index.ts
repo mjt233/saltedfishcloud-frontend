@@ -10,6 +10,7 @@ import task from './task'
 import collection from './collection'
 import share from './share'
 import wrap from './wrap'
+import mountPoint from './mountpoint'
 
 const API = {
   user,
@@ -22,6 +23,7 @@ const API = {
   share,
   wrap,
   admin,
+  mountPoint,
   /**
    * 获取API URL的完整前缀。
    * 因为封装的API对象中URL是缺少公共前缀的，如果需要绕开通用的请求方法单独使用URL，则需要这个方法来补全前缀
