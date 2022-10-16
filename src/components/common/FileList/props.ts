@@ -1,5 +1,5 @@
 import { MenuGroup } from '@/core/context'
-import { FileInfo, FileListContext } from '@/core/model'
+import { FileInfo, FileListContext, IdType } from '@/core/model'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { PropType, defineProps } from 'vue'
 
@@ -52,6 +52,20 @@ const propsOptions = {
   useSelect: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 访问的文件资源协议
+   */
+  protocol: {
+    type: String,
+    default: 'main'
+  },
+  /**
+   * 目标资源的id
+   */
+  targetId: {
+    type: [String, Number] as PropType<IdType>,
+    default: undefined
   }
 }
 export default propsOptions

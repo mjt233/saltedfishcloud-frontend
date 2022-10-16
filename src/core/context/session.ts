@@ -29,9 +29,13 @@ const emptySession: Session = {
   setToken(token) {
     this.token = token
     localStorage.setItem('token', token)
+    document.cookie = `token=${this.token}; path=/`
   },
   loadToken() {
     this.token = localStorage.getItem('token') || ''
+    if (this.token && this.token.length != 0) {
+      document.cookie = `token=${this.token}; path=/`
+    }
   },
   setUserInfo(userObj) {
     const userInfo: SessionUser = {
@@ -47,6 +51,7 @@ const emptySession: Session = {
     this.token = ''
     this.user = reactive(getPublicUser())
     localStorage.clear()
+    document.cookie = `token=; expires=${new Date().toUTCString()}; path=/`
 
     if (!context.routeInfo.value.curr?.meta.allowNoLogin) {
       await context.routeInfo.value.router?.push('/')
