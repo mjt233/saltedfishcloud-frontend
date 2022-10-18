@@ -93,6 +93,9 @@ export interface ConfigNodeModel {
 
   /* 当类型为template时使用模板内容作为内容编辑 */
   template?: string | ChildrenType
+
+  /* 是否必填 */
+  required?: boolean
 }
 
 /**

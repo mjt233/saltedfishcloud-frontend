@@ -5,6 +5,8 @@
     :submit-action="actions.submit"
     label-width="auto"
     :auto-loading="true"
+    :son-forms="sonForms"
+    row-height="72px"
     dense
   >
     <form-row style="padding: 0 12px">
@@ -23,19 +25,15 @@
         </v-btn>
       </form-col>
     </form-row>
+
+    <v-divider style="margin: 12px 12px 36px 12px" />
+    <configurable-form
+      ref="mountForm"
+      style="padding: 0 12px"
+      :nodes="configGroup"
+      @change="nodeChange"
+    />
     
-    <div style="overflow: hidden;width: 100%;">
-      <config-node-group
-        style="width: 100%"
-        :use-stick-title="false"
-        :items="configGroup"
-        @node-change="nodeChange"
-      >
-        <template #title="param">
-          <span style="color: rgb(var(--v-theme-primary)); font-weight: 600;margin-left: 12px;font-size: 18px;">{{ param.group.title || param.group.name }}</span>
-        </template>
-      </config-node-group>
-    </div>
     
   </base-form>
 </template>
@@ -43,7 +41,7 @@
 <script setup lang="ts">
 import API from '@/api'
 import BaseForm from '@/components/common/BaseForm.vue'
-import { FormRow, FormCol, FormSelect, ConfigNodeGroup } from '@/components'
+import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode } from '@/components'
 import { ConfigNodeModel, IdType, MountPoint, NameValueType, SelectOption } from '@/core/model'
 import { CommonForm, defineForm } from '@/utils/FormUtils'
 import SfcUtils from '@/utils/SfcUtils'
@@ -54,12 +52,13 @@ const props = defineProps({
     default: 0
   }
 })
+const mountForm = ref()
+const sonForms = ref([mountForm])
 const emits = defineEmits(['submit'])
 const selectPath = ref('/')
 const nodeChange = (e: NameValueType) => {
   mountConfig[e.name] = e.value
   formData.params = JSON.stringify(mountConfig)
-  console.log(formData)
 }
 const selectOptions: Ref<SelectOption[]> = ref([])
 const configGroup: Ref<ConfigNodeModel[]> = ref([])
@@ -93,6 +92,9 @@ const formInst = defineForm({
       const config = API.mountPoint.saveMountPoint(formData)
       return await SfcUtils.request(config)
     },
+    /**
+     * 加载可用的文件系统
+     */
     async loadSystem() {
       const res = await SfcUtils.request(API.mountPoint.listAvailableFileSystem())
       res.data.data.forEach(describe => {

@@ -9,6 +9,5 @@
         "typescript"
     ],
     "vite.autoStart": true,
-    "vite.devCommand": "npm run dev",
     "vite.browserType": "system"
 }
