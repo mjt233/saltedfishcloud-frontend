@@ -8,6 +8,8 @@
     />
     <div class="item-icon">
       <file-icon
+        :width="56"
+        :corner-icon="cornerIcon"
         :file-name="fileInfo?.name"
         :is-dir="fileInfo?.dir"
         :md5="fileInfo?.md5"
@@ -59,6 +61,10 @@ const props = defineProps({
   path: {
     type: String,
     default: ''
+  },
+  cornerIcon: {
+    type: String,
+    default: undefined
   }
 })
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>

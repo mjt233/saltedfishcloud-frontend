@@ -16,6 +16,7 @@ declare module '@vue/runtime-core' {
     BootLoader: typeof import('./src/components/common/BootLoader/BootLoader.vue')['default']
     ChangePassowrdForm: typeof import('./src/components/form/ChangePassowrdForm.vue')['default']
     CollectionFieldForm: typeof import('./src/components/common/FileCollection/form/CollectionFieldForm.vue')['default']
+    CommonIcon: typeof import('./src/components/common/CommonIcon.vue')['default']
     ConfigForm: typeof import('./src/components/common/ConfigForm.vue')['default']
     ConfigNode: typeof import('./src/components/common/ConfigNode/ConfigNode.vue')['default']
     ConfigNodeChangeDetail: typeof import('./src/components/common/ConfigNode/ConfigNodeChangeDetail.vue')['default']

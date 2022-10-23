@@ -99,6 +99,7 @@
               <file-icon
                 width="32"
                 height="32"
+                :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
                 style="flex-grow: 0;"
                 :file-name="fileInfo.name"
                 :is-dir="fileInfo.dir"
@@ -144,6 +145,7 @@
         ref="gridItemRef"
         v-ripple
         :file-info="fileInfo"
+        :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
         :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
         :path="path"
         @click="fileLClick($event, fileInfo)"

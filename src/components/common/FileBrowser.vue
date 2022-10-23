@@ -121,6 +121,7 @@
       :uid="uid"
       :read-only="readOnly"
       :height="listHeight"
+      :show-mount-icon="showMountIcon"
       @click-item="clickItem"
       @back="back"
     />
@@ -143,6 +144,10 @@ const props = defineProps({
   fileSystemHandler: {
     type: Object as PropType<FileSystemHandler>,
     default: null
+  },
+  showMountIcon: {
+    type: Boolean,
+    default: false
   },
   readOnly: {
     type: Boolean,

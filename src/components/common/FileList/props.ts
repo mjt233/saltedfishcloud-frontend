@@ -31,6 +31,13 @@ const propsOptions = {
     type: Number,
     default: undefined
   },
+  /**
+   * 是否显示挂载目录图表
+   */
+  showMountIcon: {
+    type: Boolean,
+    default: false
+  },
   uid: {
     type: [Number, String],
     default: 0

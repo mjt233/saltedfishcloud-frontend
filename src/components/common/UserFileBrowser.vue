@@ -10,6 +10,7 @@
         :uid="uid"
         :top-buttons="context.menu.value.fileBrowserBtn"
         auto-compute-height
+        :show-mount-icon="true"
         @update:path="emits('update:path', $event)"
       >
         <template #top-bar>

@@ -1,21 +1,24 @@
 <template>
-  <v-img
-    :src="imgUrl"
-    style="display: inline-block"
-    :transition="false"
-    draggable="false"
-    class="file-icon-img"
-    @mousedown.prevent
-  >
-    <template #placeholder>
-      <v-img
-        draggable="false"
-        :src="commonUrl"
-        :transition="false" 
-        @mousedown.prevent
-      />
-    </template>
-  </v-img>
+  <div :style="{width: width ? width + 'px' : '100%'}" style="position: relative">
+    <v-img
+      :src="imgUrl"
+      style="display: inline-block;width: 100%;"
+      :transition="false"
+      draggable="false"
+      class="file-icon-img"
+      @mousedown.prevent
+    >
+      <template #placeholder>
+        <v-img
+          draggable="false"
+          :src="commonUrl"
+          :transition="false" 
+          @mousedown.prevent
+        />
+      </template>
+    </v-img>
+    <common-icon v-if="cornerIcon" class="corner-icon" :icon="cornerIcon" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -53,6 +56,18 @@ const props = defineProps({
    */
   customThumbnailUrl: {
     type: String,
+    default: undefined
+  },
+  cornerIcon: {
+    type: String,
+    default: undefined
+  },
+  height: {
+    type: [Number,String],
+    default: undefined
+  },
+  width: {
+    type: [Number,String],
     default: undefined
   }
 })
@@ -103,5 +118,14 @@ export default defineComponent({
 }
 .file-icon-img {
   width: 32px;
+}
+
+.corner-icon {
+  position: absolute;
+  bottom: 3px;
+  left: -3px;
+  font-size: 8px;
+  color: rgb(var(--v-theme-primary));
+  transform: rotateZ(-45deg);
 }
 </style>
