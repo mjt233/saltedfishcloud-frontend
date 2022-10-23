@@ -25,7 +25,15 @@ const FileListContextBuilder = {
       selectFileList: [],
       path: props.path,
       getFileUrl(file) {
-        return handler?.value.getFileUrl(props.path, file)
+        if (handler) {
+          return handler?.value.getFileUrl(props.path, file)
+        } else if (file.md5) {
+          return SfcUtils.getApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
+        } else {
+          console.log('无法获取该文件的url：',file)
+          throw new Error('无法获取文件url：' + file.name)
+          
+        }
       },
       getThumbnailUrl(file) {
         return handler?.value.getCustomThumbnailUrl(props.path, file)

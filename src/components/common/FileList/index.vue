@@ -103,7 +103,7 @@
                 :file-name="fileInfo.name"
                 :is-dir="fileInfo.dir"
                 :md5="fileInfo.md5"
-                :custom-thumbnail-url="handler.getCustomThumbnailUrl(path, fileInfo)"
+                :custom-thumbnail-url="handler && handler.getCustomThumbnailUrl(path, fileInfo)"
               />
               <div class="file-detail">
                 <div class="d-inline-block text-truncate file-name">
