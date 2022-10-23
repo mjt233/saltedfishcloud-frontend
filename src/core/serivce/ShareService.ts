@@ -97,7 +97,12 @@ export namespace ShareService {
       showConfirm: false,
       showCancel: false,
       footer: () => [
-        h(VBtn, { color: 'primary', onClick: () => {SfcUtils.copyToClipboard(link); SfcUtils.snackbar('复制成功') } }, () => '复制链接'),
+        h(VBtn, { color: 'primary', onClick: () => {
+          setTimeout(() => {
+            SfcUtils.copyToClipboard(link)
+            SfcUtils.snackbar('复制成功')
+          }, 100)
+        } }, () => '复制链接'),
         h(VBtn, { color: 'primary', onClick: () => { successDialog.close() } }, () => '取消')
       ]
     })
