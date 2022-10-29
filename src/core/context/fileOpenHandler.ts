@@ -37,7 +37,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
     id: 'img-preview',
     isDefault: true,
     matcher(ctx, file) {
-      return isImgType(file.name)
+      return isImgType(file.name.toLowerCase())
     },
     title: '图像预览',
     sort: 2,
@@ -45,7 +45,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
       /**
        * 挂载的文件系统中的图片暂不处理，后续再想办法解决下
        */
-      const files = ctx.fileList.filter(e => !e.dir && isImgType(e.name))
+      const files = ctx.fileList.filter(e => !e.dir && isImgType(e.name.toLowerCase()))
       const index = files.findIndex(e => e.md5 == file.md5 && e.name == file.name)
       const inst = dyncmount( ImagePreviewerVue, {
         props: {
