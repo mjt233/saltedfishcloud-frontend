@@ -117,7 +117,7 @@ const file = {
    */
   mkdir(uid: IdType, path: string, name: string): CommonRequest {
     if (path == '/') path = ''
-    let url = `/${this.prefix}/${uid}/dir/${path}`
+    let url = StringUtils.appendPath(`/${this.prefix}/${uid}/dir`, path)
     url = url.replace(/\/\/+/g, '/')
     return {
       url: url,
@@ -157,7 +157,7 @@ const file = {
    * @returns 删除数量
    */
   delete(uid: IdType, path: string, names: string[]): CommonRequest<number> {
-    const u = `/${this.prefix}/${uid}/content/${path}`
+    const u = StringUtils.appendPath(`/${this.prefix}/${uid}/content`, path)
     return {
       url: u.replace(/\/+/g, '/'),
       method: 'delete',
@@ -180,7 +180,7 @@ const file = {
   rename(uid: IdType, path: string, oldName: string, newName: string): CommonRequest {
     if (path == '/') path = ''
     return {
-      url: `${this.prefix}/${uid}/name/${path}`,
+      url: StringUtils.appendPath(`${this.prefix}/${uid}/name`, path),
       method: 'put',
       data: {
         oldName: oldName,
@@ -195,7 +195,7 @@ const file = {
    */
   getContent(uid: IdType, filePath: string) {
     return {
-      url: `${this.prefix}/${uid}/content/${filePath}`
+      url: StringUtils.appendPath(`${this.prefix}/${uid}/content`,filePath)
     }
   },
   /**
