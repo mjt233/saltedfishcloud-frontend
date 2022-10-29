@@ -1,5 +1,5 @@
 <template>
-  <user-file-browser v-model:path="path" :uid="0" />
+  <user-file-browser v-model:path="path" use-drop-upload :uid="0" />
 </template>
 
 

@@ -8,6 +8,7 @@ import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
 import FileUtils from '@/utils/FileUtils'
 import { BreakPointTaskMetaData } from '../model/BreakPointTask'
+import { IdType } from '../model'
 
 export type FileUploadStatus = 'wait' | 'digest' | 'upload' | 'success' | 'failed' | 'pause' | 'interrupt'
 export type UploadType = 'public' | 'private'
@@ -175,7 +176,7 @@ export interface FileUploadService {
    * @param path 文件所在路径
    * @param file 文件
    */
-  uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor
+  uploadToDisk(uid: IdType, path: string, file: File): FileUploadExecutor
 }
 
 export interface ExecutorOption {
@@ -416,9 +417,8 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
 }
 
 
-const DiskFileUploadService: FileUploadService & any = {
-  uploadToDisk(uid: number, path: string, file: File): FileUploadExecutor {
-    
+const DiskFileUploadService: FileUploadService = {
+  uploadToDisk(uid: IdType, path: string, file: File): FileUploadExecutor {
     
     const queickUploadHandler: DigestHandler = async(md5, config) => {
       const result = await SfcUtils.request(API.file.quickSave(uid, path, file.name, md5))
@@ -462,7 +462,7 @@ const DiskFileUploadService: FileUploadService & any = {
     } else {
       return breakpointUpload()
     }
-  },
+  }
 
 }
 
