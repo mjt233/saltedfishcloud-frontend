@@ -9,7 +9,7 @@
     :compensate-height="compensateHeight"
     :enable-menu="['refresh', 'share-download']"
     :append-menu="shareMenu"
-    :top-buttons="topButtons"
+    :tool-buttons="toolButtons"
     :top-button-min-width="'120px'"
   />
 </template>
@@ -89,7 +89,7 @@ const shareMenu:MenuGroup<FileListContext>[] = [
 /**
  * 顶部按钮
  */
-const topButtons: MenuGroup<FileListContext>[] = [
+const toolButtons: MenuGroup<FileListContext>[] = [
   {
     id: 'download',
     items: [],
