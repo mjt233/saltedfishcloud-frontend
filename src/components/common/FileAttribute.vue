@@ -36,7 +36,7 @@
           {{ StringFormatter.toDate(files[0].createdAt) }}
         </form-col>
         <form-col v-if="files.length == 1" :label="files[0].dir ? '节点id':'md5校验值'" top-label>
-          {{ files[0].md5 }}
+          {{ files[0].md5 || '不可用' }}
         </form-col>
         <form-col label="是否处于挂载目录" top-label>
           {{ files[0].mount ? '是' : '否' }}
