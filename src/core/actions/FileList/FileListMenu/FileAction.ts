@@ -2,7 +2,8 @@ import DeleteConfirm from '@/components/common/DeleteConfirm.vue'
 import { FileListContext } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
 import { h } from 'vue'
-import { MenuGroup } from '../type'
+import { MenuGroup } from '@/core/context'
+import { FileAttribute } from '@/components'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
 {
@@ -43,6 +44,25 @@ const fileActionGroup: MenuGroup<FileListContext> =
           SfcUtils.snackbar('删除成功')
         }
         asyncFunWrap()
+      }
+    },
+    {
+      id: 'showAttr',
+      title: '属性',
+      icon: 'mdi-information',
+      renderOn(ctx) {
+        return ctx.selectFileList && ctx.selectFileList.length > 0
+      },
+      action(ctx) {
+        const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
+        SfcUtils.openComponentDialog(FileAttribute, {
+          title: '文件属性',
+          props: {
+            files: ctx.selectFileList,
+            path: ctx.path,
+            thumbnailUrl
+          }
+        })
       }
     }
   ]

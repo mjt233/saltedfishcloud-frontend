@@ -24,7 +24,7 @@
                 :file-name="item.name"
                 :is-dir="item.type == 'DIR'"
                 :md5="item.nid"
-                style="margin-right: 12px"
+                style="margin-right: 12px; width: 32px;"
               />
               <span style="color: #555555;">{{ item.name }}</span>
             </div>

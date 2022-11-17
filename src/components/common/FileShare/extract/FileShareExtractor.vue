@@ -36,6 +36,7 @@
           </form-grid>
         </v-card-content>
         <v-card-content v-else>
+          <!-- 文件提取成功，文件浏览界面 -->
           <file-share-dir-browser v-if="shareInfo.type == 'DIR'" :share-info="shareInfo" />
           <file-share-file-extractor v-if="shareInfo.type == 'FILE'" :share-info="shareInfo" />
         </v-card-content>

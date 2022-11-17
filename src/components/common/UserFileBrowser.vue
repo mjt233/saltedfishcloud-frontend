@@ -1,5 +1,13 @@
 <template>
-  <div>
+  <div 
+    @dragover.prevent="dragOver"
+    @dragleave.self="dragLeave"
+    @drop.prevent="dropFinish"
+  >
+    <div v-show="inDragging" class="drag-tip">
+      <common-icon icon="mdi-upload" />
+      <span>拖拽上传</span>
+    </div>
     <!-- 当访问公共网盘 或 已登录用户访问非公共网盘 -->
     <div v-if="!showSearch && (uid == 0 || (uid != 0 && session.user.id != 0))">
       <file-browser
@@ -8,8 +16,9 @@
         :file-system-handler="handler"
         :read-only="readOnly"
         :uid="uid"
-        :top-buttons="context.menu.value.fileBrowserBtn"
+        :tool-buttons="context.menu.value.fileBrowserBtn"
         auto-compute-height
+        :show-mount-icon="true"
         @update:path="emits('update:path', $event)"
       >
         <template #top-bar>
@@ -62,9 +71,8 @@
 <script setup lang="ts">
 import FileBrowser from '@/components/common/FileBrowser.vue'
 import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
-import TextInput from '@/components/common/TextInput.vue'
-import FileSearchList from './FileSearchList/FileSearchList.vue'
-import LoadingMask from './LoadingMask.vue'
+import {FileSearchList,TextInput,LoadingMask } from '@/components'
+
 const searchListRef = ref() as Ref<FileSearchListModel>
 const props = defineProps({
   uid: {
@@ -74,9 +82,14 @@ const props = defineProps({
   path: {
     type: String,
     default: '/'
+  },
+  useDropUpload: {
+    type: Boolean,
+    default: false
   }
 })
 const showSearch = ref(false)
+const inDragging = ref(false)
 const session = context.session
 const browser = ref()
 const emits = defineEmits(['update:path'])
@@ -118,7 +131,27 @@ const clickSearchParent = async(item: SearchFileInfo) => {
     loadingManager.closeLoading()
   }
 }
-
+const dragLeave = (e: DragEvent) => {
+  inDragging.value = false
+} 
+const dragOver = (e: DragEvent) => {
+  if (!readOnly.value && props.useDropUpload) {
+    inDragging.value = true
+  }
+}
+const dropFinish = (e: DragEvent) => {
+  inDragging.value = false
+  if (!props.useDropUpload || readOnly.value || !e.dataTransfer?.files.length) {
+    return
+  }
+  const fileCount = e.dataTransfer.files.length
+  for (let i = 0; i < fileCount; i++) {
+    const file = e.dataTransfer.files[i]
+    const executor = DiskFileUploadService.uploadToDisk(props.uid, props.path, file)
+    fileUploadTaskManager.addExecutor(executor)
+  }
+  SfcUtils.snackbar(`已添加${fileCount}个文件到上传队列`)
+}
 const clickSearchItem = async(item: SearchFileInfo) => {
   try {
     if (item.dir) {
@@ -144,7 +177,25 @@ import API from '@/api'
 import { SearchFileInfo } from '@/core/model'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { FileSearchListModel } from '@/core/model/component/FileListModel'
+import { DiskFileUploadService, fileUploadTaskManager } from '@/core/serivce/FileUpload'
 export default defineComponent({
   name: 'UserFileBrowser'
 })
 </script>
+
+
+<style scoped>
+.drag-tip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--v-theme-background), .8);
+  pointer-events: none;
+  z-index: 2;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+</style>

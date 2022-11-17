@@ -1,14 +1,19 @@
 <template>
   <div>
     <div v-for="(group, idx) in items" :key="idx" class="node-group">
-      <sticky-container
-        v-if="group.title || group.name"
-        :top="64"
-        content-class="node-title"
-        style="width: 100%"
-      >
-        {{ group.title || group.name }}
-      </sticky-container>
+      <slot name="title" :group="group">
+        <template v-if="group.title || group.name">
+          <sticky-container
+            v-if="useStickTitle"
+            :top="64"
+            content-class="node-title"
+            style="width: 100%"
+          >
+            {{ group.title || group.name }}
+          </sticky-container>
+          <span v-else class="node-title">{{ group.title || group.name }}</span>
+        </template>
+      </slot>
       <config-node
         v-for="(node) in group.nodes"
         :key="node.name"
@@ -26,6 +31,10 @@ const props = defineProps({
   items: {
     type: Array as PropType<ConfigNodeModel[]>,
     default: () => []
+  },
+  useStickTitle: {
+    type: Boolean,
+    default: true
   }
 })
 

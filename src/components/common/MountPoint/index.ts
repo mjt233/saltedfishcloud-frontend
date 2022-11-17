@@ -1,0 +1,1 @@
+export { default as CreateMountPointFormVue } from './CreateMountPointForm.vue'

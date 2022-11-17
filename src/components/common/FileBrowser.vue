@@ -1,11 +1,11 @@
 <template>
   <div ref="rootWrapRef">
     <loading-mask :loading="loading" z-index="1000" />
-    <!-- 顶部按钮 -->
-    <div compute-height>
+    <!-- 顶部工具栏和按钮 -->
+    <div class="tool-bar" compute-height>
       <v-row class="justify-space-between">
-        <v-col class="top-btn-group" justify="start" :style="{minWidth: topButtonMinWidth}">
-          <div v-for="(group) in topButtons" v-show="topButtons.length && topButtons.length" :key="group.id">
+        <v-col class="top-btn-group align-center" justify="start" :style="{minWidth: topButtonMinWidth}">
+          <div v-for="(group) in toolButtons" v-show="toolButtons.length && toolButtons.length" :key="group.id">
             <template v-if="group.renderOn ? group.renderOn(listContext) : true">
               <!-- 单个按钮 -->
               <v-btn
@@ -17,7 +17,6 @@
                   v-if="group.icon"
                   :size="18"
                   :icon="group.icon"
-                  style="margin-right: 6px"
                 />
                 {{ group.name }}
               </v-btn>
@@ -36,7 +35,6 @@
                       v-if="group.icon"
                       :size="18"
                       :icon="group.icon"
-                      style="margin-right: 6px"
                     />
                     {{ group.name }}
                   </v-btn>
@@ -52,7 +50,6 @@
                       <v-icon
                         v-if="item.icon"
                         :size="18"
-                        style="margin-right: 6px"
                         :icon="item.icon"
                       />
                       {{ item.title }}
@@ -63,26 +60,28 @@
             </template>
           </div>
         </v-col>
-        <v-col style="margin: 0 12px;">
-          <!-- TODO: 窄屏下收起 -->
-          <div class="d-flex align-center justify-end">
-            <slot name="top-bar" />
-            <!-- 视图切换 -->
-            <div style="min-width: 120px;max-width: 120px;" class="d-flex">
-              <v-btn-toggle v-model="btnToggle">
-                <v-btn
-                  color="background"
-                  size="small"
-                  icon="mdi-format-list-bulleted"
-                  @click="changeListType('list')"
-                />
-                <v-btn
-                  color="background"
-                  size="small"
-                  icon="mdi-dots-grid"
-                  @click="changeListType('grid')"
-                />
-              </v-btn-toggle>
+        <v-col class="top-right-bar-col" style="margin: 0 12px;">
+          <div class="top-right-bar">
+            <!-- TODO: 窄屏下收起 -->
+            <div class="d-flex align-center justify-end">
+              <slot name="top-bar" />
+              <!-- 视图切换 -->
+              <div style="min-width: 120px;max-width: 120px;" class="d-flex">
+                <v-btn-toggle v-model="btnToggle">
+                  <v-btn
+                    color="background"
+                    size="small"
+                    icon="mdi-format-list-bulleted"
+                    @click="changeListType('list')"
+                  />
+                  <v-btn
+                    color="background"
+                    size="small"
+                    icon="mdi-dots-grid"
+                    @click="changeListType('grid')"
+                  />
+                </v-btn-toggle>
+              </div>
             </div>
           </div>
         </v-col>
@@ -121,6 +120,7 @@
       :uid="uid"
       :read-only="readOnly"
       :height="listHeight"
+      :show-mount-icon="showMountIcon"
       @click-item="clickItem"
       @back="back"
     />
@@ -143,6 +143,10 @@ const props = defineProps({
   fileSystemHandler: {
     type: Object as PropType<FileSystemHandler>,
     default: null
+  },
+  showMountIcon: {
+    type: Boolean,
+    default: false
   },
   readOnly: {
     type: Boolean,
@@ -170,7 +174,10 @@ const props = defineProps({
     type: Function as PropType<(file: FileInfo) => boolean>,
     default: () => true
   },
-  topButtons: {
+  /**
+   * 工具栏按钮
+   */
+  toolButtons: {
     type: Array as PropType<MenuGroup<FileListContext>[]>,
     default: () => []
   },
@@ -211,6 +218,8 @@ const emits = defineEmits<{
 
 // data
 type ListType = 'list' | 'grid'
+
+const isSmallScreen: Ref<boolean> = ref(false)
 
 // 文件列表布局类型
 const listType: Ref<ListType> = ref('list')
@@ -253,8 +262,6 @@ const fileList: Ref<FileInfo[]> = ref([])
 
 // 布局切换按钮组的值
 const btnToggle = ref(0)
-
-
 
 // computed
 const listContext = computed(() => {
@@ -308,7 +315,9 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
 const successListener = async(executor: FileUploadExecutor) => {
   autoRefresher.refresh(executor.getUploadInfo())
 }
-
+const updateIsSmallScreen = () => {
+  isSmallScreen.value = document.documentElement.clientWidth < 740
+}
 const pathArr = computed(() => {
   return props.path.split('/').filter(e => e)
 })
@@ -408,6 +417,7 @@ const updateListHeight = async() => {
 const resizeHandler = async() => {
   await scrollBreadcrumbs()
   await updateListHeight()
+  updateIsSmallScreen()
 }
 
 /**
@@ -476,7 +486,7 @@ export default defineComponent({
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 .path-breadcrumbs {
   white-space: nowrap;
   padding: 6px 0;
@@ -487,8 +497,21 @@ export default defineComponent({
   margin-left: 12px;
   &>* {
     display: inline-block;
-    margin-right: 12px;
-    margin-bottom: 12px;
+    margin: 3px 6px;
   }
+}
+.tool-bar .v-col {
+  padding-bottom: 0;
+}
+
+.top-right-bar {
+  padding-left: 16px;
+  &.is-small-screen {
+    display: none;
+  }
+  
+}
+.top-right-bar-col {
+  padding: 0;
 }
 </style>

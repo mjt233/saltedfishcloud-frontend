@@ -1,3 +1,4 @@
+import { CreateMountPointFormVue } from '@/components/common/MountPoint'
 import { MenuGroup } from '@/core/context'
 import { Validators } from '@/core/helper/Validators'
 import { FileListContext } from '@/core/model'
@@ -69,6 +70,32 @@ export default {
           }
         }
       }
+    },
+    {
+      id: 'mount',
+      title: '云挂载目录',
+      icon: 'mdi-cloud',
+      renderOn(ctx) {
+        return !ctx.readonly
+      },
+      action(ctx) {
+        const form = SfcUtils.openComponentDialog(CreateMountPointFormVue, {
+          title: '创建挂载点',
+          props: {
+            uid: ctx.uid
+          },
+          async onConfirm() {
+            const res = await form.getInstAsForm().submit()
+            if(res.success) {
+              ctx.modelHandler.refresh()
+              return true
+            } else {
+              return false
+            }
+            
+          }
+        })
+      },
     }
   ]
 } as MenuGroup<FileListContext>

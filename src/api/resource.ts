@@ -1,8 +1,19 @@
-import { CommonRequest, IdType, NodeInfo } from '@/core/model'
+import { AxiosRequestConfig } from 'axios'
+import { CommonRequest, IdType, NodeInfo, ResourceRequest } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
+import qs from 'qs'
 
 const resource = {
   prefix: 'resource',
+  /**
+   * 通用资源请求接口
+   * @param param 请求参数
+   */
+  getCommonResource(param: ResourceRequest) {
+    return {
+      url: `${this.prefix}/0/get?` + qs.stringify(param)
+    }
+  },
   /**
    * 获取文件资源的jpg缩略图
    * @param md5 文件资源的md5
@@ -20,7 +31,7 @@ const resource = {
    * @param uid 用户ID
    * @param path 路径
    */
-  getNodeInfo(uid: number, path: string): CommonRequest<NodeInfo[]> {
+  getNodeInfo(uid: IdType, path: string): CommonRequest<NodeInfo[]> {
     path = path.replace(/\/+/g, '/')
     if (path.startsWith('/')) {
       path = path.substring(1)

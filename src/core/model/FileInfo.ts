@@ -74,4 +74,10 @@ export interface FileListContext {
 
   /** 文件列表操作器 */
   modelHandler: FileListModelHandler
+
+  /** 获取文件的下载url */
+  getFileUrl: (file: FileInfo) => string | undefined
+
+  /** 获取文件缩略图的下载url */
+  getThumbnailUrl: (file: FileInfo) => string | undefined
 }

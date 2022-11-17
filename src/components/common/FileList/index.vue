@@ -4,12 +4,14 @@
     @contextmenu="rootRClick"
     @click="rootLClick"
   >
+    <!-- 鼠标框选组件 -->
     <select-area
       :scroll-anchor="scrollAnchor"
       :select-elements-getter="fileElementsGetter"
       @select-start="selectStart"
       @select-move="selectMove"
     />
+    <!-- 文件右键菜单组件 -->
     <file-menu
       v-if="menu.length > 0"
       :container="$el"
@@ -17,6 +19,7 @@
       :list-context="fileListContext"
       :loading-manager="loadingManager"
     />
+    <!-- list类型的文件列表显示 -->
     <v-table
       v-if="type == 'list'"
       ref="tableRef"
@@ -96,10 +99,12 @@
               <file-icon
                 width="32"
                 height="32"
+                :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
                 style="flex-grow: 0;"
                 :file-name="fileInfo.name"
                 :is-dir="fileInfo.dir"
                 :md5="fileInfo.md5"
+                :custom-thumbnail-url="handler && handler.getCustomThumbnailUrl(path, fileInfo)"
               />
               <div class="file-detail">
                 <div class="d-inline-block text-truncate file-name">
@@ -126,6 +131,7 @@
       </tbody>
     </v-table>
     <empty-tip v-if="type == 'grid' && fileList.length == 0" style="position: absolute;width: 100%;" />
+    <!-- grid类型的文件显示 -->
     <grid-container
       v-if="type == 'grid'"
       ref="gridRef"
@@ -139,7 +145,9 @@
         ref="gridItemRef"
         v-ripple
         :file-info="fileInfo"
+        :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
         :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
+        :path="path"
         @click="fileLClick($event, fileInfo)"
         @contextmenu.prevent="fileRClick($event, fileInfo)"
         @check-change="toggleSelectFile(fileInfo)"
@@ -439,6 +447,7 @@ import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
 import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
 import { SelectResult } from '@/core/model/component/SelectArea'
+import API from '@/api'
 
 export default defineComponent({
   name: 'FileList'

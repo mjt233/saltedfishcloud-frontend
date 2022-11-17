@@ -9,6 +9,29 @@ export interface SelectOption {
   action?: () => any
 }
 
+/**
+ * 通用统一资源请求参数
+ */
+export interface ResourceRequest {
+  /** 请求的资源所在路径 */
+  path: string
+
+  /** 资源文件名 */
+  name: string
+
+  /** 目标资源id，如公共网盘/私人网盘则使用用户id，文件分享使用分享id等，取决于具体文件协议提供者 */
+  targetId: IdType
+
+  /** 请求的资源协议，公共网盘/私人网盘使用main，文件分享使用share等，取决于具体文件协议提供者 */
+  protocol: string
+
+  /** 是否为缩略图资源请求 */
+  isThumbnail?: boolean
+
+  /** 其他自定义附加参数 */
+  [key:string]:any
+}
+
 
 /**
  * 数据ID类型
@@ -70,6 +93,9 @@ export interface ConfigNodeModel {
 
   /* 当类型为template时使用模板内容作为内容编辑 */
   template?: string | ChildrenType
+
+  /* 是否必填 */
+  required?: boolean
 }
 
 /**

@@ -14,7 +14,8 @@ context.fileOpenHandler.value.push({
     setTimeout(() => {
       SfcUtils.openComponentDialog(VideoPlayerVue, {
         props: {
-          url: SfcUtils.getApiUrl(window.API.resource.downloadFileByMD5(file.md5, file.name))
+          url: ctx.getFileUrl(file)
+          // url: SfcUtils.getApiUrl(window.API.resource.downloadFileByMD5(file.md5, file.name))
         },
         dense: true,
         showCancel: false,
