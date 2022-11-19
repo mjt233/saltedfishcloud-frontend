@@ -17,7 +17,7 @@
         </form-row>
       </template>
     </form-grid>
-    <v-btn color="primary" @click="edit">
+    <v-btn v-if="!readOnly" color="primary" @click="edit">
       编辑
     </v-btn>
   </div>
@@ -32,6 +32,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     default: ''
+  },
+  readOnly: {
+    type: Boolean,
+    default: false
   }
 })
 const valObj = computed(() => {

@@ -61,7 +61,6 @@ declare module '@vue/runtime-core' {
     FileShareList: typeof import('./src/components/common/FileShare/FileShareList.vue')['default']
     FileShareSuccess: typeof import('./src/components/common/FileShare/FileShareSuccess.vue')['default']
     FileShareView: typeof import('./src/components/common/FileShare/FileShareView.vue')['default']
-    FilesInfo: typeof import('./src/components/common/FileAttribute.vue')['default']
     FileUpload: typeof import('./src/components/common/FileUpload/FileUpload.vue')['default']
     FileUploadItem: typeof import('./src/components/common/FileUpload/FileUploadItem.vue')['default']
     FileUploadList: typeof import('./src/components/common/FileUpload/FileUploadList.vue')['default']
