@@ -80,7 +80,7 @@
         </tr>
         <tr
           v-for="(fileInfo, index) in fileList"
-          :key="fileInfo.name + fileInfo.md5"
+          :key="path + fileInfo.name"
           v-ripple
           file-item
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"

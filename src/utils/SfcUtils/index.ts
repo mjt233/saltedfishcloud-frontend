@@ -9,7 +9,7 @@ import { ApiRequest } from '@/core/model'
 // import previewImage from './preview/previewImage'
 import { snackbar } from './common/SnackBar'
 import axios from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import * as dialog from './common/Dialog'
 import * as fileSelector from './file/fileSelector'
 import { context } from '@/core/context'
@@ -46,6 +46,15 @@ const SfcUtils = {
       })
     }
     return ret
+  },
+  isAxiosError(err: any) {
+    return (err instanceof AxiosError)
+  },
+  toAxiosError(err: any):AxiosError {
+    return err
+  },
+  isForbidden(err: any) {
+    return this.isAxiosError(err) && this.toAxiosError(err).code == '403'
   },
   
   /**

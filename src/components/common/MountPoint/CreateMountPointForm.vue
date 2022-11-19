@@ -106,41 +106,60 @@ const formInst = defineForm({
      * 加载可用的文件系统
      */
     async loadSystem() {
-      const res = await SfcUtils.request(API.mountPoint.listAvailableFileSystem())
-      res.data.data.forEach(describe => {
-        selectOptions.value.push({
-          value: describe.protocol,
-          title: describe.name,
-          action() {
-            configGroup.value = describe.configNode
-            formData.protocol = describe.protocol
-            mountConfig = {}
-            describe.configNode.flatMap(e => e.nodes).forEach(node => {
-              if (node) {
-                mountConfig[node.name] = node.defaultValue
-              }
-            })
-          }
+      try {
+        const res = await SfcUtils.request(API.mountPoint.listAvailableFileSystem())
+        res.data.data.forEach(describe => {
+          selectOptions.value.push({
+            value: describe.protocol,
+            title: describe.name,
+            action() {
+              configGroup.value = describe.configNode
+              formData.protocol = describe.protocol
+              mountConfig = {}
+              describe.configNode.flatMap(e => e.nodes).forEach(node => {
+                if (node) {
+                  mountConfig[node.name] = node.defaultValue
+                }
+              })
+            }
+          })
         })
-      })
+        return true
+      } catch(err) {
+        // 忽略权限问题
+        if (SfcUtils.isForbidden(err)) {
+          return false
+        } else {
+          return err
+        }
+      }
     },
     async loadById() {
       if (props.dataId) {
-        const res = await SfcUtils.request(API.mountPoint.getById(props.dataId))  
-        const data = res.data.data
-        Object.assign(formData, data)
-        const opt = selectOptions.value.find(e => e.value == formData.protocol)
-        opt && opt.action && opt.action()
-        const params = JSON.parse(formData.params)
-        configGroup.value.filter(e => e.nodes)
-          .flatMap(e => e.nodes)
-          .forEach(node => {
-            if (node) {
-              node.value = params[node.name]
-            }
-          })
+        try {
+          
+          const res = await SfcUtils.request(API.mountPoint.getById(props.dataId))  
+          const data = res.data.data
+          Object.assign(formData, data)
+          const opt = selectOptions.value.find(e => e.value == formData.protocol)
+          opt && opt.action && opt.action()
+          const params = JSON.parse(formData.params)
+          configGroup.value.filter(e => e.nodes)
+            .flatMap(e => e.nodes)
+            .forEach(node => {
+              if (node) {
+                node.value = params[node.name]
+              }
+            })
 
-        selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
+          selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
+        } catch (err) {
+          if (SfcUtils.isForbidden(err)) {
+            return false
+          } else {
+            return err
+          }
+        }
       }
     }
   },
@@ -161,11 +180,12 @@ const { formData, actions, validators, loadingRef, loadingManager  } = formInst
 
 onMounted(async() => {
   try {
-    await actions.loadSystem()
-    await actions.loadById()
-    emits('loaded')
+    if(await actions.loadSystem() && await actions.loadById()) {
+      emits('loaded')
+    }
   } catch(err) {
     emits('error', err)
+    console.error(err)
   }
 })
 defineExpose(formInst)
