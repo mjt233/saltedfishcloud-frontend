@@ -153,6 +153,7 @@ const formInst = defineForm({
             })
 
           selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
+          return true
         } catch (err) {
           if (SfcUtils.isForbidden(err)) {
             return false
