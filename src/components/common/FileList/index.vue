@@ -140,8 +140,8 @@
       class="grid-container"
     >
       <file-list-grid-item
-        v-for="(fileInfo, index) in fileList"
-        :key="index"
+        v-for="(fileInfo) in fileList"
+        :key="path + fileInfo.name + fileInfo.md5"
         ref="gridItemRef"
         v-ripple
         :file-info="fileInfo"
