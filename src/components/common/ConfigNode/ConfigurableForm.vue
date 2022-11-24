@@ -15,7 +15,7 @@
             :key="node.name"
             :required="node.required"
             top-label
-            :label="node.title || node.name"
+            :label="node.inputType == 'switch' ? '' : (node.title || node.name)"
             class="mw-50"
           >
             <config-node

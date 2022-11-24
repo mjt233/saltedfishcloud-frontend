@@ -10,8 +10,8 @@
           <config-node-change-detail :node="node" :current-value="nodeValue" />
         </div>
       </div>
-      <div v-if="showDescribe" class="config-describe tip">
-        <v-checkbox
+      <div class="config-describe tip">
+        <v-switch
           v-if="node.inputType == 'switch'"
           color="primary"
           :hide-details="true"
@@ -21,7 +21,7 @@
           :rules="validators"
           @update:model-value="nodeValue = $event; updateValue($event)"
         />
-        <multi-line-text v-else :text="node.describe" />
+        <multi-line-text v-if="showDescribe" :text="node.describe" />
       </div>
       <template v-if="node.inputType == 'text'">
         <text-input
