@@ -17,7 +17,7 @@
           :hide-details="true"
           :label="node.describe"
           :model-value="nodeValue == true || nodeValue == 'true'"
-          :disabled="node.readonly || readOnly"
+          :readonly="node.readonly || readOnly"
           :rules="validators"
           @update:model-value="nodeValue = $event; updateValue($event)"
         />
