@@ -157,7 +157,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .config-title {
-  font-weight: 600;
+  font-weight: bold;
   color: rgba(var(--v-theme-primary));
 }
 

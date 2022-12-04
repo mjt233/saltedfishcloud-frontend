@@ -1,5 +1,5 @@
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
-import { CommonRequest } from '@/core/model'
+import { CommonRequest, SystemOverview } from '@/core/model'
 import { NameValueType, PluginConfigNodeInfo } from './../../core/model/Common'
 // /**
 //  * @typedef {Object} ProxyInfo
@@ -21,7 +21,7 @@ const sys = {
   /**
    * 获取系统总览信息
    */
-  getOverviewInfo() {
+  getOverviewInfo(): CommonRequest<SystemOverview> {
     return {
       url: `${this.prefix}/overview`
     }

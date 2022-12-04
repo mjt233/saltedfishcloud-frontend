@@ -6,7 +6,7 @@ export namespace StringFormatter {
      * @param {Number=} B Byte显示为B
      * @return {String}
      */
-  export function toSize(size: number, B = false) {
+  export function toSize(size: any, B = false) {
     if (size == null || size == undefined) {
       return ''
     }

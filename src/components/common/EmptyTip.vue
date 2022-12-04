@@ -1,11 +1,16 @@
 <template>
   <div class="empty-tip">
-    (～￣▽￣)～这里什么也没有哦
+    (～￣▽￣)～{{ text }}
   </div>
 </template>
 
 <script setup lang="ts">
-const session = context.session
+defineProps({
+  text: {
+    type: String,
+    default: '这里什么也没有哦'
+  }
+})
 </script>
 
 <script lang="ts">

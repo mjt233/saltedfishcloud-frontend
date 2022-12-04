@@ -231,3 +231,39 @@ export interface BootContextHandler {
    */
   setInterruptMsg(msg: string): void
 }
+
+export interface FileSystemStatus {
+    /** 存储域 */
+    area: 'public' | 'private',
+
+    /** 目录数量 */
+    dirCount: string,
+
+    /** 文件数量 */
+    fileCount: string,
+
+    /** 剩余空间（byte） */
+    free: string,
+
+    /** 资源存储路径 */
+    path: string,
+
+    /** 咸鱼云系统网盘文件占用大小 */
+    sysUsed: string,
+
+    /** 存储系统空间总量大小 */
+    total: string,
+    
+    /** 存储系统已用空间大小 */
+    used: string,
+
+    /** 其他参数 */
+    otherAttributes?: ConfigNodeModel[]
+}
+
+export interface SystemOverview {
+  /** 文件系统状态 */
+  fileSystemStatus: FileSystemStatus[],
+  /** 系统其他状态 */
+  systemStatus: ConfigNodeModel[]
+}
