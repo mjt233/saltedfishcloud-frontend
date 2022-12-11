@@ -9,6 +9,10 @@ const props = defineProps({
   url: {
     type: String,
     default: undefined
+  },
+  subtitleUrl: {
+    type: String,
+    default: undefined
   }
 })
 const rootRef = ref() as Ref<HTMLElement>
@@ -23,6 +27,11 @@ const initPlayer = () => {
     container: rootRef.value,
     video: {
       url: props.url
+    }
+  }
+  if (props.subtitleUrl) {
+    opt.subtitle = {
+      url: props.subtitleUrl
     }
   }
   dp = new DPlayer(opt)

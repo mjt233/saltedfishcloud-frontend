@@ -50,6 +50,14 @@ export interface FileTransferInfo {
   dest?: string
 }
 
+/**
+ * 获取访问协议资源的额外参数，如：文件分享需要vid，提取码等参数
+ */
+export interface ProtocolParams {
+  /** 资源id */
+  id: IdType
+  [key:string]:any
+}
 export interface FileListContext {
   /** 整个文件列表的所有文件 */
   fileList: FileInfo[]
@@ -79,5 +87,11 @@ export interface FileListContext {
   getFileUrl: (file: FileInfo) => string | undefined
 
   /** 获取文件缩略图的下载url */
-  getThumbnailUrl: (file: FileInfo) => string | undefined
+  getThumbnailUrl: (file: FileInfo) => string | undefined,
+
+  /** 文件列表的网盘资源访问协议 */
+  protocol: string,
+
+  /** 获取访问协议资源的额外参数，如：文件分享需要vid，提取码等参数 */
+  getProtocolParams: () => ProtocolParams
 }

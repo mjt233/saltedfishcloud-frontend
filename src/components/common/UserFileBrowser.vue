@@ -72,7 +72,7 @@
 import FileBrowser from '@/components/common/FileBrowser.vue'
 import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 import {FileSearchList,TextInput,LoadingMask } from '@/components'
-
+provide('protocol', 'main')
 const searchListRef = ref() as Ref<FileSearchListModel>
 const props = defineProps({
   uid: {
@@ -171,7 +171,7 @@ const clickSearchItem = async(item: SearchFileInfo) => {
 
 <script lang="ts">
 import { context } from '@/core/context'
-import { computed, defineComponent, nextTick, onMounted, Ref, ref, watch } from 'vue'
+import { computed, defineComponent, inject, nextTick, onMounted, provide, Ref, ref, watch } from 'vue'
 import SfcUtils from '@/utils/SfcUtils'
 import API from '@/api'
 import { SearchFileInfo } from '@/core/model'
