@@ -92,5 +92,6 @@ declare module '@vue/runtime-core' {
     UserCard: typeof import('./src/components/common/UserCard.vue')['default']
     UserFileBrowser: typeof import('./src/components/common/UserFileBrowser.vue')['default']
     UserRegisterForm: typeof import('./src/components/form/UserRegisterForm/UserRegisterForm.vue')['default']
+    VideoPlayer: typeof import('./src/components/common/VideoPlayer.vue')['default']
   }
 }

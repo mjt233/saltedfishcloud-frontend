@@ -8,7 +8,7 @@
     "dev": "vite --host",
     "preview": "vite preview",
     "build-ext-demo": "vite build --config build/extension/demo.ts",
-    "build-ext-video-player": "vite build --config build/extension/video-player.ts"
+    "build-ext-video-enhance": "vite build --config build/extension/video-enhance.ts"
   },
   "dependencies": {
     "axios": "^0.27.2",

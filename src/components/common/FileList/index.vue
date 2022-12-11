@@ -272,7 +272,9 @@ const fileListContext: FileListContext = FileListContextBuilder.getFileListConte
   rename,
   handler,
   protocol: inject('protocol', ''),
-  protocolParams: inject('protocolParams', () => { return { id: props.uid } })
+  protocolParams: inject('protocolParams', () => {
+    return { id: props.uid }
+  })
 })
 
 const toggleSelectAll = () => {

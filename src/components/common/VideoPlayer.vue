@@ -9,14 +9,9 @@ const props = defineProps({
   url: {
     type: String,
     default: undefined
-  },
-  subtitleUrl: {
-    type: String,
-    default: undefined
   }
 })
 const rootRef = ref() as Ref<HTMLElement>
-
 let dp:DPlayer
 
 const initPlayer = () => {
@@ -27,11 +22,6 @@ const initPlayer = () => {
     container: rootRef.value,
     video: {
       url: props.url
-    }
-  }
-  if (props.subtitleUrl) {
-    opt.subtitle = {
-      url: props.subtitleUrl
     }
   }
   dp = new DPlayer(opt)
@@ -49,7 +39,7 @@ watch(() => props.url, initPlayer)
 <script lang="ts">
 import DPlayer from 'dplayer'
 import { DPlayerOptions } from 'dplayer'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch, reactive } from 'vue'
 
 export default defineComponent({
   name: 'VideoPlayer'

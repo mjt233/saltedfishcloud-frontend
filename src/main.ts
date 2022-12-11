@@ -3,6 +3,6 @@ import bootApp, * as boot from './core/boot'
 import './core/boot/globalmount'
 
 // 拓展调试用的导入
-// import '@/extension/video-player/main'
+// import '@/extension/video-enhance/main'
 
 bootApp()

@@ -1,3 +1,4 @@
+import DPlayer from 'dplayer'
 import router from '@/plugins/router'
 import SfcUtils from '@/utils/SfcUtils'
 import { context } from '../context'
@@ -12,5 +13,6 @@ window.context = context
 window.Vue = Vue
 window.SfcUtils = SfcUtils
 window.API = API
+window.DPlayer = DPlayer as any
 
 export {}

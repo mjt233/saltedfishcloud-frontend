@@ -5,7 +5,9 @@ import { FileOpenHandler } from './type'
 import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
 import ImagePreviewerVue from '@/components/common/Previewer/ImagePreviewer.vue'
+import { VideoPlayer } from '@/components'
 import { dyncmount } from '@/utils/SfcUtils/common/DyncMount'
+import { extname } from 'path'
 const imgTypes = new Set(['jpeg', 'jpg', 'gif', 'png', 'bmp', 'icon'])
 function isImgType(name: string) {
   const extName = name.split('.').pop() as string
@@ -77,6 +79,29 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
         },
         tempDOMHandler(dom) {
           dom.style.zIndex = '114514'
+        }
+      })
+    }
+  },
+  {
+    id: 'play-video',
+    title: '播放视频',
+    icon: 'mdi-play-circle',
+    sort: 0,
+    matcher(ctx, file) {
+      const extName = file.name.split('.').pop()?.toLowerCase()
+      return extName == 'mp4' || extName == 'mkv'
+    },
+    async action(ctx, file) {
+      SfcUtils.openComponentDialog(VideoPlayer, {
+        props: {
+          url: ctx.getFileUrl(file)
+        },
+        dense: true,
+        showCancel: false,
+        title: '视频预览：' + file.name,
+        extraDialogOptions: {
+          maxWidth: '80%'
         }
       })
     }
