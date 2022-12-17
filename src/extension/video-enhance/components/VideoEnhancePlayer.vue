@@ -33,7 +33,7 @@ const initPlayer = () => {
     }
   }
   
-  const selectNo = ref('')
+  const subtitle = ref() as Ref<SubtitleStream>
   if (props.videoInfo) {
     if (props.videoInfo.subtitleStreamList.length) {
       window.SfcUtils.snackbar(`检测到${props.videoInfo.subtitleStreamList.length}个字幕`)
@@ -44,24 +44,26 @@ const initPlayer = () => {
             window.SfcUtils.openComponentDialog(SubtitleSelector, {
               props: reactive({
                 subtitles: props.videoInfo?.subtitleStreamList,
-                'onUpdate:modelValue'(val: string) {
-                  selectNo.value = val
+                'onUpdate:modelValue'(val: SubtitleStream) {
+                  subtitle.value = val
                 },
-                modelValue: selectNo
+                modelValue: subtitle
               }),
               title: '选择字幕',
               contentMaxHeight: '360px',
-              onConfirm() {
+              async onConfirm() {
                 const cur = dp.video.currentTime
-                const urlObj = props.subtitleUrls.find(s => s.no == selectNo.value)
+                const urlObj = props.subtitleUrls.find(s => s.no == subtitle.value.no)
                 if (!urlObj) {
-                  window.SfcUtils.snackbar('找不到流编号为' + selectNo.value + '的字幕流')
+                  window.SfcUtils.snackbar('找不到流编号为' + subtitle.value + '的字幕流')
                   return true
                 }
                 opt.subtitle = {
                   url: urlObj.url,
                   fontSize: '21px'
-                }
+                };
+                (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.value.remark + (subtitle.value.title ? ('(' + subtitle.value.title + ')') : '')
+                console.log(opt.contextmenu)
                 dp.destroy()
                 dp = new window.DPlayer(opt)
                 dp.play()
@@ -97,9 +99,9 @@ watch(() => props.url, initPlayer)
 
 <script lang="ts">
 import type DPlayer from 'dplayer'
-import { DPlayerOptions } from 'dplayer'
+import { DPlayerContextMenuItem, DPlayerOptions } from 'dplayer'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch, reactive } from 'vue'
-import { VideoInfo } from '../model'
+import { SubtitleStream, VideoInfo } from '../model'
 import SubtitleSelector from './SubtitleSelector.vue'
 
 export default defineComponent({

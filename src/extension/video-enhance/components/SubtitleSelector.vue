@@ -5,7 +5,7 @@
       :key="item.no"
       color="primary"
       :label="`${item.remark}${item.title ? '(' + item.title + ')' : ''}`"
-      :value="item.no"
+      :value="item"
     />
   </v-radio-group>
 </template>

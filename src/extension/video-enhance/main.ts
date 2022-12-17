@@ -82,7 +82,7 @@ const videoOpenHandler: FileOpenHandler = {
     }
     const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe'])
     const extName = file.name.split('.').pop()
-    return videoType.has(extName)
+    return !!extName && videoType.has(extName)
   },
   title: '播放视频',
   async action(ctx, file) {
