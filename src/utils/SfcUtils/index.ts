@@ -16,6 +16,10 @@ import { context } from '@/core/context'
 import FileOpenSelectorVue from '@/components/common/FileOpenSelector.vue'
 import { dyncmount } from './common/DyncMount'
 import { h } from 'vue'
+import { LoadingManager } from '../LoadingManager'
+
+let globalLoadingManager: LoadingManager = new LoadingManager()
+
 const SfcUtils = {
   dyncmount,
   snackbar,
@@ -146,6 +150,22 @@ const SfcUtils = {
         footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
       })
     }
+  },
+  beginLoading() {
+    if (globalLoadingManager) {
+      globalLoadingManager.beginLoading()
+    }
+  },
+  closeLoading() {
+    if (globalLoadingManager) {
+      globalLoadingManager.closeLoading()
+    }
+  },
+  setGlobalLoadingManager(m: LoadingManager) {
+    globalLoadingManager = m
+  },
+  getGlobalLoadingManager() {
+    return globalLoadingManager
   }
 }
 
