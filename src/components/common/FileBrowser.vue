@@ -353,6 +353,7 @@ const jumpIndex = (nodeIndex: number) => {
  */
 const loadList = async(path: string) => {
   fileList.value = await handler.value.loadList(path)
+  fileList.value.forEach(file => file.path = path)
   if (props.path != path) {
     emits('update:path', path)
     scrollBreadcrumbs()

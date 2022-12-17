@@ -19,6 +19,9 @@ export interface FileInfo {
   mountId: string,
   /* 是否来自挂载的文件系统 */
   mount: boolean
+
+  /* 所处路径 */
+  path?: string
 }
 
 export interface SearchFileInfo extends FileInfo {
