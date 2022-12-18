@@ -15,7 +15,7 @@ const props = defineProps({
     default: undefined
   },
   subtitleUrls: {
-    type: Array as PropType<{no:string, url: string}[]>,
+    type: Array as PropType<{index:string, url: string}[]>,
     default: () => []
   }
 })
@@ -33,18 +33,19 @@ const initPlayer = () => {
     }
   }
   
-  const subtitle = ref() as Ref<SubtitleStream>
+  const subtitle = ref() as Ref<StreamInfo>
   if (props.videoInfo) {
-    if (props.videoInfo.subtitleStreamList.length) {
-      window.SfcUtils.snackbar(`检测到${props.videoInfo.subtitleStreamList.length}个字幕`)
+    const subtitleList = props.videoInfo.streams.filter(s => s.codecType == 'subtitle')
+    if (subtitleList.length) {
+      window.SfcUtils.snackbar(`检测到${subtitleList.length}个字幕`)
       opt.contextmenu = [
         {
           text: '选择字幕',
           click() {
             window.SfcUtils.openComponentDialog(SubtitleSelector, {
               props: reactive({
-                subtitles: props.videoInfo?.subtitleStreamList,
-                'onUpdate:modelValue'(val: SubtitleStream) {
+                subtitles: subtitleList,
+                'onUpdate:modelValue'(val: StreamInfo) {
                   subtitle.value = val
                 },
                 modelValue: subtitle
@@ -53,7 +54,7 @@ const initPlayer = () => {
               contentMaxHeight: '360px',
               async onConfirm() {
                 const cur = dp.video.currentTime
-                const urlObj = props.subtitleUrls.find(s => s.no == subtitle.value.no)
+                const urlObj = props.subtitleUrls.find(s => s.index == subtitle.value.index)
                 if (!urlObj) {
                   window.SfcUtils.snackbar('找不到流编号为' + subtitle.value + '的字幕流')
                   return true
@@ -62,7 +63,7 @@ const initPlayer = () => {
                   url: urlObj.url,
                   fontSize: '21px'
                 };
-                (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.value.remark + (subtitle.value.title ? ('(' + subtitle.value.title + ')') : '')
+                (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.value.language + (subtitle.value.title ? ('(' + subtitle.value.title + ')') : '')
                 console.log(opt.contextmenu)
                 dp.destroy()
                 dp = new window.DPlayer(opt)
@@ -76,11 +77,11 @@ const initPlayer = () => {
       ]
     }
 
-    if (props.videoInfo.chapterList.length) {
-      opt.highlight = props.videoInfo.chapterList.map(c => {
+    if (props.videoInfo.chapters.length) {
+      opt.highlight = props.videoInfo.chapters.map(c => {
         return {
           text: c.title,
-          time: Number(c.start) / 1000
+          time: Number(c.startTime) / 1000
         }
       })
     }
@@ -101,7 +102,7 @@ watch(() => props.url, initPlayer)
 import type DPlayer from 'dplayer'
 import { DPlayerContextMenuItem, DPlayerOptions } from 'dplayer'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch, reactive } from 'vue'
-import { SubtitleStream, VideoInfo } from '../model'
+import { StreamInfo, VideoInfo } from '../model'
 import SubtitleSelector from './SubtitleSelector.vue'
 
 export default defineComponent({

@@ -1,95 +1,100 @@
-export interface MediaStream {
+export interface StreamInfo {
   /**
-   * 流编号
+   * 流索引/编号
    */
-  no: string
+  index: string;
 
   /**
-   * 备注
-   */
-  remark: string
+  * 编码
+  */
+  codecName: string;
 
   /**
-   * 流类型
-   */
-  type: string
+  * 编码详细名称信息
+  */
+  codecnumberName: string;
 
   /**
-   * 元数据
-   */
-  metadata: Map<string,string>
+  * 流编码类型
+  */
+  codecType: 'video' | 'audio' | 'subtitle';
 
   /**
-   * 码率（byte per second）
-   */
-  bps: Number
+  * 持续时长秒数
+  */
+  duration: number;
 
   /**
-   * 持续时长
-   */
-  duration: string
+  * 视频宽度
+  */
+  width: number;
 
   /**
-   * 原始行文本
-   */
-  originLine: string
+  * 视频高度
+  */
+  height: number;
+
+  /**
+  * 平均帧率
+  */
+  avgFrameRate: number;
+  /**
+  * 音频采样格式
+  */
+  sampleFmt: string;
+
+  /**
+  * 音频采样率
+  */
+  sampleRate: string;
+
+  /**
+  * 声道数
+  */
+  channels: number;
+
+  /**
+  * 声道布局
+  */
+  channelLayout: string;
+
+  /**
+  * 码率
+  */
+  bitRate: number;
+
+  /**
+  * 字幕语言
+  */
+  language: string;
+
+  /**
+  * 字幕标题
+  */
+  title: string;
+
+  disposition: { [key:string]:string }
+
+  /**
+  * 其他标签
+  */
+  tags: { [key:string]:string }
 }
 
-export interface AudioStream extends MediaStream {
-  /**
-   * 编码
-   */
-  encode: string
-
-  /**
-   * 采样率
-   */
-  sampleRate: Number
-
-  /**
-   * 模式（单声道/双声道）
-   */
-  mode: string
-}
-
-export interface VideoStream extends MediaStream {
-  
-  /**
-   * 编码
-   */
-  encode: string
-
-  /**
-   * 分辨率，如：1920x1080
-   */
-  resolution: string
-
-  /**
-   * 帧率(fps)
-   */
-  frameRage: Number
-}
-
-export interface SubtitleStream extends MediaStream {
-  /**
-   * 标题
-   */
-  title: string
-}
 
 /**
  * 视频章节时间点
  */
 export interface Chapter {
   /**
-   * 开始时间，如：0、00:21:23.3333
+   * 开始秒数
    */
-  start: string
+  startTime: string
 
   /**
-   * 结束时间
+   * 结束秒数
    */
-  end: string
+  endTime: string
 
   /**
    * 标题
@@ -97,15 +102,12 @@ export interface Chapter {
   title: string
 
   /**
-   * 编号
+   * id
    */
-  no: string
+  id: string
 }
 
 export interface VideoInfo {
-  audioStreamList: AudioStream[]
-  chapterList: Chapter[]
-  otherStreamList: MediaStream[]
-  subtitleStreamList: SubtitleStream[]
-  videoStreamList: VideoStream[]
+  streams: StreamInfo[]
+  chapters: Chapter[]
 }

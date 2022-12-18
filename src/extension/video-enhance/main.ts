@@ -10,9 +10,9 @@ const SfcUtils = window.SfcUtils
  * 获取字幕URL
  * @param ctx 文件列表上下文
  * @param file 要获取字幕的文件信息
- * @param streamNo 字幕流编号
+ * @param streamIndex 字幕流索引
  */
-function getSubtitleUrl(ctx: FileListContext, file: FileInfo, streamNo: string) {
+function getSubtitleUrl(ctx: FileListContext, file: FileInfo, streamIndex: string) {
   if (!file.name.endsWith('.mkv')) {
     return null
   }
@@ -21,7 +21,7 @@ function getSubtitleUrl(ctx: FileListContext, file: FileInfo, streamNo: string) 
     path: ctx.path,
     protocol: 'subtitle',
     targetId: ctx.uid,
-    stream: streamNo
+    stream: streamIndex
   } as any
   if(ctx.protocol == 'main') {
     return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
@@ -94,10 +94,10 @@ const videoOpenHandler: FileOpenHandler = {
         props: {
           url: ctx.getFileUrl(file),
           videoInfo: videoInfo,
-          subtitleUrls: videoInfo.subtitleStreamList.map(s => {
+          subtitleUrls: videoInfo.streams.filter(s => s.codecType == 'subtitle').map(s => {
             return {
-              no: s.no,
-              url: getSubtitleUrl(ctx, file, s.no)
+              index: s.index,
+              url: getSubtitleUrl(ctx, file, s.index)
             }
           })
         },

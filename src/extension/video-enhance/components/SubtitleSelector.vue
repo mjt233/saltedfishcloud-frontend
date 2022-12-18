@@ -2,9 +2,9 @@
   <v-radio-group>
     <v-radio
       v-for="item in props.subtitles"
-      :key="item.no"
+      :key="item.index"
       color="primary"
-      :label="`${item.remark}${item.title ? '(' + item.title + ')' : ''}`"
+      :label="`${item.language}${item.title ? '(' + item.title + ')' : ''}`"
       :value="item"
     />
   </v-radio-group>
@@ -13,7 +13,7 @@
 <script setup lang="ts">
 const props = defineProps({
   subtitles: {
-    type: Array as PropType<SubtitleStream[]>,
+    type: Array as PropType<StreamInfo[]>,
     default: () => []
   }
 })
@@ -22,7 +22,7 @@ const props = defineProps({
 <script lang="ts">
 import { VRadio, VRadioGroup } from 'vuetify/components'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
-import { SubtitleStream } from '../model'
+import { StreamInfo } from '../model'
 
 export default defineComponent({
   name: 'SubtitleSelector'
