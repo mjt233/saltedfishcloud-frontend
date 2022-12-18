@@ -81,7 +81,7 @@ const initPlayer = () => {
       opt.highlight = props.videoInfo.chapters.map(c => {
         return {
           text: c.title,
-          time: Number(c.startTime) / 1000
+          time: Number(c.startTime)
         }
       })
     }
