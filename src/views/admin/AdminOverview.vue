@@ -8,7 +8,12 @@
           文件系统信息
         </div>
         <v-row>
-          <v-col v-for="status in overviewData.fileSystemStatus" :key="status.area">
+          <v-col
+            v-for="status in overviewData.fileSystemStatus"
+            :key="status.area"
+            sm="12"
+            md="6"
+          >
             <VTable>
               <tbody>
                 <tr>
@@ -49,18 +54,30 @@
           其他信息
         </div>
         <v-row>
-          <v-col v-for="statusGroup in overviewData.systemStatus" :key="statusGroup.name">
+          <v-col
+            v-for="statusGroup in overviewData.systemStatus"
+            :key="statusGroup.name"
+            sm="12"
+            md="6"
+            class="overview-item"
+          >
             <div class="text-h6 text-primary">
               {{ statusGroup.title || statusGroup.name }}
             </div>
             <VTable>
               <tbody>
                 <tr v-for="item in statusGroup.nodes" :key="item.name">
-                  <td style="min-width: 140px">
+                  <td style="min-width: 120px">
                     {{ item.title }}
                   </td>
                   <td class="break-text" style="min-width: 210px">
-                    {{ item.value }}
+                    <template v-if="!item.inputType || item.inputType == 'text'">
+                      {{ item.value }}
+                    </template>
+                    <template v-else>
+                      <component :is="item.inputType" :value="item.value" />
+                    </template>
+                    
                   </td>
                 </tr>
               </tbody>
@@ -103,3 +120,11 @@ export default defineComponent({
   name: 'AdminOverview'
 })
 </script>
+
+<style scoped >
+.overview-item {
+  display: inline-block;
+  min-width: 320px;
+}
+
+</style>

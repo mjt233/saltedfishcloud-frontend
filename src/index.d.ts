@@ -2,9 +2,11 @@ import { SfcUtils } from '@/utils/SfcUtils'
 import { defineComponent, ToRefs } from 'vue'
 import { AppContext } from './core/context/type'
 import * as Vue from 'vue'
+import { App } from 'vue'
 import SfcUtils from './utils/SfcUtils'
 import API from './api'
 import DPlayer from 'dplayer'
+import { BootContext } from './core/model'
 
 declare global {
   interface Window {
@@ -13,5 +15,7 @@ declare global {
     SfcUtils: typeof SfcUtils,
     API: typeof API,
     DPlayer: typeof DPlayer
+    app: App<Element>,
+    bootContext: BootContext
   }
 }

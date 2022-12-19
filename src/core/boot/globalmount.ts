@@ -4,6 +4,7 @@ import SfcUtils from '@/utils/SfcUtils'
 import { context } from '../context'
 import * as Vue from 'vue'
 import API from '@/api'
+import { bootContext } from './BootCore'
 
 /**
  * 挂载全局属性
@@ -14,5 +15,6 @@ window.Vue = Vue
 window.SfcUtils = SfcUtils
 window.API = API
 window.DPlayer = DPlayer as any
+window.bootContext = bootContext
 
 export {}
