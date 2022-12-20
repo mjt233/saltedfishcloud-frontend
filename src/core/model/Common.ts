@@ -184,9 +184,20 @@ export interface BootProcessor {
   [other: string]: any
 }
 
+/**
+ * 前端项目加载启动流程上下文
+ */
 export interface BootContext {
+  /**
+   * 添加一个执行器到启动流程中，若流程进行中添加，也依然会对添加的执行器进行调用。
+   * 若启动流程已执行完成，则不会再被调用了
+   * @param executor 执行器
+   */
   addProcessor(executor: BootProcessor): BootContext
 
+  /**
+   * 开始执行启动流程
+   */
   start(): Promise<any>
 }
 
