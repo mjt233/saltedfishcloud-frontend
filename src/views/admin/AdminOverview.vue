@@ -71,13 +71,12 @@
                     {{ item.title }}
                   </td>
                   <td class="break-text" style="min-width: 210px">
-                    <template v-if="!item.inputType || item.inputType == 'text'">
+                    <template v-if="item.inputType != 'template'">
                       {{ item.value }}
                     </template>
                     <template v-else>
-                      <component :is="item.inputType" :value="item.value" />
+                      <component :is="item.template" :model-value="item.value" />
                     </template>
-                    
                   </td>
                 </tr>
               </tbody>

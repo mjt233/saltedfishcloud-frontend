@@ -59,7 +59,7 @@ export interface ConfigNodeModel {
   title: string
 
   /* 节点值 */
-  value: RawType
+  value: any
 
   /* 是否使用掩码*显示 */
   mask?: boolean

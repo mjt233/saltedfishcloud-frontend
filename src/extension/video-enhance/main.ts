@@ -2,6 +2,7 @@ import { FileOpenHandler } from '@/core/context'
 import { FileInfo, FileListContext } from '@/core/model'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
 import { VideoInfo } from './model'
+import './boot'
 
 const context = window.context
 const SfcUtils = window.SfcUtils

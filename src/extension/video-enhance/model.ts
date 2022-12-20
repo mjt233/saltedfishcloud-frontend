@@ -1,3 +1,10 @@
+export interface Encoder {
+  name: string
+  describe: string
+  flag: string
+  type: 'video' | 'audio' | 'subtitle'
+}
+
 export interface StreamInfo {
   /**
    * 流索引/编号
