@@ -39,16 +39,26 @@ const fetchContent = async(url: string) => {
  * 抓取需要自动加载资源的插件的资源列表
  */
 const fetchPluginAutoLoadResource = async(): Promise<ExtensionInfo[]> => {
-  return (await SfcUtils.request(API.sys.listPluginAutoLoadList())).data.data.map(plugin => {
-    return {
-      name: plugin.name,
-      type: 'extension',
+  return [
+    {
+      name: 'autoLoad.js',
+      type: 'static',
       resource: {
-        js: plugin.autoLoad.filter(e => e.endsWith('.js')),
-        css: plugin.autoLoad.filter(e => e.endsWith('.css'))
+        js: [SfcUtils.getApiUrl(API.sys.getMergeAutoLoadResource('js'))],
+        css: [SfcUtils.getApiUrl(API.sys.getMergeAutoLoadResource('css'))]
       }
     }
-  })
+  ]
+  // return (await SfcUtils.request(API.sys.listPluginAutoLoadList())).data.data.map(plugin => {
+  //   return {
+  //     name: plugin.name,
+  //     type: 'extension',
+  //     resource: {
+  //       js: plugin.autoLoad.filter(e => e.endsWith('.js')),
+  //       css: plugin.autoLoad.filter(e => e.endsWith('.css'))
+  //     }
+  //   }
+  // })
 }
 
 function waitDOMLoaded(dom: HTMLElement) {
@@ -98,9 +108,6 @@ function buildExtensionManager(context: ExtensionContext): ExtensionManager {
       // 加载JS资源
       extension.resource.js?.map(jspath => {
         const tag = document.createElement('script')
-        tag.onprogress = e => {
-          console.log(e)
-        }
         tags.push(tag)
         if (extension.type == 'extension') {
           tag.src = SfcUtils.getApiUrl(API.sys.getPluginResource(extension.name, jspath))

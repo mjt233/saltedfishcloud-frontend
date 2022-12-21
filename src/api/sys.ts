@@ -26,6 +26,15 @@ const sys = {
     return {
       url: StringUtils.appendPath(`/plugin/${pluginName}/resource`, resourcePath)
     }
+  },
+  /**
+   * 获取插件自动加载资源的单文件合并版本
+   * @param type 资源类型
+   */
+  getMergeAutoLoadResource(type: 'js' | 'css'): CommonRequest {
+    return {
+      url: `/plugin/autoLoad.${type}`
+    }
   }
 }
 
