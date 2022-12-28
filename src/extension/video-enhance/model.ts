@@ -5,6 +5,24 @@ export interface Encoder {
   type: 'video' | 'audio' | 'subtitle'
 }
 
+export interface Format {
+  /** 比特率 */
+  bitRate: string,
+  /** 持续时长（秒） */
+  duration: number,
+  /** 封装格式全名 */
+  formatLongName: string,
+  /** 封装格式名称 */
+  formatName: string,
+  /** 脚本数量 */
+  nbPrograms: string,
+  /** 流数量 */
+  nbStreams: string,
+  /** 文件大小（字节） */
+  size: string,
+  tags: { [key:string]:string}
+}
+
 export interface StreamInfo {
   /**
    * 流索引/编号
@@ -19,7 +37,7 @@ export interface StreamInfo {
   /**
   * 编码详细名称信息
   */
-  codecnumberName: string;
+  codecLongName: string;
 
   /**
   * 流编码类型
@@ -116,5 +134,6 @@ export interface Chapter {
 
 export interface VideoInfo {
   streams: StreamInfo[]
-  chapters: Chapter[]
+  chapters: Chapter[],
+  format: Format
 }

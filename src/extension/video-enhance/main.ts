@@ -1,8 +1,9 @@
-import { FileOpenHandler } from '@/core/context'
+import { FileOpenHandler, MenuGroup, MenuItem } from '@/core/context'
 import { FileInfo, FileListContext } from '@/core/model'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
 import { VideoInfo } from './model'
 import './boot'
+import VideoInfoVue from './components/VideoInfo.vue'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -71,6 +72,16 @@ async function getVideoInfo(ctx: FileListContext, file: FileInfo): Promise<Video
   return res.data as VideoInfo
 }
 
+const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe'])
+/**
+ * 判断是否为视频文件名
+ * @param filename 文件名
+ */
+function isVideo(filename: string) {
+  const extName = filename.split('.').pop()
+  return !!extName && videoType.has(extName)
+}
+
 /**
  * 视频文件打开动作
  */
@@ -81,9 +92,7 @@ const videoOpenHandler: FileOpenHandler = {
     if (file.mount) {
       return false
     }
-    const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe'])
-    const extName = file.name.split('.').pop()
-    return !!extName && videoType.has(extName)
+    return isVideo(file.name)
   },
   title: '播放视频',
   async action(ctx, file) {
@@ -119,11 +128,42 @@ const videoOpenHandler: FileOpenHandler = {
   sort: 0
 }
 
+/**
+ * 视频文件右键菜单
+ */
+const videoMenu: MenuGroup<FileListContext> = {
+  id: 'video',
+  name: '视频',
+  items: [
+    {
+      title: '视频信息',
+      id: 'video-info',
+      renderOn(ctx) {
+        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name)
+      },
+      icon: 'mdi-information-variant',
+      sort: 0,
+      async action(ctx) {
+        const info = await getVideoInfo(ctx, ctx.selectFileList[0])
+        window.SfcUtils.openComponentDialog(VideoInfoVue, {
+          props: {
+            videoInfo: info
+          },
+          title: `媒体信息：${ctx.selectFileList[0].name}`
+        })
+      }
+    
+    }
+  ]
+}
+
 const originPlayerIndex = context.fileOpenHandler.value.findIndex(e => e.id == 'play-video')
 if (originPlayerIndex != -1) {
   context.fileOpenHandler.value[originPlayerIndex] = videoOpenHandler
 } else {
   context.fileOpenHandler.value.push(videoOpenHandler)
 }
+
+context.menu.value.fileListMenu.push(videoMenu)
 
 export {}
