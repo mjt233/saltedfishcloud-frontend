@@ -7,6 +7,7 @@ import SfcUtils from './utils/SfcUtils'
 import API from './api'
 import DPlayer from 'dplayer'
 import { BootContext } from './core/model'
+import * as FormUtils from '@/utils/FormUtils'
 
 declare global {
   interface Window {
@@ -16,6 +17,7 @@ declare global {
     API: typeof API,
     DPlayer: typeof DPlayer
     app: App<Element>,
-    bootContext: BootContext
+    bootContext: BootContext,
+    FormUtils: typeof FormUtils
   }
 }

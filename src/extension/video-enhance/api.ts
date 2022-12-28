@@ -1,5 +1,4 @@
 import { CommonRequest } from '@/core/model'
-import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
 import { EncodeConvertTaskParam, FFMpegInfo } from './model'
 
 export namespace VEAPI {
@@ -14,10 +13,11 @@ export namespace VEAPI {
    * @param param 任务参数
    */
   export function encodeConvert(param: EncodeConvertTaskParam): CommonRequest<string> {
-    return useJsonBody({
+    return {
       url: '/video/encodeConvert',
       data: param,
-      method: 'post'
-    })
+      method: 'post',
+      'Content-Type': 'application/json'
+    }
   }
 }

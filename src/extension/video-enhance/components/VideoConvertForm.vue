@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { SelectOption } from '@/core/model'
-import { CommonForm, defineForm } from '@/utils/FormUtils'
+import { CommonForm } from '@/utils/FormUtils'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   videoInfo: {
@@ -105,7 +105,7 @@ const copyEncoder: SelectOption = {
   title: '复制',
   value: 'copy'
 }
-const formInst = defineForm({
+const formInst = window.FormUtils.defineForm({
   actions: {
     async submit() {
       const rule = props.videoInfo.streams.find(e => (e.codecType == 'audio' || e.codecType == 'video') && formData.mapStreams[e.index])
