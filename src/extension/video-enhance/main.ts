@@ -1,9 +1,11 @@
 import { FileOpenHandler, MenuGroup, MenuItem } from '@/core/context'
-import { FileInfo, FileListContext } from '@/core/model'
+import { FileInfo, FileListContext, ResourceRequest } from '@/core/model'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
-import { VideoInfo } from './model'
+import { EncodeConvertRule, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
+import VideoConvertForm from './components/VideoConvertForm.vue'
+import { VEAPI } from './api'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -40,7 +42,7 @@ function getSubtitleUrl(ctx: FileListContext, file: FileInfo, streamIndex: strin
 /**
  * 获取视频资源的统一资源获取参数 
  */
-async function getVideoResourceParams(ctx: FileListContext, file: FileInfo) {
+async function getVideoResourceParams(ctx: FileListContext, file: FileInfo): Promise<ResourceRequest> {
   
   // 如果文件信息中没有所处路径数据，则通过节点id解析获取
   // 因为从搜索列表中传来的文件信息是没有path属性的
@@ -52,7 +54,8 @@ async function getVideoResourceParams(ctx: FileListContext, file: FileInfo) {
     name: file.name,
     path: path,
     targetId: ctx.uid,
-    sourceProtocol: ctx.protocol
+    sourceProtocol: ctx.protocol || 'main',
+    protocol: ctx.protocol || 'main'
   } as any
   const protocolParams = ctx.getProtocolParams()
   apiParams.sourceId = protocolParams.id
@@ -136,13 +139,43 @@ const videoMenu: MenuGroup<FileListContext> = {
   name: '视频',
   items: [
     {
+      title: '视频转码',
+      id: 'video-convert',
+      icon: 'mdi-cached',
+      renderOn(ctx) {
+        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name)
+      },
+      async action(ctx) {
+        const info = await getVideoInfo(ctx, ctx.selectFileList[0])
+        const handler = window.SfcUtils.openComponentDialog(VideoConvertForm, {
+          props: {
+            videoInfo: info
+          },
+          title: `视频转码：${ctx.selectFileList[0].name}`,
+          async onConfirm() {
+            const result = await handler.getInstAsForm().submit()
+            if (result.success) {
+              const rules = handler.getInstAsForm().getFormData().enabledConvertRules as EncodeConvertRule[]
+              const source = await getVideoResourceParams(ctx, ctx.selectFileList[0])
+              const target = await getVideoResourceParams(ctx, ctx.selectFileList[0])
+              target.name = 'convert_' + target.name
+              await window.SfcUtils.request(VEAPI.encodeConvert({rules, source, target}))
+              window.SfcUtils.snackbar('任务创建成功')
+              return true
+            } else {
+              return false
+            }
+          }
+        })
+      }
+    },
+    {
       title: '视频信息',
       id: 'video-info',
       renderOn(ctx) {
         return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name)
       },
       icon: 'mdi-information-variant',
-      sort: 0,
       async action(ctx) {
         const info = await getVideoInfo(ctx, ctx.selectFileList[0])
         window.SfcUtils.openComponentDialog(VideoInfoVue, {
@@ -152,7 +185,6 @@ const videoMenu: MenuGroup<FileListContext> = {
           title: `媒体信息：${ctx.selectFileList[0].name}`
         })
       }
-    
     }
   ]
 }

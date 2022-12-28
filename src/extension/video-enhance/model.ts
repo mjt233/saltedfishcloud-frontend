@@ -1,3 +1,4 @@
+import { ResourceRequest } from '@/core/model'
 export interface Encoder {
   name: string
   describe: string
@@ -106,6 +107,30 @@ export interface StreamInfo {
   tags: { [key:string]:string }
 }
 
+export interface FFMpegInfo {
+  version: string
+  built: string
+  configuration: string
+  videoEncoders: Encoder[]
+  audioEncoders: Encoder[]
+  subtitleEncoders: Encoder[]
+}
+
+/**
+ * 编码转换规则
+ */
+export interface EncodeConvertRule {
+  /** 流索引 */
+  index: string
+  /** 规则方法 */
+  method: 'copy' | 'convert'
+  /** 使用的ffmpeg编码器 */
+  encoder: string
+  /** 规则类型 */
+  type: 'video' | 'audio' | 'subtitle'
+  /** 比特率 */
+  bitRate?: string
+}
 
 /**
  * 视频章节时间点
@@ -136,4 +161,11 @@ export interface VideoInfo {
   streams: StreamInfo[]
   chapters: Chapter[],
   format: Format
+}
+
+export interface EncodeConvertTaskParam {
+  source: ResourceRequest
+  target: ResourceRequest
+  rules: EncodeConvertRule[]
+  format?: string
 }

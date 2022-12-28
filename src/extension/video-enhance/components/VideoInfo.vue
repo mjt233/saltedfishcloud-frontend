@@ -63,7 +63,7 @@
             {{ stream.codecName }}
           </td>
           <td>{{ stream.width }}x{{ stream.height }}</td>
-          <td>{{ stream.avgFrameRate.toFixed(3) }}</td>
+          <td>{{ (stream.avgFrameRate || 0).toFixed(3) }}</td>
           <td>{{ stream.language || '-' }}</td>
         </tr>
       </tbody>
