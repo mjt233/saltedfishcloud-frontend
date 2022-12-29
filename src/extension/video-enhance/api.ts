@@ -17,7 +17,9 @@ export namespace VEAPI {
       url: '/video/encodeConvert',
       data: param,
       method: 'post',
-      'Content-Type': 'application/json'
+      headers: {
+        'Content-Type': 'application/json'
+      } 
     }
   }
 }
