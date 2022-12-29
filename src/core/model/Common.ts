@@ -278,3 +278,17 @@ export interface SystemOverview {
   /** 系统其他状态 */
   systemStatus: ConfigNodeModel[]
 }
+
+export interface CommonProgress {
+  /** 已完成的量 */
+  loaded: number
+
+  /** 总共需要完成的量 */
+  total: number
+
+  /** 上次更新时间（Unix时间戳） */
+  lastUpdateTime: number
+
+  /** 每秒钟完成的量 */
+  speed: number
+}

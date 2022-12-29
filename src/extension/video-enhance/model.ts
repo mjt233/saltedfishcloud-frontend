@@ -1,4 +1,4 @@
-import { ResourceRequest } from '@/core/model'
+import { ResourceRequest,IdType, CommonProgress } from '@/core/model'
 export interface Encoder {
   name: string
   describe: string
@@ -168,4 +168,16 @@ export interface EncodeConvertTaskParam {
   target: ResourceRequest
   rules: EncodeConvertRule[]
   format?: string
+}
+
+export interface EncodeConvertTask {
+  id: string
+  uid: IdType
+  createAt: string
+  updateAt: string
+  taskId: string
+  taskStatus: number
+  type: 'audio' | 'video' | 'format'
+  params: string
+  progress?: CommonProgress
 }

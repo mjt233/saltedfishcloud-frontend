@@ -6,6 +6,8 @@ import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
 import VideoConvertForm from './components/VideoConvertForm.vue'
 import { VEAPI } from './api'
+import { h } from 'vue'
+import EncodeConvertTask from './components/EncodeConvertTask.vue'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -75,7 +77,7 @@ async function getVideoInfo(ctx: FileListContext, file: FileInfo): Promise<Video
   return res.data as VideoInfo
 }
 
-const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe'])
+const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe', 'ts'])
 /**
  * 判断是否为视频文件名
  * @param filename 文件名
@@ -143,7 +145,7 @@ const videoMenu: MenuGroup<FileListContext> = {
       id: 'video-convert',
       icon: 'mdi-cached',
       renderOn(ctx) {
-        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name)
+        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name) && !ctx.readonly
       },
       async action(ctx) {
         const info = await getVideoInfo(ctx, ctx.selectFileList[0])
@@ -188,6 +190,31 @@ const videoMenu: MenuGroup<FileListContext> = {
     }
   ]
 }
+
+context.menu.value.boxMenu.push({
+  name: '视频服务',
+  id: 'video',
+  items: [
+    {
+      id: 'encoder-convert',
+      title: '视频转码',
+      icon: 'mdi-cached',
+      renderOn() {
+        return !!context.session.value.token
+      },
+      action(ctx) {
+        ctx.title = '视频转码'
+        ctx.currentComponent = h(EncodeConvertTask, {
+          style: {
+            maxWidth: '640px',
+            margin: 'auto'
+          },
+          uid: context.session.value.user.id
+        })
+      }
+    }
+  ]
+})
 
 const originPlayerIndex = context.fileOpenHandler.value.findIndex(e => e.id == 'play-video')
 if (originPlayerIndex != -1) {
