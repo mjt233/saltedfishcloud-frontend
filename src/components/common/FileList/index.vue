@@ -80,7 +80,7 @@
         </tr>
         <tr
           v-for="(fileInfo, index) in fileList"
-          :key="fileInfo.name + fileInfo.md5"
+          :key="path + fileInfo.name"
           v-ripple
           file-item
           :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
@@ -140,8 +140,8 @@
       class="grid-container"
     >
       <file-list-grid-item
-        v-for="(fileInfo, index) in fileList"
-        :key="index"
+        v-for="(fileInfo) in fileList"
+        :key="path + fileInfo.name + fileInfo.md5"
         ref="gridItemRef"
         v-ripple
         :file-info="fileInfo"
@@ -270,7 +270,11 @@ const fileListContext: FileListContext = FileListContextBuilder.getFileListConte
   props,
   emits,
   rename,
-  handler
+  handler,
+  protocol: inject('protocol', ''),
+  protocolParams: inject('protocolParams', () => {
+    return { id: props.uid }
+  })
 })
 
 const toggleSelectAll = () => {

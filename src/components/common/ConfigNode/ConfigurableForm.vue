@@ -15,10 +15,11 @@
             :key="node.name"
             :required="node.required"
             top-label
-            :label="node.title || node.name"
+            :label="node.inputType == 'switch' ? '' : (node.title || node.name)"
             class="mw-50"
           >
             <config-node
+              :read-only="readOnly"
               dense
               style="width: 100%; padding: 0;"
               :show-change="false"
@@ -42,6 +43,10 @@ const props = defineProps({
   nodes: {
     type: Array as PropType<ConfigNodeModel[]>,
     default: () => []
+  },
+  readOnly: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['submit', 'change'])

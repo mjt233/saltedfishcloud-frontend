@@ -59,7 +59,7 @@ export interface ConfigNodeModel {
   title: string
 
   /* 节点值 */
-  value: RawType
+  value: any
 
   /* 是否使用掩码*显示 */
   mask?: boolean
@@ -184,9 +184,20 @@ export interface BootProcessor {
   [other: string]: any
 }
 
+/**
+ * 前端项目加载启动流程上下文
+ */
 export interface BootContext {
+  /**
+   * 添加一个执行器到启动流程中，若流程进行中添加，也依然会对添加的执行器进行调用。
+   * 若启动流程已执行完成，则不会再被调用了
+   * @param executor 执行器
+   */
   addProcessor(executor: BootProcessor): BootContext
 
+  /**
+   * 开始执行启动流程
+   */
   start(): Promise<any>
 }
 
@@ -230,4 +241,54 @@ export interface BootContextHandler {
    * @param msg 消息
    */
   setInterruptMsg(msg: string): void
+}
+
+export interface FileSystemStatus {
+    /** 存储域 */
+    area: 'public' | 'private',
+
+    /** 目录数量 */
+    dirCount: string,
+
+    /** 文件数量 */
+    fileCount: string,
+
+    /** 剩余空间（byte） */
+    free: string,
+
+    /** 资源存储路径 */
+    path: string,
+
+    /** 咸鱼云系统网盘文件占用大小 */
+    sysUsed: string,
+
+    /** 存储系统空间总量大小 */
+    total: string,
+    
+    /** 存储系统已用空间大小 */
+    used: string,
+
+    /** 其他参数 */
+    otherAttributes?: ConfigNodeModel[]
+}
+
+export interface SystemOverview {
+  /** 文件系统状态 */
+  fileSystemStatus: FileSystemStatus[],
+  /** 系统其他状态 */
+  systemStatus: ConfigNodeModel[]
+}
+
+export interface CommonProgress {
+  /** 已完成的量 */
+  loaded: number
+
+  /** 总共需要完成的量 */
+  total: number
+
+  /** 上次更新时间（Unix时间戳） */
+  lastUpdateTime: number
+
+  /** 每秒钟完成的量 */
+  speed: number
 }

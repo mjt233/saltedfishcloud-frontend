@@ -7,7 +7,7 @@
     read-only
     :auto-compute-height="autoComputeHeight"
     :compensate-height="compensateHeight"
-    :enable-menu="['refresh', 'share-download']"
+    :enable-menu="['refresh', 'share-download', 'showAttr']"
     :append-menu="shareMenu"
     :tool-buttons="toolButtons"
     :top-button-min-width="'120px'"

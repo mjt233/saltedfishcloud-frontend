@@ -1,6 +1,6 @@
 import FileUtils from '@/utils/FileUtils'
 import { ExtractPropTypes, reactive, Ref } from 'vue'
-import { FileListContext, FileInfo } from '@/core/model'
+import { FileListContext, FileInfo, ProtocolParams } from '@/core/model'
 import propsOptions from './props'
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import SfcUtils from '@/utils/SfcUtils'
@@ -10,13 +10,16 @@ export interface FileListContextBuilderOptions {
   props: Readonly<ExtractPropTypes<typeof propsOptions>>,
   emits: any
   handler: Ref<FileSystemHandler> | undefined,
-  rename(name: string, md5: string): Promise<string>
+  rename(name: string, md5: string): Promise<string>,
+  protocol: string,
+  protocolParams: () => ProtocolParams
 }
 
 const FileListContextBuilder = {
   getFileListContext(opt: FileListContextBuilderOptions): FileListContext {
     const { props, emits, handler, rename} = opt
     return reactive({
+      protocol: opt.protocol,
       uid: props.uid,
       fileList: props.fileList,
       enableFeature: [''],
@@ -24,6 +27,9 @@ const FileListContextBuilder = {
       name: '',
       selectFileList: [],
       path: props.path,
+      getProtocolParams() {
+        return opt.protocolParams()
+      },
       getFileUrl(file) {
         if (handler) {
           return handler?.value.getFileUrl(props.path, file)

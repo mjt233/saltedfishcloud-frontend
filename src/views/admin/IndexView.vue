@@ -151,6 +151,7 @@ const initMenu = async() => {
             nodeMap[e.name] = e
           }
         })
+        // 默认的点击行为：根据各插件的配置信息，将配置数据装载到config-node-group，并根据nodeChange事件获取参数变更
         return reactive({
           id: g.name,
           title: g.title,
@@ -166,6 +167,17 @@ const initMenu = async() => {
         })
       })
     }))
+  })
+
+  // 在末尾补充一个回到前台的菜单
+  menuObj.value.push({
+    id: 'toFront',
+    name: '回到前台',
+    icon: 'mdi-home',
+    items: [],
+    action(ctx) {
+      router.push('/')
+    }
   })
 }
 
@@ -285,8 +297,8 @@ watch(
 </script>
 
 <script lang="ts">
-import { ref, defineComponent, ToRefs, reactive, onMounted, h, watch, Ref } from 'vue'
-import { AdminContext, AppContext, context, MenuGroup, MenuItem } from '@/core/context/'
+import { ref, defineComponent, reactive, onMounted, h, watch, Ref } from 'vue'
+import { AdminContext, context, MenuGroup, MenuItem } from '@/core/context/'
 import { getDefaultAdminMenu } from '@/core/context/menu/AdminMenu'
 import NotFoundTipVue from '@/components/common/NotFoundTip.vue'
 import { useRouter } from 'vue-router'
@@ -297,7 +309,6 @@ import API from '@/api'
 import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
 import { ConfigNodeModel, NameValueType } from '@/core/model'
 import ConfigNodeChangeListVue from '@/components/common/ConfigNode/ConfigNodeChangeList.vue'
-import EmptyTipVue from '@/components/common/EmptyTip.vue'
 
 export default defineComponent({
   name: 'AdminIndex'

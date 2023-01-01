@@ -4,6 +4,7 @@ import SfcUtils from '@/utils/SfcUtils'
 import { h } from 'vue'
 import { MenuGroup } from '@/core/context'
 import { FileAttribute } from '@/components'
+import { VBtn } from 'vuetify/components'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
 {
@@ -55,13 +56,16 @@ const fileActionGroup: MenuGroup<FileListContext> =
       },
       action(ctx) {
         const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
-        SfcUtils.openComponentDialog(FileAttribute, {
+        const inst = SfcUtils.openComponentDialog(FileAttribute, {
           title: '文件属性',
           props: {
             files: ctx.selectFileList,
             path: ctx.path,
             thumbnailUrl
-          }
+          },
+          showCancel: false,
+          showConfirm: false,
+          footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
         })
       }
     }

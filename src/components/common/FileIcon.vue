@@ -7,6 +7,7 @@
       draggable="false"
       class="file-icon-img"
       @mousedown.prevent
+      @error="loadError"
     >
       <template #placeholder>
         <v-img
@@ -71,6 +72,7 @@ const props = defineProps({
     default: undefined
   }
 })
+const isError = ref(false)
 const commonUrl = computed(() => {
   return props.isDir ? iconProvider.getDirIconUrl(props.fileName) : iconProvider.getFileIconUrl(props.fileName, props.md5)
 })
@@ -88,10 +90,15 @@ const isSupportType = (type: string) => {
   return context.feature.value.thumbType.findIndex(e => e.toLocaleLowerCase() == type.toLocaleLowerCase()) != -1
 }
 
+const loadError = () => {
+  isError.value = true
+}
 
 const imgUrl = computed(() => {
   let url = ''
-  if (props.useThumb && (props.md5 || props.customThumbnailUrl) && isSupportType(type.value)) {
+  if (isError.value) {
+    url = commonUrl.value
+  } else if (props.useThumb && (props.md5 || props.customThumbnailUrl) && isSupportType(type.value)) {
     url = thumbnailUrl.value
   } else {
     url = commonUrl.value

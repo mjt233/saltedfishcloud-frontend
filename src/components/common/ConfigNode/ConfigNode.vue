@@ -10,25 +10,25 @@
           <config-node-change-detail :node="node" :current-value="nodeValue" />
         </div>
       </div>
-      <div v-if="showDescribe" class="config-describe tip">
-        <v-checkbox
+      <div class="config-describe tip">
+        <v-switch
           v-if="node.inputType == 'switch'"
           color="primary"
           :hide-details="true"
           :label="node.describe"
           :model-value="nodeValue == true || nodeValue == 'true'"
-          :disabled="node.readonly"
+          :readonly="node.readonly || readOnly"
           :rules="validators"
           @update:model-value="nodeValue = $event; updateValue($event)"
         />
-        <multi-line-text v-else :text="node.describe" />
+        <multi-line-text v-if="showDescribe" :text="node.describe" />
       </div>
       <template v-if="node.inputType == 'text'">
         <text-input
           :rules="validators"
           :model-value="nodeValue"
           class="config-simple-input"
-          :readonly="node.readonly"
+          :readonly="node.readonly || readOnly"
           :hide-details="dense"
           :type="node.mask ? 'password': 'text'"
           :class="{'no-margin no-padding': dense}"
@@ -38,6 +38,7 @@
       <template v-if="node.inputType == 'select'">
         <form-select
           v-model="nodeValue"
+          :disabled="node.disabled || readOnly"
           :rules="validators"
           :items="selectOptions"
           class="config-simple-input"
@@ -74,6 +75,10 @@ const props = defineProps({
     default: true
   },
   dense: {
+    type: Boolean,
+    default: false
+  },
+  readOnly: {
     type: Boolean,
     default: false
   }
@@ -143,7 +148,7 @@ onMounted(() => {
 import { ConfigNodeModel } from '@/core/model'
 import { ValidateRule } from '@/core/model/component/type'
 import { ValidatorFunction } from '@/utils/FormUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, computed } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, computed, readonly } from 'vue'
 
 export default defineComponent({
   name: 'ConfigNode'
@@ -152,7 +157,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .config-title {
-  font-weight: 600;
+  font-weight: bold;
   color: rgba(var(--v-theme-primary));
 }
 

@@ -9,13 +9,17 @@ import { ApiRequest } from '@/core/model'
 // import previewImage from './preview/previewImage'
 import { snackbar } from './common/SnackBar'
 import axios from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import * as dialog from './common/Dialog'
 import * as fileSelector from './file/fileSelector'
 import { context } from '@/core/context'
 import FileOpenSelectorVue from '@/components/common/FileOpenSelector.vue'
 import { dyncmount } from './common/DyncMount'
 import { h } from 'vue'
+import { LoadingManager } from '../LoadingManager'
+
+let globalLoadingManager: LoadingManager = new LoadingManager()
+
 const SfcUtils = {
   dyncmount,
   snackbar,
@@ -46,6 +50,15 @@ const SfcUtils = {
       })
     }
     return ret
+  },
+  isAxiosError(err: any) {
+    return (err instanceof AxiosError)
+  },
+  toAxiosError(err: any):AxiosError {
+    return err
+  },
+  isForbidden(err: any) {
+    return this.isAxiosError(err) && this.toAxiosError(err).code == '403'
   },
   
   /**
@@ -137,6 +150,22 @@ const SfcUtils = {
         footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
       })
     }
+  },
+  beginLoading() {
+    if (globalLoadingManager) {
+      globalLoadingManager.beginLoading()
+    }
+  },
+  closeLoading() {
+    if (globalLoadingManager) {
+      globalLoadingManager.closeLoading()
+    }
+  },
+  setGlobalLoadingManager(m: LoadingManager) {
+    globalLoadingManager = m
+  },
+  getGlobalLoadingManager() {
+    return globalLoadingManager
   }
 }
 

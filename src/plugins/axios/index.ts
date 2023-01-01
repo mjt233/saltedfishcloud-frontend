@@ -13,7 +13,7 @@ inst.interceptors.request.use(conf => {
   if (!conf.headers) {
     conf.headers = {}
   }
-  if (context.session.value.token != null) {
+  if (context.session.value.token != null && context.session.value.token.length > 0) {
     conf.headers.Token = context.session.value.token
   }
   if (conf.data !== undefined && conf.method !== 'get') {

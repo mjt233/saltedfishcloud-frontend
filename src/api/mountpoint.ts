@@ -1,5 +1,5 @@
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
-import { CommonRequest, MountPoint, DiskFileSystemDescribe } from '@/core/model'
+import { CommonRequest, MountPoint, DiskFileSystemDescribe, IdType } from '@/core/model'
 
 const mountPoint = {
   prefix: 'mountPoint',
@@ -14,6 +14,14 @@ const mountPoint = {
       method: 'put',
       data: mountPoint
     })
+  },
+  getById(id: IdType): CommonRequest<MountPoint> {
+    return {
+      url: `${this.prefix}/getById`,
+      params: {
+        id
+      }
+    }
   }
 }
 export default mountPoint

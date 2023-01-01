@@ -25,7 +25,6 @@ const defaultMainMenu: MenuType.AppMenu = {
         },
       ]
     },
-
     {
       id: 'other',
       name: '便捷功能',
@@ -76,6 +75,18 @@ const defaultMainMenu: MenuType.AppMenu = {
         }
       ]
     },
+    {
+      id: 'manage',
+      name: '管理',
+      items: [
+        {
+          id: 'admin',
+          title: '系统管理',
+          route: '/admin',
+          icon: 'mdi-cog'
+        }
+      ]
+    }
   ]
 }
 

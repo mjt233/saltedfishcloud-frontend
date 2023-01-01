@@ -36,13 +36,26 @@
           {{ StringFormatter.toDate(files[0].createdAt) }}
         </form-col>
         <form-col v-if="files.length == 1" :label="files[0].dir ? '节点id':'md5校验值'" top-label>
-          {{ files[0].md5 }}
+          {{ files[0].md5 || '不可用' }}
         </form-col>
         <form-col label="是否处于挂载目录" top-label>
           {{ files[0].mount ? '是' : '否' }}
         </form-col>
       </form-row>
     </form-grid>
+    
+    <template v-if="files.length == 1 && files[0].mountId">
+      <v-divider style="margin: 16px 0 32px 0" />
+      
+      <create-mount-point-form
+        v-show="showMountInfo"
+        :data-id="files[0].mountId"
+        style="padding: 0"
+        read-only
+        @loaded="showMountInfo = true"
+      />
+    </template>
+    
   </div>
 </template>
 
@@ -74,12 +87,14 @@ const props = defineProps({
 const size = computed(() => {
   return props.files.filter(e => !e.dir).map(e => e.size).reduce((pre, cur) => Number(pre) + Number(cur), 0)
 })
+const showMountInfo = ref(false)
 </script>
 
 <script lang="ts">
 import { FileInfo } from '@/core/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StringUtils } from '@/utils/StringUtils'
+import { context } from '@/core/context'
 
 export default defineComponent({
   name: 'FileAttribute'

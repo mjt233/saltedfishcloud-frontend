@@ -39,6 +39,8 @@ export interface DialogOpt {
    * 是否为持久弹框，无法通过ESC或点击外部关闭（默认为false）
    */
   persistent?: boolean
+
+  contentMaxHeight?: string
 }
 
 export interface ConfirmOpt {
@@ -179,6 +181,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
     fullscreen: finalUseFullScreen,
     title,
     persistent,
+    contentMaxHeight: opt.contentMaxHeight,
     async 'onUpdate:modelValue'(e: any) {
       attrs.modelValue = e
       if (!e) {
@@ -310,6 +313,8 @@ export interface OpenComponentDialogOption {
   // 是否使用一个div对组件进行包装
   inWrap?: boolean
 
+  contentMaxHeight?: string
+
 }
 
 export interface ComponentDialogInstance {
@@ -349,6 +354,7 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     footer,
     fullscreen,
     persistent,
+    contentMaxHeight: opt?.contentMaxHeight,
     extraProps: {
       dense,
       showCancel,

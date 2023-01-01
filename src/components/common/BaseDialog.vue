@@ -19,7 +19,7 @@
       <v-card-header v-if="$slots.header">
         <slot name="header" />
       </v-card-header>
-      <v-card-content :class="{'dense-content': dense}">
+      <v-card-content style="overflow: auto" :class="{'dense-content': dense}" :style="{'maxHeight': contentMaxHeight}">
         <!-- 对话框默认正文内容插槽 -->
         <slot />
       </v-card-content>
@@ -89,6 +89,13 @@ defineProps({
   useCard: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 内容最大高度
+   */
+  contentMaxHeight: {
+    type: String,
+    default: 'none'
   }
 })
 const emits = defineEmits(['confirm', 'cancel', 'update:show'])
