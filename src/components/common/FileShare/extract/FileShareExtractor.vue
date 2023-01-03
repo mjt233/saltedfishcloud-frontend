@@ -42,7 +42,7 @@
         </v-card-content>
       </v-card>
     </div>
-    <not-found-tip v-if="notFound" />
+    <not-found-tip v-if="isError" :text="errorText" />
   </div>
 </template>
 
@@ -90,9 +90,11 @@ const toDate = StringFormatter.toDate
 const inputExtractCode = ref('')
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
-const notFound = ref(false)
+const isError = ref(false)
 // 提取码是否无效
 const invalidCode = ref(false)
+
+const errorText = ref('')
 
 const shareInfo = ref() as Ref<ShareInfo>
 const actions = MethodInterceptor.createAsyncActionProxy({
@@ -101,11 +103,9 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       shareInfo.value = await ShareService.getShareInfo(props.sid, props.vid, props.extractCode || inputExtractCode.value || null)
       shareInfo.value.verification = props.vid
     } catch (err) {
-      if (err instanceof AxiosError) {
-        if (err.code == '404') {
-          notFound.value = true
-        }
-      }
+      isError.value = true
+      errorText.value = (err as any).toString()
+      SfcUtils.snackbar(err)
     }
   }
 }, false, loadingManager)
