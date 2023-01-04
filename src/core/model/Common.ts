@@ -10,6 +10,19 @@ export interface SelectOption {
 }
 
 /**
+ * 通用模型
+ */
+export interface AuditModel {
+  id: IdType
+
+  uid: IdType
+
+  updateAt: string
+
+  createAt: string
+}
+
+/**
  * 通用统一资源请求参数
  */
 export interface ResourceRequest {

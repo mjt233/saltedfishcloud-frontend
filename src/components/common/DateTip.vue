@@ -1,17 +1,10 @@
 <template>
-  <VCard>
-    <VCardHeader v-if="desktopComponentConfig?.title?.length" style="padding-bottom: 0px">
-      <VCardTitle>{{ desktopComponentConfig.title }}</VCardTitle>
-    </VCardHeader>
-    <VCardContent>
-      <div class="text-h6">
-        {{ hello }}，现在是{{ nowDate }}
-      </div>
-      <div v-if="message" class="tip">
-        {{ message }}
-      </div>
-    </VCardContent>
-  </VCard>
+  <div class="text-h6">
+    {{ hello }}，现在是{{ nowDate }}
+  </div>
+  <div v-if="message" class="tip">
+    {{ message }}
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -1,13 +1,6 @@
-import { ConfigNodeModel, IdType } from './Common'
+import { AuditModel, ConfigNodeModel, IdType } from './Common'
 
-export interface DesktopComponent {
-  id: IdType
-
-  uid: IdType
-
-  createAt: string
-
-  updateAt: string
+export interface DesktopComponent extends AuditModel {
 
   /** 组件描述标题 */
   title: string
@@ -28,14 +21,7 @@ export interface DesktopComponent {
   showOrder: number 
 }
 
-export interface DesktopComponentConfig {
-  id: IdType
-
-  uid: IdType
-
-  createAt: string
-
-  updateAt: string
+export interface DesktopComponentConfig extends AuditModel {
 
   /** 组件标题 */
   title: string 
@@ -63,6 +49,9 @@ export interface DesktopComponentConfig {
 
   /** 备注 */
   remark: string
+
+  /** 是否使用卡片样式 */
+  useCard: number
 }
 
 

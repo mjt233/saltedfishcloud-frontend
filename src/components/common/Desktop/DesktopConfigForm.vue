@@ -18,7 +18,7 @@
     <div class="text-h6">
       标准配置项
     </div>
-    <FormGrid row-height="56px" style="margin: 18px 0 12px 0" label-gap="-6px">
+    <FormGrid row-height="68px" style="margin: 18px 0 12px 0" label-gap="-6px">
       <FormRow>
         <FormCol top-label label="显示顺序" class="mw-50">
           <TextInput v-model="formData.showOrder" />
@@ -31,6 +31,16 @@
         </FormCol>
         <FormCol top-label label="高度" class="mw-50">
           <TextInput v-model="formData.height" />
+        </FormCol>
+        <FormCol top-label class="mw-50" style="padding: 0;height: 32px;margin-bottom: 12px">
+          <VCheckbox
+            v-model="formData.useCard"
+            :true-value="1"
+            :false-value="0"
+            color="primary"
+            label="使用卡片样式"
+            hide-details
+          />
         </FormCol>
       </FormRow>
       <FormRow style="margin-top: 12px">

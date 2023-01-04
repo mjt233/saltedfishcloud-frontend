@@ -10,7 +10,17 @@
             :cols="item.width"
             class="component-container"
           >
-            <component :is="item.name" v-bind="getComponentProps(item)" />
+            <template v-if="item.useCard">
+              <VCard>
+                <VCardHeader v-if="item.title?.length" style="padding-bottom: 0px">
+                  <VCardTitle>{{ item.title }}</VCardTitle>
+                </VCardHeader>
+                <VCardContent>
+                  <component :is="item.name" v-bind="getComponentProps(item)" />
+                </VCardContent>
+              </VCard>
+            </template>
+            <component :is="item.name" v-else v-bind="getComponentProps(item)" />
           </VCol>
         </VRow>
       </VContainer>
