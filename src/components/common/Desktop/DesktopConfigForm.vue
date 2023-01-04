@@ -56,13 +56,19 @@
       <ConfigurableForm :nodes="customConfig" @change="customChange" />
     </div>
     <EmptyTip v-else />
+    <div class="text-h6" style="margin-top: 12px">
+      额外json配置项
+    </div>
+    <textarea
+      v-model="extraJson"
+      class="json-editor"
+    />
   </base-form>
 </template>
 
 <script setup lang="ts">
 import API from '@/api'
 import BaseForm from '@/components/common/BaseForm.vue'
-import { context } from '@/core/context'
 import { ConfigNodeModel, NameValueType } from '@/core/model'
 import { DesktopComponent, DesktopComponentConfig } from '@/core/model/Desktop'
 import { CommonForm, defineForm } from '@/utils/FormUtils'
@@ -97,13 +103,74 @@ const customConfig = computed(() => {
 })
 let customConfigObj = {} as {[k: string]:any}
 
+const extraJson = ref('')
+watch(extraJson, () => {
+  try {
+    const extraObj = JSON.parse(extraJson.value)
+    Object.keys(extraObj).forEach(key => {
+      customConfigObj[key] = extraObj[key]
+    })
+    updateParams()
+  } catch (ignore) {
+
+  }
+  
+})
+
 const updateParams = () => {
   formData.params = JSON.stringify(customConfigObj)
+}
+
+/**
+ * 反序列化params后，将未在组件自定义配置项中声明的参数挑出来作为json手动编辑展示
+ */
+const updateExtraJson = () => {
+  const config = props.component.config || []
+  const paramSet = new Set<string>()
+  const extraObj:any = {}
+  config.forEach(c => paramSet.add(c.name))
+  Object.keys(customConfigObj).forEach(key => {
+    if (!paramSet.has(key)) {
+      extraObj[key] = customConfigObj[key]
+    }
+  })
+
+  // 执行json序列化，并格式化json字符串
+  const extraKeys = Object.keys(extraObj)
+  if (extraKeys.length) {
+    extraJson.value = '{\n'
+    extraJson.value += extraKeys.map(key => {
+      return `  ${JSON.stringify(key)}: ${JSON.stringify(customConfigObj[key])}`
+    }).join(',\n')
+    extraJson.value += '\n}'
+    
+  }
+  
+}
+
+/**
+ * 校验额外json语法是否合法
+ */
+const validJson = () => {
+  if (extraJson.value && extraJson.value.length) {
+    try {
+      JSON.parse(extraJson.value)
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        throw new Error('json语法错误：' + err.message)
+      } else {
+        throw err
+      }
+      
+    }
+    
+  }
 }
 
 const formInst = defineForm({
   actions: {
     async submit() {
+      validJson()
       return await SfcUtils.request(API.desktop.saveComponentConfig(formData))
     }
   },
@@ -134,6 +201,7 @@ onMounted(() => {
   } else {
     formData.uid = props.uid
   }
+  updateExtraJson()
 })
 
 
@@ -142,9 +210,24 @@ defineExpose(formInst)
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, computed } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, computed, watch } from 'vue'
 
 export default defineComponent({
   name: 'DesktopConfigForm'
 })
 </script>
+
+<style lang="scss">
+.json-editor {
+  width: 100%;
+  outline: none;
+  min-height: 120px;
+  border: 1px solid rgba(var(--v-theme-primary), .1);
+  padding: 6px;
+  border-radius: 3px;
+  transition: all .1s;
+  &:focus,&:hover {
+    border: 1px solid rgba(var(--v-theme-primary), .4);
+  }
+}
+</style>

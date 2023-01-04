@@ -16,11 +16,22 @@
                   <VCardTitle>{{ item.title }}</VCardTitle>
                 </VCardHeader>
                 <VCardContent>
-                  <component :is="item.name" v-bind="getComponentProps(item)" />
+                  <component
+                    :is="item.name"
+                    class="desktop-component"
+                    v-bind="getComponentProps(item)"
+                    :style="getComponentStyle(item)"
+                  />
                 </VCardContent>
               </VCard>
             </template>
-            <component :is="item.name" v-else v-bind="getComponentProps(item)" />
+            <component
+              :is="item.name"
+              v-else
+              class="desktop-component"
+              v-bind="getComponentProps(item)"
+              :style="getComponentStyle(item)"
+            />
           </VCol>
         </VRow>
       </VContainer>
@@ -38,11 +49,25 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     configItems.value = (await SfcUtils.request(API.desktop.listComponentConfig(0))).data.data
   }
 }, false, loadingManager)
+
+
 const getComponentProps = (item: DesktopComponentConfig) => {
   const baseObj = JSON.parse(item.params || '{}')
   baseObj.desktopComponentConfig = item
   return baseObj
 }
+
+
+const getComponentStyle = (item: DesktopComponentConfig) => {
+  if (item.height < 0) {
+    return {}
+  } else {
+    return {
+      height: (document.body.clientHeight / 5) * item.height + 'px'
+    }
+  }
+}
+
 onMounted(actions.loadComponentConfig)
 </script>
 
@@ -62,5 +87,8 @@ export default defineComponent({
 <style>
 .component-container {
   min-width: 320px;
+}
+.desktop-component {
+  width: 100%;
 }
 </style>
