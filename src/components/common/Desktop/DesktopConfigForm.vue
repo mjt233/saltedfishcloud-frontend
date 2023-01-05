@@ -178,11 +178,13 @@ const formInst = defineForm({
     width: 4,
     height: -1,
     remark: '',
-    showOrder: 0,
+    showOrder: 10,
     uid: props.uid,
     params: '{}',
     name: props.component.name,
-    type: 'vue'
+    type: 'vue',
+    enabled: 1,
+    useCard: 1
   } as DesktopComponentConfig,
   formRef: formRef,
   validators: {},

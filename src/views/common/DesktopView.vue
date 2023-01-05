@@ -47,6 +47,9 @@ const configItems = ref<DesktopComponentConfig[]>([])
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadComponentConfig() {
     configItems.value = (await SfcUtils.request(API.desktop.listComponentConfig(0))).data.data
+    if (configItems.value?.length) {
+      configItems.value = configItems.value.filter(e => e.enabled)
+    }
   }
 }, false, loadingManager)
 

@@ -12,10 +12,24 @@
           :key="item.id"
           v-ripple
           class="d-inline-flex align-center component-item"
+          :class="{'disabled': !item.enabled}"
           @click="addOrEditConfig(allComponent[item.name], item)"
         >
-          <div>
-            <CommonIcon color="primary" style="font-size: 18px;padding: 6px" :icon="allComponent[item.name]?.icon || 'mdi-help-circle-outline'" />
+          <div class="d-flex justify-center align-center flex-column">
+            <CommonIcon :color="item.enabled ? 'primary' : undefined" style="font-size: 18px;padding: 3px" :icon="allComponent[item.name]?.icon || 'mdi-help-circle-outline'" />
+            <div @click.stop>
+              <VSwitch
+                :model-value="item.enabled"
+                :loading="enableSwitchLoading[item.id]"
+                :density="null"
+                hide-details
+                :color="!enableSwitchLoading[item.id] ? 'primary' : undefined"
+                :true-value="1"
+                :false-value="0"
+                class="enabled-switcher"
+                @update:model-value="enabledChange(item, $event)"
+              />
+            </div>
           </div>
           <div>
             <div>
@@ -60,6 +74,30 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     return await SfcUtils.request(API.desktop.deleteConfig(id))
   }
 }, false, loading)
+
+const enableSwitchLoading: {[k:IdType]: boolean | undefined} = reactive({})
+
+/**
+ * 组件启用状态变更回调
+ * @param config 组件配置
+ * @param newVal 更改后的值
+ */
+const enabledChange = async(config: DesktopComponentConfig, newVal: number) => {
+  if(enableSwitchLoading[config.id]) {
+    return
+  }
+  enableSwitchLoading[config.id] = true
+  try {
+    const saveObj:DesktopComponentConfig = {...config}
+    saveObj.enabled = newVal
+    await SfcUtils.request(API.desktop.saveComponentConfig(saveObj))
+    config.enabled = newVal
+  } catch (err) {
+    SfcUtils.snackbar(err)
+  } finally {
+    enableSwitchLoading[config.id] = false
+  }
+}
 
 const addComponent = () => {
   const inst = SfcUtils.openComponentDialog(DesktopComponentSelector, {
@@ -113,7 +151,7 @@ import { DesktopComponent, DesktopComponentConfig } from '@/core/model/Desktop'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import SfcUtils from '@/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch } from 'vue'
 import DesktopComponentSelector from './DesktopComponentSelector.vue'
 import DesktopConfigForm from './DesktopConfigForm.vue'
 
@@ -136,6 +174,15 @@ export default defineComponent({
   &:hover {
     background-color: rgba(var(--v-theme-primary), .05);
   }
+
+  &.disabled {
+    background-color: rgba(var(--v-theme-info), .05);
+    border-color: rgba(var(--v-theme-info), .05);
+  }
+}
+
+.enabled-switcher {
+  margin: 3px 12px;
 }
 
 .delete-btn {

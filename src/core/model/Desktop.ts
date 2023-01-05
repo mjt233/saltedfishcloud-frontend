@@ -52,6 +52,9 @@ export interface DesktopComponentConfig extends AuditModel {
 
   /** 是否使用卡片样式 */
   useCard: number
+
+  /** 是否启用 */
+  enabled: number
 }
 
 
