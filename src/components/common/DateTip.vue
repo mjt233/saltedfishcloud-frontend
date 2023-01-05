@@ -1,10 +1,13 @@
 <template>
-  <div class="text-h6">
-    {{ hello }}，现在是{{ nowDate }}
+  <div>
+    <div class="text-h6">
+      {{ hello }}，现在是{{ nowDate }}
+    </div>
+    <div v-if="message" class="tip">
+      {{ message }}
+    </div>
   </div>
-  <div v-if="message" class="tip">
-    {{ message }}
-  </div>
+  
 </template>
 
 <script setup lang="ts">

@@ -5,6 +5,10 @@
       <v-icon>mdi-plus</v-icon>
       添加组件
     </VBtn>
+    <VBtn style="margin-left: 12px" @click="preview">
+      <v-icon>mdi-eye</v-icon>
+      预览
+    </VBtn>
     <div>
       <template v-if="configItems && configItems.length">
         <div
@@ -77,6 +81,18 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 
 const enableSwitchLoading: {[k:IdType]: boolean | undefined} = reactive({})
 
+const preview = () => {
+  const inst = SfcUtils.openComponentDialog(DesktopView, {
+    title: '桌面预览',
+    fullscreen: true,
+    showConfirm: false,
+    showCancel: false,
+    footer: () => h(VBtn, {
+      onClick: () => inst.doCancel(),
+      color: 'primary'
+    }, () => '关闭')
+  })
+}
 /**
  * 组件启用状态变更回调
  * @param config 组件配置
@@ -151,7 +167,9 @@ import { DesktopComponent, DesktopComponentConfig } from '@/core/model/Desktop'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import SfcUtils from '@/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch } from 'vue'
+import DesktopView from '@/views/common/DesktopView.vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, h } from 'vue'
+import { VBtn } from 'vuetify/components'
 import DesktopComponentSelector from './DesktopComponentSelector.vue'
 import DesktopConfigForm from './DesktopConfigForm.vue'
 
