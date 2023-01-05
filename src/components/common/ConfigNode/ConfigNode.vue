@@ -49,7 +49,12 @@
         <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
       </template>
       <template v-if="node.inputType == 'template'">
-        <component :is="node.template" />
+        <component
+          :is="node.template"
+          :model-value="node.value || node.defaultValue"
+          v-bind="getCustomParamsObj(node)"
+          @update:model-value="emits('change', $event)"
+        />
       </template>
     </div>
   </div>
@@ -106,6 +111,16 @@ const validators:ValidateRule[] = [
     }
   }
 ]
+const getCustomParamsObj = (node: ConfigNodeModel) => {
+  const obj:any = {
+    node
+  }
+  if(node.params) {
+    Object.assign(obj, node.params)
+  }
+  return obj
+
+}
 
 /**
  * 值是否被修改过
@@ -148,6 +163,7 @@ onMounted(() => {
 import { ConfigNodeModel } from '@/core/model'
 import { ValidateRule } from '@/core/model/component/type'
 import { ValidatorFunction } from '@/utils/FormUtils'
+import SfcUtils from '@/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, computed, readonly } from 'vue'
 
 export default defineComponent({

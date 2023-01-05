@@ -109,6 +109,12 @@ export interface ConfigNodeModel {
 
   /* 是否必填 */
   required?: boolean
+
+  /* 额外参数，当类型为模板时会传递给模板 */
+  params?: {[key: string]: any}
+
+  /* 是否独占一行 */
+  isRow?: boolean;
 }
 
 /**

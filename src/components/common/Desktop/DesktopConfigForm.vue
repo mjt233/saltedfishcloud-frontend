@@ -59,10 +59,7 @@
     <div class="text-h6" style="margin-top: 12px">
       额外json配置项
     </div>
-    <textarea
-      v-model="extraJson"
-      class="json-editor"
-    />
+    <SimpleTextarea v-model="extraJson" />
   </base-form>
 </template>
 
@@ -218,18 +215,3 @@ export default defineComponent({
   name: 'DesktopConfigForm'
 })
 </script>
-
-<style lang="scss">
-.json-editor {
-  width: 100%;
-  outline: none;
-  min-height: 120px;
-  border: 1px solid rgba(var(--v-theme-primary), .1);
-  padding: 6px;
-  border-radius: 3px;
-  transition: all .1s;
-  &:focus,&:hover {
-    border: 1px solid rgba(var(--v-theme-primary), .4);
-  }
-}
-</style>
