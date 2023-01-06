@@ -72,6 +72,7 @@ declare module '@vue/runtime-core' {
     FileUploadList: typeof import('./src/components/common/FileUpload/FileUploadList.vue')['default']
     FixedBtn: typeof import('./src/components/common/btn/FixedBtn.vue')['default']
     ForgetForm: typeof import('./src/components/form/ForgetForm.vue')['default']
+    FormCodeEditor: typeof import('./src/components/common/Editor/FormCodeEditor.vue')['default']
     FormCol: typeof import('./src/components/layout/FormCol.vue')['default']
     FormGrid: typeof import('./src/components/layout/FormGrid.vue')['default']
     FormRow: typeof import('./src/components/layout/FormRow.vue')['default']
