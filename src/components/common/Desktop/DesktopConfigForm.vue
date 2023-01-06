@@ -103,22 +103,18 @@ let customConfigObj = {} as {[k: string]:any}
 const extraJson = ref('{\n\n}')
 watch(extraJson, () => {
   try {
-    if (extraJson.value) {
-      const extraObj = JSON.parse(extraJson.value)
-      Object.keys(extraObj).forEach(key => {
-        customConfigObj[key] = extraObj[key]
-      })
-      Object.keys(customConfigObj).forEach(key => {
-        if (extraObj[key] == undefined) {
-          delete customConfigObj[key]
-        }
-      })
-    } else {
-      customConfigObj = {}
-    }
+    const extraObj = JSON.parse(extraJson.value || '{}')
+    const customKey = new Set(props.component.config.map(e => e.name))
+    Object.keys(extraObj).forEach(key => {
+      customConfigObj[key] = extraObj[key]
+    })
+    Object.keys(customConfigObj).forEach(key => {
+      if (extraObj[key] == undefined && !customKey.has(key)) {
+        delete customConfigObj[key]
+      }
+    })
     updateParams()
   } catch (ignore) {
-
   }
   
 })
