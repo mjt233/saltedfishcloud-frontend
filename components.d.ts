@@ -15,6 +15,7 @@ declare module '@vue/runtime-core' {
     BindEmailForm: typeof import('./src/components/form/BindEmailForm.vue')['default']
     BootLoader: typeof import('./src/components/common/BootLoader/BootLoader.vue')['default']
     ChangePassowrdForm: typeof import('./src/components/form/ChangePassowrdForm.vue')['default']
+    CodeEditor: typeof import('./src/components/common/Editor/CodeEditor.vue')['default']
     CollectionFieldForm: typeof import('./src/components/common/FileCollection/form/CollectionFieldForm.vue')['default']
     CommonIcon: typeof import('./src/components/common/CommonIcon.vue')['default']
     ConfigForm: typeof import('./src/components/common/ConfigForm.vue')['default']

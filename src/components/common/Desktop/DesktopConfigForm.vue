@@ -59,7 +59,7 @@
     <div class="text-h6" style="margin-top: 12px">
       额外json配置项
     </div>
-    <SimpleTextarea v-model="extraJson" />
+    <CodeEditor v-model="extraJson" language="json" />
   </base-form>
 </template>
 
