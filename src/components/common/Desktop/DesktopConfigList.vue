@@ -136,6 +136,9 @@ const addOrEditConfig = (component: DesktopComponent, config?: DesktopComponentC
       initValue: config,
       uid: props.uid
     },
+    extraDialogOptions: {
+      maxWidth: '720px'
+    },
     title: !config ? '新增小组件' : '编辑小组件',
     async onConfirm() {
       const ret = await inst.getInstAsForm().submit()

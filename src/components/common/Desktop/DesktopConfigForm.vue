@@ -100,13 +100,22 @@ const customConfig = computed(() => {
 })
 let customConfigObj = {} as {[k: string]:any}
 
-const extraJson = ref('')
+const extraJson = ref('{\n\n}')
 watch(extraJson, () => {
   try {
-    const extraObj = JSON.parse(extraJson.value)
-    Object.keys(extraObj).forEach(key => {
-      customConfigObj[key] = extraObj[key]
-    })
+    if (extraJson.value) {
+      const extraObj = JSON.parse(extraJson.value)
+      Object.keys(extraObj).forEach(key => {
+        customConfigObj[key] = extraObj[key]
+      })
+      Object.keys(customConfigObj).forEach(key => {
+        if (extraObj[key] == undefined) {
+          delete customConfigObj[key]
+        }
+      })
+    } else {
+      customConfigObj = {}
+    }
     updateParams()
   } catch (ignore) {
 
