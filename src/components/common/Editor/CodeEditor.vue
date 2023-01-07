@@ -91,11 +91,11 @@ watch(() => props.modelValue, () => {
 const growHeight = () => {
   if (props.autoGrow) {
     const line = findLineCount(editor.getValue(), props.autoGrowMaxLine)
-    containerHeight.value = (line < props.autoGrowMaxLine ? line : props.autoGrowMaxLine) * 19 + 'px'
+    containerHeight.value = (line < props.autoGrowMaxLine ? line : props.autoGrowMaxLine) * 19 + 13 + 'px'
   }
 }
 
-onMounted(() => {
+onMounted(async() => {
   editor = monaco.editor.create(editorRef.value, {
     language: props.language,
     value: props.modelValue,
@@ -109,6 +109,8 @@ onMounted(() => {
     emits('update:modelValue', editor.getValue())
     growHeight()
   })
+  await nextTick()
+  editor.layout({ height: 100, width: 100 })
 })
 
 onUnmounted(() => {
@@ -119,7 +121,7 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import * as monaco from 'monaco-editor'
 import editWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
@@ -134,6 +136,8 @@ export default defineComponent({
 
 <style scoped>
 .code-editor-container {
+  min-height: 120px;
+  height: v-bind(containerHeight);
   padding: 3px;
   border: 1px solid rgba(var(--v-theme-primary), .2);
   border-radius: 3px;
@@ -141,7 +145,6 @@ export default defineComponent({
 }
 
 .code-editor {
-  min-height: 120px;
-  height: v-bind(containerHeight);
+  height: 100%;
 }
 </style>

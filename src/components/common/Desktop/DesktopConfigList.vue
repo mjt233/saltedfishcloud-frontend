@@ -137,7 +137,8 @@ const addOrEditConfig = (component: DesktopComponent, config?: DesktopComponentC
       uid: props.uid
     },
     extraDialogOptions: {
-      maxWidth: '720px'
+      maxWidth: '820px',
+      persistent: true
     },
     title: !config ? '新增小组件' : '编辑小组件',
     async onConfirm() {

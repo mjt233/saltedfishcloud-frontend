@@ -266,7 +266,7 @@ export interface DialogProps {
   /**
    * 是否持久显示
    */
-  persistent?: string
+  persistent?: boolean
 
   /**
    * 隐藏默认按钮
