@@ -23,6 +23,20 @@ const props = defineProps({
   hideLineNumber: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 是否自动调整高度
+   */
+  autoGrow: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 自动调整的高度最大行数
+   */
+  autoGrowMaxLine: {
+    type: Number,
+    default: 15
   }
 })
 const emits = defineEmits(['update:modelValue'])
@@ -43,11 +57,44 @@ self.MonacoEnvironment = {
 }
 
 let editor: monaco.editor.IStandaloneCodeEditor
+const containerHeight = ref('auto')
+
+/**
+ * 获取字符串行数
+ * @param str 待查找字符串
+ * @param max 最大检查行数
+ */
+const findLineCount = (str: string, max: number) => {
+  if (!str || str.length == 0) {
+    return 0
+  }
+  let count = 0
+  let idx = 0
+  while(idx != -1 && count < max) {
+    idx = str.indexOf('\n', idx)
+    if (idx != -1) {
+      idx++
+      count++
+    }
+  }
+  return count + 1
+}
 watch(() => props.modelValue, () => {
   if (editor && editor.getValue() != props.modelValue) {
     editor.setValue(props.modelValue)
   }
 })
+
+/**
+ * 高度自动更新
+ */
+const growHeight = () => {
+  if (props.autoGrow) {
+    const line = findLineCount(editor.getValue(), props.autoGrowMaxLine)
+    containerHeight.value = (line < props.autoGrowMaxLine ? line : props.autoGrowMaxLine) * 19 + 'px'
+  }
+}
+
 onMounted(() => {
   editor = monaco.editor.create(editorRef.value, {
     language: props.language,
@@ -55,10 +102,12 @@ onMounted(() => {
     minimap: {
       enabled: props.useMiniMap
     },
-    lineNumbers: props.hideLineNumber ? 'off' : 'on'
+    lineNumbers: props.hideLineNumber ? 'off' : 'on',
+    automaticLayout: true
   })
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
+    growHeight()
   })
 })
 
@@ -93,5 +142,6 @@ export default defineComponent({
 
 .code-editor {
   min-height: 120px;
+  height: v-bind(containerHeight);
 }
 </style>
