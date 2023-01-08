@@ -356,8 +356,10 @@ a {
     position: fixed;
     background: rgba(var(--v-theme-background), v-bind(bgOperacity));
     z-index: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
 }
 </style>
