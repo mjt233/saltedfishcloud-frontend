@@ -64,7 +64,6 @@ const initPlayer = () => {
                   fontSize: '21px'
                 };
                 (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.value.language + (subtitle.value.title ? ('(' + subtitle.value.title + ')') : '')
-                console.log(opt.contextmenu)
                 dp.destroy()
                 dp = new window.DPlayer(opt)
                 dp.play()
