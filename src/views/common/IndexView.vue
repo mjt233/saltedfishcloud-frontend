@@ -129,6 +129,7 @@ a {
   position: relative;
   background-image: v-bind(bgUrl);
   background-size: v-bind(bgSize);
+  background-attachment: fixed;
 
   &::before {
     content: '';

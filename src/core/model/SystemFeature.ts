@@ -50,6 +50,11 @@ export interface SystemFeature {
   bgMain?: BgOption
 
   /**
+   * 是否默认为黑暗主题
+   */
+  darkTheme: boolean
+
+  /**
    * 其他的拓展类型
    */
   [otherKey: string]: any

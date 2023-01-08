@@ -19,6 +19,10 @@ bootContext
       if (data.bgMain) {
         context.bg.value.main = data.bgMain
       }
+      // 默认开启黑暗模式
+      if (data.darkTheme) {
+        context.theme.value = 'dark'
+      }
       // 监听系统配置变更，实时更新背景图
       context.eventBus.value.on(EventNameConstants.SYS_CONFIG_CHANGE, (changeList: ConfigNodeModel[]) => {
         const config = changeList.find(e => e.name == 'sys.bg.main')
