@@ -193,7 +193,7 @@ export default defineComponent({
   padding: 2px;
   overflow: hidden;
   border: 1px solid darkgray;
-  background-color: white;
+  background-color: rgb(var(--v-theme-background));
   resize: none;
 }
 
