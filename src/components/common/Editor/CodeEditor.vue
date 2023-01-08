@@ -103,7 +103,8 @@ onMounted(async() => {
       enabled: props.useMiniMap
     },
     lineNumbers: props.hideLineNumber ? 'off' : 'on',
-    automaticLayout: true
+    automaticLayout: true,
+    theme: context.theme.value == 'dark' ? 'vs-dark' : 'vs'
   })
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
@@ -127,6 +128,7 @@ import editWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import typescriptWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import { context } from '@/core/context'
 
 export default defineComponent({
   name: 'CodeEditor'

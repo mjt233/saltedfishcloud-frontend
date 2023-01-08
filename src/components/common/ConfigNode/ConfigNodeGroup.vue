@@ -3,15 +3,15 @@
     <div v-for="(group, idx) in items" :key="idx" class="node-group">
       <slot name="title" :group="group">
         <template v-if="group.title || group.name">
-          <sticky-container
+          <!-- <sticky-container
             v-if="useStickTitle"
             :top="64"
             content-class="node-title"
             style="width: 100%"
           >
             {{ group.title || group.name }}
-          </sticky-container>
-          <span v-else class="node-title">{{ group.title || group.name }}</span>
+          </sticky-container> -->
+          <span class="node-title">{{ group.title || group.name }}</span>
         </template>
       </slot>
       <config-node
