@@ -226,10 +226,10 @@ const selectStart = () => {
 
 const rename = (name: string, md5: string) => {
   resetSelect()
-  renameIndex.value = props.fileList.findIndex(e => e.name == name && e.md5 == md5)
+  renameIndex.value = props.fileList.findIndex(e => e.name == name)
   renameNewName.value = name
   if (props.type == 'grid') {
-    const gridItemInst = gridItemRef.value[renameIndex.value]
+    const gridItemInst = gridItemRef.value.find((e: any) => e.getFileInfo().name == name)
     cancelRenameActionFun = gridItemInst.cancelRename
     // 针对grid模式的重命名
     return gridItemInst.rename().then((newName: string) => {
