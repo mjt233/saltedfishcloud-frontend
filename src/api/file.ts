@@ -180,7 +180,7 @@ const file = {
   rename(uid: IdType, path: string, oldName: string, newName: string): CommonRequest {
     if (path == '/') path = ''
     return {
-      url: StringUtils.appendPath(`${this.prefix}/${uid}/name`, path),
+      url: StringUtils.appendPath(`${this.prefix}/${uid}/name`, StringUtils.encodeURLPath(path)),
       method: 'put',
       data: {
         oldName: oldName,
