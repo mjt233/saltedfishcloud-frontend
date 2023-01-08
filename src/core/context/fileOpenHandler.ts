@@ -113,6 +113,9 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
     title: '编辑器',
     icon: 'mdi-pencil',
     matcher(ctx, file) {
+      if (ctx.readonly) {
+        return false
+      }
       const extName = file.name.split('.').pop()?.toLowerCase() || file.name
       const supportType = new Set([
         'js', 'ts', 'tsx', 'jsx',
@@ -174,7 +177,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
                 SfcUtils.snackbar('文件无变更')
                 return true
               }
-              let path = file.path
+              let path = ctx.path || file.path
               if (!path) {
                 path = (await SfcUtils.request(API.resource.parseNodeId(file.uid, file.node))).data.data
                 if (!path) {
