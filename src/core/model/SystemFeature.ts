@@ -1,3 +1,5 @@
+import { BgOption } from '../context'
+
 /**
  * 系统支持的特性
  */
@@ -41,6 +43,11 @@ export interface SystemFeature {
    * 后端系统版本号
    */
   version: string,
+
+  /**
+   * 主背景图配置
+   */
+  bgMain?: BgOption
 
   /**
    * 其他的拓展类型

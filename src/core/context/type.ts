@@ -102,6 +102,31 @@ export interface FileClipBoard {
 }
 
 /**
+ * 背景图配置选项
+ */
+export interface BgOption {
+  /**
+   * 是否启用
+   */
+  enabled?: boolean
+
+  /**
+   * 背景图url
+   */
+  url?: string,
+
+  /**
+   * 背景图不透明度，范围0.1 ~ 1，1完全不透明
+   */
+  operacity?: number
+
+  /**
+   * 尺寸
+   */
+  size?: 'auto' | 'contain' | 'cover'
+}
+
+/**
  * 全局上下文属性
  */
 export interface AppContext {
@@ -157,6 +182,9 @@ export interface AppContext {
    */
   eventBus: EventBus,
 
+  /**
+   * 系统功能配置信息
+   */
   feature: SystemFeature,
 
   /**
@@ -164,11 +192,30 @@ export interface AppContext {
    */
   routeInfo: RouteInfo,
 
+  /**
+   * 当前可视的窗口
+   */
   visiableWindows: VisiableWindows
 
+  /**
+   * 文件打开操作器
+   */
   fileOpenHandler: FileOpenHandler[]
 
+  /**
+   * 当前的文件剪切板信息
+   */
   fileClipBoard: FileClipBoard
+
+  /**
+   * 系统背景图信息
+   */
+  bg: {
+    /**
+     * 主背景图
+     */
+    main?: BgOption
+  }
 
   [otherKey: string]: any
 }

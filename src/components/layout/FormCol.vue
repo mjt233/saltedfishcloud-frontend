@@ -1,6 +1,6 @@
 <template>
   <v-col :class="{'top-label':topLabel}">
-    <span v-if="label" class="form-label">
+    <span v-if="label" class="form-label tip">
       <span v-if="required" style="color: red">*</span>
       {{ label }}
       <template v-if="!topLabel">:</template>

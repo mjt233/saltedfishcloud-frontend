@@ -66,7 +66,6 @@ const labelWidth = computed(() => {
       currentWidth = width
     }
   })
-  console.log(currentWidth)
   return (currentWidth > maxLabelWidth ? maxLabelWidth : currentWidth) + 'px'
 })
 

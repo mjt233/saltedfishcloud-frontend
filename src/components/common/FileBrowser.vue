@@ -69,13 +69,11 @@
               <div style="min-width: 120px;max-width: 120px;" class="d-flex">
                 <v-btn-toggle v-model="btnToggle">
                   <v-btn
-                    color="background"
                     size="small"
                     icon="mdi-format-list-bulleted"
                     @click="changeListType('list')"
                   />
                   <v-btn
-                    color="background"
                     size="small"
                     icon="mdi-dots-grid"
                     @click="changeListType('grid')"

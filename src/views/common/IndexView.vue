@@ -1,6 +1,6 @@
 <template>
   <!-- 顶部栏 -->
-  <v-app-bar color="header">
+  <v-app-bar :color="context.theme.value == 'dark' ? 'surface': 'primary'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
     <v-spacer />
@@ -20,20 +20,20 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" color="background">
+  <v-navigation-drawer v-model="showDrawer" :class="{'bg-drawer': enabledBg}">
     <template #prepend>
 
       <!-- 抽屉菜单顶部图 -->
       <!-- <img :src="menuObj.backgroundImg" style="width: 100%"> -->
     </template>
     <!-- 抽屉菜单列表本体 -->
-    <v-list bg-color="background">
+    <v-list class="main-menu-list">
       <template v-for="(group) in menuObj.group" :key="group.id">
         <template v-if="!group.renderOn || group.renderOn(context)">
 
           <!-- 副标题 -->
           <v-list-subheader>{{ group.name }}</v-list-subheader>
-
+          
           <!-- 菜单项 -->
           <template v-for="(item) in group.items">
             <v-list-item
@@ -59,7 +59,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main>
+  <v-main :class="{'bg-main-view': enabledBg}">
     <div class="main-body">
       <router-view />
     </div>
@@ -70,6 +70,7 @@
 import UserCard from '@/components/common/UserCard.vue'
 import DarkSwitch from '@/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from '@/core/serivce/FileUpload'
+import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize } from '@/core/context/mainBgAttr'
 const menuObj = context.menu.value.mainMenu
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
@@ -96,7 +97,7 @@ export default defineComponent({
 })
 </script>
 
-<style>
+<style lang="scss">
 a {
   text-decoration: none;
 }
@@ -106,5 +107,36 @@ a {
 .top-bar-welcome {
   position: absolute;
   bottom: 0px;
+}
+
+.bg-drawer {
+  background: rgba(var(--v-theme-background), v-bind(menuOperacity))
+}
+@media (max-width: 1279px) {
+  .bg-drawer {
+    background: rgba(var(--v-theme-background), 1)
+  }
+}
+
+.main-menu-list {
+  background: none;
+}
+</style>
+
+<style scoped lang="scss">
+
+.bg-main-view {
+  position: relative;
+  background-image: v-bind(bgUrl);
+  background-size: v-bind(bgSize);
+
+  &::before {
+    content: '';
+    position: absolute;
+    background: rgba(var(--v-theme-background), v-bind(bgOperacity));
+    z-index: 0;
+    width: 100vw;
+    height: 100vh;
+  }
 }
 </style>

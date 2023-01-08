@@ -59,18 +59,18 @@ export default defineComponent({
   position: relative;
   font-size: 23px;
   padding: 6px 12px;
-  background-color: rgb(var(--v-theme-background));
+  /* background-color: rgb(var(--v-theme-background)); */
   width: 100%;
   transition: all .2s;
   font-weight: 600;
 }
 
-.node-group>*:hover,.node-title:hover {
+/* .node-group>*:hover,.node-title:hover {
   background-color: rgba(var(--v-theme-primary), .05);
-}
+} */
 
 /* Vue模板组件类型的不悬浮高亮了 */
 .node-group>.template-node:hover {
-  background-color: rgb(var(--v-theme-background));
+  background-color: transparent;
 }
 </style>

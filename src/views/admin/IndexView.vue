@@ -1,7 +1,7 @@
 <template>
   <loading-mask :loading="loadingManager.getLoadingRef().value" />
   <!-- 顶部栏 -->
-  <v-app-bar color="header">
+  <v-app-bar :color="context.theme.value == 'dark' ? 'surface': 'primary'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
     <v-spacer />
@@ -21,9 +21,9 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" color="background">
+  <v-navigation-drawer v-model="showDrawer" :class="{'bg-admin-drawer': enabledBg}">
     <!-- 抽屉菜单列表本体 -->
-    <v-list v-model:opened="openGroup" bg-color="background">
+    <v-list v-model:opened="openGroup" class="main-menu-list">
       <template v-for="(group) in menuObj" :key="group.id">
         <template v-if="!group.renderOn || group.renderOn(adminContext)">
 
@@ -73,7 +73,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main>
+  <v-main :class="{'bg-main-view': enabledBg}">
     <div class="main-body">
       <component :is="adminContext.component" v-if="adminContext.component" />
     </div>
@@ -87,6 +87,7 @@ import UserCard from '@/components/common/UserCard.vue'
 import DarkSwitch from '@/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from '@/core/serivce/FileUpload'
 import LoadingMask from '@/components/common/LoadingMask.vue'
+import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize } from '@/core/context/mainBgAttr'
 const loadingManager = new LoadingManager()
 const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
@@ -205,6 +206,7 @@ const confirmChange = () => {
         updateHideConfirm()
         dialogInst.closeLoading()
         SfcUtils.snackbar('修改成功')
+        context.eventBus.value.emit(EventNameConstants.SYS_CONFIG_CHANGE, changeList)
         return true
       } finally {
         dialogInst.closeLoading()
@@ -309,6 +311,7 @@ import API from '@/api'
 import ConfigNodeGroupVue from '@/components/common/ConfigNode/ConfigNodeGroup.vue'
 import { ConfigNodeModel, NameValueType } from '@/core/model'
 import ConfigNodeChangeListVue from '@/components/common/ConfigNode/ConfigNodeChangeList.vue'
+import { EventNameConstants } from '@/core/constans/EventName'
 
 export default defineComponent({
   name: 'AdminIndex'
@@ -325,5 +328,36 @@ a {
 .top-bar-welcome {
   position: absolute;
   bottom: 0px;
+}
+
+.bg-admin-drawer {
+  background: rgba(var(--v-theme-background), v-bind(menuOperacity))
+}
+@media (max-width: 1279px) {
+  .bg-admin-drawer {
+    background: rgba(var(--v-theme-background), 1)
+  }
+}
+
+.main-menu-list {
+  background: none;
+}
+</style>
+
+<style scoped lang="scss">
+.bg-main-view {
+  position: relative;
+  background-image: v-bind(bgUrl);
+  background-size: v-bind(bgSize);
+  background-attachment: fixed;
+
+  &::before {
+    content: '';
+    position: fixed;
+    background: rgba(var(--v-theme-background), v-bind(bgOperacity));
+    z-index: 0;
+    width: 100vw;
+    height: 100vh;
+  }
 }
 </style>

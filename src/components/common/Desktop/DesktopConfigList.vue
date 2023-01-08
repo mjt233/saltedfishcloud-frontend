@@ -193,8 +193,9 @@ export default defineComponent({
   border-radius: 5px;
   cursor: pointer;
   border: 1px solid rgba(var(--v-theme-primary), .2);
+  background-color: rgba(var(--v-theme-background), .9);
   &:hover {
-    background-color: rgba(var(--v-theme-primary), .05);
+    box-shadow: 0 0 5px 0 rgba(var(--v-theme-primary), .5);
   }
 
   &.disabled {

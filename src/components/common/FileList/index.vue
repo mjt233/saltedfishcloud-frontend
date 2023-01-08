@@ -25,17 +25,17 @@
       ref="tableRef"
       fixed-header
       class="file-table"
-      color="background"
       style="overflow: hidden"
       :style="{'--table-width': tableWidth}"
       :height="height"
     >
-      <thead>
+      <thead style="background: none">
         <tr>
           <th
             v-if="useSelect"
             width="72"
             class="file-checkbox"
+            style="background-color: transparent !important"
             @click="toggleSelectAll"
           >
             <v-checkbox
@@ -46,7 +46,7 @@
               :model-value="allInSelect || partInSelect"
             />
           </th>
-          <th class="file-col">
+          <th class="file-col" style="background-color: transparent !important">
             文件名
           </th>
           <!-- <th width="128">

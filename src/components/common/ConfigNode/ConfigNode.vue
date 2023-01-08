@@ -53,7 +53,7 @@
           :is="node.template"
           :model-value="node.value || node.defaultValue"
           v-bind="getCustomParamsObj(node)"
-          @update:model-value="emits('change', $event)"
+          @update:model-value="emits('change', $event);updateValue($event);nodeValue = $event"
         />
       </template>
     </div>

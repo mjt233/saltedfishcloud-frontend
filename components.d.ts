@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     BaseForm: typeof import('./src/components/common/BaseForm.vue')['default']
     BaseRegisterForm: typeof import('./src/components/form/UserRegisterForm/BaseRegisterForm.vue')['default']
     BaseView: typeof import('./src/components/common/BaseView.vue')['default']
+    BgOptionEditor: typeof import('./src/components/form/BgOptionEditor.vue')['default']
     BindEmailForm: typeof import('./src/components/form/BindEmailForm.vue')['default']
     BootLoader: typeof import('./src/components/common/BootLoader/BootLoader.vue')['default']
     ChangePassowrdForm: typeof import('./src/components/form/ChangePassowrdForm.vue')['default']

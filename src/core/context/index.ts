@@ -38,7 +38,15 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   fileClipBoard: undefined as unknown as FileClipBoard,
   visiableWindows: reactive({
     uploadList: false
-  } as VisiableWindows)
+  } as VisiableWindows),
+  bg: {
+    main: {
+      url: '',
+      size: 'cover',
+      enabled: false
+    }
+    
+  }
 }))
 
 

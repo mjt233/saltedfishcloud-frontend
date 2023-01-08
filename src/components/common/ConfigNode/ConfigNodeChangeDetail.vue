@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div v-if="node.inputType != 'form'">
+    <div v-if="!node.nodes?.length">
       {{ node.originValue }} -> {{ currentValue }}
     </div>
     <div v-else>
       <div v-for="(item, index) in fieldsDiff" :key="item.name">
         <span style="font-weight:600">{{ item.title }}</span><br>
-        {{ item.before }} -> {{ item.after }}
+        <span class="break-text">{{ item.before }} -> {{ item.after }}</span>
         <v-divider v-show="index != (fieldsDiff.length - 1)" style="margin: 12px 0" />
       </div>
     </div>
@@ -27,7 +27,7 @@ const props = defineProps({
 
 const fieldsDiff = ref([] as {title:string, name: string, before: string, after: string}[])
 const updateFormDiff = () => {
-  if(props.node.inputType != 'form') {
+  if(!props.node.nodes?.length) {
     fieldsDiff.value = []
   } else {
     // 对于form类型，逐个key去对比差异

@@ -135,7 +135,7 @@ html {
 }
 
 .tip {
-  color: #505050;
+  color: rgba(var(--v-theme-on-surface), .5);
   font-size: 14px;
 }
 
@@ -177,4 +177,10 @@ html {
       opacity: .8;
     }
   }
+}
+
+
+.v-overlay__scrim {
+  background-color: black !important;
+  opacity: .4 !important;
 }
