@@ -44,7 +44,8 @@ const workerMap = {
   jsonWorker,
   htmlWorker,
   editWorker,
-  typescriptWorker
+  typescriptWorker,
+  cssWorker
 } as {[s:string]: new () => Worker}
 self.MonacoEnvironment = {
   getWorker: (id, label) => {
@@ -127,6 +128,7 @@ import * as monaco from 'monaco-editor'
 import editWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import typescriptWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { context } from '@/core/context'
 

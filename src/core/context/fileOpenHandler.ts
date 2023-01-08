@@ -1,11 +1,12 @@
+import { context } from '@/core/context'
 import { FileInfo } from '@/core/model'
 import { StringUtils } from '@/utils/StringUtils'
 import API from '@/api'
 import { FileOpenHandler } from './type'
 import SfcUtils from '@/utils/SfcUtils'
-import { reactive } from 'vue'
+import { createTextVNode, reactive } from 'vue'
 import ImagePreviewerVue from '@/components/common/Previewer/ImagePreviewer.vue'
-import { VideoPlayer } from '@/components'
+import { CodeEditor, VideoPlayer } from '@/components'
 import { dyncmount } from '@/utils/SfcUtils/common/DyncMount'
 import { extname } from 'path'
 const imgTypes = new Set(['jpeg', 'jpg', 'gif', 'png', 'bmp', 'icon'])
@@ -84,6 +85,7 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
     }
   },
   {
+    // 默认的视频播放器，当加载了视频增强插件时该项不可用
     id: 'play-video',
     title: '播放视频',
     icon: 'mdi-play-circle',
@@ -104,6 +106,98 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
           maxWidth: '80%'
         }
       })
+    }
+  },
+  {
+    id: 'code-edit',
+    title: '编辑器',
+    icon: 'mdi-pencil',
+    matcher(ctx, file) {
+      const extName = file.name.split('.').pop()?.toLowerCase() || file.name
+      const supportType = new Set([
+        'js', 'ts', 'tsx', 'jsx',
+        'html', 'htm', 
+        'css', 'scss', 'less',
+        'python', 'php', 'c', 'cpp','java', 'json','bat', 'lua',
+        'txt', 'ini', 'log', 'md', 'properties', 'cfg', 'vue'
+      ])
+      return supportType.has(extName)
+    },
+    sort: 0,
+    async action(ctx, file) {
+      const url = ctx.getFileUrl(file)
+      if (!url) {
+        throw new Error('无法获取文件url')
+      }
+      const extName = file.name.split('.').pop()?.toLowerCase() || file.name
+
+      // 匹配语言
+      let language
+      if (['js', 'ts', 'tsx', 'jsx'].includes(extName)) {
+        language = 'javascript'
+      } else if (extName == 'json') {
+        language = 'json'
+      } else if (['html', 'htm', 'vue'].includes(extName)) {
+        language = 'html'
+      } else if (['css', 'less', 'scss'].includes(extName)) {
+        language = 'css'
+      } else if (extName == 'java') {
+        language = 'java'
+      } else {
+        language = 'editor'
+      }
+      SfcUtils.beginLoading()
+      try {
+        const session = context.session.value
+        const ret = await SfcUtils.request({ url })
+        let newText = ret.request.responseText
+        SfcUtils.openComponentDialog(CodeEditor, {
+          props: {
+            autoGrow: false,
+            useMiniMap: true,
+            modelValue: ret.request.responseText,
+            'onUpdate:modelValue'(val: string) {
+              newText = val
+            },
+            language,
+            style: {
+              height: '100%'
+            }
+          },
+          fullscreen: true,
+          persistent: true,
+          title: file.name,
+          showConfirm: !!session.token && (file.uid == session.user.id) || (file.uid == 0 && session.user.role == 'admin'),
+          async onConfirm() {
+            try {
+              if (newText == ret.request.responseText) {
+                SfcUtils.snackbar('文件无变更')
+                return true
+              }
+              let path = file.path
+              if (!path) {
+                path = (await SfcUtils.request(API.resource.parseNodeId(file.uid, file.node))).data.data
+                if (!path) {
+                  throw new Error('无法获取到文件路径')
+                }
+              }
+              const newFile = new File([new Blob([newText])], file.name, { type: 'text/plain'})
+              SfcUtils.beginLoading()
+              await SfcUtils.request(API.file.upload(file.uid, path, newFile))
+              await ctx.modelHandler.refresh()
+              SfcUtils.snackbar('保存成功')
+            } catch(err) {
+              SfcUtils.snackbar(err)
+              return false
+            } finally {
+              SfcUtils.closeLoading()
+            }
+            return true
+          }
+        })
+      } finally {
+        SfcUtils.closeLoading()
+      }
     }
   }
 ])
