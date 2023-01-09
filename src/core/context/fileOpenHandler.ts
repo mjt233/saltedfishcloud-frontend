@@ -146,6 +146,8 @@ const defaultFileOpenHandlers: FileOpenHandler[] = reactive([
         language = 'css'
       } else if (extName == 'java') {
         language = 'java'
+      } else if (extName == 'md') {
+        language = 'markdown'
       } else {
         language = 'editor'
       }
