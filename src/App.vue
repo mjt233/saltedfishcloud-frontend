@@ -6,6 +6,7 @@
     
     <router-view />
     <file-upload v-model:show="visiableWindows.uploadList" :task-manager="taskManager" />
+    <!-- <debug-console :active="true" /> -->
   </v-app>
   
 </template>

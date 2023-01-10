@@ -33,6 +33,7 @@ declare module '@vue/runtime-core' {
     CustomDesktopComponent: typeof import('./src/components/common/Desktop/CustomDesktopComponent.vue')['default']
     DarkSwitch: typeof import('./src/components/common/DarkSwitch.vue')['default']
     DateTip: typeof import('./src/components/common/DateTip.vue')['default']
+    DebugConsole: typeof import('./src/components/common/DebugConsole.vue')['default']
     DeleteConfirm: typeof import('./src/components/common/DeleteConfirm.vue')['default']
     DesktopComponentSelector: typeof import('./src/components/common/Desktop/DesktopComponentSelector.vue')['default']
     DesktopConfigForm: typeof import('./src/components/common/Desktop/DesktopConfigForm.vue')['default']

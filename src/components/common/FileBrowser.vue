@@ -398,8 +398,8 @@ const scrollBreadcrumbs = async() => {
  */
 const updateListHeight = async() => {
   if (props.autoComputeHeight) {
-    await nextTick()
-    const documentHeight = document.documentElement.clientHeight
+    await SfcUtils.sleep(100)
+    const documentHeight = window.innerHeight
     let otherHeight = 0
     rootWrapRef.value.querySelectorAll('[compute-height=""]').forEach(e => {
       otherHeight += e.clientHeight
