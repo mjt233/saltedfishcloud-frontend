@@ -23,7 +23,6 @@
     <v-table
       v-if="type == 'list'"
       ref="tableRef"
-      fixed-header
       class="file-table"
       style="overflow: hidden"
       :style="{'--table-width': tableWidth}"
@@ -136,7 +135,7 @@
       v-if="type == 'grid'"
       ref="gridRef"
       :width="120"
-      style="margin: 8px"
+      style="margin:0 8px"
       class="grid-container"
     >
       <file-list-grid-item
