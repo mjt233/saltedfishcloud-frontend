@@ -1,6 +1,5 @@
 <template>
   <v-avatar
-    v-show="name"
     :size="size"
     style="margin-right: 12px;"
     :transition="transition"
@@ -21,7 +20,7 @@ const props = defineProps({
     default: 'public'
   },
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   size: {
@@ -42,7 +41,7 @@ const avatarUrl = computed(() => {
   }
   
   // 根据用户名构造头像获取url
-  let url = StringUtils.appendPath(SfcUtils.axios.defaults.baseURL || '', API.user.getAvatar(props.name).url)
+  let url = StringUtils.appendPath(SfcUtils.axios.defaults.baseURL || '', API.user.getAvatar(props.name, props.uid).url)
 
   // 如果是刷新操作，则追加时间戳
   if (timestamp.value) {
