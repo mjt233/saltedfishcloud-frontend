@@ -1,4 +1,4 @@
-import { CommonRequest, PageRequest, RawUser } from '@/core/model'
+import { CommonRequest, IdType, PageRequest, RawUser } from '@/core/model'
 
 export interface UserRegOpt {
   // 用户名
@@ -224,9 +224,9 @@ const user = {
    * @param {String} username 用户名
    * @returns
    */
-  getAvatar(username: string): {url: string} {
+  getAvatar(username?: string, uid?: IdType): {url: string} {
     return {
-      url: this.prefix + '/avatar' + (username ? `/${username}` : '')
+      url: this.prefix + '/avatar' + (username ? `/${username}` : '') + (uid ? `?uid=${uid}` : '')
     }
   },
   /**
