@@ -79,3 +79,14 @@
   width: 32px;
   display: inline-block;
 }
+
+
+  .readme-view {
+    max-width: 480px;
+    width: 40%;
+    @media (max-width: 720px) {
+      & {
+        display: none;
+      }
+    }
+  }

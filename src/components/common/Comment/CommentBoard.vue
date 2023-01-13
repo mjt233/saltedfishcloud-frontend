@@ -49,10 +49,14 @@ const loadingManager = new LoadingManager()
 const content = ref('')
 const loading = loadingManager.getLoadingRef()
 const actions = MethodInterceptor.createAsyncActionProxy({
-  async loadData(page?: number) {
-    ((await SfcUtils.request(API.comment.listByTopicId(props.topicId, page))).data.data || []).forEach(e => {
-      commentList.value.push(e)
-    })
+  async loadData(page?: number, append?: boolean) {
+    const list = (await SfcUtils.request(API.comment.listByTopicId(props.topicId, page))).data.data.content
+    if (append) {
+      list.forEach(e => {
+        commentList.value.push(e)
+      })
+    }
+    return list
   },
   async send() {
     if (props.topicId != 0) {
@@ -63,11 +67,14 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       SfcUtils.alert('内容不能为空( •̀ ω •́ )y')
       return
     }
-    await SfcUtils.request(API.comment.sendAnonymousComment(content.value))
-    commentList.value.length = 0
-    await this.loadData(0)
-    content.value = ''
-    SfcUtils.snackbar('发送成功(*^▽^*)')
+    try {
+      await SfcUtils.request(API.comment.sendAnonymousComment(content.value))
+      commentList.value = await this.loadData(0, false)
+      content.value = ''
+      SfcUtils.snackbar('发送成功(*^▽^*)')
+    } catch (err) {
+      SfcUtils.alert((err && err.toString) ? err.toString() : '未知错误')
+    }
   }
 }, false, loadingManager)
 const commentList = ref<Comment[]>([])
@@ -78,7 +85,7 @@ const keyupHandler = (e: KeyboardEvent) => {
   }
 }
 onMounted(() => {
-  actions.loadData(0)
+  actions.loadData(0, true)
 })
 </script>
 

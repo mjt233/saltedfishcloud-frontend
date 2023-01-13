@@ -112,6 +112,7 @@
       ref="listRef"
       v-model:file-list="fileList"
       :type="listType"
+      :preview-readme="previewReadme"
       :loading-manager="loadingManager"
       :menu="listMenu"
       :path="path"
@@ -207,6 +208,13 @@ const props = defineProps({
   topButtonMinWidth: {
     type: String,
     default: '360px'
+  },
+  /**
+   * 启用README.md预览
+   */
+  previewReadme: {
+    type: Boolean,
+    default: false
   }
 })
 
