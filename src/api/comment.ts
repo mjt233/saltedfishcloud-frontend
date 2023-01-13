@@ -1,4 +1,4 @@
-import { CommonRequest, IdType, Comment } from '@/core/model'
+import { CommonRequest, IdType, Comment, CommonPageInfo } from '@/core/model'
 import { useJsonBody } from '@/utils/FormUtils/CommonFormUtils'
 
 const comment = {
@@ -9,7 +9,7 @@ const comment = {
    * @param page 页码，从0开始，默认0
    * @param size 每页大小，默认20
    */
-  listByTopicId(topicId: IdType, page?: number, size?: number): CommonRequest<Comment[]> {
+  listByTopicId(topicId: IdType, page?: number, size?: number): CommonRequest<CommonPageInfo<Comment>> {
     return {
       url: `${this.prefix}/listByTopicId`,
       params: {
