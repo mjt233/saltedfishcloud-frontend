@@ -1,157 +1,167 @@
 <template>
-  <div
-    ref="rootRef"
-    @contextmenu="rootRClick"
-    @click="rootLClick"
-  >
-    <!-- 鼠标框选组件 -->
-    <select-area
-      :scroll-anchor="scrollAnchor"
-      :select-elements-getter="fileElementsGetter"
-      @select-start="selectStart"
-      @select-move="selectMove"
-    />
-    <!-- 文件右键菜单组件 -->
-    <file-menu
-      v-if="menu.length > 0"
-      :container="$el"
-      :menu="menu"
-      :list-context="fileListContext"
-      :loading-manager="loadingManager"
-    />
-    <!-- list类型的文件列表显示 -->
-    <v-table
-      v-if="type == 'list'"
-      ref="tableRef"
-      class="file-table"
-      style="overflow: hidden"
-      :style="{'--table-width': tableWidth}"
-      :height="height"
+  <div class="d-flex">
+    <div
+      ref="rootRef"
+      style="flex: 1"
+      @contextmenu="rootRClick"
+      @click="rootLClick"
     >
-      <thead style="background: none">
-        <tr>
-          <th
-            v-if="useSelect"
-            width="72"
-            class="file-checkbox"
-            style="background-color: transparent !important"
-            @click="toggleSelectAll"
-          >
-            <v-checkbox
-              inline
-              color="primary"
-              hide-details
-              :indeterminate="partInSelect"
-              :model-value="allInSelect || partInSelect"
-            />
-          </th>
-          <th class="file-col" style="background-color: transparent !important">
-            文件名
-          </th>
-          <!-- <th width="128">
+      <!-- 鼠标框选组件 -->
+      <select-area
+        v-if="rootRef"
+        :scroll-anchor="scrollAnchor"
+        :select-elements-getter="fileElementsGetter"
+        :click-trigger="rootRef"
+        @select-start="selectStart"
+        @select-move="selectMove"
+      />
+      <!-- 文件右键菜单组件 -->
+      <file-menu
+        v-if="menu.length > 0"
+        :container="$el"
+        :menu="menu"
+        :list-context="fileListContext"
+        :loading-manager="loadingManager"
+      />
+      <!-- list类型的文件列表显示 -->
+      <v-table
+        v-if="type == 'list'"
+        ref="tableRef"
+        class="file-table"
+        style="overflow: hidden"
+        :style="{'--table-width': tableWidth}"
+        :height="height"
+      >
+        <thead style="background: none">
+          <tr>
+            <th
+              v-if="useSelect"
+              width="72"
+              class="file-checkbox"
+              style="background-color: transparent !important"
+              @click="toggleSelectAll"
+            >
+              <v-checkbox
+                inline
+                color="primary"
+                hide-details
+                :indeterminate="partInSelect"
+                :model-value="allInSelect || partInSelect"
+              />
+            </th>
+            <th class="file-col" style="background-color: transparent !important">
+              文件名
+            </th>
+            <!-- <th width="128">
             大小
           </th> -->
-          <slot name="thead" />
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="showBack">
-          <td v-if="useSelect" class="file-checkbox" @click="toggleSelectAll">
-            <v-checkbox
-              inline
-              color="primary"
-              hide-details
-              :indeterminate="partInSelect"
-              :model-value="allInSelect || partInSelect"
-            />  
-          </td>
-          <td colspan="100" class="file-col" @click="emits('back')">
-            <div class="file-icon-group">
-              <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
-              <span>返回上一级</span>
-            </div>
-          </td>
-        </tr>
-        <tr v-show="fileList.length == 0">
-          <td colspan="100">
-            <empty-tip />
-          </td>
-        </tr>
-        <tr
-          v-for="(fileInfo, index) in fileList"
-          :key="path + fileInfo.name"
-          v-ripple
-          file-item
-          :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
-          @contextmenu.prevent="fileRClick($event, fileInfo)"
-        >
-          <td v-if="useSelect" class="file-checkbox" @click="checkClick($event ,fileInfo)">
-            <v-checkbox
-              inline
-              hide-details
-              color="primary"
-              :model-value="!!selectedFile[fileInfo.name + fileInfo.md5]"
-            />
-          </td>
-          <td class="file-col" @click="fileLClick($event, fileInfo)">
-            <div class="file-icon-group">
-              <file-icon
-                width="32"
-                height="32"
-                :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
-                style="flex-grow: 0;"
-                :file-name="fileInfo.name"
-                :is-dir="fileInfo.dir"
-                :md5="fileInfo.md5"
-                :custom-thumbnail-url="handler && handler.getCustomThumbnailUrl(path, fileInfo)"
+            <slot name="thead" />
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="showBack">
+            <td v-if="useSelect" class="file-checkbox" @click="toggleSelectAll">
+              <v-checkbox
+                inline
+                color="primary"
+                hide-details
+                :indeterminate="partInSelect"
+                :model-value="allInSelect || partInSelect"
+              />  
+            </td>
+            <td colspan="100" class="file-col" @click="emits('back')">
+              <div class="file-icon-group">
+                <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
+                <span>返回上一级</span>
+              </div>
+            </td>
+          </tr>
+          <tr v-show="fileList.length == 0">
+            <td colspan="100">
+              <empty-tip />
+            </td>
+          </tr>
+          <tr
+            v-for="(fileInfo, index) in fileList"
+            :key="path + fileInfo.name"
+            v-ripple
+            file-item
+            :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
+            @contextmenu.prevent="fileRClick($event, fileInfo)"
+          >
+            <td v-if="useSelect" class="file-checkbox" @click="checkClick($event ,fileInfo)">
+              <v-checkbox
+                inline
+                hide-details
+                color="primary"
+                :model-value="!!selectedFile[fileInfo.name + fileInfo.md5]"
               />
-              <div class="file-detail">
-                <div class="d-inline-block text-truncate file-name">
-                  <span v-if="renameIndex != index">
-                    {{ fileInfo.name }}
-                  </span>
-                  <div v-else @click.stop>
-                    <input v-model="renameNewName" class="rename-input" @keypress.enter="doRename">
-                    <v-icon icon="mdi-check" @click="doRename" />
-                    <v-icon icon="mdi-close" @click="cancelRename" />
+            </td>
+            <td class="file-col" @click="fileLClick($event, fileInfo)">
+              <div class="file-icon-group">
+                <file-icon
+                  width="32"
+                  height="32"
+                  :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
+                  style="flex-grow: 0;"
+                  :file-name="fileInfo.name"
+                  :is-dir="fileInfo.dir"
+                  :md5="fileInfo.md5"
+                  :custom-thumbnail-url="handler && handler.getCustomThumbnailUrl(path, fileInfo)"
+                />
+                <div class="file-detail">
+                  <div class="d-inline-block text-truncate file-name">
+                    <span v-if="renameIndex != index">
+                      {{ fileInfo.name }}
+                    </span>
+                    <div v-else @click.stop>
+                      <input v-model="renameNewName" class="rename-input" @keypress.enter="doRename">
+                      <v-icon icon="mdi-check" @click="doRename" />
+                      <v-icon icon="mdi-close" @click="cancelRename" />
+                    </div>
+                  </div>
+                  <div>
+                    <span class="file-size">{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</span>
                   </div>
                 </div>
-                <div>
-                  <span class="file-size">{{ fileInfo.size == -1 ? '-': formatSize(fileInfo.size) }}</span>
-                </div>
               </div>
-            </div>
-          </td>
-          <!-- <td>
+            </td>
+            <!-- <td>
             {{ fileInfo.size == -1 ? '-' : StringFormatter.toSize(fileInfo.size) }}
           </td> -->
-          <slot name="tbody" :file-info="fileInfo" />
-        </tr>
-      </tbody>
-    </v-table>
-    <empty-tip v-if="type == 'grid' && fileList.length == 0" style="position: absolute;width: 100%;" />
-    <!-- grid类型的文件显示 -->
-    <grid-container
-      v-if="type == 'grid'"
-      ref="gridRef"
-      :width="120"
-      style="margin:0 8px"
-      class="grid-container"
-    >
-      <file-list-grid-item
-        v-for="(fileInfo) in fileList"
-        :key="path + fileInfo.name + fileInfo.md5"
-        ref="gridItemRef"
-        v-ripple
-        :file-info="fileInfo"
-        :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
-        :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
-        :path="path"
-        @click="fileLClick($event, fileInfo)"
-        @contextmenu.prevent="fileRClick($event, fileInfo)"
-        @check-change="toggleSelectFile(fileInfo)"
-      />
-    </grid-container>
+            <slot name="tbody" :file-info="fileInfo" />
+          </tr>
+        </tbody>
+      </v-table>
+      <empty-tip v-if="type == 'grid' && fileList.length == 0" style="position: absolute;width: 100%;" />
+      <!-- grid类型的文件显示 -->
+      <grid-container
+        v-if="type == 'grid'"
+        ref="gridRef"
+        :width="120"
+        style="margin:0 8px"
+        class="grid-container"
+      >
+        <file-list-grid-item
+          v-for="(fileInfo) in fileList"
+          :key="path + fileInfo.name + fileInfo.md5"
+          ref="gridItemRef"
+          v-ripple
+          :file-info="fileInfo"
+          :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
+          :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
+          :path="path"
+          @click="fileLClick($event, fileInfo)"
+          @contextmenu.prevent="fileRClick($event, fileInfo)"
+          @check-change="toggleSelectFile(fileInfo)"
+        />
+      </grid-container>
+    </div>
+    <markdown-view
+      v-if="previewReadme && readme && readme.length"
+      class="readme-view"
+      :content="readme"
+    />
   </div>
 </template>
 
@@ -391,6 +401,7 @@ const toggleSelectFile = (...fileInfos: FileInfo[]) => {
     }
   })
 }
+const readme = ref('')
 
 /**
  * 重置已选择的文件，清空
@@ -418,8 +429,29 @@ watch(() => props.readOnly, () => {
   fileListContext.readonly = props.readOnly
 })
 
-watch(() => props.fileList, () => {
+/**
+ * 加载README.md预览
+ */
+const loadReadme = () => {
+  if (!props.previewReadme) {
+    readme.value = ''
+    return
+  }
   fileListContext.fileList = props.fileList
+  let readmeFile: FileInfo | undefined
+  let url: string | undefined
+  const haveReadme = props.fileList
+                    && (readmeFile = props.fileList.find(e => e.name == 'README.md' && !e.dir && e.size > 0 && e.size <= 1024 * 1024 * 5))
+                    && (url = fileListContext.getFileUrl(readmeFile as FileInfo))
+                    
+  readme.value = ''
+  if (haveReadme) {
+    loadMDToHtml(url as string).then(html => readme.value = html)
+  }
+}
+
+watch(() => props.fileList, () => {
+  loadReadme()
   resetSelect()
 })
 watch(selectedFile, () => {
@@ -447,10 +479,11 @@ defineExpose({
 
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
-import { FileListContext,FileInfo } from '@/core/model'
+import { FileListContext,FileInfo, ApiRequest } from '@/core/model'
 import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
 import { SelectResult } from '@/core/model/component/SelectArea'
 import API from '@/api'
+import { loadMDToHtml } from './MarkdownLoader'
 
 export default defineComponent({
   name: 'FileList'
