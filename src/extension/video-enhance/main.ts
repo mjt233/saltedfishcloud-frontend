@@ -88,9 +88,6 @@ const videoOpenHandler: FileOpenHandler = {
   id: 'player',
   icon: 'mdi-play-circle',
   matcher(ctx, file) {
-    if (file.mount) {
-      return false
-    }
     return isVideo(file.name)
   },
   title: '播放视频',
