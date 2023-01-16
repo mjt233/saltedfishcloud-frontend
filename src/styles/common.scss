@@ -10,22 +10,33 @@ html {
   overflow-y: auto !important;
 }
 
+.no-select {
+  user-select: none;
+}
+
 *::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
+
 *::-webkit-scrollbar-track {
-  background: #f6f6f6;
+  background: rgb(var(--v-theme-background));
+  border-radius: 6px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #aaa;
+  background: rgba(var(--v-theme-on-surface), .4);
   border-radius: 24px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: #747474;
+  background: rgba(var(--v-theme-on-surface), .5);
+  /* width: px;*/
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: rgba(var(--v-theme-on-surface), .6);
   /* width: px;*/
 }
 

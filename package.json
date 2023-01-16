@@ -11,8 +11,10 @@
     "build-ext-video-enhance": "vite build --config build/extension/video-enhance.ts"
   },
   "dependencies": {
+    "@types/highlight.js": "^10.1.0",
     "axios": "^0.27.2",
     "dplayer": "^1.26.0",
+    "highlight.js": "^11.7.0",
     "js-md5": "^0.7.3",
     "markdown-it": "^13.0.1",
     "monaco-editor": "^0.34.1",

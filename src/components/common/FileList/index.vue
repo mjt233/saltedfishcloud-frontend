@@ -139,7 +139,6 @@
         v-if="type == 'grid'"
         ref="gridRef"
         :width="120"
-        style="margin:0 8px"
         class="grid-container"
       >
         <file-list-grid-item
@@ -157,11 +156,28 @@
         />
       </grid-container>
     </div>
-    <markdown-view
-      v-if="previewReadme && readme && readme.length"
+    <div
+      v-show="previewReadme && readme && readme.length"
       class="readme-view"
-      :content="readme"
-    />
+      :style="{ 'maxHeight': readmeViewMaxHeight, '--readme-width-offset': readmeViewOffsetWidth } as StyleValue"
+    >
+      <div
+        ref="spacerRef"
+        class="spacer-line d-flex align-center justify-center"
+        @touchstart.prevent="spacerTouchStart"
+        @mousedown="spacerTouchStart"
+      >
+        <div style="line-height: 5px; user-select: none;">
+          .<br>.<br>.<br>
+        </div>
+        
+      </div>
+      <markdown-view
+        style="width: 100%"
+        class="readme-content"
+        :content="readme"
+      />
+    </div>
   </div>
 </template>
 
@@ -180,6 +196,12 @@ import SelectArea from '../SelectArea.vue'
 
 
 const props = defineProps(propsOptions)
+const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
+
+// 当前文件列表的README.md内容
+const readme = ref('')
+const readmeViewMaxHeight = ref('100%')
+const readmeViewOffsetWidth = ref('0px')
 
 let lastClickFile: FileInfo | null | boolean = null
 const selectedFile = reactive({}) as {[key:string]: FileInfo}
@@ -194,16 +216,30 @@ const tableWidth = ref('100%')
 const rootRef = ref() as Ref<HTMLElement>
 const tableRef = ref() as Ref<ComponentPublicInstance>
 const gridRef = ref() as Ref<ComponentPublicInstance>
+const spacerRef = ref() as Ref<HTMLElement>
 const gridItemRef = ref()
 
+// 是否处于文件框选状态
 let inSelect = false
 
+const emits = defineEmits<{
+  (event: 'clickItem', ctx: FileListContext ,item: FileInfo): void,
+  (event: 'back'): void,
+  (event: 'refresh'): void,
+  (event: 'update:file-list', fileList: FileInfo[]): void
+}>()
+
+// 文件是否部分选中
 const partInSelect = computed(() => {
   return fileListContext.selectFileList.length > 0 && fileListContext.selectFileList.length != props.fileList.length
 })
+
+// 文件是否全选
 const allInSelect = computed(() => {
   return props.fileList.length != 0 && props.fileList.length == fileListContext.selectFileList.length
 })
+
+// 滚动检测锚点DOM
 const scrollAnchor = computed(() => {
   if (props.type == 'list') {
     return tableRef.value?.$el.querySelector('.v-table__wrapper')
@@ -211,6 +247,13 @@ const scrollAnchor = computed(() => {
     return gridRef.value?.$el
   }
 })
+
+// 更新readme.md预览框的最大高度，保持和文件列表一致
+const updateReadmeMaxHeight = () => {
+  readmeViewMaxHeight.value = rootRef.value ? (rootRef.value.clientHeight + 'px') : '100%'
+}
+
+// 获取可选择的DOM集合
 const fileElementsGetter = () => {
   if (props.type == 'list') {
     return tableRef.value?.$el.querySelectorAll('tbody>tr[file-item=""]') as HTMLElement[]
@@ -267,14 +310,7 @@ const rename = (name: string, md5: string) => {
     }, false)
   }
 }
-const emits = defineEmits<{
-  (event: 'clickItem', ctx: FileListContext ,item: FileInfo): void,
-  (event: 'back'): void,
-  (event: 'refresh'): void,
-  (event: 'update:file-list', fileList: FileInfo[]): void
-}>()
 
-const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
 const fileListContext: FileListContext = FileListContextBuilder.getFileListContext({
   props,
   emits,
@@ -285,7 +321,6 @@ const fileListContext: FileListContext = FileListContextBuilder.getFileListConte
     return { id: props.uid }
   })
 })
-
 const toggleSelectAll = () => {
   lastClickFile = true
   if (partInSelect.value || !allInSelect.value) {
@@ -401,7 +436,41 @@ const toggleSelectFile = (...fileInfos: FileInfo[]) => {
     }
   })
 }
-const readme = ref('')
+
+/**
+ * README.md视图切割线点击开始
+ */
+const spacerTouchStart = (e: TouchEvent | MouseEvent) => {
+  document.body.classList.add('no-select')
+  const originOffset = parseInt(readmeViewOffsetWidth.value || '0px')
+  let originX = 0
+  if (e instanceof TouchEvent) {
+    originX = e.touches[0].screenX
+  } else {
+    originX = e.screenX
+  }
+  const moveAction = (me: TouchEvent | MouseEvent) => {
+    let offsetX = 0
+    if (me instanceof TouchEvent) {
+      offsetX = originX - me.touches[0].screenX
+    } else {
+      offsetX = originX - me.screenX
+    }
+    offsetX += originOffset
+    readmeViewOffsetWidth.value = offsetX + 'px'
+  }
+  const releaseAction = () => {
+    document.body.classList.remove('no-select')
+    window.removeEventListener('mouseup', releaseAction)
+    window.removeEventListener('touchend', releaseAction)
+    window.removeEventListener('mousemove', moveAction)
+    window.removeEventListener('touchmove', moveAction)
+  }
+  window.addEventListener('mouseup', releaseAction)
+  window.addEventListener('touchend', releaseAction)
+  window.addEventListener('mousemove', moveAction)
+  window.addEventListener('touchmove', moveAction)
+}
 
 /**
  * 重置已选择的文件，清空
@@ -413,9 +482,15 @@ const resetSelect = () => {
   cancelRenameActionFun && cancelRenameActionFun()
 }
 
-const updateWidth = () => {
+/**
+ * 窗口大小重置时的操作
+ */
+const resizeHandler = async() => {
   const el = rootRef.value as HTMLElement
   tableWidth.value = (el.clientWidth - 128)+ 'px'
+
+  await SfcUtils.sleep(100)
+  updateReadmeMaxHeight()
 }
 
 const containerHeight = computed(() => {
@@ -432,7 +507,7 @@ watch(() => props.readOnly, () => {
 /**
  * 加载README.md预览
  */
-const loadReadme = () => {
+const loadReadme = async() => {
   if (!props.previewReadme) {
     readme.value = ''
     return
@@ -446,7 +521,9 @@ const loadReadme = () => {
                     
   readme.value = ''
   if (haveReadme) {
-    loadMDToHtml(url as string).then(html => readme.value = html)
+    loadMDToHtml(url as string)
+      .then(html => readme.value = html)
+      .then(updateReadmeMaxHeight)
   }
 }
 
@@ -466,11 +543,11 @@ watch(() => props.uid, () => {
 
 onMounted(() => {
   fileListContext.uid = props.uid
-  window.addEventListener('resize', updateWidth)
-  updateWidth()
+  window.addEventListener('resize', resizeHandler)
+  resizeHandler()
 })
 onUnmounted(() => {
-  window.removeEventListener('resize', updateWidth)
+  window.removeEventListener('resize', resizeHandler)
 })
 defineExpose({
   context: fileListContext
@@ -479,10 +556,10 @@ defineExpose({
 
 <script lang="ts">
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
-import { FileListContext,FileInfo, ApiRequest } from '@/core/model'
-import { defineExpose ,defineComponent, Ref, reactive, PropType, inject, watch, getCurrentInstance, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
+import { FileListContext,FileInfo } from '@/core/model'
+import { defineExpose ,defineComponent, Ref, reactive, inject, watch, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
+import type { StyleValue } from 'vue'
 import { SelectResult } from '@/core/model/component/SelectArea'
-import API from '@/api'
 import { loadMDToHtml } from './MarkdownLoader'
 
 export default defineComponent({
@@ -495,7 +572,7 @@ export default defineComponent({
 @import './style.scss';
 .grid-container {
   height: v-bind(containerHeight);
-  padding: 6px 0;
+  padding: 6px 8px;
   overflow: auto;
 }
 </style>
