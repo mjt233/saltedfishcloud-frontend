@@ -42,7 +42,7 @@ watch(() => props.content, update)
 <script lang="ts">
 import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
-import 'highlight.js/styles/xcode.css'
+import 'highlight.js/styles/atom-one-dark.css'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch } from 'vue'
 
 export default defineComponent({
@@ -94,12 +94,11 @@ export default defineComponent({
   }
 
   .markdown-code {
-    // background-color: rgba(var(--v-theme-primary), .1);
-    background-color: rgba(0, 0, 0, 0.9);
-    color: white;
+    background-color: rgb(30, 30, 30);
+    color: rgb(212, 212, 212);
     border-radius: 6px;
-    padding: 12px;
-    width: 100%;
+    padding: 6px;
+    // width: 100%;
   }
 }
 </style>
