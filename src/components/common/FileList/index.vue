@@ -258,7 +258,7 @@ const scrollAnchor = computed(() => {
 
 // 更新readme.md预览框的最大高度，保持和文件列表一致
 const updateReadmeMaxHeight = () => {
-  readmeViewMaxHeight.value = rootRef.value ? (rootRef.value.clientHeight + 'px') : '100%'
+  readmeViewMaxHeight.value = rootRef.value ? (rootRef.value.offsetHeight + 'px') : '100%'
 }
 
 // 获取可选择的DOM集合
