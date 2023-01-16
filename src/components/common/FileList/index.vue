@@ -159,7 +159,7 @@
     <div
       v-show="previewReadme && readme && readme.length"
       class="readme-view"
-      :style="{ 'maxHeight': readmeViewMaxHeight, '--readme-width-offset': readmeViewOffsetWidth } as StyleValue"
+      :style="readmeViewStyle"
     >
       <div
         ref="spacerRef"
@@ -228,6 +228,14 @@ const emits = defineEmits<{
   (event: 'refresh'): void,
   (event: 'update:file-list', fileList: FileInfo[]): void
 }>()
+
+// README.md预览视图的style，设定最大高度和动态宽度
+const readmeViewStyle = computed(() => {
+  return {
+    'maxHeight': readmeViewMaxHeight.value,
+    '--readme-width-offset': readmeViewOffsetWidth.value
+  }
+})
 
 // 文件是否部分选中
 const partInSelect = computed(() => {

@@ -21,17 +21,17 @@ html {
 
 
 *::-webkit-scrollbar-track {
-  background: rgb(var(--v-theme-background));
+  background: #f6f6f6;
   border-radius: 6px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(var(--v-theme-on-surface), .4);
+  background: #aaa;
   border-radius: 24px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(var(--v-theme-on-surface), .5);
+  background: #747474;
   /* width: px;*/
 }
 
