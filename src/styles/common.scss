@@ -35,11 +35,6 @@ html {
   /* width: px;*/
 }
 
-*::-webkit-scrollbar-thumb:active {
-  background: rgba(var(--v-theme-on-surface), .6);
-  /* width: px;*/
-}
-
 *::-webkit-scrollbar-corner {
   background: #f6f6f6;
 }
