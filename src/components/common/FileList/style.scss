@@ -80,16 +80,43 @@
   display: inline-block;
 }
 
+// README.md 预览视图
+.readme-view {
+  display: flex;
+  --readme-width-offset: 0px;
+  height: 100vh;
+  max-height: 100%;
+  min-width: 128px;
+  width: calc(40% + var(--readme-width-offset));
+  overflow: auto;
 
-  .readme-view {
+  // 视图与文件列表的切割线
+  .spacer-line {
+    display: inline-block;
+    width: 10px;
+    max-width: 10px;
+    min-width: 10px;
     height: 100%;
-    max-height: 100%;
-    max-width: 480px;
-    width: 40%;
-    overflow: auto;
-    @media (max-width: 720px) {
-      & {
-        display: none;
-      }
+    margin: 0 3px;
+    border-width: 0 1px;
+    border-color: rgba($color: var(--v-theme-primary), $alpha: .08);
+    border-style: solid;
+    cursor: col-resize;
+    transition: all .1s;
+    &:hover {
+      background-color: rgba($color: var(--v-theme-primary), $alpha: .08);
     }
   }
+
+  // 视图内容本体
+  .readme-content {
+    height: 100%;
+    margin-left: 6px;
+    overflow: auto;
+  }
+  @media (max-width: 720px) {
+    & {
+      display: none;
+    }
+  }
+}
