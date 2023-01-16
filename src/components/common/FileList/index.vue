@@ -531,6 +531,7 @@ const loadReadme = async() => {
   if (haveReadme) {
     loadMDToHtml(url as string)
       .then(html => readme.value = html)
+      .then(() => SfcUtils.sleep(100))
       .then(updateReadmeMaxHeight)
   }
 }
