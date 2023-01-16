@@ -15,11 +15,24 @@ const props = defineProps({
 })
 const md = new MarkdownIt({
   html: true,
-  typographer: true
+  typographer: true,
+  highlight(str, lang) {
+    let result = str
+    if(str && lang && highlight.getLanguage(lang)) {
+      try {
+        result = highlight.highlight(str, {
+          language: lang
+        }).value
+      }catch (err) {
+        console.error(err)
+      }
+    }
+    return `<div class="markdown-code">${result}</div>`
+  }
 })
 const html = ref('')
 const update = () => {
-  html.value = md.render(props.content)
+  html.value = md.render(props.content || '')
 }
 onMounted(update)
 
@@ -27,7 +40,9 @@ watch(() => props.content, update)
 </script>
 
 <script lang="ts">
+import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
+import 'highlight.js/styles/xcode.css'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch } from 'vue'
 
 export default defineComponent({
@@ -58,6 +73,10 @@ export default defineComponent({
     background-color: rgba(var(--v-theme-primary), .7);
   }
 
+  img {
+    max-width: 100%;
+  }
+
   blockquote {
     position: relative;
     padding-left: 12px;
@@ -72,6 +91,15 @@ export default defineComponent({
       width: 3px;
       background-color: rgb(var(--v-theme-primary));
     }
+  }
+
+  .markdown-code {
+    // background-color: rgba(var(--v-theme-primary), .1);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    border-radius: 6px;
+    padding: 12px;
+    width: 100%;
   }
 }
 </style>
