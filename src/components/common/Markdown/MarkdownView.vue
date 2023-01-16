@@ -13,7 +13,10 @@ const props = defineProps({
     default: ''
   }
 })
-const md = new MarkdownIt()
+const md = new MarkdownIt({
+  html: true,
+  typographer: true
+})
 const html = ref('')
 const update = () => {
   html.value = md.render(props.content)
@@ -42,17 +45,23 @@ export default defineComponent({
     margin-left: 20px;
   }
 
+  h1,h2,h3,h4,h5,h6 {
+    margin: 18px 0 12px 0;
+  }
+
   hr {
+    position: relative;
     border: 0;
-    width: 94%;
+    width: calc(100% - 32px);
     margin: 12px auto;
     height: 1px;
-    background-color: rgb(var(--v-theme-primary));
+    background-color: rgba(var(--v-theme-primary), .7);
   }
 
   blockquote {
     position: relative;
     padding-left: 12px;
+    margin: 18px 0;
     background-color: rgb(var(--v-theme-primary), .1);
     &::before{
       content: '';
