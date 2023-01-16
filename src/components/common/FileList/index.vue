@@ -200,7 +200,7 @@ const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any)
 
 // 当前文件列表的README.md内容
 const readme = ref('')
-const readmeViewMaxHeight = ref('100%')
+const readmeViewMaxHeight = ref('0')
 const readmeViewOffsetWidth = ref('0px')
 
 let lastClickFile: FileInfo | null | boolean = null
@@ -258,7 +258,7 @@ const scrollAnchor = computed(() => {
 
 // 更新readme.md预览框的最大高度，保持和文件列表一致
 const updateReadmeMaxHeight = () => {
-  readmeViewMaxHeight.value = rootRef.value ? (rootRef.value.offsetHeight + 'px') : '100%'
+  readmeViewMaxHeight.value = props.height ? (props.height + 'px') : 'auto'
 }
 
 // 获取可选择的DOM集合
@@ -549,10 +549,11 @@ watch(() => props.uid, () => {
   fileListContext.uid = props.uid
 })
 
-onMounted(() => {
+onMounted(async() => {
   fileListContext.uid = props.uid
   window.addEventListener('resize', resizeHandler)
   resizeHandler()
+
 })
 onUnmounted(() => {
   window.removeEventListener('resize', resizeHandler)
@@ -566,7 +567,6 @@ defineExpose({
 import { FileSystemHandler } from '@/core/serivce/FileSystemHandler'
 import { FileListContext,FileInfo } from '@/core/model'
 import { defineExpose ,defineComponent, Ref, reactive, inject, watch, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
-import type { StyleValue } from 'vue'
 import { SelectResult } from '@/core/model/component/SelectArea'
 import { loadMDToHtml } from './MarkdownLoader'
 
