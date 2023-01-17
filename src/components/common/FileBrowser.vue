@@ -461,9 +461,9 @@ defineExpose({
     return listRef.value.context
   }
 })
-onMounted(() => {
+onMounted(async() => {
   fileUploadTaskManager.addEventListener('success', successListener)
-  loadList(props.path)
+  await loadList(props.path)
   window.addEventListener('resize', resizeHandler)
   updateListHeight()
 
