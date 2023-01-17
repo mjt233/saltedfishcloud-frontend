@@ -164,6 +164,7 @@
       <div
         ref="spacerRef"
         class="spacer-line d-flex align-center justify-center"
+        :class="{active: updatingReadmeSize}"
         @touchstart.prevent="spacerTouchStart"
         @mousedown="spacerTouchStart"
       >
@@ -202,6 +203,8 @@ const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any)
 const readme = ref('')
 const readmeViewMaxHeight = ref('0')
 const readmeViewOffsetWidth = ref('0px')
+// 是否正在更新readme.md的预览区域大小中
+const updatingReadmeSize = ref(false)
 
 let lastClickFile: FileInfo | null | boolean = null
 const selectedFile = reactive({}) as {[key:string]: FileInfo}
@@ -452,6 +455,7 @@ const spacerTouchStart = (e: TouchEvent | MouseEvent) => {
   document.body.classList.add('no-select')
   const originOffset = parseInt(readmeViewOffsetWidth.value || '0px')
   let originX = 0
+  updatingReadmeSize.value = true
   if (e instanceof TouchEvent) {
     originX = e.touches[0].screenX
   } else {
@@ -468,6 +472,7 @@ const spacerTouchStart = (e: TouchEvent | MouseEvent) => {
     readmeViewOffsetWidth.value = offsetX + 'px'
   }
   const releaseAction = () => {
+    updatingReadmeSize.value = false
     document.body.classList.remove('no-select')
     window.removeEventListener('mouseup', releaseAction)
     window.removeEventListener('touchend', releaseAction)

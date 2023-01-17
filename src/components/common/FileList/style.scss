@@ -103,7 +103,7 @@
     border-style: solid;
     cursor: col-resize;
     transition: all .1s;
-    &:hover {
+    &:hover,&:active,&.active {
       background-color: rgba($color: var(--v-theme-primary), $alpha: .08);
     }
   }
