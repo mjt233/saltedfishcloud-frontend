@@ -45,7 +45,12 @@ const avatarUrl = computed(() => {
 
   // 如果是刷新操作，则追加时间戳
   if (timestamp.value) {
-    url += '?t=' + timestamp.value
+    if (url.includes('?')) {
+      url += '&'
+    } else {
+      url += '?'
+    }
+    url += 't=' + timestamp.value
   }
   return url
 })
