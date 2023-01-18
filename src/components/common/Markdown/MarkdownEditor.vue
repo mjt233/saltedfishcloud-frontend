@@ -4,6 +4,7 @@
       type="markdown"
       :model-value="modelValue"
       v-bind="$attrs"
+      language="markdown"
       @update:model-value="modelValueChange"
     />
     <template #resizeable>

@@ -42,6 +42,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      // '/api': 'http://192.168.5.100:8087'
       '/api': 'http://127.0.0.1:8087'
     }
   },
