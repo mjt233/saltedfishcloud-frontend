@@ -43,6 +43,7 @@ const update = async() => {
     if(!el.classList.contains('break-text')) {
       el.classList.add('break-text')
     }
+    el.target = '_blank'
   })
 }
 onMounted(update)
