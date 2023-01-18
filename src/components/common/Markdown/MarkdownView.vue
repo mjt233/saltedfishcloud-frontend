@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div>
+  <div ref="rootRef">
     <div style="user-select: text" class="markdown" v-html="html" />
   </div>
 </template>
@@ -13,6 +13,7 @@ const props = defineProps({
     default: ''
   }
 })
+const rootRef = ref() as Ref<HTMLElement>
 const md = new MarkdownIt({
   html: true,
   typographer: true,
@@ -31,8 +32,18 @@ const md = new MarkdownIt({
   }
 })
 const html = ref('')
-const update = () => {
+const update = async() => {
   html.value = md.render(props.content || '')
+  await nextTick()
+  const aTags = rootRef.value.querySelectorAll('a')
+  aTags.forEach(el => {
+    if(!el.classList.contains('link')) {
+      el.classList.add('link')
+    }
+    if(!el.classList.contains('break-text')) {
+      el.classList.add('break-text')
+    }
+  })
 }
 onMounted(update)
 
@@ -43,7 +54,7 @@ watch(() => props.content, update)
 import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import 'highlight.js/styles/atom-one-dark.css'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick } from 'vue'
 
 export default defineComponent({
   name: 'MarkdownView'
