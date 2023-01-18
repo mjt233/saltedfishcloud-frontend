@@ -1,5 +1,8 @@
 <template>
-  <div class="d-flex">
+  <resize-container 
+    :style="readmeViewStyle"
+    :hide-right="!(readme && readme.length)"
+  >
     <div
       ref="rootRef"
       style="flex: 1"
@@ -156,30 +159,15 @@
         />
       </grid-container>
     </div>
-    <div
-      v-show="previewReadme && readme && readme.length"
-      class="readme-view"
-      :style="readmeViewStyle"
-    >
-      <div
-        ref="spacerRef"
-        class="spacer-line d-flex align-center justify-center"
-        :class="{active: updatingReadmeSize}"
-        @touchstart.prevent="spacerTouchStart"
-        @mousedown="spacerTouchStart"
-      >
-        <div style="line-height: 5px; user-select: none;">
-          .<br>.<br>.<br>
-        </div>
-        
-      </div>
+    <template #resizeable>
       <markdown-view
         style="width: 100%"
+        :style="readmeViewStyle"
         class="readme-content"
         :content="readme"
       />
-    </div>
-  </div>
+    </template>
+  </resize-container>
 </template>
 
 <script setup lang="ts">
@@ -202,9 +190,6 @@ const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any)
 // 当前文件列表的README.md内容
 const readme = ref('')
 const readmeViewMaxHeight = ref('0')
-const readmeViewOffsetWidth = ref('0px')
-// 是否正在更新readme.md的预览区域大小中
-const updatingReadmeSize = ref(false)
 
 let lastClickFile: FileInfo | null | boolean = null
 const selectedFile = reactive({}) as {[key:string]: FileInfo}
@@ -236,7 +221,7 @@ const emits = defineEmits<{
 const readmeViewStyle = computed(() => {
   return {
     'maxHeight': readmeViewMaxHeight.value,
-    '--readme-width-offset': readmeViewOffsetWidth.value
+    'height': readmeViewMaxHeight.value
   }
 })
 
@@ -446,43 +431,6 @@ const toggleSelectFile = (...fileInfos: FileInfo[]) => {
       selectedFile[key] = fileInfo
     }
   })
-}
-
-/**
- * README.md视图切割线点击开始
- */
-const spacerTouchStart = (e: TouchEvent | MouseEvent) => {
-  document.body.classList.add('no-select')
-  const originOffset = parseInt(readmeViewOffsetWidth.value || '0px')
-  let originX = 0
-  updatingReadmeSize.value = true
-  if (e instanceof TouchEvent) {
-    originX = e.touches[0].screenX
-  } else {
-    originX = e.screenX
-  }
-  const moveAction = (me: TouchEvent | MouseEvent) => {
-    let offsetX = 0
-    if (me instanceof TouchEvent) {
-      offsetX = originX - me.touches[0].screenX
-    } else {
-      offsetX = originX - me.screenX
-    }
-    offsetX += originOffset
-    readmeViewOffsetWidth.value = offsetX + 'px'
-  }
-  const releaseAction = () => {
-    updatingReadmeSize.value = false
-    document.body.classList.remove('no-select')
-    window.removeEventListener('mouseup', releaseAction)
-    window.removeEventListener('touchend', releaseAction)
-    window.removeEventListener('mousemove', moveAction)
-    window.removeEventListener('touchmove', moveAction)
-  }
-  window.addEventListener('mouseup', releaseAction)
-  window.addEventListener('touchend', releaseAction)
-  window.addEventListener('mousemove', moveAction)
-  window.addEventListener('touchmove', moveAction)
 }
 
 /**
