@@ -1,28 +1,39 @@
 <template>
   <div class="d-flex" :style="resizeableStyle">
-    <div class="left-slot">
+    <div class="left-slot" :class="{'hide-right': hideRight}">
       <slot />
     </div>
     
-    <div 
-      class="spacer-line d-flex align-center justify-center"
-      :class="{active: resizing}"
-      @touchstart.prevent="spacerTouchStart"
-      @mousedown="spacerTouchStart"
-    >
+    <template v-if="!hideRight">
+      <div
+        class="spacer-line d-flex align-center justify-center"
+        :class="{active: resizing}"
+        @touchstart.prevent="spacerTouchStart"
+        @mousedown="spacerTouchStart"
+      >
     
-      <div style="line-height: 5px; user-select: none;">
-        .<br>.<br>.<br>
+        <div style="line-height: 5px; user-select: none;">
+          .<br>.<br>.<br>
+        </div>
       </div>
-    </div>
-    <div class="right-slot">
-      <slot name="resizeable" />
-    </div>
+      <div class="right-slot">
+        <slot name="resizeable" />
+      </div>
+    </template>
     
   </div>
 </template>
 
 <script setup lang="ts">
+const props = defineProps({
+  /**
+   * 是否隐藏右侧插槽
+   */
+  hideRight: {
+    type: Boolean,
+    default: false
+  }
+})
 const resizing = ref(false)
 const widthOffset = ref('0px')
 const resizeableStyle =  computed(() => {
@@ -84,6 +95,9 @@ export default defineComponent({
 .left-slot {
   min-width: 128px;
   width: calc(60% - var(--width-offset));
+  &.hide-right {
+    width: 100%;
+  }
 }
 .right-slot {
   max-height: 100%;
