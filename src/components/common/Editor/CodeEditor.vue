@@ -2,7 +2,6 @@
   <div class="code-editor-container">
     <div ref="editorRef" class="code-editor" />
   </div>
-  
 </template>
 
 <script setup lang="ts">
@@ -37,6 +36,10 @@ const props = defineProps({
   autoGrowMaxLine: {
     type: Number,
     default: 15
+  },
+  readOnly: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['update:modelValue'])
@@ -105,7 +108,8 @@ onMounted(async() => {
     },
     lineNumbers: props.hideLineNumber ? 'off' : 'on',
     automaticLayout: true,
-    theme: context.theme.value == 'dark' ? 'vs-dark' : 'vs'
+    theme: context.theme.value == 'dark' ? 'vs-dark' : 'vs',
+    readOnly: props.readOnly
   })
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
