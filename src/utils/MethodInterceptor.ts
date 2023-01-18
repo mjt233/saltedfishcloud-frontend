@@ -161,13 +161,14 @@ export namespace MethodInterceptor {
     } = opt
     const lastExecuteMap = new Map<string, number>()
     const afterExecuteMap = new Map<string, NodeJS.Timeout>()
+    const lastArgsMap = new Map<string, any>()
     return MethodInterceptor.createProxy(target, (invoker, args, funcName) => {
 
       // 无需节流
       if(!mather(funcName, args)) {
         return invoker(args)
       }
-
+      lastArgsMap.set(funcName, args)
       const lastExecute = lastExecuteMap.get(funcName)
       const now = new Date().getTime()
 
@@ -186,7 +187,7 @@ export namespace MethodInterceptor {
         // 但存在延迟后置处理
         const timeout = setTimeout(() => {
           lastExecuteMap.set(funcName, now + needWait)
-          invoker(args)
+          invoker(lastArgsMap.get(funcName))
           afterExecuteMap.delete(funcName)
         }, needWait)
         afterExecuteMap.set(funcName, timeout)
