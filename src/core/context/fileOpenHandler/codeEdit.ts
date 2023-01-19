@@ -75,7 +75,7 @@ const handler: FileOpenHandler = {
     const extName = file.name.split('.').pop()?.toLowerCase() || file.name
     const supportType = new Set([
       'js', 'ts', 'tsx', 'jsx',
-      'html', 'htm', 
+      'html', 'htm', 'xml',
       'css', 'scss', 'less',
       'python', 'php', 'c', 'cpp','java', 'json','bat', 'lua',
       'txt', 'ini', 'log', 'properties', 'cfg', 'vue'
@@ -96,7 +96,7 @@ const handler: FileOpenHandler = {
       language = 'javascript'
     } else if (extName == 'json') {
       language = 'json'
-    } else if (['html', 'htm', 'vue'].includes(extName)) {
+    } else if (['html', 'htm', 'vue', 'xml'].includes(extName)) {
       language = 'html'
     } else if (['css', 'less', 'scss'].includes(extName)) {
       language = 'css'

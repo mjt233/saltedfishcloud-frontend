@@ -127,6 +127,7 @@ export default defineComponent({
 
 <style lang="scss">
 .markdown {
+  padding: 6px;
   >* {
     margin: 6px 0;
   }

@@ -220,8 +220,7 @@ const emits = defineEmits<{
 // README.md预览视图的style，设定最大高度和动态宽度
 const readmeViewStyle = computed(() => {
   return {
-    'maxHeight': readmeViewMaxHeight.value,
-    'height': readmeViewMaxHeight.value
+    'maxHeight': readmeViewMaxHeight.value
   }
 })
 

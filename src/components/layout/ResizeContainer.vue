@@ -1,25 +1,33 @@
 <template>
-  <div class="d-flex" :style="resizeableStyle">
-    <div class="left-slot" :class="{'hide-right': hideRight}">
+  <div class="main-container" :style="resizeableStyle">
+    <div class="left-slot" :class="{'hide-right': hideRight, 'auto-hide-right': autoHideRight}">
       <slot />
     </div>
     
-    <template v-if="!hideRight">
+    <div
+      v-if="!hideRight"
+      v-ripple
+      class="show-right-btn"
+      flat
+      @click="showRight = !showRight"
+    >
+      <CommonIcon :icon="showRight ? 'mdi-chevron-right' : 'mdi-chevron-left'" />
+    </div>
+    <div v-if="!hideRight" class="right-slot" :class="{'auto-hide-right': autoHideRight, 'active': showRight}">
       <div
         class="spacer-line d-flex align-center justify-center"
         :class="{active: resizing}"
         @touchstart.prevent="spacerTouchStart"
         @mousedown="spacerTouchStart"
       >
-    
         <div style="line-height: 5px; user-select: none;">
           .<br>.<br>.<br>
         </div>
       </div>
-      <div class="right-slot">
+      <div style="width: 100%;overflow: auto;">
         <slot name="resizeable" />
       </div>
-    </template>
+    </div>
     
   </div>
 </template>
@@ -32,10 +40,18 @@ const props = defineProps({
   hideRight: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 当宽度较小时是否自动隐藏右侧
+   */
+  autoHideRight: {
+    type: Boolean,
+    default: true
   }
 })
 const resizing = ref(false)
 const widthOffset = ref('0px')
+const showRight = ref(false)
 const resizeableStyle =  computed(() => {
   return {
     '--width-offset': widthOffset.value
@@ -98,12 +114,64 @@ export default defineComponent({
   &.hide-right {
     width: 100%;
   }
+  @media (max-width: 720px) {
+    &.auto-hide-right {
+      width: 100%
+    }
+  }
+}
+
+// 右侧插槽显示/隐藏切换按钮
+.show-right-btn {
+  position: absolute;
+  display: none;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  color: rgb(var(--v-theme-background));
+  background-color: rgb(var(--v-theme-primary));
+  z-index: 2;
+  bottom: 15%;
+  font-size: 18px;
+  border-radius: 50%;
+  margin: 6px;
+  cursor: pointer;
+  @media (max-width: 720px) {
+    & {
+      display: inline-flex;
+      justify-content: center;
+      position: absolute;
+    }
+  }
 }
 .right-slot {
+  display: flex;
   max-height: 100%;
   min-width: 128px;
   width: calc(40% + var(--width-offset));
   overflow: auto;
+  z-index: 1;
+  @media (max-width: 720px) {
+    &.auto-hide-right {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      // padding-top: 20px;
+      // left: 10%;
+      opacity: 0;
+      pointer-events: none;
+      background-color: rgb(var(--v-theme-background));
+      transform: scale(.8);
+      transition: all .15s;
+      &.active {
+        transform: scale(1);
+        top: 0;
+        left: 0;
+        opacity: 1;
+        pointer-events: all;
+      }
+    }
+  }
 }
 
 // 切割线
@@ -122,6 +190,16 @@ export default defineComponent({
   &:hover,&:active,&.active {
     background-color: rgba($color: var(--v-theme-primary), $alpha: .08);
   }
+  @media (max-width: 720px) {
+    & {
+      display: none !important;
+    }
+  }
+}
+
+.main-container {
+  display: flex;
+  // position: relative;
 }
 
 
