@@ -186,6 +186,10 @@ export interface PluginInfo {
   upgradeVersion?: string
 }
 
+export interface PluginInfoVo extends PluginInfo {
+  tempId: IdType
+}
+
 export interface NameValueType<T = any> {
   name: string,
   value: T
