@@ -172,6 +172,18 @@ export interface PluginInfo {
   
   /* 该插件内需要自动加载的资源列表 */
   autoLoad: string[]
+
+  /* 状态，0 - 待加载，1 - 已加载，2 - 待删除 */
+  status: 0 | 1 | 2
+
+  /* 是否通过jar包在插件目录中加载的 */
+  isJar?: boolean
+
+  /* 插件url */
+  url?: string
+
+  /* 待升级版本 */
+  upgradeVersion?: string
 }
 
 export interface NameValueType<T = any> {

@@ -93,6 +93,8 @@ declare module '@vue/runtime-core' {
     MultiLineText: typeof import('./src/components/common/MultiLineText.vue')['default']
     NotFoundTip: typeof import('./src/components/common/NotFoundTip.vue')['default']
     PhoneInput: typeof import('./src/components/common/PhoneInput.vue')['default']
+    PluginInfoCard: typeof import('./src/components/common/Plugin/PluginInfoCard.vue')['default']
+    PluginManger: typeof import('./src/components/common/Plugin/PluginManger.vue')['default']
     ProxyConfig: typeof import('./src/components/common/ProxyConfig/ProxyConfig.vue')['default']
     ProxyConfigForm: typeof import('./src/components/common/ProxyConfig/ProxyConfigForm.vue')['default']
     ResizeContainer: typeof import('./src/components/layout/ResizeContainer.vue')['default']
