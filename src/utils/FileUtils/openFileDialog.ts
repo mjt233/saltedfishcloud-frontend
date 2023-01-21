@@ -7,16 +7,22 @@ document.documentElement.appendChild(inputElement)
  * 打开文件选择框
  * 原理：动态创建一个type为file的input元素并设置好相应的事件回调后，插入到文档并通过JavaScript事件触发默认的click事件
  * @param multiple 是否允许多选文件
+ * @param accept 接受的文件类型，如：'.jar'
  * @returns {Promise<FileList>}
  * @author xiaotao233 <mjt233@qq.com>
  *
  */
-export function openFileDialog( multiple = false): Promise<FileList> {
+export function openFileDialog( multiple = false, accept?: string): Promise<FileList> {
   const el = inputElement
   if (multiple) {
     el.setAttribute('multiple', 'multiple') //  多文件模式 即<input multiple="multiple" type="file">
   } else {
     el.removeAttribute('multiple')
+  }
+  if (accept) {
+    el.accept = accept
+  } else {
+    el.accept = ''
   }
   return new Promise(res => {
     el.onchange = e => {

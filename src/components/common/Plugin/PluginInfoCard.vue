@@ -11,7 +11,7 @@
         </div>
       </VCardTitle>
     </VCardHeader>
-    <VCardContent style="padding-top: 0px;padding-bottom: 0px;">
+    <VCardContent style="padding-top: 0px;" :style="{'padding-bottom': showActions ? '0' : '12px'}">
       <div>
         描述: {{ pluginInfo.describe || '-' }}
       </div>
@@ -20,7 +20,12 @@
       </div>
       <div class="tip">
         <!-- 基础信息 -->
-        <div>插件版本: {{ pluginInfo.version }}</div>
+        <div v-if="!pluginInfo.upgradeVersion">
+          插件版本: {{ pluginInfo.version }}
+        </div>
+        <div v-else>
+          插件版本: <span class="text-warning" style="text-decoration: line-through;">{{ pluginInfo.version }}</span>  -> <span class="text-info">{{ pluginInfo.upgradeVersion }}</span>
+        </div>
         <div>API版本: {{ pluginInfo.apiVersion }}</div>
         <div>开发者: {{ pluginInfo.author }}</div>
         <div>email: {{ pluginInfo.email }}</div>
@@ -29,7 +34,7 @@
         <VDivider style="margin: 3px 0" />
         <div>类型: {{ pluginInfo.name == 'sys' ? '核心内置' : pluginInfo.isJar ? 'Jar包' : '目录挂载' }}</div>
         <div v-if="pluginInfo.url" class="d-flex">
-          <div style="width: 72px">
+          <div style="min-width: 36px">
             路径: 
           </div>
           <div class="break-text">
@@ -38,7 +43,7 @@
         </div>
       </div>
     </VCardContent>
-    <VCardActions v-if="!readOnly && pluginInfo.isJar && pluginInfo.status != 2" class="justify-end">
+    <VCardActions v-if="showActions" class="justify-end">
       <VBtn color="error" @click="deleteConfirm">
         <div class="d-flex align-center">
           <VIcon icon="mdi-delete" color="error" />
@@ -60,6 +65,9 @@ const statusTextClass = {
   1: 'text-success',
   2: 'text-error'
 }
+const showActions = computed(() => {
+  return !props.readOnly && props.pluginInfo.isJar && props.pluginInfo.status != 2
+})
 const props = defineProps({
   pluginInfo: {
     type: Object as PropType<PluginInfo>,
@@ -80,7 +88,7 @@ const deleteConfirm = async() => {
 <script lang="ts">
 import { PluginInfo } from '@/core/model'
 import SfcUtils from '@/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 
 export default defineComponent({
   name: 'PluginInfoCard'
@@ -92,6 +100,6 @@ export default defineComponent({
 <style scoped lang="scss">
 .plugin-item {
   display: inline-block;
-  max-width: 360px;
+  width: 360px;
 }
 </style>

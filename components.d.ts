@@ -85,6 +85,7 @@ declare module '@vue/runtime-core' {
     GridContainer: typeof import('./src/components/layout/GridContainer.vue')['default']
     GridMenu: typeof import('./src/components/common/GridMenu.vue')['default']
     ImagePreviewer: typeof import('./src/components/common/Previewer/ImagePreviewer.vue')['default']
+    LoadingDialog: typeof import('./src/components/common/LoadingDialog.vue')['default']
     LoadingMask: typeof import('./src/components/common/LoadingMask.vue')['default']
     LoginForm: typeof import('./src/components/form/LoginForm.vue')['default']
     MarkdownEditor: typeof import('./src/components/common/Markdown/MarkdownEditor.vue')['default']

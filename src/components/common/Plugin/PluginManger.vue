@@ -1,6 +1,12 @@
 <template>
   <div style="margin-top: 12px">
     <LoadingMask :loading="loading" />
+    <div class="header">
+      <VBtn color="primary" @click="selectUploadFile">
+        <CommonIcon icon="mdi-plus" /> 上传插件
+      </VBtn>
+    </div>
+    
     <GridContainer :width="360">
       <PluginInfoCard
         v-for="item in pluginList"
@@ -18,6 +24,10 @@ const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const pluginList = ref([]) as Ref<PluginInfo[]>
 
+const selectUploadFile = async() => {
+  const file = await FileUtils.openFileDialog(false, '.jar')
+  actions.uploadPlugin(file[0])
+}
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
     pluginList.value = (await SfcUtils.request(API.plugin.listAvailablePlugins())).data.data
@@ -27,6 +37,73 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     await SfcUtils.request(API.plugin.deletePlugin(plugin.name))
     SfcUtils.snackbar('删除成功')
     await actions.loadList()
+  },
+  async uploadPlugin(file: File) {
+    // 打开上传进度对话框
+    const dialogProps = reactive({
+      msg: '正在上传...'
+    })
+    const inst = SfcUtils.openComponentDialog(LoadingDialog, {
+      showCancel: false,
+      showConfirm: false,
+      persistent: true,
+      extraDialogOptions: {
+        hideBtn: true
+      },
+      props: dialogProps
+    })
+    const config = API.plugin.uploadPlugin(file)
+    config.onUploadProgress = (e: Prog) => {
+      dialogProps.msg = '正在上传...' + ((e.loaded / e.total) * 100).toFixed(1) + '%'
+    }
+
+    try {
+      const ret = await SfcUtils.request(config)
+      await SfcUtils.sleep(250)
+      let isConfirm = false
+      // 上传完成后预览插件信息并确认
+      SfcUtils.openComponentDialog(PluginInfoCard, {
+        title: '安装确认',
+        persistent: true,
+        props: {
+          pluginInfo: ret.data.data,
+          readOnly: true,
+          style: {
+            width: '100%',
+            paddingBottom: '12px'
+          }
+        },
+        extraDialogOptions: {
+          width: '480px'
+        },
+        async onCancel() {
+          if (!isConfirm) {
+            await SfcUtils.confirm('确定取消安装该插件吗？', '确认')
+            return true
+          } else {
+            return true
+          }
+        },
+        async onConfirm() {
+          try {
+            SfcUtils.beginLoading()
+            await SfcUtils.request(API.plugin.installPlugin(ret.data.data.tempId, file.name))
+            SfcUtils.snackbar('安装成功')
+            actions.loadList()
+            isConfirm = true
+            return true
+          } catch (err) {
+            SfcUtils.snackbar(err)
+            return false
+          } finally {
+            SfcUtils.closeLoading()
+          }
+        }
+      })
+    } finally {
+      inst.doCancel()
+    }
+    
   }
 }, false, loadingManager)
 
@@ -36,12 +113,22 @@ onMounted(actions.loadList)
 <script lang="ts">
 import API from '@/api'
 import { PluginInfo } from '@/core/model'
+import FileUtils from '@/utils/FileUtils'
 import { LoadingManager } from '@/utils/LoadingManager'
 import { MethodInterceptor } from '@/utils/MethodInterceptor'
 import SfcUtils from '@/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, h, reactive } from 'vue'
+import { LoadingDialog, PluginInfoCard } from '@/components'
+import { Prog } from '@/utils/FileUtils/FileDataProcess'
 
 export default defineComponent({
   name: 'PluginManager'
 })
 </script>
+
+
+<style scoped lang="scss">
+.header {
+  margin: 16px;
+}
+</style>
