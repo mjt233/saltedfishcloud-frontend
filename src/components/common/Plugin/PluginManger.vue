@@ -5,6 +5,10 @@
       <VBtn color="primary" @click="selectUploadFile">
         <CommonIcon icon="mdi-plus" /> 上传插件
       </VBtn>
+      <VBtn style="margin-left: 12px" @click="restart">
+        <CommonIcon icon="mdi-restart" />
+        重启
+      </VBtn>
     </div>
     
     <GridContainer :width="360">
@@ -28,16 +32,84 @@ const selectUploadFile = async() => {
   const file = await FileUtils.openFileDialog(false, '.jar')
   actions.uploadPlugin(file[0])
 }
+
+const restart = async() => {
+  await SfcUtils.confirm('确定要重启系统吗？', '重启确认')
+  doRestart()
+}
+
+const doRestart = async() => {
+
+  await actions.sendRestart()
+  let finish = false
+  const loadingInst = SfcUtils.openComponentDialog(LoadingDialog, {
+    title: '',
+    props: {
+      msg: '正在重启'
+    },
+    extraDialogOptions: {
+      hideBtn: true,
+      width: '280px'
+    },
+    persistent: true
+  })
+  while(!finish) {
+    try {
+      await SfcUtils.sleep(1000)
+    
+      const ret = await SfcUtils.request(API.sys.getError())
+      if (ret.data && ret.data.length) {
+        const component = () => [
+          h('div', {}, '启动失败，是否重试？'),
+          h('div', {}, '错误信息如下：'),
+          h('hr', { style: 'margin: 12px'}),
+          h('pre', {}, ret.data)
+        ]
+        SfcUtils.openComponentDialog(component, {
+          title: '启动失败',
+          persistent: true,
+          fullscreen: true,
+          onConfirm() {
+            doRestart()
+            return true
+          }
+        })
+      } else {
+        location.reload()
+      }
+      finish = true
+    } catch (ignore) {}
+  }
+  loadingInst.doCancel()
+}
+
 const actions = MethodInterceptor.createAsyncActionProxy({
+  /**
+   * 加载插件列表
+   */
   async loadList() {
     pluginList.value = (await SfcUtils.request(API.plugin.listAvailablePlugins())).data.data
     return pluginList.value
   },
+  /**
+   * 删除插件
+   * @param plugin 插件信息
+   */
   async deletePlugin(plugin: PluginInfo) {
     await SfcUtils.request(API.plugin.deletePlugin(plugin.name))
     SfcUtils.snackbar('删除成功')
     await actions.loadList()
   },
+  /**
+   * 发送重启系统请求
+   */
+  async sendRestart() {
+    await SfcUtils.request(API.admin.sys.restart())
+  },
+  /**
+   * 上传插件
+   * @param file 插件文件
+   */
   async uploadPlugin(file: File) {
     // 打开上传进度对话框
     const dialogProps = reactive({
