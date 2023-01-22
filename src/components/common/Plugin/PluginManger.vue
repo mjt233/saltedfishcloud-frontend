@@ -51,6 +51,7 @@ const doRestart = async() => {
       hideBtn: true,
       width: '280px'
     },
+    fullscreen: false,
     persistent: true
   })
   while(!finish) {
@@ -131,51 +132,51 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 
     try {
       const ret = await SfcUtils.request(config)
-      await SfcUtils.sleep(250)
-      let isConfirm = false
-      // 上传完成后预览插件信息并确认
-      SfcUtils.openComponentDialog(PluginInfoCard, {
-        title: '安装确认',
-        persistent: true,
-        props: {
-          pluginInfo: ret.data.data,
-          readOnly: true,
-          style: {
-            width: '100%',
-            paddingBottom: '12px'
+      SfcUtils.sleep(250).then(() => {
+        let isConfirm = false
+        // 上传完成后预览插件信息并确认
+        SfcUtils.openComponentDialog(PluginInfoCard, {
+          title: '安装确认',
+          persistent: true,
+          props: {
+            pluginInfo: ret.data.data,
+            readOnly: true,
+            style: {
+              width: '100%',
+              paddingBottom: '12px'
+            }
+          },
+          extraDialogOptions: {
+            width: '480px'
+          },
+          async onCancel() {
+            if (!isConfirm) {
+              await SfcUtils.confirm('确定取消安装该插件吗？', '确认')
+              return true
+            } else {
+              return true
+            }
+          },
+          async onConfirm() {
+            try {
+              SfcUtils.beginLoading()
+              await SfcUtils.request(API.plugin.installPlugin(ret.data.data.tempId, file.name))
+              SfcUtils.snackbar('安装成功')
+              actions.loadList()
+              isConfirm = true
+              return true
+            } catch (err) {
+              SfcUtils.snackbar(err)
+              return false
+            } finally {
+              SfcUtils.closeLoading()
+            }
           }
-        },
-        extraDialogOptions: {
-          width: '480px'
-        },
-        async onCancel() {
-          if (!isConfirm) {
-            await SfcUtils.confirm('确定取消安装该插件吗？', '确认')
-            return true
-          } else {
-            return true
-          }
-        },
-        async onConfirm() {
-          try {
-            SfcUtils.beginLoading()
-            await SfcUtils.request(API.plugin.installPlugin(ret.data.data.tempId, file.name))
-            SfcUtils.snackbar('安装成功')
-            actions.loadList()
-            isConfirm = true
-            return true
-          } catch (err) {
-            SfcUtils.snackbar(err)
-            return false
-          } finally {
-            SfcUtils.closeLoading()
-          }
-        }
+        })
       })
     } finally {
       inst.doCancel()
     }
-    
   }
 }, false, loadingManager)
 
