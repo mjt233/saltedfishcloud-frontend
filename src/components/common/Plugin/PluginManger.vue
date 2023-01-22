@@ -34,7 +34,7 @@ const selectUploadFile = async() => {
 }
 
 const restart = async() => {
-  await SfcUtils.confirm('确定要重启系统吗？', '重启确认')
+  await SfcUtils.confirm('确定要重启咸鱼云服务吗？', '重启确认')
   doRestart()
 }
 
