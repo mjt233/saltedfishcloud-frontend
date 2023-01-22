@@ -1,6 +1,12 @@
 import { StringUtils } from '@/utils/StringUtils'
 import { ApiRequest, CommonRequest, SystemFeature, PluginInfo } from '@/core/model'
 const sys = {
+  getError(): ApiRequest<string> {
+    return {
+      url: '/error',
+      timeout: 1000
+    }
+  },
   /**
    * 获取系统特性
    */
