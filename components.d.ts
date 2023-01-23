@@ -111,6 +111,7 @@ declare module '@vue/runtime-core' {
     UserAvatar: typeof import('./src/components/common/UserAvatar.vue')['default']
     UserCard: typeof import('./src/components/common/UserCard.vue')['default']
     UserFileBrowser: typeof import('./src/components/common/UserFileBrowser.vue')['default']
+    UserManager: typeof import('./src/components/common/Admin/UserManager.vue')['default']
     UserRegisterForm: typeof import('./src/components/form/UserRegisterForm/UserRegisterForm.vue')['default']
     VideoPlayer: typeof import('./src/components/common/VideoPlayer.vue')['default']
   }

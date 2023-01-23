@@ -66,24 +66,6 @@ export interface CommonPageInfo<T> {
 }
 
 /**
- * 分页请求标准参数
- */
-export interface PageRequestParam {
-  params?: {
-    /**
-     * 查询的页码（1为第一页），默认1
-     */
-    page?: number
-
-    /**
-     * 每页数据大小，默认10
-     */
-    size?: number,
-    [otherKey: string]: any
-  }
-}
-
-/**
  * 标准数据分页查询请求
  */
-export type PageRequest<T> = CommonRequest<PageInfo<T>> & PageRequestParam
+export type PageRequest<T> = CommonRequest<CommonPageInfo<T>>

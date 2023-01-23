@@ -148,10 +148,10 @@ const user = {
   },
   /**
    * 设置用户的类型
-   * @param {Number} uid      目标用户ID
-   * @param {Boolean} isAdmin 是否设为管理员
+   * @param uid      目标用户ID
+   * @param isAdmin 是否设为管理员
    */
-  setUserType(uid: number, isAdmin: boolean): CommonRequest {
+  setUserType(uid: IdType, isAdmin: boolean): CommonRequest {
     return {
       url: `${this.prefix}/${uid}/type/${isAdmin ? '1' : '0'}`,
       method: 'put'
@@ -247,7 +247,7 @@ const user = {
    * @param {String} force     强制修改
    * @returns
    */
-  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: string = 'false'): CommonRequest {
+  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: boolean = false): CommonRequest {
     const res = {
       url: `${this.prefix}/${uid}/passwd`,
       method: 'post',
