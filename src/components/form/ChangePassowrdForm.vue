@@ -1,6 +1,7 @@
 <template>
   <v-form ref="form" v-model="formValid">
     <v-text-field
+      v-if="inputOldPassword"
       v-model="originPassword"
       label="原密码"
       :rules="[rules.notNull, rules.validLength]"
@@ -32,6 +33,20 @@ const props = defineProps({
   uid: {
     type: Number,
     default: null
+  },
+  /**
+   * 是否输入原密码
+   */
+  inputOldPassword: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 是否强制修改
+   */
+  forceChange: {
+    type: Boolean,
+    default: false
   }
 })
 const userInfo = context.session.value.user
@@ -49,7 +64,7 @@ const submit = async() => {
   if (!res.valid) {
     throw new Error('表单校验不通过')
   }
-  await SfcUtils.axios(API.user.modifyPasswd(userInfo.id, originPassword.value, newPassword.value))
+  await SfcUtils.axios(API.user.modifyPasswd(props.uid === null ? userInfo.id : props.uid, originPassword.value, newPassword.value, props.forceChange))
   return true
 }
 
