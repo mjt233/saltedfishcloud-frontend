@@ -149,6 +149,7 @@ export default defineComponent({
   align-items: center;
   flex-direction: column;
   height: v-bind(boxSizePx);
+  cursor: pointer;
   transition: all .1s;
   &:hover {
     background-color: rgba(black, .08);

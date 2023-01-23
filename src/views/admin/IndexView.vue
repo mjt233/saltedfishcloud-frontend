@@ -208,6 +208,10 @@ const confirmChange = () => {
         SfcUtils.snackbar('修改成功')
         context.eventBus.value.emit(EventNameConstants.SYS_CONFIG_CHANGE, changeList)
         return true
+      } catch(err) {
+        const msg = err ? err.toString && err.toString() : '未知错误'
+        SfcUtils.alert(msg, '系统错误')
+        return false
       } finally {
         dialogInst.closeLoading()
       }

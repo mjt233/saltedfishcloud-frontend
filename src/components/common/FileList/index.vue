@@ -11,7 +11,7 @@
     >
       <!-- 鼠标框选组件 -->
       <select-area
-        v-if="rootRef"
+        v-if="rootRef && useSelect"
         :scroll-anchor="scrollAnchor"
         :select-elements-getter="fileElementsGetter"
         :click-trigger="rootRef"
@@ -153,6 +153,7 @@
           :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
           :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
           :path="path"
+          :use-select="useSelect"
           @click="fileLClick($event, fileInfo)"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
           @check-change="toggleSelectFile(fileInfo)"

@@ -8,7 +8,8 @@
     "dev": "vite --host",
     "preview": "vite preview",
     "build-ext-demo": "vite build --config build/extension/demo.ts",
-    "build-ext-video-enhance": "vite build --config build/extension/video-enhance.ts"
+    "build-ext-video-enhance": "vite build --config build/extension/video-enhance.ts",
+    "build-ext-jntm": "vite build --config build/extension/jntm.ts"
   },
   "dependencies": {
     "@types/highlight.js": "^10.1.0",
