@@ -1,6 +1,7 @@
 <template>
   <div class="file-grid-item" :class="{active}">
     <v-checkbox
+      v-if="useSelect"
       class="item-checkbox"
       color="primary"
       :model-value="active"
@@ -64,6 +65,10 @@ const props = defineProps({
   cornerIcon: {
     type: String,
     default: undefined
+  },
+  useSelect: {
+    type: Boolean,
+    default: true
   }
 })
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>

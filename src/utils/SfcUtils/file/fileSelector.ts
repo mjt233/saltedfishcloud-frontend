@@ -3,7 +3,7 @@ import { IdType } from '@/core/model'
 import { FileInfo } from '@/core/model/FileInfo'
 import { FileSystemHandlerFactory } from '@/core/serivce/FileSystemHandler'
 import { computed, h, reactive, ref } from 'vue'
-import { dialog } from '../common/Dialog'
+import { dialog, openComponentDialog } from '../common/Dialog'
 
 
 export interface FileSelectParam {
@@ -36,11 +36,16 @@ export function selectPath(param: FileSelectParam): Promise<string> {
     'onUpdate:path': (e: string) => {
       propsAttr.path = e
     },
-    fileSystemHandler: handler
+    fileSystemHandler: handler,
+    style: {
+      height: '80vh'
+    },
+    autoComputeHeight: false,
+    useSelect: false
   })
   return new Promise((resolve, reject) => {
-    dialog({
-      children: () => h(FileBrowser, propsAttr),
+    openComponentDialog(FileBrowser, {
+      props: propsAttr,
       onConfirm() {
         resolve(propsAttr.path)
         return true
@@ -49,8 +54,22 @@ export function selectPath(param: FileSelectParam): Promise<string> {
         reject('cancel')
         return true
       },
-      title,
-      fullscreen
+      title
     })
   })
+  // return new Promise((resolve, reject) => {
+  //   dialog({
+  //     children: () => h(FileBrowser, propsAttr),
+  //     onConfirm() {
+  //       resolve(propsAttr.path)
+  //       return true
+  //     },
+  //     onCancel() {
+  //       reject('cancel')
+  //       return true
+  //     },
+  //     title,
+  //     fullscreen
+  //   })
+  // })
 }

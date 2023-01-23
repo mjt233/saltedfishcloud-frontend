@@ -120,6 +120,7 @@
       :read-only="readOnly"
       :height="listHeight"
       :show-mount-icon="showMountIcon"
+      :use-select="useSelect"
       @click-item="clickItem"
       @back="back"
     />
@@ -215,6 +216,13 @@ const props = defineProps({
   previewReadme: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 是否使用多选
+   */
+  useSelect: {
+    type: Boolean,
+    default: true
   }
 })
 
