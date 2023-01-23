@@ -47,22 +47,25 @@ function preload() {
 preload()
 
 let jiCount = 0
-let activeJntm = false
+let isActiveJntm = false
 
 let firstPlay: number = 0
 window.addEventListener('keydown', e => {
+  // 连按5次j触发鸡你太美模式
   if (e.key.toLowerCase() == 'j') {
     jiCount++
-    if (jiCount == 5) {
+    if (jiCount == 5 && !isActiveJntm) {
       window.SfcUtils.snackbar('🐔你太美')
-      activeJntm = true
+      isActiveJntm = true
     }
   } else {
     jiCount = 0
   }
-  if (jiCount < 5 && !activeJntm) {
+
+  if (!isActiveJntm) {
     return
   }
+
   if(e.key.toLowerCase() == 'j') {
     firstPlay = new Date().getTime()
     playAudio(Ji)
