@@ -27,8 +27,8 @@
       <template v-for="(group) in menuObj" :key="group.id">
         <template v-if="!group.renderOn || group.renderOn(adminContext)">
 
-          <!-- 没有子项的菜单组，独立存在 -->
-          <template v-if="group.items.length == 0">
+          <!-- 没有子项的菜单组或只有一个子项，独立存在 -->
+          <template v-if="group.items.length == 0 || group.items.length == 1">
             <v-list-item
               :key="group.id"
               :title="group.name"
@@ -224,7 +224,13 @@ const confirmChange = () => {
  * @param group 菜单组
  */
 const groupClick = (group: MenuGroup<AdminContext>) => {
-  router.replace(`/admin/${group.id}`)
+  if (group.items.length) {
+    router.replace(`/admin/${group.id}/${group.items[0].id}`)
+    loadView(group.id + '', group.items[0].id + '')
+  } else {
+    router.replace(`/admin/${group.id}`)
+  }
+  
 }
 
 const loadView = (groupId: string, itemId: string) => {
