@@ -1,5 +1,5 @@
 import { CommonPageInfo, CommonRequest, IdType, PageInfo, PageRequest } from '@/core/model'
-import { EncodeConvertTask, EncodeConvertTaskParam, FFMpegInfo } from './model'
+import { EncodeConvertTask, EncodeConvertTaskLog, EncodeConvertTaskParam, FFMpegInfo } from './model'
 
 export namespace VEAPI {
   export function getFFMpegInfo(): CommonRequest<FFMpegInfo> {
@@ -39,6 +39,17 @@ export namespace VEAPI {
         page,
         pageSize
       }
+    }
+  }
+
+  /**
+   * 获取视频编码转换任务列表
+   * @param taskId 视频转换任务的id（不是异步任务id）
+   */
+  export function getLog(taskId: IdType): CommonRequest<EncodeConvertTaskLog> {
+    return {
+      url: '/video/getLog',
+      params: { taskId }
     }
   }
 }

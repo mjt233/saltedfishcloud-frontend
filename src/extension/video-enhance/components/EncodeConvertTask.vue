@@ -11,6 +11,9 @@
       <v-tab value="2">
         已完成<span v-if="finishCount">({{ finishCount }})</span>
       </v-tab>
+      <v-tab value="3">
+        执行失败<span v-if="failedCount">({{ failedCount }})</span>
+      </v-tab>
     </v-tabs>
     <v-window v-model="tab">
       <v-window-item value="1">
@@ -21,6 +24,15 @@
       <v-window-item value="2">
         <EncodeConvertTaskInfo v-for="item in finishTasks" :key="item.id" :task="item" />
         <EmptyTip v-if="!finishTasks.length" />
+      </v-window-item>
+      <v-window-item value="3">
+        <EncodeConvertTaskInfo
+          v-for="item in failedTasks"
+          :key="item.id"
+          :task="item"
+          :have-log="true"
+        />
+        <EmptyTip v-if="!failedTasks.length" />
       </v-window-item>
     </v-window>
   </div>
@@ -38,6 +50,8 @@ const runningCount = ref(0)
 const runningTasks = ref<EncodeConvertTask[]>([])
 const finishTasks = ref<EncodeConvertTask[]>([])
 const finishCount = ref(0)
+const failedTasks = ref<EncodeConvertTask[]>([])
+const failedCount = ref(0)
 const loadTask = async(status: number) => {
   const res = (await window.SfcUtils.request(VEAPI.listConvertTask(props.uid, status, 0, 20))).data.data
   return res
@@ -52,20 +66,33 @@ const loadFinish = async() => {
   finishCount.value = res.totalCount
   finishTasks.value = res.content
 }
+const loadFailed = async() => {
+  const res = await loadTask(3)
+  failedCount.value = res.totalCount
+  failedTasks.value = res.content
+}
 let autoLoadTimer: any
 let autoLoading = false
 
 onMounted(() => {
   loadFinish()
   loadRunning()
+  loadFailed()
   autoLoadTimer = setInterval(async() => {
     if (autoLoading) {
       return
     }
     try {
       autoLoading = true
-      await loadRunning()
-      await loadFinish()
+      let promise
+      if (tab.value == '1') {
+        promise = loadRunning()
+      } else if (tab.value == '2') {
+        promise = loadFinish()
+      } else {
+        promise = loadFailed()
+      }
+      await promise
     } finally {
       autoLoading = false
     }

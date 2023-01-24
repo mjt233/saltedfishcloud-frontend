@@ -24,6 +24,14 @@ export interface Format {
   tags: { [key:string]:string}
 }
 
+export interface EncodeConvertTaskLog {
+  id: string
+
+  taskId: string
+
+  taskLog: string
+}
+
 export interface StreamInfo {
   /**
    * 流索引/编号
