@@ -69,13 +69,11 @@
               <div style="min-width: 120px;max-width: 120px;" class="d-flex">
                 <v-btn-toggle v-model="btnToggle">
                   <v-btn
-                    color="background"
                     size="small"
                     icon="mdi-format-list-bulleted"
                     @click="changeListType('list')"
                   />
                   <v-btn
-                    color="background"
                     size="small"
                     icon="mdi-dots-grid"
                     @click="changeListType('grid')"
@@ -114,6 +112,7 @@
       ref="listRef"
       v-model:file-list="fileList"
       :type="listType"
+      :preview-readme="previewReadme"
       :loading-manager="loadingManager"
       :menu="listMenu"
       :path="path"
@@ -121,6 +120,7 @@
       :read-only="readOnly"
       :height="listHeight"
       :show-mount-icon="showMountIcon"
+      :use-select="useSelect"
       @click-item="clickItem"
       @back="back"
     />
@@ -209,6 +209,20 @@ const props = defineProps({
   topButtonMinWidth: {
     type: String,
     default: '360px'
+  },
+  /**
+   * 启用README.md预览
+   */
+  previewReadme: {
+    type: Boolean,
+    default: false
+  },
+  /**
+   * 是否使用多选
+   */
+  useSelect: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -303,7 +317,10 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
       ret = await handler.value.loadList(props.path)
       if (attr && attr.uid == props.uid && attr.path == props.path) {
         fileList.value.length = 0
-        ret.forEach(e => fileList.value.push(e))
+        ret.forEach(e => {
+          fileList.value.push(e)
+          e.path = props.path
+        })
         this.loading = false
       }
     }
@@ -400,8 +417,8 @@ const scrollBreadcrumbs = async() => {
  */
 const updateListHeight = async() => {
   if (props.autoComputeHeight) {
-    await nextTick()
-    const documentHeight = document.documentElement.clientHeight
+    await SfcUtils.sleep(100)
+    const documentHeight = window.innerHeight
     let otherHeight = 0
     rootWrapRef.value.querySelectorAll('[compute-height=""]').forEach(e => {
       otherHeight += e.clientHeight
@@ -455,9 +472,9 @@ defineExpose({
     return listRef.value.context
   }
 })
-onMounted(() => {
+onMounted(async() => {
   fileUploadTaskManager.addEventListener('success', successListener)
-  loadList(props.path)
+  await loadList(props.path)
   window.addEventListener('resize', resizeHandler)
   updateListHeight()
 

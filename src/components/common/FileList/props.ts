@@ -17,6 +17,13 @@ const propsOptions = {
     default: true
   },
   /**
+   * 启用README.md的预览功能
+   */
+  previewReadme: {
+    type: Boolean,
+    default: false
+  },
+  /**
    * 文件列表所处的路径
    */
   path: {

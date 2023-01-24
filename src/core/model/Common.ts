@@ -10,6 +10,19 @@ export interface SelectOption {
 }
 
 /**
+ * 通用模型
+ */
+export interface AuditModel {
+  id: IdType
+
+  uid: IdType
+
+  updateAt: string
+
+  createAt: string
+}
+
+/**
  * 通用统一资源请求参数
  */
 export interface ResourceRequest {
@@ -96,6 +109,12 @@ export interface ConfigNodeModel {
 
   /* 是否必填 */
   required?: boolean
+
+  /* 额外参数，当类型为模板时会传递给模板 */
+  params?: {[key: string]: any}
+
+  /* 是否独占一行 */
+  isRow?: boolean;
 }
 
 /**
@@ -153,6 +172,22 @@ export interface PluginInfo {
   
   /* 该插件内需要自动加载的资源列表 */
   autoLoad: string[]
+
+  /* 状态，0 - 待加载，1 - 已加载，2 - 待删除 */
+  status: 0 | 1 | 2
+
+  /* 是否通过jar包在插件目录中加载的 */
+  isJar?: boolean
+
+  /* 插件url */
+  url?: string
+
+  /* 待升级版本 */
+  upgradeVersion?: string
+}
+
+export interface PluginInfoVo extends PluginInfo {
+  tempId: IdType
 }
 
 export interface NameValueType<T = any> {

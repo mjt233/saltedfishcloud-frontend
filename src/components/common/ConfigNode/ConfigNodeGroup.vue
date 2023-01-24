@@ -3,15 +3,15 @@
     <div v-for="(group, idx) in items" :key="idx" class="node-group">
       <slot name="title" :group="group">
         <template v-if="group.title || group.name">
-          <sticky-container
+          <!-- <sticky-container
             v-if="useStickTitle"
             :top="64"
             content-class="node-title"
             style="width: 100%"
           >
             {{ group.title || group.name }}
-          </sticky-container>
-          <span v-else class="node-title">{{ group.title || group.name }}</span>
+          </sticky-container> -->
+          <span class="node-title">{{ group.title || group.name }}</span>
         </template>
       </slot>
       <config-node
@@ -59,18 +59,18 @@ export default defineComponent({
   position: relative;
   font-size: 23px;
   padding: 6px 12px;
-  background-color: rgb(var(--v-theme-background));
+  /* background-color: rgb(var(--v-theme-background)); */
   width: 100%;
   transition: all .2s;
   font-weight: 600;
 }
 
-.node-group>*:hover,.node-title:hover {
+/* .node-group>*:hover,.node-title:hover {
   background-color: rgba(var(--v-theme-primary), .05);
-}
+} */
 
 /* Vue模板组件类型的不悬浮高亮了 */
 .node-group>.template-node:hover {
-  background-color: rgb(var(--v-theme-background));
+  background-color: transparent;
 }
 </style>

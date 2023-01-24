@@ -16,7 +16,8 @@ const defaultFeature: SystemFeature = {
   archiveType: ['zip'],
   version: 'unknown',
   thumbType: ['jpg', 'bmp', 'gif', 'png', 'jpeg', 'webp'],
-  breakpointUrl: '/api/breakpoint'
+  breakpointUrl: '/api/breakpoint',
+  darkTheme: false
 }
 
 const context: ToRefs<AppContext> = toRefs(reactive({
@@ -38,7 +39,15 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   fileClipBoard: undefined as unknown as FileClipBoard,
   visiableWindows: reactive({
     uploadList: false
-  } as VisiableWindows)
+  } as VisiableWindows),
+  bg: {
+    main: {
+      url: '',
+      size: 'cover',
+      enabled: false
+    }
+    
+  }
 }))
 
 

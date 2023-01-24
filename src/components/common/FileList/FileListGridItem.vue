@@ -1,6 +1,7 @@
 <template>
   <div class="file-grid-item" :class="{active}">
     <v-checkbox
+      v-if="useSelect"
       class="item-checkbox"
       color="primary"
       :model-value="active"
@@ -39,7 +40,6 @@
         ref="textarea"
         v-model="newName"
         class="rename-textarea"
-        @input="adjustRenameTextareaHeight"
         @keypress.enter.stop="confirmRename"
         @click.stop
       />
@@ -65,16 +65,16 @@ const props = defineProps({
   cornerIcon: {
     type: String,
     default: undefined
+  },
+  useSelect: {
+    type: Boolean,
+    default: true
   }
 })
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
 const inRename = ref(false)
 const newName = ref('')
 const textarea = ref() as Ref<HTMLTextAreaElement>
-const adjustRenameTextareaHeight = async() => {
-  await nextTick()
-  textarea.value.style.height = textarea.value.scrollHeight + 'px'
-}
 let resolveFun: Function
 let rejectFun: Function
 let originName = ''
@@ -85,7 +85,6 @@ const emits = defineEmits<{
 const rename = () => {
   newName.value = props.fileInfo.name
   inRename.value = true
-  adjustRenameTextareaHeight()
   originName = props.fileInfo.name
   return new Promise((resolve, reject) => {
     resolveFun = resolve
@@ -107,10 +106,14 @@ const cancelRename = () => {
   rejectFun('cancel')
   inRename.value = false
 }
+const getFileInfo = () => {
+  return props.fileInfo
+}
 defineExpose({
   rename,
   cancelRename,
-  confirmRename
+  confirmRename,
+  getFileInfo
 })
 </script>
 
@@ -195,7 +198,7 @@ export default defineComponent({
   padding: 2px;
   overflow: hidden;
   border: 1px solid darkgray;
-  background-color: white;
+  background-color: rgb(var(--v-theme-background));
   resize: none;
 }
 

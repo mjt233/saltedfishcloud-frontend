@@ -4,6 +4,7 @@
       <v-btn
         size="small"
         icon="mdi-arrow-left"
+        style="background: transparent;"
         flat
         @click="menuContext.currentComponent = undefined; $router.replace('/box')"
       />

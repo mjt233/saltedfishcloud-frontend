@@ -1,8 +1,10 @@
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
 import { reactive } from 'vue'
+import { EventNameConstants } from '../constans/EventName'
 import { context } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
+import { ConfigNodeModel } from '../model'
 import { buildExtensionManager } from '../serivce/Extension'
 import { bootContext } from './BootCore'
 
@@ -14,6 +16,22 @@ bootContext
     async execute() {
       const data = (await SfcUtils.request(API.sys.getFeature())).data
       context.feature.value = reactive(data)
+      if (data.bgMain) {
+        context.bg.value.main = data.bgMain
+      }
+      // 默认开启黑暗模式
+      if (data.darkTheme) {
+        context.theme.value = 'dark'
+      }
+      // 监听系统配置变更，实时更新背景图
+      context.eventBus.value.on(EventNameConstants.SYS_CONFIG_CHANGE, (changeList: ConfigNodeModel[]) => {
+        const config = changeList.find(e => e.name == 'sys.bg.main')
+        if (config) {
+          const newOption = JSON.parse(config.value)
+          context.bg.value.main = newOption
+          context.feature.value.bgMain = newOption
+        }
+      })
     }
   })
   .addProcessor({

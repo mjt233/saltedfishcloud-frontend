@@ -13,6 +13,7 @@ import LoginFormVue from '@/components/form/LoginForm.vue'
 import { CommonForm } from '@/utils/FormUtils'
 import { Session } from '@/core/context/session'
 import { context } from '@/core/context'
+import { LoadingDialog } from '@/components'
 
 export interface DialogOpt {
   /**
@@ -266,7 +267,7 @@ export interface DialogProps {
   /**
    * 是否持久显示
    */
-  persistent?: string
+  persistent?: boolean
 
   /**
    * 隐藏默认按钮
@@ -310,6 +311,9 @@ export interface OpenComponentDialogOption {
   fullscreen?: boolean | 'auto'
   persistent?: boolean
 
+  /** 在onConfirm和onCancel抛出异常时是否气泡显示错误 */
+  autoShowError?: boolean
+
   // 是否使用一个div对组件进行包装
   inWrap?: boolean
 
@@ -342,7 +346,8 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     header,
     footer,
     fullscreen = 'auto',
-    persistent
+    persistent,
+    autoShowError = false
   } = opt || {}
   props.ref = 'component'
   const dialogPromise = dialog({
@@ -354,6 +359,7 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     footer,
     fullscreen,
     persistent,
+    autoShowError,
     contentMaxHeight: opt?.contentMaxHeight,
     extraProps: {
       dense,
@@ -379,6 +385,29 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     beginLoading: dialogInst.beginLoading,
     closeLoading: dialogInst.closeLoading
   }
+}
+
+
+export interface LoadingDialogParam {
+  /** 加载框提示语 */
+  msg?: string
+}
+
+/**
+ * 打开一个加载对话框
+ * @param param 加载对话框参数
+ */
+export function loadingDialog(param?: LoadingDialogParam) {
+  return SfcUtils.openComponentDialog(LoadingDialog, {
+    title: '',
+    props: param,
+    extraDialogOptions: {
+      hideBtn: true,
+      width: '280px'
+    },
+    fullscreen: false,
+    persistent: true
+  })
 }
 
 

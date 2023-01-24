@@ -26,7 +26,7 @@
                 :md5="item.nid"
                 style="margin-right: 12px; width: 32px;"
               />
-              <span style="color: #555555;">{{ item.name }}</span>
+              <span>{{ item.name }}</span>
             </div>
             <div class="d-flex align-center date-col" :class="{'expired-date': item.isExpired}">
               有效期：<span class="date-text">{{ item.expiredAt ? StringFormatter.toDate(item.expiredAt) : '永久' }}</span>

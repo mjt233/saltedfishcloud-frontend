@@ -10,13 +10,19 @@ html {
   overflow-y: auto !important;
 }
 
+.no-select {
+  user-select: none;
+}
+
 *::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
+
 *::-webkit-scrollbar-track {
   background: #f6f6f6;
+  border-radius: 6px;
 }
 
 *::-webkit-scrollbar-thumb {
@@ -135,7 +141,7 @@ html {
 }
 
 .tip {
-  color: #505050;
+  color: rgba(var(--v-theme-on-surface), .7);
   font-size: 14px;
 }
 
@@ -177,4 +183,10 @@ html {
       opacity: .8;
     }
   }
+}
+
+
+.v-overlay__scrim {
+  background-color: black !important;
+  opacity: .4 !important;
 }

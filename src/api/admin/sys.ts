@@ -10,6 +10,11 @@ import { NameValueType, PluginConfigNodeInfo } from './../../core/model/Common'
 //  */
 const sys = {
   prefix: '/admin/sys',
+  restart(): CommonRequest {
+    return {
+      url: `${this.prefix}/restart`
+    }
+  },
   /**
    * 读取所有配置项信息
    */

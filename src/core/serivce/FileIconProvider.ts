@@ -89,6 +89,71 @@ const mapper: IconRule[] = [
     accept: ['apk'],
     iconName: 'android',
     descript: '安卓安装包'
+  },
+  {
+    accept: ['md'],
+    iconName: 'md',
+    descript: 'markdown'
+  },
+  {
+    accept: ['java'],
+    iconName: 'java',
+    descript: 'java源代码文件'
+  },
+  {
+    accept: ['class'],
+    iconName: 'class',
+    descript: 'class文件'
+  },
+  {
+    accept: ['js'],
+    iconName: 'js',
+    descript: 'JavaScript'
+  },
+  {
+    accept: ['xml'],
+    iconName: 'xml',
+    descript: 'xml'
+  },
+  {
+    accept: ['license'],
+    iconName: 'license',
+    descript: 'license'
+  },
+  {
+    accept: ['gitignore'],
+    iconName: 'git',
+    descript: 'git'
+  },
+  {
+    accept: ['yml'],
+    iconName: 'yml',
+    descript: 'yml'
+  },
+  {
+    accept: ['yaml'],
+    iconName: 'yaml',
+    descript: 'yaml'
+  },
+  {
+    accept: ['cmd', 'bat', 'sh', 'bash'],
+    iconName: 'shell',
+    descript: 'shell脚本'
+  },
+  {
+    accept: ['json'],
+    iconName: 'json',
+    descript: 'json'
+  },
+  {
+    accept: ['pdf'],
+    iconName: 'pdf',
+    descript: 'pdf'
+  },
+  {
+    accept: ['chm'],
+    iconName: 'chm',
+    descript: 'chm'
   }
 ]
 
@@ -138,7 +203,7 @@ class DefaultIconProvider implements FileIconProvider {
   }
   public getFileIconUrl(name: string, md5?: string): string {
     const suffix = name.split('.').pop() || ''
-    const ruleObj = this.cacheMap.get(suffix)
+    const ruleObj = this.cacheMap.get(suffix.toLowerCase())
     if (!ruleObj) {
       return defaultFileIcon
     } else {
@@ -152,7 +217,7 @@ class DefaultIconProvider implements FileIconProvider {
   public mergeRule(...rules: IconRule[]): void {
     rules.forEach(rule => {
       rule.accept.forEach(acceptSuffix => {
-        this.cacheMap.set(acceptSuffix, rule)
+        this.cacheMap.set(acceptSuffix.toLowerCase(), rule)
       })
     })
   }

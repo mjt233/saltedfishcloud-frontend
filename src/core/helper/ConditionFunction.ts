@@ -6,6 +6,10 @@ export namespace ConditionFunction {
     return token != null && token != ''
   }
 
+  export function isAdmin(ctx: ToRefs<AppContext>) {
+    return hasLogin(ctx) && ctx.session.value.user.role == 'admin'
+  }
+
   export function noLogin(ctx: ToRefs<AppContext>) {
     return !hasLogin(ctx)
   }

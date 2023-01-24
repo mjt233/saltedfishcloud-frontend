@@ -11,6 +11,7 @@
     :append-menu="shareMenu"
     :tool-buttons="toolButtons"
     :top-button-min-width="'120px'"
+    preview-readme
   />
 </template>
 
@@ -129,7 +130,6 @@ import { MenuGroup } from '@/core/context'
 import { FileInfo, FileListContext } from '@/core/model'
 import API from '@/api'
 import SfcUtils from '@/utils/SfcUtils'
-import { StringUtils } from '@/utils/StringUtils'
 
 export default defineComponent({
   name: 'FileShareDirBrowser'

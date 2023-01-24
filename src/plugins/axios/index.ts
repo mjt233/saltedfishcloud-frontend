@@ -28,7 +28,7 @@ inst.interceptors.request.use(conf => {
 inst.interceptors.response.use(
   conf => {
     if(conf.data.code && conf.data.code != 200) {
-      throw new Error(conf.data.msg)
+      return Promise.reject(conf.data.msg)
     } else {
       return conf
     }

@@ -1,6 +1,6 @@
 import * as VueRouter from 'vue-router'
 import Index from '@/views/common/IndexView.vue'
-import CommonWelcome from '@/views/common/WelcomeView.vue'
+import DesktopView from '@/views/common/DesktopView.vue'
 
 
 const commonRoute: VueRouter.RouteRecordRaw  =  {
@@ -9,14 +9,14 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
   children: [
     {
       path: '/',
-      component: CommonWelcome,
+      component: DesktopView,
       meta: {
         allowNoLogin: true
       }
     },
     {
       path: '/**',
-      component: CommonWelcome,
+      component: DesktopView,
       meta: {
         allowNoLogin: true
       }

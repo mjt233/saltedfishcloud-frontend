@@ -135,10 +135,13 @@ const file = {
    * @param {String} md5 文件MD5
    * @returns 新文件- 1，覆盖旧文件 - 0
    */
-  upload(uid: IdType, path: string, file: File | undefined | null, md5: string): CommonRequest<number> {
+  upload(uid: IdType, path: string, file: File | undefined | null, md5?: string): CommonRequest<number> {
     path = path.split('/').map(e => encodeURIComponent(e)).join('/')
     const fd = new FormData()
-    fd.set('md5', md5)
+    if (md5) {
+      fd.set('md5', md5)
+    }
+    
     if (file) {
 
       fd.set('file', file)
@@ -180,7 +183,7 @@ const file = {
   rename(uid: IdType, path: string, oldName: string, newName: string): CommonRequest {
     if (path == '/') path = ''
     return {
-      url: StringUtils.appendPath(`${this.prefix}/${uid}/name`, path),
+      url: StringUtils.appendPath(`${this.prefix}/${uid}/name`, StringUtils.encodeURLPath(path)),
       method: 'put',
       data: {
         oldName: oldName,

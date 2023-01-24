@@ -1,3 +1,4 @@
+import API from '@/api'
 import { CreateMountPointFormVue } from '@/components/common/MountPoint'
 import { MenuGroup } from '@/core/context'
 import { Validators } from '@/core/helper/Validators'
@@ -69,6 +70,43 @@ export default {
             return Promise.reject(err)
           }
         }
+      }
+    },
+    {
+      id: 'empty-file',
+      title: '创建空文件',
+      icon: 'mdi-file-plus',
+      renderOn(ctx) {
+        return !ctx.readonly
+      },
+      action(ctx) {
+        const createEmptyFile = (defaultName?: string) => {
+          SfcUtils.prompt({
+            title: '创建文件',
+            autofocus: true,
+            label: '请输入文件名',
+            defaultValue: defaultName
+          }).then(async(fileName) => {
+            try {
+              if (!fileName) {
+                throw new Error('文件名不能为空')
+              }
+              if(ctx.fileList.findIndex(e => e.name == fileName) != -1) {
+                throw new Error('文件名已存在')
+              }
+              SfcUtils.beginLoading()
+              await SfcUtils.request(API.file.upload(ctx.uid, ctx.path, new File([new Blob([''])], fileName)))
+              SfcUtils.snackbar('创建成功')
+              ctx.modelHandler.refresh()
+            } catch(err) {
+              SfcUtils.snackbar(err)
+              createEmptyFile(fileName)
+            } finally {
+              SfcUtils.closeLoading()
+            }
+          })
+        }
+        createEmptyFile()
       }
     },
     {

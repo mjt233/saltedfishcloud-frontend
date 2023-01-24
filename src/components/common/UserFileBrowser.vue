@@ -19,6 +19,7 @@
         :tool-buttons="context.menu.value.fileBrowserBtn"
         auto-compute-height
         :show-mount-icon="true"
+        :preview-readme="previewReadme"
         @update:path="emits('update:path', $event)"
       >
         <template #top-bar>
@@ -84,6 +85,13 @@ const props = defineProps({
     default: '/'
   },
   useDropUpload: {
+    type: Boolean,
+    default: false
+  },
+  /**
+   * 启用README.md预览
+   */
+  previewReadme: {
     type: Boolean,
     default: false
   }

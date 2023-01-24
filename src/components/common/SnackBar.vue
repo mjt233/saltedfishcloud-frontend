@@ -5,7 +5,7 @@
     @mouseover="stopTimeout"
     @mouseleave="startTimeout"
   >
-    {{ text }}
+    <span class="break-text text"> {{ text }}</span>
     <template v-if="showClose" #actions>
       <v-btn color="red" @click="doClose">
         CLOSE
@@ -91,3 +91,11 @@ export default defineComponent({
   name: 'SnackBar'
 })
 </script>
+
+
+
+<style scoped>
+.text {
+  color: white;
+}
+</style>

@@ -12,6 +12,12 @@ const defaultMainMenu: MenuType.AppMenu = {
       name: '主功能',
       items: [
         {
+          id: 'desktop',
+          title: '首页',
+          route: '/',
+          icon: 'mdi-home'
+        },
+        {
           id: 'public',
           title: '公共网盘',
           route: '/public',
@@ -78,6 +84,9 @@ const defaultMainMenu: MenuType.AppMenu = {
     {
       id: 'manage',
       name: '管理',
+      renderOn(ctx) {
+        return ctx != undefined && ConditionFunction.isAdmin(ctx)
+      },
       items: [
         {
           id: 'admin',

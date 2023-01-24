@@ -29,6 +29,10 @@ const props = defineProps({
   selectElementsGetter: {
     type: Function as PropType<() => (HTMLElement[] | NodeList)>,
     default: () => () => []
+  },
+  clickTrigger: {
+    type: Object,
+    default: () => window
   }
 })
 const areaRef = ref() as Ref<HTMLElement>
@@ -70,7 +74,6 @@ let selectElements: HTMLElement[]
  * @param e 鼠标点击事件
  */
 const downHandler = (e: MouseEvent) => {
-
 
   // 数据初始化，记录锚点DOM在全页面的位置，滚动高度
   scrollAnchorEl.value = props.scrollAnchor || parentEl.value
@@ -173,6 +176,7 @@ const selectElement = () => {
  */
 const upHandler = (e: MouseEvent) => {
   window.removeEventListener('mousemove', moveHandler)
+  window.removeEventListener('mouseup', upHandler)
   scrollAnchorEl.value.removeEventListener('scroll', scrollHandler)
   scrollAnchorEl.value.classList.remove('relative-position')
   if (active.value) {
@@ -189,11 +193,11 @@ const upHandler = (e: MouseEvent) => {
 onMounted(() => {
   parentEl.value = getCurrentInstance()?.proxy?.$parent?.$el
   thisEl = getCurrentInstance()?.proxy?.$el
-  window.addEventListener('mousedown', downHandler)
+  props.clickTrigger.addEventListener('mousedown', downHandler)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('mousedown', downHandler)
+  props.clickTrigger.removeEventListener('mousedown', downHandler)
 })
 </script>
 

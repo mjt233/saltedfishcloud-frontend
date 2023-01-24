@@ -1,4 +1,4 @@
-import { CommonRequest, PageRequest, RawUser } from '@/core/model'
+import { CommonRequest, IdType, PageRequest, RawUser } from '@/core/model'
 
 export interface UserRegOpt {
   // 用户名
@@ -148,10 +148,10 @@ const user = {
   },
   /**
    * 设置用户的类型
-   * @param {Number} uid      目标用户ID
-   * @param {Boolean} isAdmin 是否设为管理员
+   * @param uid      目标用户ID
+   * @param isAdmin 是否设为管理员
    */
-  setUserType(uid: number, isAdmin: boolean): CommonRequest {
+  setUserType(uid: IdType, isAdmin: boolean): CommonRequest {
     return {
       url: `${this.prefix}/${uid}/type/${isAdmin ? '1' : '0'}`,
       method: 'put'
@@ -224,9 +224,9 @@ const user = {
    * @param {String} username 用户名
    * @returns
    */
-  getAvatar(username: string): {url: string} {
+  getAvatar(username?: string, uid?: IdType): {url: string} {
     return {
-      url: this.prefix + '/avatar' + (username ? `/${username}` : '')
+      url: this.prefix + '/avatar' + (username ? `/${username}` : '') + (uid ? `?uid=${uid}` : '')
     }
   },
   /**
@@ -247,7 +247,7 @@ const user = {
    * @param {String} force     强制修改
    * @returns
    */
-  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: string = 'false'): CommonRequest {
+  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: boolean = false): CommonRequest {
     const res = {
       url: `${this.prefix}/${uid}/passwd`,
       method: 'post',
