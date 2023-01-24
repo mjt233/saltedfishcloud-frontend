@@ -31,7 +31,7 @@ export async function openFileEditDialog(component: any, componentProps: any, ur
       fullscreen: true,
       persistent: true,
       title: file.name,
-      showConfirm: !!session.token && (file.uid == session.user.id) || (file.uid == 0 && session.user.role == 'admin'),
+      showConfirm: ctx.readonly && (!!session.token && (file.uid == session.user.id) || (file.uid == 0 && session.user.role == 'admin')),
       async onConfirm() {
         try {
           if (newText == ret.request.responseText) {
