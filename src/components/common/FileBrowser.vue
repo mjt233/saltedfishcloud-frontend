@@ -317,7 +317,10 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
       ret = await handler.value.loadList(props.path)
       if (attr && attr.uid == props.uid && attr.path == props.path) {
         fileList.value.length = 0
-        ret.forEach(e => fileList.value.push(e))
+        ret.forEach(e => {
+          fileList.value.push(e)
+          e.path = props.path
+        })
         this.loading = false
       }
     }

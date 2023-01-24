@@ -20,12 +20,15 @@
           <template v-if="field.inputType == 'text'">
             <text-input v-model="formData[field.name]" :type="field.mask ? 'password': 'text'" />
           </template>
-          <template v-if="field.inputType == 'checkbox'">
+          <template v-else-if="field.inputType == 'switch'">
             <v-switch
               v-model="formData[field.name]"
               hide-details
               color="primary"
             />
+          </template>
+          <template v-else>
+            <config-node :show-describe="false" :node="field" @change="formData[field.name] = $event" />
           </template>
         </form-col>
       </form-row>

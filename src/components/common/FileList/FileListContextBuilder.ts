@@ -60,6 +60,7 @@ const FileListContextBuilder = {
     
         async refresh() {
           const list = await handler?.value.loadList(props.path) as FileInfo[]
+          list.forEach(e => e.path = props.path)
           emits('update:file-list', list)
           return list
         },
