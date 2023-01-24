@@ -2,7 +2,7 @@
   <div style="padding: 16px">
     <div class="d-flex align-center">
       <div><FileIcon width="36" file-name="aaa.mp4" /></div>
-      <div style="padding: 0 8px">
+      <div style="padding: 0 8px; flex: 1;">
         <div class="break-text">
           {{ params?.source?.name }}
         </div>
@@ -11,7 +11,11 @@
         </div>
       </div>
       <div v-if="haveLog" class="min-width: 64px">
-        <a class="link" @click="getLog">查看日志</a>
+        <div class="text-center link" @click="getLog">
+          <div><CommonIcon color="primary" icon="mdi-eye" /></div>
+          <div><a style="font-size: 9px">查看日志</a></div>
+        </div>
+        
       </div>
     </div>
   </div>
@@ -42,7 +46,6 @@ const getLog = async() => {
     if (!ret) {
       window.SfcUtils.alert('没能查询到日志')
     } else {
-      await window.SfcUtils.sleep(300)
       window.SfcUtils.openComponentDialog(window.components.CodeEditor, {
         props: {
           modelValue: ret.taskLog,

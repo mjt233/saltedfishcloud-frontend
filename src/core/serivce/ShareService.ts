@@ -88,7 +88,6 @@ export namespace ShareService {
    * @param shareInfo 创建分享后获取的分享信息
    */
   export function showSuccessDialog(shareInfo :ShareInfo) {
-    const link = StringUtils.appendPath(location.origin, '#/s', shareInfo.id + '', shareInfo.verification || '')
     const successDialog = SfcUtils.openComponentDialog(FileShareSuccessVue, {
       props: {
         data: shareInfo
@@ -97,11 +96,10 @@ export namespace ShareService {
       showConfirm: false,
       showCancel: false,
       footer: () => [
-        h(VBtn, { color: 'primary', onClick: () => {
-          setTimeout(() => {
-            SfcUtils.copyToClipboard(link)
-            SfcUtils.snackbar('复制成功')
-          }, 100)
+        h(VBtn, { color: 'primary', onClick() {
+          const link = getShareLink(shareInfo)
+          SfcUtils.copyToClipboard(link)
+          SfcUtils.snackbar('复制成功')
         } }, () => '复制链接'),
         h(VBtn, { color: 'primary', onClick: () => { successDialog.close() } }, () => '取消')
       ]

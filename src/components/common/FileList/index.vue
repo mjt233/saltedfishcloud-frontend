@@ -248,6 +248,9 @@ const scrollAnchor = computed(() => {
 const updateReadmeMaxHeight = () => {
   readmeViewMaxHeight.value = props.height ? (props.height + 'px') : 'auto'
 }
+watch(() => props.height, () => {
+  updateReadmeMaxHeight()
+})
 
 // 获取可选择的DOM集合
 const fileElementsGetter = () => {

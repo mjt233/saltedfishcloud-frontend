@@ -83,13 +83,19 @@ const SfcUtils = {
    * 将文本复制到剪切板
    * @param text 待复制的文本
    */
-  copyToClipboard(text: string) {
+  async copyToClipboard(text: string) {
     const input = document.createElement('textarea')
     input.readOnly = true
+    input.style.position = 'fixed'
+    input.style.display = 'hidden'
+    input.style.zIndex = '1145141919'
+    input.style.top = '0'
+    input.style.left = '0'
     input.value = text
     document.body.appendChild(input)
+    input.focus()
+    await SfcUtils.sleep(10)
     input.select()
-    input.setSelectionRange(0, text.length)
     try {
       document.execCommand('copy')
     } finally {
