@@ -22,7 +22,12 @@
       </v-window-item>
 
       <v-window-item value="2">
-        <EncodeConvertTaskInfo v-for="item in finishTasks" :key="item.id" :task="item" />
+        <EncodeConvertTaskInfo
+          v-for="item in finishTasks"
+          :key="item.id"
+          :task="item"
+          :have-log="true"
+        />
         <EmptyTip v-if="!finishTasks.length" />
       </v-window-item>
       <v-window-item value="3">
