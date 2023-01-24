@@ -153,17 +153,25 @@ const videoMenu: MenuGroup<FileListContext> = {
           },
           title: `视频转码：${ctx.selectFileList[0].name}`,
           async onConfirm() {
-            const result = await handler.getInstAsForm().submit()
-            if (result.success) {
-              const rules = handler.getInstAsForm().getFormData().enabledConvertRules as EncodeConvertRule[]
-              const source = await getVideoResourceParams(ctx, file, file.path as string)
-              const target = await getVideoResourceParams(ctx, file, file.path as string)
-              target.name = 'convert_' + target.name
-              await window.SfcUtils.request(VEAPI.encodeConvert({rules, source, target}))
-              window.SfcUtils.snackbar('任务创建成功')
-              return true
-            } else {
+            const dialog = window.SfcUtils.loadingDialog({ msg: '任务创建中' })
+            try {
+              const result = await handler.getInstAsForm().submit()
+              if (result.success) {
+                const rules = handler.getInstAsForm().getFormData().enabledConvertRules as EncodeConvertRule[]
+                const source = await getVideoResourceParams(ctx, file, file.path as string)
+                const target = await getVideoResourceParams(ctx, file, file.path as string)
+                target.name = 'convert_' + target.name
+                await window.SfcUtils.request(VEAPI.encodeConvert({rules, source, target}))
+                window.SfcUtils.snackbar('任务创建成功')
+                return true
+              } else {
+                return false
+              }
+            } catch (err) {
+              SfcUtils.snackbar(err)
               return false
+            } finally {
+              dialog.close()
             }
           }
         })
