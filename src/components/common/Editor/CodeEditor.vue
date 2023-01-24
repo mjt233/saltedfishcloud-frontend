@@ -40,6 +40,13 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 是否折行显示
+   */
+  wordWrap: {
+    type: Boolean,
+    default: true
   }
 })
 const emits = defineEmits(['update:modelValue'])
@@ -109,7 +116,8 @@ onMounted(async() => {
     lineNumbers: props.hideLineNumber ? 'off' : 'on',
     automaticLayout: true,
     theme: context.theme.value == 'dark' ? 'vs-dark' : 'vs',
-    readOnly: props.readOnly
+    readOnly: props.readOnly,
+    wordWrap: props.wordWrap ? 'on' : 'off'
   })
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())

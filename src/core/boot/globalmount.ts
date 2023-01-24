@@ -6,6 +6,7 @@ import * as Vue from 'vue'
 import * as FormUtils from '@/utils/FormUtils'
 import API from '@/api'
 import { bootContext } from './BootCore'
+import * as components from '@/components'
 
 /**
  * 挂载全局属性
@@ -18,5 +19,6 @@ window.API = API
 window.DPlayer = DPlayer as any
 window.bootContext = bootContext
 window.FormUtils = FormUtils
+window.components = components
 
 export {}
