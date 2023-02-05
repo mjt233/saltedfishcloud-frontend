@@ -1,3 +1,4 @@
+import { AsyncTaskRecord } from './../../core/model/AsyncTaskRecord'
 import { ResourceRequest,IdType, CommonProgress } from '@/core/model'
 export interface Encoder {
   name: string
@@ -183,9 +184,8 @@ export interface EncodeConvertTask {
   uid: IdType
   createAt: string
   updateAt: string
-  taskId: string
-  taskStatus: number
   type: 'audio' | 'video' | 'format'
   params: string
   progress?: CommonProgress
+  asyncTaskRecord: AsyncTaskRecord
 }

@@ -6,7 +6,7 @@
       fixed-tabs
     >
       <v-tab value="1">
-        进行中<span v-if="runningCount">({{ runningCount }})</span>
+        进行中<span>({{ runningCount }})</span>
       </v-tab>
       <v-tab value="2">
         已完成<span v-if="finishCount">({{ finishCount }})</span>
@@ -62,9 +62,13 @@ const loadTask = async(status: number) => {
   return res
 }
 const loadRunning = async() => {
-  const res = await loadTask(1)
-  runningCount.value = res.totalCount
-  runningTasks.value = res.content
+  const runningPromise = loadTask(1)
+  const waitingPromise = loadTask(0)
+  const res = await Promise.all([runningPromise, waitingPromise])
+  runningCount.value = Number(res[0].totalCount) || 0
+  runningTasks.value = res[0].content
+  runningCount.value += Number(res[1].totalCount)
+  runningTasks.value = runningTasks.value.concat(res[1].content)
 }
 const loadFinish = async() => {
   const res = await loadTask(2)
