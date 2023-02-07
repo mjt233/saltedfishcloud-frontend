@@ -7,7 +7,7 @@
         </v-col>
         <v-col cols="10" class="details">
           <div class="d-flex align-center">
-            <span class="state" :class="downloadTask.state">{{ getStateText(downloadTask.state) }}</span>
+            <span class="state" :class="`state-${downloadTask.asyncTaskRecord?.status}`">{{ getStateText(downloadTask.asyncTaskRecord?.status) }}</span>
             <div class="break-text file-name text-truncate text-primary" :title="downloadTask.name || 'unknow'">
               {{ downloadTask.name || 'unknow' }}
             </div>
@@ -17,7 +17,7 @@
           </div>
           <div class="detail-row detail-text">
             <!-- 进度条 -->
-            <div v-if="downloadTask.state == 'DOWNLOADING'">
+            <div v-if="downloadTask.asyncTaskRecord?.status == 1">
               <v-progress-linear
                 :indeterminate="downloadTask.size == 0"
                 :max="downloadTask.size"
@@ -30,7 +30,7 @@
               </div>
             </div>
             <div class="d-flex justify-space-between align-center">
-              <v-btn v-if="downloadTask.state == 'DOWNLOADING' || downloadTask.state == 'WAITING'" flat @click="emits('cancel', downloadTask.id)">
+              <v-btn v-if="[0,1].includes(downloadTask.asyncTaskRecord?.status)" flat @click="emits('cancel', downloadTask.id)">
                 取消
               </v-btn>
               <div>
@@ -60,17 +60,17 @@ const props = defineProps({
 })
 const formatSize = StringFormatter.toSize
 const formatDate = StringFormatter.toDate
-const getStateText = (e: DownloadTaskStatus) => {
-  if (e == 'CANCEL') {
-    return '已取消'
-  } else if (e == 'DOWNLOADING') {
-    return '下载中'
-  } else if (e == 'FAILED') {
-    return '失败'
-  } else if (e == 'FINISH') {
-    return '完成'
-  } else if (e == 'WAITING') {
+const getStateText = (e: number) => {
+  if (e == 0) {
     return '等待中'
+  } else if (e == 1) {
+    return '下载中'
+  } else if (e == 2) {
+    return '完成'
+  } else if (e == 3) {
+    return '失败'
+  } else {
+    return `未知-${e}`
   }
 }
 const emits = defineEmits(['cancel'])
@@ -119,17 +119,14 @@ export default defineComponent({
   align-items: center;
   color: rgb(255, 255, 255);
   background-color: rgb(var(--v-theme-info));
-  &.FINISH {
+  &.state-2 {
     background-color: rgb(var(--v-theme-success));
   }
-  &.CANCEL {
+  &.state-3 {
     background-color: rgb(var(--v-theme-warning));
   }
-  &.FAILED {
-    background-color: rgb(var(--v-theme-error));
-  }
 
-  &.DOWNLOADING {
+  &.state-1 {
     background-color: rgb(var(--v-theme-primary));
   }
 }
