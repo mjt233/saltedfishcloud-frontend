@@ -17,7 +17,12 @@
     </v-tabs>
     <v-window v-model="tab">
       <v-window-item value="1">
-        <EncodeConvertTaskInfo v-for="item in runningTasks" :key="item.id" :task="item" />
+        <EncodeConvertTaskInfo
+          v-for="item in runningTasks"
+          :key="item.id"
+          :task="item"
+          show-cancel
+        />
         <EmptyTip v-if="!runningTasks.length" />
       </v-window-item>
 
@@ -76,9 +81,9 @@ const loadFinish = async() => {
   finishTasks.value = res.content
 }
 const loadFailed = async() => {
-  const res = await loadTask(3)
-  failedCount.value = res.totalCount
-  failedTasks.value = res.content
+  const res = await Promise.all([loadTask(3), loadTask(4)])
+  failedCount.value = Number(res[0].totalCount) + Number(res[1].totalCount)
+  failedTasks.value = (res[0].content || []).concat(res[1].content)
 }
 let autoLoadTimer: any
 let autoLoading = false

@@ -40,7 +40,7 @@ export interface AsyncTaskRecord extends AuditModel {
   executor: string
 
   /**
-   * 任务状态，0 - 等待中，1 - 执行中，2 - 执行成功，3 - 执行失败
+   * 任务状态，0 - 等待中，1 - 执行中，2 - 执行成功，3 - 执行失败，4 - 已取消
    */
-  status: 0 | 1 | 2 | 3
+  status: 0 | 1 | 2 | 3 | 4
 }

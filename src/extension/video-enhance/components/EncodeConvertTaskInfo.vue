@@ -16,7 +16,7 @@
               失败日期: {{ toDate(task.asyncTaskRecord.failedDate) }}
             </div>
             <div v-if="!task.asyncTaskRecord.executeDate">
-              等待中
+              {{ task.asyncTaskRecord.status == 4 ? '已取消' : '等待中' }}
             </div>
           </div>
         </div>
@@ -28,6 +28,15 @@
         <div class="text-center link" @click="getLog">
           <div><CommonIcon color="primary" icon="mdi-eye" /></div>
           <div><a style="font-size: 9px">查看日志</a></div>
+        </div>
+        <div
+          v-if="showCancel"
+          class="text-center link"
+          style="margin-left: 12px;"
+          @click="cancel"
+        >
+          <div><CommonIcon color="primary" icon="mdi-close" /></div>
+          <div><a style="font-size: 9px">取消</a></div>
         </div>
       </div>
     </div>
@@ -44,6 +53,13 @@ const props = defineProps({
    * 是否可以获取日志
    */
   haveLog: {
+    type: Boolean,
+    default: false
+  },
+  /**
+   * 显示取消任务按钮
+   */
+  showCancel: {
     type: Boolean,
     default: false
   }
@@ -78,7 +94,20 @@ const getLog = async() => {
   } finally {
     dialog.close()
   }
-  
+}
+
+const cancel = async() => {
+  const dialog = window.SfcUtils.loadingDialog({msg: '请求中...'})
+  try {
+    await window.SfcUtils.sleep(150)
+    await window.SfcUtils.request(window.API.asyncTask.interrupt(props.task.asyncTaskRecord.id))
+    dialog.close()
+  } catch (err) {
+    dialog.close()
+    await window.SfcUtils.sleep(250)
+    window.SfcUtils.alert('请求失败: ' + err)
+  }
+
 }
 </script>
 
