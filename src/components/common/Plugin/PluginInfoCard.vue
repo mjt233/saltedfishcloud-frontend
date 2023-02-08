@@ -32,7 +32,7 @@
 
         <!-- 模块信息 -->
         <VDivider style="margin: 3px 0" />
-        <div>类型: {{ pluginInfo.name == 'sys' ? '核心内置' : pluginInfo.isJar ? 'Jar包' : '目录挂载' }}</div>
+        <div>类型: {{ pluginTypeStr }}</div>
         <div v-if="pluginInfo.url" class="d-flex">
           <div style="min-width: 36px">
             路径: 
@@ -83,6 +83,18 @@ const deleteConfirm = async() => {
   await SfcUtils.confirm('确定要删除该插件吗？', '删除确认')
   emits('delete', props.pluginInfo)
 }
+
+const pluginTypeStr = computed(() => {
+  if( props.pluginInfo.name == 'sys') {
+    return '核心内置'
+  } else if (props.pluginInfo.isJar) {
+    return 'Jar包'
+  } else if (props.pluginInfo.url?.startsWith('jar:')) {
+    return '核心内置'
+  } else {
+    return '目录挂载'
+  }
+})
 </script>
 
 <script lang="ts">
