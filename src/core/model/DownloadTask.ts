@@ -1,3 +1,5 @@
+import { AsyncTaskRecord } from './AsyncTaskRecord'
+
 export type DownloadTaskStatus = 'WAITING' | 'DOWNLOADING' | 'FAILED' | 'FINISH' | 'CANCEL'
 export interface DownloadTaskInfo {
   /** 任务id */
@@ -41,4 +43,7 @@ export interface DownloadTaskInfo {
 
   /** 创建人 */
   createdBy: number
+
+  /** 关联的异步任务信息 */
+  asyncTaskRecord: AsyncTaskRecord
 }
