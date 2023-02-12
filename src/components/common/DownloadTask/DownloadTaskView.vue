@@ -46,8 +46,8 @@ const loadList = async() => {
   try {
     listLoading = true
     const allList = (await SfcUtils.request(API.task.download.getTaskList(props.uid, 'ALL', 1, 300))).data.data
-    taskCollection.download = allList.content.filter(e => e.state == 'DOWNLOADING' || e.state == 'WAITING')
-    taskCollection.finish = allList.content.filter(e => e.state != 'DOWNLOADING' && e.state != 'WAITING')
+    taskCollection.download = allList.content.filter(e => [0,1].includes(e.asyncTaskRecord?.status))
+    taskCollection.finish = allList.content.filter(e => !e.asyncTaskRecord || [2,3].includes(e.asyncTaskRecord?.status))
     taskCollection.finishCount = taskCollection.finish.length
     taskCollection.downloadCount = taskCollection.download.length
   } finally {
@@ -62,10 +62,9 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   },
   async interruptTask(id: string) {
     await SfcUtils.request(API.task.download.interruptTask(props.uid, id))
-    setTimeout(() => {
-      nextTick().then(actions.loadList)
-      SfcUtils.snackbar(`已取消文件${taskCollection.download.find(e => e.id == id)?.name}的下载`)
-    }, 300)
+    await SfcUtils.sleep(500)
+    await actions.loadList()
+    SfcUtils.snackbar(`已取消文件${taskCollection.download.find(e => e.id == id)?.name}的下载`)
   }
 }, false, loadingManager)
 

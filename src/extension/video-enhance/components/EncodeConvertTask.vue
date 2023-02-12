@@ -6,7 +6,7 @@
       fixed-tabs
     >
       <v-tab value="1">
-        进行中<span v-if="runningCount">({{ runningCount }})</span>
+        进行中<span>({{ runningCount }})</span>
       </v-tab>
       <v-tab value="2">
         已完成<span v-if="finishCount">({{ finishCount }})</span>
@@ -17,7 +17,12 @@
     </v-tabs>
     <v-window v-model="tab">
       <v-window-item value="1">
-        <EncodeConvertTaskInfo v-for="item in runningTasks" :key="item.id" :task="item" />
+        <EncodeConvertTaskInfo
+          v-for="item in runningTasks"
+          :key="item.id"
+          :task="item"
+          show-cancel
+        />
         <EmptyTip v-if="!runningTasks.length" />
       </v-window-item>
 
@@ -62,9 +67,13 @@ const loadTask = async(status: number) => {
   return res
 }
 const loadRunning = async() => {
-  const res = await loadTask(1)
-  runningCount.value = res.totalCount
-  runningTasks.value = res.content
+  const runningPromise = loadTask(1)
+  const waitingPromise = loadTask(0)
+  const res = await Promise.all([runningPromise, waitingPromise])
+  runningCount.value = Number(res[0].totalCount) || 0
+  runningTasks.value = res[0].content
+  runningCount.value += Number(res[1].totalCount)
+  runningTasks.value = runningTasks.value.concat(res[1].content)
 }
 const loadFinish = async() => {
   const res = await loadTask(2)
@@ -72,9 +81,9 @@ const loadFinish = async() => {
   finishTasks.value = res.content
 }
 const loadFailed = async() => {
-  const res = await loadTask(3)
-  failedCount.value = res.totalCount
-  failedTasks.value = res.content
+  const res = await Promise.all([loadTask(3), loadTask(4)])
+  failedCount.value = Number(res[0].totalCount) + Number(res[1].totalCount)
+  failedTasks.value = (res[0].content || []).concat(res[1].content)
 }
 let autoLoadTimer: any
 let autoLoading = false
