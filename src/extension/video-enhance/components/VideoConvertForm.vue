@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import { SelectOption } from '@/core/model'
-import { CommonForm } from '@/utils/FormUtils'
+import { CommonForm } from 'sfc-common/utils/FormUtils'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   videoInfo: {
