@@ -118,7 +118,7 @@ const audioStreams = computed(() => {
 </script>
 
 <script lang="ts">
-import { FileInfo } from '@/core/model'
+import { FileInfo } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, compile, computed } from 'vue'
 import { VideoInfo } from '../model'
 import { VEUtils } from '../utils/VEUtils'

@@ -1,7 +1,7 @@
 
+import { SfcUtils } from 'sfc-common'
 import TestComponent from './TestComponent.vue'
-const Vue = window.Vue
-const SfcUtils = window.SfcUtils
+import * as Vue from 'vue'
 
 /**
  * 拓展执行案例
@@ -28,7 +28,7 @@ function demoAction() {
 }
 
 // 当在咸鱼云中输入1145141919810!时触发拓展动作（彩蛋）
-const triggerStr = '1145141919810!'
+const triggerStr = '233'
 const keyDownHistory: string[] = []
 
 function extEventListener(e: KeyboardEvent) {

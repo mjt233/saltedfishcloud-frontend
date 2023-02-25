@@ -11,6 +11,8 @@ import * as components from 'sfc-common/components'
 import DOMUtils from 'sfc-common/utils/DOMUtils'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import * as SfcCommon from 'sfc-common'
+
 
 /**
  * 挂载全局属性
@@ -28,5 +30,6 @@ window.DOMUtils = DOMUtils
 window.MethodInterceptor = MethodInterceptor
 window.StringFormatter = StringFormatter
 window.StringUtils = StringUtils
+window.SfcCommon = SfcCommon
 
 export {}

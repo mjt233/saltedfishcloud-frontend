@@ -1,5 +1,5 @@
 import { defineExtension } from './build-template'
 
 export default defineExtension({
-  name: 'video-enhance'
+  name: 'sfc-ext-video-enhance'
 })

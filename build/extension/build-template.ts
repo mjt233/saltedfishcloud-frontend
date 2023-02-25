@@ -22,7 +22,7 @@ export function defineExtension(conf: ExtensionConfig) {
   const extensionName = conf.name
   return defineConfig({
     base: `/ext/${extensionName}/`,
-    publicDir: `/src/extension/${extensionName}/public`,
+    publicDir: `/sfc-ext/${extensionName}/public`,
     plugins: [
       vue(),
       vuetify({
@@ -32,7 +32,7 @@ export function defineExtension(conf: ExtensionConfig) {
     define: { 'process.env': {} },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '../../src'),
+        '@': path.resolve(__dirname, `../../sfc-ext/${extensionName}/src`),
       },
       extensions: [
         '.js',
@@ -47,19 +47,20 @@ export function defineExtension(conf: ExtensionConfig) {
     },
     build: {
       lib: {
-        entry: path.resolve(__dirname, `../../src/extension/${extensionName}/main.ts`),
+        entry: path.resolve(__dirname, `../../sfc-ext/${extensionName}/main.ts`),
         name: extensionName,
         fileName: (format) => `index.${format}.js`
       },
       rollupOptions: {
         // 确保外部化处理那些你不想打包进库的依赖
-        external: ['vue', 'dplayer', 'vuetify'],
+        external: ['vue', 'dplayer', 'vuetify', 'sfc-common'],
         output: {
           // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
           globals: {
             vue: 'Vue',
             dplayer: 'DPlayer',
-            vuetify: 'Vuetify'
+            vuetify: 'Vuetify',
+            'sfc-common': 'SfcCommon'
           }
         }
       },

@@ -1,4 +1,4 @@
-import { CommonPageInfo, CommonRequest, IdType, PageInfo, PageRequest } from '@/core/model'
+import { CommonPageInfo, CommonRequest, IdType, PageInfo, PageRequest } from 'sfc-common/model'
 import { EncodeConvertTask, EncodeConvertTaskLog, EncodeConvertTaskParam, FFMpegInfo } from './model'
 
 export namespace VEAPI {
