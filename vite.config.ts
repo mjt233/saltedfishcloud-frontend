@@ -13,7 +13,10 @@ export default defineConfig({
     vuetify({
       autoImport: true,
     }),
-    Components()
+    // Components({
+    //   dirs: 'sfc-common/components',
+    //   dts: 'sfc-common/components.d.ts'
+    // })
   ],
   optimizeDeps: {
     include: [

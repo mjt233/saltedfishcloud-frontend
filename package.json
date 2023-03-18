@@ -21,6 +21,7 @@
     "monaco-editor": "^0.34.1",
     "qs": "^6.10.3",
     "roboto-fontface": "*",
+    "sfc-common": "file:sfc-common",
     "vue": "^3.2.25",
     "vue-router": "^4.0.14",
     "vuetify": "^3.0.0-beta.4",

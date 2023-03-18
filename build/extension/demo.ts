@@ -1,5 +1,5 @@
 import { defineExtension } from './build-template'
 
 export default defineExtension({
-  name: 'demo'
+  name: 'sfc-ext-demo'
 })
