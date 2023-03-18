@@ -99,7 +99,7 @@ import { context } from 'sfc-common/core/context'
 import { FileUploadExecutor, FileUploadInfo, FileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 
 export default defineComponent({
-  name: 'FileUploadList'
+  name: 'FileUploadDialog'
 })
 </script>
 
