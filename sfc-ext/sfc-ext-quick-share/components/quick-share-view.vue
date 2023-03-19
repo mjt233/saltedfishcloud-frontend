@@ -181,9 +181,9 @@ const useCodeParam = async() => {
   const params = context.routeInfo.value.curr?.query
   if (params && params.code) {
     extractCode.value = params.code as string
-    await SfcUtils.sleep(100)
-    await SfcUtils.confirm(`检测到链接中包含分享提取码${params.code}，是否立即提取？`, '提示')
-    extract()
+    // await SfcUtils.sleep(100)
+    // await SfcUtils.confirm(`检测到链接中包含分享提取码${params.code}，是否立即提取？`, '提示')
+    // extract()
   }
 }
 
