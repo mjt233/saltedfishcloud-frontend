@@ -203,18 +203,3 @@ export default defineComponent({
   components: { CommonIcon: Components.CommonIcon }
 })
 </script>
-
-<style scoped lang="scss">
-.qs-card-title {
-  text-align: center;
-}
-
-.qs-card-spacer {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 1px;
-  height: 100%;
-  background-color: rgba(var(--v-theme-primary), .3);
-}
-</style>
