@@ -1,6 +1,6 @@
 import { CommonPageInfo, CommonRequest } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
-import { FileInfo, FileTransferInfo } from './../core/model/FileInfo'
+import { FileInfo, FileTransferInfo } from 'sfc-common/model/FileInfo'
 
 export interface CreateShareConfig {
   /** 文件所在路径 */

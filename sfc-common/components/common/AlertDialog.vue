@@ -1,6 +1,8 @@
 <template>
   <base-dialog :title="title" :persistent="persistent">
-    {{ message }}
+    <div v-for="line in (message || '').split('\n')" :key="line">
+      {{ line }}
+    </div>
     <template #actions>
       <v-btn color="primary" @click="emit('update:modelValue', false)">
         确定
