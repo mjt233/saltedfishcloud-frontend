@@ -118,7 +118,7 @@ const extract = async() => {
     const e = await SfcUtils.request(QuickShareApi.getByCode(extractCode.value))
     const share = e.data.data
     if (share.message) {
-      SfcUtils.alert(share.message, '分享留言')
+      SfcUtils.alert(share.message, '提取成功 - 留言')
         .then(() => SfcUtils.openApiUrl(QuickShareApi.getShareFile(share.id)))
     }
     
@@ -175,12 +175,27 @@ const sendFile = async() => {
     loading.close()
   }
 }
+
+// 使用url中传入的提取码参数
+const useCodeParam = async() => {
+  const params = context.routeInfo.value.curr?.query
+  if (params && params.code) {
+    extractCode.value = params.code as string
+    await SfcUtils.sleep(100)
+    await SfcUtils.confirm(`检测到链接中包含分享提取码${params.code}，是否立即提取？`, '提示')
+    extract()
+  }
+}
+
+onMounted(() => {
+  useCodeParam()
+})
 </script>
 
 <script lang="ts">
 import { Components,Validators,ValidateResult, SfcUtils, context, StringUtils, StringFormatter } from 'sfc-common'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, h } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, h, onMounted } from 'vue'
 import QuickShareApi from '../api'
 
 export default defineComponent({
