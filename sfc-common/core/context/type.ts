@@ -3,7 +3,7 @@ import { Session } from './session'
 import { AppMenu, BoxMenuContext, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
-import { FileInfo, FileListContext, SystemFeature } from '../model'
+import { FileInfo, FileListContext, SystemFeature } from 'sfc-common/model'
 
 export interface RouteInfo {
   /**

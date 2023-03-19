@@ -92,7 +92,6 @@ const SfcUtils = {
     input.value = text
     document.body.appendChild(input)
     input.focus()
-    await SfcUtils.sleep(10)
     input.select()
     try {
       document.execCommand('copy')

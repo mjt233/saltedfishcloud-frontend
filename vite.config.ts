@@ -1,12 +1,11 @@
-import { defineConfig } from 'vite'
+import { defineConfig, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
-import Components from 'unplugin-vue-components/vite'
 
 const path = require('path')
 
-// https://vitejs.dev/config/
-export default defineConfig({
+const env = {} as any
+const commonConfig: UserConfigExport = {
   plugins: [
     vue(),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
@@ -27,7 +26,7 @@ export default defineConfig({
       'monaco-editor/esm/vs/editor/editor.worker'
     ]
   },
-  define: { 'process.env': {} },
+  define: { 'process.env': env },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -62,4 +61,12 @@ export default defineConfig({
     ]
   },
   */
+}
+
+// https://vitejs.dev/config/
+export default defineConfig((configEnv) => {
+  if (configEnv.command == 'serve') {
+    env.plugins = ['']
+  }
+  return commonConfig
 })

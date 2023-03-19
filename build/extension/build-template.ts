@@ -25,9 +25,9 @@ export function defineExtension(conf: ExtensionConfig) {
     publicDir: `/sfc-ext/${extensionName}/public`,
     plugins: [
       vue(),
-      vuetify({
-        autoImport: true,
-      })
+      // vuetify({
+      //   autoImport: true,
+      // })
     ],
     define: { 'process.env': {} },
     resolve: {
@@ -53,7 +53,7 @@ export function defineExtension(conf: ExtensionConfig) {
       },
       rollupOptions: {
         // 确保外部化处理那些你不想打包进库的依赖
-        external: ['vue', 'dplayer', 'vuetify', 'sfc-common'],
+        external: ['vue', 'dplayer', 'vuetify', 'sfc-common', 'monaco-editor'],
         output: {
           // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
           globals: {

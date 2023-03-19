@@ -1,17 +1,44 @@
+import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { FormFieldType } from 'sfc-common/utils/FormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 
 export namespace Validators {
+
+  export function requireFile(msg: string = '请选择文件') {
+    return (e: File[]) => {
+      if (e && e.length > 0) {
+        return true
+      } else {
+        return msg
+      }
+    }
+  }
+
+  export function fileMaxSize(maxSize: number) {
+    return (e: File[]) => {
+      if (e && e.length) {
+        const f = e.find(e => e.size > maxSize)
+        if (f) {
+          return '文件大小不能超过' + StringFormatter.toSize(maxSize)
+        } else {
+          return true
+        }
+      } else {
+        return true
+      }
+    }
+  }
+
   export function notNull(msg: string = '不能为空') {
     return (e: FormFieldType) => !!e || msg
   }
 
-  export function minLen(msg: string, len: number) {
-    return (e: FormFieldType) => ('' + e).length >= len || msg
+  export function minLen(msg: string | undefined | null, len: number) {
+    return (e: FormFieldType) => ('' + e).length >= len || msg || '长度不能小于' + len + '个字符'
   }
 
-  export function maxLen(msg: string, len: number) {
-    return (e: FormFieldType) => ('' + e).length <= len || msg
+  export function maxLen(msg: string | undefined | null, len: number) {
+    return (e: FormFieldType) => ('' + e).length <= len || msg || '长度不能大于' + len + '个字符'
   }
 
   export function isEmail(msg: string = '不是有效的邮箱格式') {

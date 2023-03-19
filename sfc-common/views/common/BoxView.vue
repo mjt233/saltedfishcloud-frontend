@@ -44,6 +44,7 @@ const itemClick = (e: MenuItem<BoxMenuContext>) => {
 }
 
 onMounted(() => {
+  // 根据当前路由信息判断是否是某个菜单功能的路由，如果是则执行对应的菜单方法
   const itemId = context.routeInfo.value.curr?.params.itemId
   if (itemId) {
     const boxMenu = context.menu.value.boxMenu.flatMap(e => e.items).find(e => e.id == itemId)
