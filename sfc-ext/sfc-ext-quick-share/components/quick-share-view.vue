@@ -120,6 +120,8 @@ const extract = async() => {
     if (share.message) {
       SfcUtils.alert(share.message, '提取成功 - 留言')
         .then(() => SfcUtils.openApiUrl(QuickShareApi.getShareFile(share.id)))
+    } else {
+      SfcUtils.openApiUrl(QuickShareApi.getShareFile(share.id))
     }
     
   } catch(err) {
