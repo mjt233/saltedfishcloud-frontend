@@ -35,7 +35,7 @@
           <VWindowItem value="2">
             <VForm ref="sendFormRef">
               <div class="tip">
-                文件保留时长：{{ context.feature.value[QuickShareApi.feature.effectiveDuration] || 30 }}分钟<br>
+                文件保留时长：{{ SfcUtils.getSystemFeature(QuickShareApi.featurePrefix, QuickShareApi.feature.effectiveDuration) || 30 }}分钟<br>
                 文件大小限制：{{ StringFormatter.toSize(maxSize) }}
               </div>
               <div style="padding: 12px;">
@@ -93,7 +93,7 @@ const extractFormRef = ref()
 
 // 默认最大文件大小(MiB)
 const defaultMaxSize = 512
-const maxSize = (context.feature.value[QuickShareApi.feature.maxSize] || defaultMaxSize) * 1024 * 1024
+const maxSize = (SfcUtils.getSystemFeature(QuickShareApi.featurePrefix, QuickShareApi.feature.maxSize) || defaultMaxSize) * 1024 * 1024
 // 表单各校验器
 const validators = {
   sendCode: [Validators.maxLen(null, 20), Validators.minLen(null, 1)],
