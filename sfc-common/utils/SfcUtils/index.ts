@@ -169,6 +169,14 @@ const SfcUtils = {
   },
   getGlobalLoadingManager() {
     return globalLoadingManager
+  },
+  /**
+   * 获取系统特性信息
+   * @param prefix 配置项前缀
+   * @param key 配置项
+   */
+  getSystemFeature(prefix: string, key: string) {
+    return context.feature.value[prefix] && context.feature.value[prefix][key]
   }
 }
 

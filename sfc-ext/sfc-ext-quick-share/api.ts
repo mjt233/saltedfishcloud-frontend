@@ -4,10 +4,11 @@ import { QuickShare, QuickShareParams } from './model'
 const quickShare = {
   prefix: '/quickShare',
   feature: {
-    isEnable: 'quickshare.is-enable',
-    maxSize: 'quickshare.max-size',
-    effectiveDuration: 'quickshare.effective-duration'
+    isEnabled: 'isEnabled',
+    maxSize: 'maxSize',
+    effectiveDuration: 'effectiveDuration'
   },
+  featurePrefix: 'quickshare',
   /**
    * 上传文件分享
    * @param file 文件

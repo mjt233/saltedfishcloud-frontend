@@ -1,11 +1,11 @@
-import { BoxMenuContext, context, MenuItem } from 'sfc-common'
+import { BoxMenuContext, context, MenuItem, SfcUtils } from 'sfc-common'
 import quickShareView from './components/quick-share-view.vue'
 import QuickShareApi from './api'
 
 window.bootContext.addProcessor({
   taskName: '注册组件 - 文件快速传',
   execute(app) {
-    if (!context.feature.value[QuickShareApi.feature.isEnable]) {
+    if ( !SfcUtils.getSystemFeature(QuickShareApi.featurePrefix, QuickShareApi.feature.isEnabled) ) {
       return
     }
     app.component(quickShareView.name, quickShareView)
