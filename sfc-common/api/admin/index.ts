@@ -13,7 +13,9 @@
 
 import sys from './sys'
 import proxy from './proxy'
+import cluster from './cluster'
 export {
   sys,
-  proxy
+  proxy,
+  cluster
 }
