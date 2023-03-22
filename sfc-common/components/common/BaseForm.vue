@@ -4,6 +4,7 @@
     class="base-form"
     :style="{'--form-label-width': labelWidth, '--row-height': rowHeight}"
     :class="{'dense-form': dense}"
+    @submit.prevent
   >
     <loading-mask :loading="loading && autoLoading" />
     <slot />
