@@ -1,5 +1,5 @@
 <template>
-  <v-form ref="form" v-model="formValid">
+  <v-form ref="form" v-model="formValid" @submit.prevent>
     <v-text-field
       v-if="inputOldPassword"
       v-model="originPassword"

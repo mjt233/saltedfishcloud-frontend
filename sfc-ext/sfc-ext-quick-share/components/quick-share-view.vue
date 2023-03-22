@@ -16,15 +16,17 @@
       <VCardContent>
         <VWindow v-model="tab">
           <VWindowItem value="1">
-            <VForm ref="extractFormRef">
+            <VForm ref="extractFormRef" @submit.prevent>
               <div style="padding: 12px;">
                 <v-text-field
+                  ref="extractInput"
                   v-model="extractCode"
                   clearable
                   label="请输入文件提取码"
                   color="primary"
                   :rules="validators.extractCode"
                   variant="underlined"
+                  @keyup.enter="extract"
                 />
                 <VBtn color="primary" style="display: block;width: 100%;" @click="extract">
                   提取
@@ -33,7 +35,7 @@
             </VForm>
           </VWindowItem>
           <VWindowItem value="2">
-            <VForm ref="sendFormRef">
+            <VForm ref="sendFormRef" @submit.prevent>
               <div class="tip">
                 文件保留时长：{{ SfcUtils.getSystemFeature(QuickShareApi.featurePrefix, QuickShareApi.feature.effectiveDuration) || 30 }}分钟<br>
                 文件大小限制：{{ StringFormatter.toSize(maxSize) }}
@@ -90,6 +92,7 @@ const message = ref('')
 // 发送文件/提取文件的表单实例
 const sendFormRef = ref() 
 const extractFormRef = ref()
+const extractInput = ref() as Ref<HTMLElement>
 
 // 默认最大文件大小(MiB)
 const defaultMaxSize = 512
@@ -107,6 +110,7 @@ const validators = {
 
 // 提取文件
 const extract = async() => {
+  extractInput.value.blur()
   const res: ValidateResult = await extractFormRef.value.validate()
   if(!res.valid) {
     SfcUtils.snackbar('校验失败:' + res.errors.map(e => e.errorMessages).join(';'))
@@ -125,8 +129,9 @@ const extract = async() => {
     }
     
   } catch(err) {
-    SfcUtils.alert('获取错误: ' + err)
     console.error(err)
+    await SfcUtils.alert('获取错误: ' + err)
+    extractInput.value.focus()
   } finally {
     loading.close()
   }
