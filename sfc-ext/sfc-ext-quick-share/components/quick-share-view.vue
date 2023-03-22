@@ -154,21 +154,22 @@ const sendFile = async() => {
   try {
     const e = await SfcUtils.request(requestParam)
     const actualCode = e.data.data
-    let msgs = ['发送成功，提取码为：' + actualCode]
+    let msg = '你的提取码为：' + actualCode
     if (actualCode != sendCode.value) {
-      msgs.push('(提取码冲突，系统随机新生成)')
+      msg += '(提取码冲突，系统随机新生成)'
     }
 
-    const link = StringUtils.appendPath(location.origin, '/#/box/quick-share?code=' + actualCode)
+    const link = StringUtils.appendPath(location.origin, '/#/box/quick-share?code=' + encodeURIComponent(actualCode))
     SfcUtils.openComponentDialog(h('div', null, [
-      ...msgs.map(msg => h('div', null, msg)),
+      h('div', null, msg),
       h('div', null, [
         h('span', null, '提取链接：'),
         h('a', { class: 'link', onClick: () => { SfcUtils.copyToClipboard(link);SfcUtils.snackbar('复制成功')} }, link)
       ]),
       h('div', null, '或通过【百宝箱 - 文件极速传】功能中直接输入提取码提取')
     ]), {
-      showCancel: false
+      showCancel: false,
+      title: '发送成功'
     })
   } catch(err) {
     SfcUtils.alert('发送失败: ' + err)
@@ -182,7 +183,7 @@ const sendFile = async() => {
 const useCodeParam = async() => {
   const params = context.routeInfo.value.curr?.query
   if (params && params.code) {
-    extractCode.value = params.code as string
+    extractCode.value = decodeURIComponent(params.code as string)
     // await SfcUtils.sleep(100)
     // await SfcUtils.confirm(`检测到链接中包含分享提取码${params.code}，是否立即提取？`, '提示')
     // extract()
