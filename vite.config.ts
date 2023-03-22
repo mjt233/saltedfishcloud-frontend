@@ -1,6 +1,7 @@
 import { defineConfig, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
+import { fileURLToPath } from 'url'
 
 const path = require('path')
 
@@ -48,25 +49,15 @@ const commonConfig: UserConfigExport = {
       '/api': 'http://127.0.0.1:8087'
     }
   },
-  /* remove the need to specify .vue files https://vitejs.dev/config/#resolve-extensions
-  resolve: {
-    extensions: [
-      '.js',
-      '.json',
-      '.jsx',
-      '.mjs',
-      '.ts',
-      '.tsx',
-      '.vue',
-    ]
-  },
-  */
 }
 
 // https://vitejs.dev/config/
 export default defineConfig((configEnv) => {
-  if (configEnv.command == 'serve') {
-    env.plugins = ['']
-  }
+  // if (configEnv.command == 'serve') {
+  //   console.log('开发模式')
+  // } else {
+  //   console.log('非开发模式')
+  // }
+  console.log(import.meta.url)
   return commonConfig
 })
