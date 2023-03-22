@@ -22,12 +22,18 @@
           <VTable>
             <tbody>
               <tr>
-                <td>主机名</td>
+                <td style="min-width: 90px;">
+                  主机名
+                </td>
                 <td>{{ item.host }}</td>
               </tr>
               <tr>
                 <td>IP地址</td>
-                <td>{{ item.ip }}</td>
+                <td>
+                  <div v-for="(ip, idx) in item.ip.split(';').filter(e => e.length)" :key="idx">
+                    <span class="break-text">{{ ip }}</span>
+                  </div>
+                </td>
               </tr>
               <tr>
                 <td>JVM内存</td>
@@ -84,9 +90,21 @@ export default defineComponent({
 <style lang="scss" scoped>
 .node-card {
   min-width: 320px;
-  max-width: 520px;
-  width: 25%;
+  max-width: 640px;
+  width: 33.3%;
   margin: 6px;
   display: inline-block;
+}
+
+@media (max-width: 1024px) {
+  .node-card {
+    width: calc(50% - 12px);
+  }
+}
+
+@media (max-width: 640px) {
+  .node-card {
+    width: calc(100% - 12px);
+  }
 }
 </style>
