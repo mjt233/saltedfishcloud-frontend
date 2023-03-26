@@ -75,6 +75,7 @@
 </template>
 
 <script setup lang="ts">
+const SfcUtils = window.SfcUtils
 const props = defineProps({})
 
 // 标签页
@@ -201,7 +202,7 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { Components,Validators,ValidateResult, SfcUtils, context, StringUtils, StringFormatter } from 'sfc-common'
+import { Components,Validators,ValidateResult, context, StringUtils, StringFormatter } from 'sfc-common'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, h, onMounted } from 'vue'
 import QuickShareApi from '../api'

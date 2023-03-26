@@ -1,8 +1,8 @@
 
-import { SfcUtils } from 'sfc-common'
 import TestComponent from './TestComponent.vue'
 import * as Vue from 'vue'
 
+const SfcUtils = window.SfcUtils
 /**
  * 拓展执行案例
  */

@@ -4,8 +4,6 @@ import { VBtn } from 'vuetify/components'
 import { FileOpenHandler } from 'sfc-common/core/context/type'
 
 import { ApiRequest, FileInfo, FileListContext } from 'sfc-common/model'
-// import selectFile from './file/fileSelector'
-// import previewImage from './preview/previewImage'
 import { snackbar } from './common/SnackBar'
 import axios from 'sfc-common/plugins/axios'
 import { AxiosError, AxiosResponse } from 'axios'
@@ -125,18 +123,18 @@ const SfcUtils = {
    * @param apiConfig API配置
    */
   openApiUrl(apiConfig: any) {
-    SfcUtils.openUrl(SfcUtils.getApiUrl(apiConfig))
+    this.openUrl(this.getApiUrl(apiConfig))
   },
   openFile(ctx: FileListContext, file: FileInfo) {
     const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))
     if (handlers.length == 1) {
       handlers[0].action(ctx, file)
     } else if (handlers.length == 0) {
-      SfcUtils.snackbar('无合适的打开方式')
+      this.snackbar('无合适的打开方式')
     } else if (handlers.length == 2 && handlers[1].isDefault) {
       handlers[1].action(ctx, file)
     } else {
-      const inst = SfcUtils.openComponentDialog(FileOpenSelectorVue, {
+      const inst = this.openComponentDialog(FileOpenSelectorVue, {
         props: {
           ctx,
           file,

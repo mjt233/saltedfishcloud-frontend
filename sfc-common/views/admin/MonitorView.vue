@@ -230,8 +230,9 @@ onUnmounted(() => {
 
 <script lang="ts">
 import * as echarts from 'echarts'
-import { LoadingManager, SfcUtils, API, SystemInfo, StringFormatter, TimestampRecord } from 'sfc-common'
+import { LoadingManager, API, SystemInfo, StringFormatter, TimestampRecord } from 'sfc-common'
 import { VEChart } from 'sfc-common/components'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, reactive } from 'vue'
 
 export default defineComponent({

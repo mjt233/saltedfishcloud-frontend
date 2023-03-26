@@ -1,7 +1,8 @@
-import { BoxMenuContext, context, MenuItem, SfcUtils } from 'sfc-common'
+import { BoxMenuContext, context, MenuItem } from 'sfc-common'
 import quickShareView from './components/quick-share-view.vue'
 import QuickShareApi from './api'
 
+const SfcUtils = window.SfcUtils
 window.bootContext.addProcessor({
   taskName: '注册组件 - 文件快速传',
   execute(app) {
