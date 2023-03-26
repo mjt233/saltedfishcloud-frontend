@@ -1,4 +1,4 @@
-import { BgOption } from '../context'
+import { BgOption } from 'sfc-common'
 
 /**
  * 系统支持的特性

@@ -1,5 +1,5 @@
 import { BootLoaderVue } from 'sfc-common/components/common/BootLoader'
-import { BootContextHandler } from './../model/Common'
+import { BootContextHandler } from 'sfc-common/model/Common'
 import { buildApp } from './AppFactory'
 
 const bootApp = buildApp(BootLoaderVue)

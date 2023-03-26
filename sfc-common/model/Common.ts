@@ -237,6 +237,14 @@ export interface BootContext {
 }
 
 /**
+ * 和时间戳关联的记录数据
+ */
+export interface TimestampRecord<T> {
+  timestamp: string
+  data: T
+}
+
+/**
  * 启动流程上下文操作器，用于调整启动流程中的各项数据
  */
 export interface BootContextHandler {
