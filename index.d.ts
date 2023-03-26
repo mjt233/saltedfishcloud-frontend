@@ -15,6 +15,7 @@ import * as MethodInterceptor from 'sfc-common/utils/MethodInterceptor'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringFormatter'
 import * as SfcCommon from 'sfc-common'
+import * as echarts from 'echarts'
 
 declare global {
   interface Window {
@@ -31,6 +32,7 @@ declare global {
     MethodInterceptor: typeof MethodInterceptor,
     StringFormatter: typeof StringFormatter,
     StringUtils: typeof StringUtils,
-    SfcCommon: typeof SfcCommon
+    SfcCommon: typeof SfcCommon,
+    echarts: typeof echarts
   }
 }
