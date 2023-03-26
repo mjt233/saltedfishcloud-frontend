@@ -12,6 +12,7 @@ import DOMUtils from 'sfc-common/utils/DOMUtils'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import * as SfcCommon from 'sfc-common'
+import * as echarts from 'echarts'
 
 
 /**
@@ -31,5 +32,6 @@ window.MethodInterceptor = MethodInterceptor
 window.StringFormatter = StringFormatter
 window.StringUtils = StringUtils
 window.SfcCommon = SfcCommon
+window.echarts = echarts
 
 export {}
