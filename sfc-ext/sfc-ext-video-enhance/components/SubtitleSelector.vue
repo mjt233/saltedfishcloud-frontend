@@ -20,7 +20,6 @@ const props = defineProps({
 </script>
 
 <script lang="ts">
-import { VRadio, VRadioGroup } from 'vuetify/components'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StreamInfo } from '../model'
 

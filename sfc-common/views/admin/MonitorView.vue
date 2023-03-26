@@ -1,6 +1,25 @@
 <template>
   <div style="padding: 12px">
     <LoadingMask :loading="loading" />
+    <div class="text-h5 text-primary" style="margin-bottom: 12px">
+      运行信息
+    </div>
+    <VRow>
+      <VCol>
+        <VCard title="选项">
+          <VCardContent>
+            <FormSelect
+              v-model="curNodeId"
+              style="width: 280px;"
+              :items="nodeItems"
+              placeholder="选择节点"
+              hide-details
+              @change="loadAllWithLoading"
+            />
+          </VCardContent>
+        </VCard>
+      </VCol>
+    </VRow>
     <VRow>
       <VCol>
         <VCard title="系统基础信息" style="height: 100%">
@@ -70,6 +89,9 @@ const loading = loadingManager.getLoadingRef()
 
 let stopAutoRefresh = false
 
+const nodeItems = ref([]) as Ref<SelectOption[]>
+const curNodeId = ref()
+
 const curInfo = ref({
   os: '加载中',
   cpuLoad: 0,
@@ -90,10 +112,21 @@ const chartsOption = reactive({
 
 const actions = {
   async loadCurInfo() {
-    curInfo.value = (await SfcUtils.request(API.admin.sys.getCurSystemInfo())).data.data
+    curInfo.value = (await SfcUtils.request(API.admin.sys.getCurSystemInfo(curNodeId.value))).data.data
   },
   async loadInfoList() {
-    infoList.value = (await SfcUtils.request(API.admin.sys.listSystemInfo())).data.data
+    infoList.value = (await SfcUtils.request(API.admin.sys.listSystemInfo(curNodeId.value))).data.data
+  },
+  async loadNodeList() {
+    nodeItems.value = (await SfcUtils.request(API.admin.cluster.listNodes())).data.data.map(node => {
+      return {
+        title: node.host,
+        value: node.id
+      }
+    })
+    if (!curNodeId.value && nodeItems.value && nodeItems.value.length > 0) {
+      curNodeId.value = nodeItems.value[0].value
+    }
   }
 }
 
@@ -193,34 +226,33 @@ const updateChart = () => {
   }])
   // chartsOption.rangeMemoryLoad = getRangeChartOption('内存负载', infoList.value.map(item => [Number(item.timestamp), item.data.memoryUsedRate]))
 }
-onMounted(async() => {
-  loadingManager.beginLoading()
-  try {
-    await Promise.all([
-      actions.loadCurInfo(),
-      actions.loadInfoList()
-    ])
-    updateChart()
+const loadAll = async() => {
+  await Promise.all([
+    actions.loadCurInfo(),
+    actions.loadInfoList(),
+    actions.loadNodeList()
+  ])
+  updateChart()
+}
 
-    const autoRefresh = async() => {
-      if(stopAutoRefresh) {
-        return
-      }
-      await Promise.all([
-        actions.loadCurInfo(),
-        actions.loadInfoList()
-      ])
-      updateChart()
-      setTimeout(autoRefresh, 5000)
-    }
-
-    autoRefresh()
-
-  } catch(err) {
-    SfcUtils.snackbar(err)
-  } finally {
-    loadingManager.closeLoading()
+const loadAllWithLoading = async() => {
+  if (loading.value) {
+    return
   }
+  loadingManager.beginLoading()
+  loadAll().finally(() => loadingManager.closeLoading())
+}
+onMounted(async() => {
+  loadAllWithLoading()
+  const autoRefresh = async() => {
+    if(stopAutoRefresh) {
+      return
+    }
+    await loadAll()
+    setTimeout(autoRefresh, 5000)
+  }
+  setTimeout(autoRefresh, 5000)
+  
 })
 
 onUnmounted(() => {
@@ -230,14 +262,14 @@ onUnmounted(() => {
 
 <script lang="ts">
 import * as echarts from 'echarts'
-import { LoadingManager, API, SystemInfo, StringFormatter, TimestampRecord } from 'sfc-common'
-import { VEChart } from 'sfc-common/components'
+import { LoadingManager, API, SystemInfo, StringFormatter, TimestampRecord, SelectOption, MethodInterceptor } from 'sfc-common'
+import { FormSelect, VEChart } from 'sfc-common/components'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, reactive } from 'vue'
 
 export default defineComponent({
   name: 'MonitorView',
-  components: { VEChart }
+  components: { VEChart, FormSelect }
 })
 </script>
 
