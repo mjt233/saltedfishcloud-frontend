@@ -1,0 +1,1 @@
+export { default as VEChart } from './VEChart.vue'

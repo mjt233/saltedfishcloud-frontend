@@ -1,6 +1,7 @@
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
-import { CommonRequest, SystemOverview } from 'sfc-common/model'
+import { CommonRequest, SystemOverview, TimestampRecord } from 'sfc-common/model'
 import { NameValueType, PluginConfigNodeInfo } from 'sfc-common/model'
+import { SystemInfo } from 'sfc-common/model/SystemInfo'
 // /**
 //  * @typedef {Object} ProxyInfo
 //  * @property {String} name
@@ -13,6 +14,22 @@ const sys = {
   restart(): CommonRequest {
     return {
       url: `${this.prefix}/restart`
+    }
+  },
+  /**
+   * 获取系统当前信息
+   */
+  getCurSystemInfo(): CommonRequest<SystemInfo> {
+    return {
+      url: `${this.prefix}/getCurSystemInfo`
+    }
+  },
+  /**
+   * 列出系统一段连续时间范围内的信息
+   */
+  listSystemInfo(): CommonRequest<TimestampRecord<SystemInfo>[]> {
+    return {
+      url: `${this.prefix}/listSystemInfo`
     }
   },
   /**

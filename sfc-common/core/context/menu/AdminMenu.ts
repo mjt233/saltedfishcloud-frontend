@@ -3,6 +3,7 @@ import AdminOverviewVue from 'sfc-common/views/admin/AdminOverview.vue'
 import ClusterManagerVue from 'sfc-common/views/admin/ClusterManager.vue'
 import { h } from 'vue'
 import { MenuGroup } from './type'
+import MonitorView from 'sfc-common/views/admin/MonitorView.vue'
 export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
   return [
     {
@@ -20,6 +21,15 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
       icon: 'mdi-cloud',
       action(ctx) {
         ctx.component = h(ClusterManagerVue)
+      },
+      items: []
+    },
+    {
+      id: 'monitor',
+      name: '运行信息',
+      icon: 'mdi-monitor-dashboard',
+      action(ctx) {
+        ctx.component = h(MonitorView)
       },
       items: []
     }

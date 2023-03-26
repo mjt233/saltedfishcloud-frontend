@@ -1,4 +1,4 @@
-import { BootContextHandler } from './../model/Common'
+import { BootContextHandler } from 'sfc-common'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { App } from 'vue'
