@@ -1,3 +1,4 @@
+import { IdType } from './../../model/Common'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { CommonRequest, SystemOverview, TimestampRecord } from 'sfc-common/model'
 import { NameValueType, PluginConfigNodeInfo } from 'sfc-common/model'
@@ -18,18 +19,26 @@ const sys = {
   },
   /**
    * 获取系统当前信息
+   * @param nodeId 指定集群节点id
    */
-  getCurSystemInfo(): CommonRequest<SystemInfo> {
+  getCurSystemInfo(nodeId?: IdType): CommonRequest<SystemInfo> {
     return {
-      url: `${this.prefix}/getCurSystemInfo`
+      url: `${this.prefix}/getCurSystemInfo`,
+      params: {
+        nodeId
+      }
     }
   },
   /**
    * 列出系统一段连续时间范围内的信息
+   * @param nodeId 指定集群节点id
    */
-  listSystemInfo(): CommonRequest<TimestampRecord<SystemInfo>[]> {
+  listSystemInfo(nodeId?: IdType): CommonRequest<TimestampRecord<SystemInfo>[]> {
     return {
-      url: `${this.prefix}/listSystemInfo`
+      url: `${this.prefix}/listSystemInfo`,
+      params: {
+        nodeId
+      }
     }
   },
   /**
