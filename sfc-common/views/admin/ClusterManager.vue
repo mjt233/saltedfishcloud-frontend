@@ -78,7 +78,8 @@ onMounted(() => {
 import API from 'sfc-common/api'
 import { CommonIcon, LoadingMask } from 'sfc-common/components'
 import { ClusterNodeInfo } from 'sfc-common/model'
-import { LoadingManager, MethodInterceptor, SfcUtils, StringFormatter } from 'sfc-common/utils'
+import { LoadingManager, MethodInterceptor, StringFormatter } from 'sfc-common/utils'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
 
 export default defineComponent({

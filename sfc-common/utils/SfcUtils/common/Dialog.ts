@@ -1,4 +1,4 @@
-import { TextInputModel } from './../../../core/model/component/FormModel'
+import { TextInputModel } from 'sfc-common/model/component/FormModel'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { DialogModel } from 'sfc-common/model/component/DialogModel'
 import { ref, reactive, h, Ref, toRefs, VNode, DefineComponent, ComponentPublicInstance } from 'vue'

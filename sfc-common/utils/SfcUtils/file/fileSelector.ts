@@ -57,19 +57,4 @@ export function selectPath(param: FileSelectParam): Promise<string> {
       title
     })
   })
-  // return new Promise((resolve, reject) => {
-  //   dialog({
-  //     children: () => h(FileBrowser, propsAttr),
-  //     onConfirm() {
-  //       resolve(propsAttr.path)
-  //       return true
-  //     },
-  //     onCancel() {
-  //       reject('cancel')
-  //       return true
-  //     },
-  //     title,
-  //     fullscreen
-  //   })
-  // })
 }
