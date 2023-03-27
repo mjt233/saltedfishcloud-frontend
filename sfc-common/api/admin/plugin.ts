@@ -1,7 +1,16 @@
-import { CommonRequest, IdType, PluginInfo, PluginInfoVo } from 'sfc-common/model'
+import { ApiRequest, CommonRequest, IdType, PluginInfo, PluginInfoVo } from 'sfc-common/model'
 
 const plugin = {
   prefix: '/plugin',
+  /**
+   * 下载插件
+   * @param name 插件名称
+   */
+  getPlugin(name: string): ApiRequest<any> {
+    return {
+      url: `${this.prefix}/getPlugin?name=${name}`,
+    }
+  },
   /**
    * 获取系统中所有能识别出的可用的插件
    */

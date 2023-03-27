@@ -18,6 +18,7 @@
         :plugin-info="item"
         :read-only="false"
         @delete="actions.deletePlugin"
+        @download="actions.download"
       />
     </GridContainer>
   </div>
@@ -91,6 +92,13 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
     pluginList.value = (await SfcUtils.request(API.plugin.listAvailablePlugins())).data.data
     return pluginList.value
+  },
+  /**
+   * 下载插件
+   * @param plugin 插件信息
+   */
+  download(plugin: PluginInfo) {
+    SfcUtils.openApiUrl(API.plugin.getPlugin(plugin.name))
   },
   /**
    * 删除插件

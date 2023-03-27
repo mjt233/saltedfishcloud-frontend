@@ -44,6 +44,12 @@
       </div>
     </VCardContent>
     <VCardActions v-if="showActions" class="justify-end">
+      <VBtn color="primary" @click="download">
+        <div class="d-flex align-center">
+          <VIcon icon="mdi-download" color="primary" />
+          从服务器下载
+        </div>
+      </VBtn>
       <VBtn color="error" @click="deleteConfirm">
         <div class="d-flex align-center">
           <VIcon icon="mdi-delete" color="error" />
@@ -78,10 +84,14 @@ const props = defineProps({
     default: true
   }
 })
-const emits = defineEmits(['delete'])
+const emits = defineEmits(['delete', 'download'])
 const deleteConfirm = async() => {
   await SfcUtils.confirm('确定要删除该插件吗？', '删除确认')
   emits('delete', props.pluginInfo)
+}
+
+const download = () => {
+  emits('download', props.pluginInfo)
 }
 
 const pluginTypeStr = computed(() => {
