@@ -52,9 +52,10 @@ const sys = {
   /**
    * 获取系统总览信息
    */
-  getOverviewInfo(): CommonRequest<SystemOverview> {
+  getOverviewInfo(nodeId?: IdType): CommonRequest<SystemOverview> {
     return {
-      url: `${this.prefix}/overview`
+      url: `${this.prefix}/overview`,
+      params: { nodeId }
     }
   },
   /**
