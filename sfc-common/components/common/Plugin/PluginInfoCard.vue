@@ -121,7 +121,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .plugin-item {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
   width: 360px;
 }
 </style>
