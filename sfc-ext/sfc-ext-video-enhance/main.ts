@@ -1,5 +1,4 @@
-import { FileOpenHandler, MenuGroup, MenuItem } from '@/core/context'
-import { FileInfo, FileListContext, ResourceRequest } from '@/core/model'
+import { FileOpenHandler, MenuGroup, MenuItem,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
 import { EncodeConvertRule, VideoInfo } from './model'
 import './boot'
@@ -8,6 +7,7 @@ import VideoConvertForm from './components/VideoConvertForm.vue'
 import { VEAPI } from './api'
 import { h } from 'vue'
 import EncodeConvertTask from './components/EncodeConvertTask.vue'
+import VideoEnhanceCheck from './components/VideoEnhanceCheck.vue'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -230,5 +230,12 @@ if (originPlayerIndex != -1) {
 }
 
 context.menu.value.fileListMenu.push(videoMenu)
+
+window.bootContext.addProcessor({
+  taskName: '注册组件-video-enhance',
+  execute(app) {
+    app.component(VideoEnhanceCheck.name, VideoEnhanceCheck)
+  }
+})
 
 export {}

@@ -24,6 +24,15 @@ export namespace VEAPI {
   }
 
   /**
+   * 检查插件是否配置正确
+   */
+  export function check() {
+    return {
+      url: '/video/check'
+    }
+  }
+
+  /**
    * 获取视频编码转换任务列表
    * @param uid 用户id
    * @param status 任务状态，0 - 等待中，1 - 运行中，2 - 完成，3 - 失败
