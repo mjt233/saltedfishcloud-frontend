@@ -8,12 +8,11 @@
       <VCol>
         <VCard title="选项">
           <VCardContent>
-            <FormSelect
+            <ClusterSelector
+              ref="selectorRef"
               v-model="curNodeId"
+              :auto-load="false"
               style="width: 280px;"
-              :items="nodeItems"
-              placeholder="选择节点"
-              hide-details
               @change="loadAllWithLoading"
             />
           </VCardContent>
@@ -89,8 +88,8 @@ const loading = loadingManager.getLoadingRef()
 
 let stopAutoRefresh = false
 
-const nodeItems = ref([]) as Ref<SelectOption[]>
 const curNodeId = ref()
+const selectorRef = ref()
 
 const curInfo = ref({
   os: '加载中',
@@ -118,15 +117,10 @@ const actions = {
     infoList.value = (await SfcUtils.request(API.admin.sys.listSystemInfo(curNodeId.value))).data.data
   },
   async loadNodeList() {
-    nodeItems.value = (await SfcUtils.request(API.admin.cluster.listNodes())).data.data.map(node => {
-      return {
-        title: node.host,
-        value: node.id
-      }
-    })
-    if (!curNodeId.value && nodeItems.value && nodeItems.value.length > 0) {
-      curNodeId.value = nodeItems.value[0].value
-    }
+    const nodeItems = await selectorRef.value.loadList()
+    // if (!curNodeId.value && nodeItems && nodeItems.length > 0) {
+    //   curNodeId.value = nodeItems[0].value
+    // }
   }
 }
 
@@ -224,7 +218,6 @@ const updateChart = () => {
     name: 'CPU负载',
     data: infoList.value.map(item => [Number(item.timestamp), item.data.cpuLoad.toFixed(0)])
   }])
-  // chartsOption.rangeMemoryLoad = getRangeChartOption('内存负载', infoList.value.map(item => [Number(item.timestamp), item.data.memoryUsedRate]))
 }
 const loadAll = async() => {
   await Promise.all([
@@ -263,13 +256,13 @@ onUnmounted(() => {
 <script lang="ts">
 import * as echarts from 'echarts'
 import { LoadingManager, API, SystemInfo, StringFormatter, TimestampRecord, SelectOption, MethodInterceptor } from 'sfc-common'
-import { FormSelect, VEChart } from 'sfc-common/components'
+import { ClusterSelector, FormSelect, VEChart } from 'sfc-common/components'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, reactive } from 'vue'
 
 export default defineComponent({
   name: 'MonitorView',
-  components: { VEChart, FormSelect }
+  components: { VEChart, ClusterSelector }
 })
 </script>
 
