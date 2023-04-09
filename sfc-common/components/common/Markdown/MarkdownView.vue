@@ -11,6 +11,10 @@ const props = defineProps({
   content: {
     type: String,
     default: ''
+  },
+  resourceParams: {
+    type: Object as PropType<ResourceRequest>,
+    default: undefined
   }
 })
 const rootRef = ref() as Ref<HTMLElement>
@@ -46,6 +50,36 @@ const renderATag = () => {
 }
 
 /**
+ * 替换相对路径的图片url，相对路径需要使用通用资源获取API
+ */
+const replaceUrl = () => {
+  if (!props.resourceParams) {
+    return
+  }
+  const imgTags: NodeListOf<HTMLImageElement> = rootRef.value.querySelectorAll('img')
+  imgTags.forEach(el => {
+    let src = el.getAttribute('src')
+    if (src && src.startsWith('./')) {
+      const params = {...props.resourceParams} as ResourceRequest
+      const nameArr = src.replace(/^\.\/+/, '').replace(/\/+$/, '').split('/')
+      const fileName = nameArr.pop() || ''
+      const filePath = nameArr.join('/')
+      params.path = StringUtils.appendPath(props.resourceParams?.path || '/', filePath)
+      params.name = fileName
+      const newSrc = SfcUtils.getApiUrl(API.resource.getCommonResource(params))
+      el.setAttribute('src', newSrc)
+      el.setAttribute('title', params.name)
+      el.setAttribute('file-name', params.name)
+    }
+  })
+}
+
+// 监听资源参数变化，实时更新url
+watch(() => props.resourceParams, () => {
+  replaceUrl()
+}, { deep: true})
+
+/**
  * 给图片添加点击动作，进入看图模式
  */
 const addImgClickAction = () => {
@@ -54,7 +88,7 @@ const addImgClickAction = () => {
   // 构造文件列表，并设置图片title
   aTags.forEach(el => {
     const url = new URL(el.src)
-    const fileName = ((url.pathname || '').split('/').pop()) as string
+    const fileName = el.getAttribute('file-name') || ((url.pathname || '').split('/').pop()) as string
     el.title = fileName
     fileList.push({
       name: fileName,
@@ -104,6 +138,7 @@ const update = async() => {
   html.value = md.render(props.content || '')
   await nextTick()
   renderATag()
+  replaceUrl()
   addImgClickAction()
 }
 onMounted(update)
@@ -118,7 +153,8 @@ import 'highlight.js/styles/atom-one-dark.css'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
-import { FileInfo } from 'sfc-common/model'
+import { FileInfo, ResourceRequest } from 'sfc-common/model'
+import { API, StringUtils } from 'sfc-common/index'
 
 export default defineComponent({
   name: 'MarkdownView'

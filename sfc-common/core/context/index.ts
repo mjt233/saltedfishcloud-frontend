@@ -1,3 +1,4 @@
+import { AppMenu } from './menu/type.d'
 import { AppContext, FileClipBoard, VisiableWindows } from './type'
 import { defaultFileListMenu, defaultMainMenu } from './menu'
 import { reactive, Ref, toRefs, ToRefs } from 'vue'
@@ -25,10 +26,10 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   theme: 'default',
   originTheme: 'default',
   menu: {
-    mainMenu: defaultMainMenu,
-    fileListMenu: defaultFileListMenu,
-    fileBrowserBtn: defaultFileBrowserTopBtns,
-    boxMenu: defaultBoxMenu
+    mainMenu: {} as AppMenu,
+    fileListMenu: [],
+    fileBrowserBtn: [],
+    boxMenu: []
   },
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,
@@ -50,9 +51,17 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   }
 }))
 
+const initContext = () => {
+  context.menu.value.fileListMenu = defaultFileListMenu
+  context.menu.value.mainMenu = defaultMainMenu
+  context.menu.value.fileBrowserBtn = defaultFileBrowserTopBtns
+  context.menu.value.boxMenu = defaultBoxMenu
+}
+
 
 export {
-  context
+  context,
+  initContext
 }
 
 export * from './menu/type'

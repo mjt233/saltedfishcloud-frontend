@@ -1,3 +1,5 @@
+import { computed, reactive } from 'vue'
+import { context, ResourceRequest } from 'sfc-common'
 import { openFileEditDialog } from './codeEdit'
 
 import SfcUtils from 'sfc-common/utils/SfcUtils'
@@ -26,7 +28,16 @@ const handler: FileOpenHandler = {
       readOnly: ctx.readonly,
       style: {
         height: '100%'
-      }
+      },
+      resourceParams: computed(() => {
+        return {
+          name: '',
+          path: ctx.path,
+          protocol: ctx.protocol,
+          targetId: ctx.uid,
+          ...ctx.getProtocolParams()
+        } as ResourceRequest
+      }).value
     }, url, ctx, file)
   }
 }

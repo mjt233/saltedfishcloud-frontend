@@ -3,6 +3,7 @@ import bootContext from 'sfc-common/core/boot'
 import { buildApp } from 'sfc-common/core/boot/AppFactory'
 import 'sfc-common/core/boot/globalmount'
 import App from 'sfc-common/App.vue'
+import { initContext } from 'sfc-common'
 
 
 async function start() {
@@ -18,4 +19,5 @@ async function start() {
   bootContext.start(buildApp(App))
 }
 
+initContext()
 start()

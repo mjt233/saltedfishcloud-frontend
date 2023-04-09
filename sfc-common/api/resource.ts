@@ -15,6 +15,20 @@ const resource = {
     }
   },
   /**
+   * 通用资源上传接口
+   * @param param 通用上传参数
+   * @param file 文件
+   */
+  uploadCommonResource(param: ResourceRequest, file: File): CommonRequest {
+    const fd = new FormData()
+    fd.set('file', file)
+    return {
+      url: `${this.prefix}/0/upload?` + qs.stringify(param),
+      method: 'put',
+      data: fd
+    }
+  },
+  /**
    * 获取文件资源的jpg缩略图
    * @param md5 文件资源的md5
    * @param type 源资源类型（拓展名）
