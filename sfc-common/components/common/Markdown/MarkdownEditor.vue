@@ -46,7 +46,7 @@ const curMarkdownText = ref('')
 
 const updateMarkdownText = MethodInterceptor.createThrottleProxy(
   MethodInterceptor.wrapFun((value: string) => { curMarkdownText.value = value}),
-  { afterExecute: true, delay: 300 }
+  { afterExecute: true }
 )
 
 watch(() => props.modelValue, () => {
