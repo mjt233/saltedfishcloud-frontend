@@ -133,7 +133,6 @@ import LoadingMask from './LoadingMask.vue'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { FileListModel } from 'sfc-common/model/component/FileListModel'
-import FormGrid from '../layout/FormGrid.vue'
 const rootWrapRef = ref() as Ref<HTMLElement>
 const props = defineProps({
   path: {

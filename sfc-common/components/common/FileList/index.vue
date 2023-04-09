@@ -136,7 +136,7 @@
           </tr>
         </tbody>
       </v-table>
-      <empty-tip v-if="type == 'grid' && fileList.length == 0" style="position: absolute;width: 100%;" />
+      <empty-tip v-if="type == 'grid' && fileList.length == 0" />
       <!-- grid类型的文件显示 -->
       <grid-container
         v-if="type == 'grid'"
@@ -166,6 +166,7 @@
         :style="readmeViewStyle"
         class="readme-content"
         :content="readme"
+        :resource-params="listResourceParams"
       />
     </template>
   </resize-container>
@@ -248,6 +249,20 @@ const scrollAnchor = computed(() => {
 const updateReadmeMaxHeight = () => {
   readmeViewMaxHeight.value = props.height ? (props.height + 'px') : 'auto'
 }
+
+// 该列表的文件资源通用操作参数
+const listResourceParams = computed(() => {
+  const params = {
+    name: '',
+    path: props.path,
+    protocol: fileListContext.protocol,
+    targetId: fileListContext.uid,
+    ...fileListContext.getProtocolParams()
+  } as ResourceRequest
+  console.log(params)
+  return params
+})
+
 watch(() => props.height, () => {
   updateReadmeMaxHeight()
 })
@@ -522,7 +537,7 @@ defineExpose({
 
 <script lang="ts">
 import { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandler'
-import { FileListContext,FileInfo } from 'sfc-common/model'
+import { FileListContext,FileInfo, ResourceRequest } from 'sfc-common/model'
 import { defineExpose ,defineComponent, Ref, reactive, inject, watch, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
 import { SelectResult } from 'sfc-common/model/component/SelectArea'
 import { loadMDToHtml } from './MarkdownLoader'

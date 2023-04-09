@@ -1,4 +1,4 @@
-import { FileTransferInfo, SearchFileInfo } from './../core/model/FileInfo'
+import { FileTransferInfo, SearchFileInfo } from 'sfc-common'
 import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
@@ -24,6 +24,20 @@ const file = {
         path: path,
         name: name,
         md5: md5
+      }
+    }
+  },
+  /**
+   * 获取文件信息
+   * @param uid 用户id
+   * @param path 文件所在目录路径
+   * @param name 文件名
+   */
+  getFileInfo(uid: IdType, path: string, name: string): CommonRequest<FileInfo | null> {
+    return {
+      url: `${this.prefix}/${uid}/getFileInfo`,
+      params: {
+        path,name
       }
     }
   },

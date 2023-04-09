@@ -49,7 +49,7 @@ const props = defineProps({
     default: true
   }
 })
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue', 'patseImage'])
 const workerMap = {
   jsonWorker,
   htmlWorker,
@@ -106,6 +106,46 @@ const growHeight = () => {
   }
 }
 
+/**
+ * 监听编辑器粘贴处理
+ */
+const listenPaste = () => {
+  let range: monaco.Range
+  editor.onDidPaste(e => {
+    range = e.range
+  })
+
+  editorRef.value.addEventListener('paste', e => {
+    const items = e.clipboardData?.items
+    if (items?.length) {
+      const file = items[0].getAsFile()
+      if (file && file.type.includes('image')) {
+        emits('patseImage', file)
+        editor.executeEdits('', [{
+          range: range,
+          text: ''
+        }])
+      }
+    }
+  })
+}
+
+/**
+ * 在编辑器当前光标处插入文本（外部方法）
+ * @param text 待插入的文本
+ */
+const insertText =  async(text: string) => {
+  const position = editor.getPosition()
+  if (position) {
+    editor.executeEdits('', [{
+      range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+      text: text
+    }])
+    await SfcUtils.sleep(100)
+    editor.focus()
+  }
+}
+
 onMounted(async() => {
   editor = monaco.editor.create(editorRef.value, {
     language: props.language,
@@ -125,11 +165,16 @@ onMounted(async() => {
   })
   await nextTick()
   editor.layout({ height: 100, width: 100 })
+  listenPaste()
 })
 
 onUnmounted(() => {
   editor.dispose()
 })
+
+defineExpose({
+  insertText
+} as CodeEditorExpose)
 
 
 </script>
@@ -143,6 +188,8 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import typescriptWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { context } from 'sfc-common/core/context'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
+import { CodeEditorExpose } from 'sfc-common/model/component/CodeEditorModel'
 
 export default defineComponent({
   name: 'CodeEditor'

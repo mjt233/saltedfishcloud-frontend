@@ -16,6 +16,8 @@ export interface FileSelectParam {
     filter?: (file: FileInfo) => boolean
 
     fullscreen?: boolean
+
+    readOnly?: boolean
     
 }
 
@@ -24,7 +26,7 @@ export interface FileSelectParam {
  * @param param 选择参数
  */
 export function selectPath(param: FileSelectParam): Promise<string> {
-  const { path, uid, title = '选择目录', filter = (e) => e.dir, fullscreen = false } = param
+  const { path, uid, title = '选择目录', filter = (e) => e.dir, fullscreen = false, readOnly = true } = param
 
   // 我也不知道为什么要用computed，反正不用computed的话，这个handler的方法调用时，内部的this.uid通通变成number类型而不是Ref类型...
   // 我好没本领.jpg :(
@@ -40,8 +42,10 @@ export function selectPath(param: FileSelectParam): Promise<string> {
     style: {
       height: '80vh'
     },
-    autoComputeHeight: false,
-    useSelect: false
+    autoComputeHeight: true,
+    compensateHeight: -108,
+    useSelect: false,
+    readOnly
   })
   return new Promise((resolve, reject) => {
     openComponentDialog(FileBrowser, {
@@ -54,7 +58,10 @@ export function selectPath(param: FileSelectParam): Promise<string> {
         reject('cancel')
         return true
       },
-      title
+      title,
+      extraDialogOptions: {
+        maxWidth: '720px'
+      }
     })
   })
 }

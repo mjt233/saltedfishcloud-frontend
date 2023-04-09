@@ -1,7 +1,7 @@
 import { defineConfig, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
-import { fileURLToPath } from 'url'
+// import Components from 'unplugin-vue-components/vite'
 
 const path = require('path')
 
