@@ -11,27 +11,32 @@ import * as components from 'sfc-common/components'
 import DOMUtils from 'sfc-common/utils/DOMUtils'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-import * as SfcCommon from 'sfc-common'
+// import * as SfcCommon from 'sfc-common'
 import * as echarts from 'echarts'
 
 
 /**
  * 挂载全局属性
  */
-context.routeInfo.value.router = router
-window.context = context
-window.Vue = Vue
-window.SfcUtils = SfcUtils
-window.API = API
-window.DPlayer = DPlayer as any
-window.bootContext = bootContext
-window.FormUtils = FormUtils
-window.components = components
-window.DOMUtils = DOMUtils
-window.MethodInterceptor = MethodInterceptor
-window.StringFormatter = StringFormatter
-window.StringUtils = StringUtils
-window.SfcCommon = SfcCommon
-window.echarts = echarts
 
-export {}
+function mountGlobalAttr() {
+  context.routeInfo.value.router = router
+  window.context = context
+  window.Vue = Vue
+  window.SfcUtils = SfcUtils
+  window.API = API
+  window.DPlayer = DPlayer as any
+  window.bootContext = bootContext
+  window.FormUtils = FormUtils
+  window.components = components
+  window.DOMUtils = DOMUtils
+  window.MethodInterceptor = MethodInterceptor
+  window.StringFormatter = StringFormatter
+  window.StringUtils = StringUtils
+  // window.SfcCommon = SfcCommon
+  window.echarts = echarts
+}
+
+export {
+  mountGlobalAttr
+}
