@@ -207,6 +207,7 @@ export default defineComponent({
   }
 
   .markdown-code {
+    font-family: 'Consolas';
     background-color: rgb(30, 30, 30);
     color: rgb(212, 212, 212);
     border-radius: 6px;
