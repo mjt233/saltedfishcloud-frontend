@@ -259,7 +259,6 @@ const listResourceParams = computed(() => {
     targetId: fileListContext.uid,
     ...fileListContext.getProtocolParams()
   } as ResourceRequest
-  console.log(params)
   return params
 })
 

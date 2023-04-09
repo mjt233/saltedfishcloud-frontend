@@ -178,7 +178,6 @@ const formInst = defineForm({
         uploadStatus.uploading = true
         const conf = API.collection.submit(props.cid, props.vid, formData, file.value[0])
         conf.onUploadProgress = (e: Prog) => {
-          console.log(e)
           uploadStatus.total = e.total
           uploadStatus.loaded = e.loaded
         }

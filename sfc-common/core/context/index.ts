@@ -21,7 +21,7 @@ const defaultFeature: SystemFeature = {
   darkTheme: false
 }
 
-const context: ToRefs<AppContext> = toRefs(reactive({
+var context: ToRefs<AppContext> = toRefs(reactive({
   appTitle: '咸鱼云网盘',
   theme: 'default',
   originTheme: 'default',
@@ -51,7 +51,7 @@ const context: ToRefs<AppContext> = toRefs(reactive({
   }
 }))
 
-const initContext = () => {
+var initContext = () => {
   context.menu.value.fileListMenu = defaultFileListMenu
   context.menu.value.mainMenu = defaultMainMenu
   context.menu.value.fileBrowserBtn = defaultFileBrowserTopBtns
