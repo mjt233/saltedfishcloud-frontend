@@ -24,7 +24,7 @@
           </v-radio-group>
         </form-col>
         <form-col top-label label="路径">
-          <TextInput v-model="formData.path" />
+          <TextInput v-model="formData.path" :rules="validators.path" />
           <VBtn
             v-if="formData.location == '2'"
             size="small"
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { CommonForm, context, defineForm } from 'sfc-common'
+import { CommonForm, context, defineForm, FormFieldType, Validators } from 'sfc-common'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 const formRef = ref() as Ref<CommonForm>
 const emits = defineEmits(['submit'])
@@ -62,9 +62,9 @@ let inited = false
 
 const getDefaultConfig = () => ({
   location: '1',
-  path: '/',
+  path: './',
   alwayConfirm: true
-})
+} as ImagePatseOption)
 
 const initConfig = async() => {
   const localConfig = localStorage.getItem(CONFIG_KEY)
@@ -104,7 +104,22 @@ const formInst = defineForm({
   },
   formData: getDefaultConfig() as ImagePatseOption,
   formRef: formRef,
-  validators: {},
+  validators: {
+    path: [
+      Validators.notNull('路径不能为空'),
+      (e:FormFieldType) => {
+        if (formData.location == '1' && !formData.path.startsWith('./')) {
+          return '使用当前路径时必须以"./"开头'
+        } else if (formData.location == '2' && formData.path.startsWith('./')) {
+          return '使用指定路径时不能以"./"开头'
+        }
+        if (formData.path.indexOf('../') >= 0 || formData.path.indexOf('/../') >= 0 || formData.path.match(/\.\.$/) || formData.path == '..' ) {
+          return '路径不能包含..'
+        }
+        return true
+      }
+    ]
+  },
   throwError: true
 })
 const { formData, actions, validators, loadingRef, loadingManager  } = formInst
