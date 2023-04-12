@@ -1,7 +1,7 @@
 <template>
   <ResizeContainer>
     <div style="height: 100%;">
-      <div v-if="!readOnly" class="tool-bar">
+      <div v-if="!readOnly && resourceParams" class="tool-bar">
         <div v-ripple @click="openConfig">
           <VIcon icon="mdi-cog" />
         </div>
@@ -145,7 +145,7 @@ const patseImage = async(file: File) => {
     return
   }
   if (!props.resourceParams) {
-    SfcUtils.alert('未配置图片上传参数')
+    SfcUtils.alert('不支持直接粘贴图片')
     return
   }
   // 获取粘贴配置
