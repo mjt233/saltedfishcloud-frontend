@@ -31,7 +31,8 @@ const openEdit = () => {
       },
       'onUpdate:modelValue'(e: string) {
         editing.value = e
-      }
+      },
+      readOnly: props.readOnly
     },
     fullscreen: true,
     persistent: true,
