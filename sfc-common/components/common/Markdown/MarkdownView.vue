@@ -17,8 +17,8 @@ const props = defineProps({
     default: undefined
   }
 })
-// const rootRef = ref() as Ref<HTMLElement>
-let tempRoot: HTMLDivElement
+const rootRef = ref() as Ref<HTMLElement>
+let tempRoot: HTMLElement
 const md = new MarkdownIt({
   html: true,
   typographer: true,
@@ -36,48 +36,52 @@ const md = new MarkdownIt({
     return `<div class="markdown-code">${result}</div>`
   }
 })
-// 渲染a标签，使用md样式
-const renderATag = () => {
-  const aTags = tempRoot.querySelectorAll('a')
-  aTags.forEach(el => {
-    if(!el.classList.contains('link')) {
-      el.classList.add('link')
-    }
-    if(!el.classList.contains('break-text')) {
-      el.classList.add('break-text')
-    }
-    el.target = '_blank'
-  })
+
+const tokenVisitor = (token: Token, visitor: (token:Token) => void) => {
+  if (token.children) {
+    token.children.forEach(c => tokenVisitor(c, visitor))
+  }
+  visitor(token)
 }
 
-/**
- * 替换相对路径的图片url，相对路径需要使用通用资源获取API
- */
-const replaceUrl = () => {
-  if (!props.resourceParams) {
-    return
-  }
-  const imgTags: NodeListOf<HTMLImageElement> = tempRoot.querySelectorAll('img')
-  imgTags.forEach(el => {
-    let src = el.getAttribute('src')
-    if (src && src.startsWith('./') && !el.getAttribute('file-name')) {
-      const params = {...props.resourceParams} as ResourceRequest
-      const nameArr = src.replace(/^\.\/+/, '').replace(/\/+$/, '').split('/')
-      const fileName = nameArr.pop() || ''
-      const filePath = nameArr.join('/')
-      params.path = StringUtils.appendPath(props.resourceParams?.path || '/', filePath)
-      params.name = fileName
-      const newSrc = SfcUtils.getApiUrl(API.resource.getCommonResource(params))
-      el.setAttribute('src', newSrc)
-      el.setAttribute('title', params.name)
-      el.setAttribute('file-name', params.name)
-    }
+// 相对路径替换规则，将相对路径图片访问url替换为统一资源访问接口的url
+md.core.ruler.push('replace_img_url', (state) => {
+  state.tokens.forEach(rootToken => {
+    tokenVisitor(rootToken, token => {
+      if (token.tag == 'img') {
+        const originSrc = token.attrGet('src')
+        if (!originSrc || !originSrc.startsWith('./') ) {
+          return
+        }
+
+        const params = {...props.resourceParams} as ResourceRequest
+        const nameArr = originSrc.replace(/^\.\/+/, '').replace(/\/+$/, '').split('/')
+        const fileName = nameArr.pop() || ''
+        const filePath = nameArr.join('/')
+        params.path = StringUtils.appendPath(props.resourceParams?.path || '/', filePath)
+        params.name = fileName
+        const newSrc = SfcUtils.getApiUrl(API.resource.getCommonResource(params))
+        token.attrSet('src', newSrc)
+        token.attrSet('file-name', params.name)
+      }
+    })
   })
-}
+  return true
+})
+
+// 超链接替换规则，添加默认样式
+md.core.ruler.push('render_href_style', state => {
+  state.tokens.forEach(rootToken => tokenVisitor(rootToken, token => {
+    if (token.tag == 'a' && token.type == 'link_open') {
+      token.attrSet('class', 'link break-text')
+      token.attrSet('target', '_blank')
+    }
+  }))
+})
+
 
 // 监听资源参数变化，实时更新url
 watch(() => props.resourceParams, () => {
-  replaceUrl()
   if (tempRoot) {
     html.value = tempRoot.innerHTML
   }
@@ -141,13 +145,10 @@ const addImgClickAction = () => {
 const html = ref('')
 const update = async() => {
   const tempHtml = md.render(props.content || '')
-  tempRoot = document.createElement('div')
-  tempRoot.innerHTML = tempHtml
+  tempRoot = rootRef.value
+  html.value = tempHtml
   await nextTick()
-  renderATag()
-  replaceUrl()
   addImgClickAction()
-  // html.value = tempRoot.innerHTML
 }
 onMounted(update)
 
@@ -163,6 +164,8 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
 import { API, StringUtils } from 'sfc-common/index'
+import StateCore from 'markdown-it/lib/rules_core/state_core'
+import Token from 'markdown-it/lib/token'
 
 export default defineComponent({
   name: 'MarkdownView'
