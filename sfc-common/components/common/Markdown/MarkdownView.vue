@@ -17,7 +17,8 @@ const props = defineProps({
     default: undefined
   }
 })
-const rootRef = ref() as Ref<HTMLElement>
+// const rootRef = ref() as Ref<HTMLElement>
+let tempRoot: HTMLDivElement
 const md = new MarkdownIt({
   html: true,
   typographer: true,
@@ -37,7 +38,7 @@ const md = new MarkdownIt({
 })
 // 渲染a标签，使用md样式
 const renderATag = () => {
-  const aTags = rootRef.value.querySelectorAll('a')
+  const aTags = tempRoot.querySelectorAll('a')
   aTags.forEach(el => {
     if(!el.classList.contains('link')) {
       el.classList.add('link')
@@ -56,10 +57,10 @@ const replaceUrl = () => {
   if (!props.resourceParams) {
     return
   }
-  const imgTags: NodeListOf<HTMLImageElement> = rootRef.value.querySelectorAll('img')
+  const imgTags: NodeListOf<HTMLImageElement> = tempRoot.querySelectorAll('img')
   imgTags.forEach(el => {
     let src = el.getAttribute('src')
-    if (src && src.startsWith('./')) {
+    if (src && src.startsWith('./') && !el.getAttribute('file-name')) {
       const params = {...props.resourceParams} as ResourceRequest
       const nameArr = src.replace(/^\.\/+/, '').replace(/\/+$/, '').split('/')
       const fileName = nameArr.pop() || ''
@@ -77,13 +78,17 @@ const replaceUrl = () => {
 // 监听资源参数变化，实时更新url
 watch(() => props.resourceParams, () => {
   replaceUrl()
+  if (tempRoot) {
+    html.value = tempRoot.innerHTML
+  }
+  
 }, { deep: true})
 
 /**
  * 给图片添加点击动作，进入看图模式
  */
 const addImgClickAction = () => {
-  const aTags: NodeListOf<HTMLImageElement> = rootRef.value.querySelectorAll('img')
+  const aTags: NodeListOf<HTMLImageElement> = tempRoot.querySelectorAll('img')
   const fileList: FileInfo[] = []
   // 构造文件列表，并设置图片title
   aTags.forEach(el => {
@@ -135,11 +140,14 @@ const addImgClickAction = () => {
 }
 const html = ref('')
 const update = async() => {
-  html.value = md.render(props.content || '')
+  const tempHtml = md.render(props.content || '')
+  tempRoot = document.createElement('div')
+  tempRoot.innerHTML = tempHtml
   await nextTick()
   renderATag()
   replaceUrl()
   addImgClickAction()
+  // html.value = tempRoot.innerHTML
 }
 onMounted(update)
 
@@ -166,15 +174,31 @@ export default defineComponent({
   padding: 6px;
   >* {
     margin: 6px 0;
+    margin-bottom: 16px;
+  }
+  code {
+    font-family: Menlo,Monaco,Consolas,'Courier New',monospace;
+    font-size: .85em !important;
+    color: rgb(var(--v-theme-primary));
+    background-color: rgba(var(--v-theme-background), .6);
+    border-radius: 3px;
   }
 
-  ul {
-    margin-left: 20px;
+  ul,ol {
+    margin-left: 2em;
   }
 
   h1,h2,h3,h4,h5,h6 {
     margin: 18px 0 12px 0;
+    font-weight: 600;
+    padding-bottom: 0.3em;
   }
+
+  h1 { font-size: 2.25em; }
+  h2 { font-size: 1.75em; padding-bottom: 0.3em; }
+  h3 { font-size: 1.5em; }
+  h4 { font-size: 1.25em; }
+  h5 { font-size: 1em; }
 
   hr {
     position: relative;
@@ -207,11 +231,12 @@ export default defineComponent({
   }
 
   .markdown-code {
-    font-family: 'Consolas';
+    font-family: Menlo,Monaco,Consolas,'Courier New',monospace;
     background-color: rgb(30, 30, 30);
     color: rgb(212, 212, 212);
     border-radius: 6px;
-    padding: 6px;
+    padding: 12px;
+    margin-bottom: 0;
     // width: 100%;
   }
 }
