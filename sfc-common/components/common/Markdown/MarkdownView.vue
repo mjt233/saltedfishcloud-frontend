@@ -37,6 +37,11 @@ const md = new MarkdownIt({
   }
 })
 
+/**
+ * markdown token访问器，通过访问函数对token自身及其所有子token进行遍历，免去重复编写递归遍历代码
+ * @param token 原始根token
+ * @param visitor token访问处理函数
+ */
 const tokenVisitor = (token: Token, visitor: (token:Token) => void) => {
   if (token.children) {
     token.children.forEach(c => tokenVisitor(c, visitor))
@@ -78,6 +83,13 @@ md.core.ruler.push('render_href_style', state => {
     }
   }))
 })
+
+// 标记对应的markdown行数
+md.core.ruler.push('scroll_flag', state => state.tokens.forEach(e => tokenVisitor(e, token => {
+  if (token.map?.length && token.tag?.length) {
+    token.attrSet('line', token.map[0] + '')
+  }
+})))
 
 
 // 监听资源参数变化，实时更新url
@@ -164,7 +176,6 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
 import { API, StringUtils } from 'sfc-common/index'
-import StateCore from 'markdown-it/lib/rules_core/state_core'
 import Token from 'markdown-it/lib/token'
 
 export default defineComponent({

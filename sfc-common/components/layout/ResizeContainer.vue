@@ -24,7 +24,7 @@
           .<br>.<br>.<br>
         </div>
       </div>
-      <div style="width: 100%;overflow: auto;">
+      <div ref="resizeableRef" style="width: 100%;overflow: auto;scroll-behavior:smooth">
         <slot name="resizeable" />
       </div>
     </div>
@@ -57,6 +57,11 @@ const resizeableStyle =  computed(() => {
     '--width-offset': widthOffset.value
   } as StyleValue 
 })
+
+// 右侧可伸缩大小的容器引用
+const resizeableRef = ref() as Ref<HTMLElement>
+
+const emits = defineEmits(['right-scroll'])
 
 
 /**
@@ -96,10 +101,30 @@ const spacerTouchStart = (e: TouchEvent | MouseEvent) => {
   window.addEventListener('touchmove', moveAction)
 }
 
+const addScrollListener = () => {
+  resizeableRef.value?.addEventListener('scroll', e => {
+    emits('right-scroll', e)
+  })
+}
+
+onMounted(() => {
+  addScrollListener()
+})
+
+defineExpose({
+  /**
+   * 获取右侧弹性容器DOM
+   */
+  getRightDOM() {
+    return resizeableRef.value
+  }
+})
+watch(() => props.hideRight, addScrollListener)
+
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, StyleValue } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, StyleValue, onMounted, watch } from 'vue'
 
 export default defineComponent({
   name: 'ResizeContainer'
