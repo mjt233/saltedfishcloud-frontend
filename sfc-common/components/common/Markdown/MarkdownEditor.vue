@@ -111,7 +111,7 @@ const viewScroll = (e: Event) => {
   viewFlagTimer = setTimeout(() => {
     viewInScroll = false
     viewFlagTimer = null
-  }, 100)
+  }, 1500)
   
 }
 
@@ -125,7 +125,7 @@ const jumpToViewLine = (line: number) => {
     const mdEls = el.querySelectorAll('.markdown>*')
     Array.from(mdEls).find(e => {
       const elLine = e.getAttribute('line')
-      if (elLine && parseInt(elLine) >= line) {
+      if (elLine && (parseInt(elLine)) >= line) {
         el.scrollTop = (e as HTMLElement).offsetTop - 128
         return true
       } else {
@@ -282,7 +282,7 @@ onMounted(() => {
     timer = setTimeout(() => {
       editorInScroll = false
       timer = null
-    }, 100)
+    }, 1500)
   })
 })
 </script>
