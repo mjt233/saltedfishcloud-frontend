@@ -173,7 +173,9 @@ onUnmounted(() => {
 })
 
 defineExpose({
-  insertText
+  insertText,
+  getEditor: () => editor,
+  jumpToLine: (line: number) => editor.revealLineNearTop(line)
 } as CodeEditorExpose)
 
 

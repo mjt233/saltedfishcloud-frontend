@@ -1,5 +1,5 @@
 <template>
-  <ResizeContainer>
+  <ResizeContainer ref="containerRef" @right-scroll="viewScroll">
     <div style="height: 100%;">
       <div v-if="!readOnly && resourceParams" class="tool-bar">
         <div v-ripple @click="openConfig">
@@ -20,12 +20,13 @@
       />
     </div>
     <template #resizeable>
-      <MarkdownView :content="curMarkdownText" :resource-params="resourceParams" />
+      <MarkdownView ref="viewRef" :content="curMarkdownText" :resource-params="resourceParams" />
     </template>
   </ResizeContainer>
 </template>
 
 <script setup lang="ts">
+const containerRef = ref()
 const editor = ref() as Ref<CodeEditorModel>
 const props = defineProps({
   modelValue: {
@@ -42,20 +43,19 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['update:modelValue'])
+const viewRef = ref() as Ref<ComponentPublicInstance>
 const curMarkdownText = ref('')
+
+// 视图主动滚动
+let viewInScroll = false
+
+// 编辑器主动滚动
+let editorInScroll = false
 
 const updateMarkdownText = MethodInterceptor.createThrottleProxy(
   MethodInterceptor.wrapFun((value: string) => { curMarkdownText.value = value}),
   { afterExecute: true }
 )
-
-watch(() => props.modelValue, () => {
-  updateMarkdownText.invoke(props.modelValue)
-})
-onMounted(() => {
-  curMarkdownText.value = props.modelValue
-})
-
 const modelValueChange = (value: string) => {
   emits('update:modelValue', value)
   updateMarkdownText.invoke(value)
@@ -77,6 +77,62 @@ const openConfig = () => {
       return false
     }
   })
+}
+
+let viewFlagTimer: any
+/**
+ * 右侧预览界面滚动
+ * @param e 滚动事件
+ */
+const viewScroll = (e: Event) => {
+  if (editorInScroll) {
+    return
+  }
+  viewInScroll = true
+
+  const el = (e.target as HTMLElement)
+  const mdEls = el.querySelectorAll('.markdown>*')
+  const len = mdEls.length
+  const top = el.scrollTop
+  for(let i = 0; i < len; i++) {
+    const offsetTop = (mdEls[i] as HTMLElement).offsetTop
+    if (offsetTop >= top) {
+      const line = mdEls[i].getAttribute('line')
+      if (line !== undefined && line !== null) {
+        editor.value.jumpToLine(parseInt(line))
+        break 
+      }
+    }
+  }
+  if (viewFlagTimer != null) {
+    clearTimeout(viewFlagTimer)
+  }
+
+  viewFlagTimer = setTimeout(() => {
+    viewInScroll = false
+    viewFlagTimer = null
+  }, 100)
+  
+}
+
+/**
+ * 转跳到视图的源代码对应的行数位置
+ * @param line 源代码行数
+ */
+const jumpToViewLine = (line: number) => {
+  const el = containerRef.value?.getRightDOM() as HTMLElement
+  if (el) {
+    const mdEls = el.querySelectorAll('.markdown>*')
+    Array.from(mdEls).find(e => {
+      const elLine = e.getAttribute('line')
+      if (elLine && parseInt(elLine) >= line) {
+        el.scrollTop = (e as HTMLElement).offsetTop - 128
+        return true
+      } else {
+        return false
+      }
+    })
+  }
 }
 
 /**
@@ -202,6 +258,33 @@ const patseImage = async(file: File) => {
 }
 
 
+
+watch(() => props.modelValue, () => {
+  updateMarkdownText.invoke(props.modelValue)
+})
+onMounted(() => {
+  curMarkdownText.value = props.modelValue
+  const monacoEditor = editor.value.getEditor()
+  let timer: any
+  monacoEditor.onDidScrollChange(e => {
+    if (viewInScroll) {
+      return
+    }
+    const ranges = monacoEditor.getVisibleRanges()
+    if (ranges.length) {
+      jumpToViewLine(ranges[0].startLineNumber)
+    }
+    editorInScroll = true
+    
+    if (timer != null) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      editorInScroll = false
+      timer = null
+    }, 100)
+  })
+})
 </script>
 
 <script lang="ts">
@@ -209,7 +292,7 @@ import { CodeEditorModel } from 'sfc-common/model/component/CodeEditorModel'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import MarkdownImagePatseFormVue from './MarkdownImagePatseForm.vue'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, reactive } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, reactive, ComponentPublicInstance } from 'vue'
 import MarkdownImagePatseConfirmForm from './MarkdownImagePatseConfirmForm.vue'
 import { ImagePatseOption } from './type'
 import { StringFormatter, StringUtils } from 'sfc-common/utils'
