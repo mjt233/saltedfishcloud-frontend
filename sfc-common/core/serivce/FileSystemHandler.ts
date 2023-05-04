@@ -2,7 +2,7 @@ import { DiskFileUploadService, fileUploadTaskManager } from './FileUpload'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { Ref } from 'vue'
-import { FileInfo, IdType } from '../model'
+import { FileInfo, IdType } from 'sfc-common/model'
 import { ShareInfo } from 'sfc-common/api/share'
 import { ShareService } from './ShareService'
 

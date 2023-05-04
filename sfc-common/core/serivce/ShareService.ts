@@ -9,7 +9,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { h } from 'vue'
 import { VBtn } from 'vuetify/components'
-import { FileInfo } from '../model'
+import { FileInfo } from 'sfc-common/model'
 
 export interface CreateShareFormConfig {
   /** 用户id */
