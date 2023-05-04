@@ -20,7 +20,7 @@ import FileBrowser from '../../FileBrowser.vue'
 const props = defineProps({
   shareInfo: {
     type: Object as PropType<ShareInfo>,
-    default: undefined
+    default() { return{} }
   },
   autoComputeHeight: {
     type: Boolean,
@@ -31,6 +31,16 @@ const props = defineProps({
     default: -24
   }
 })
+const path = ref('/')
+provide('protocolParams', () => ({
+  id: props.shareInfo.id,
+  name: props.shareInfo.name,
+  path: path.value,
+  targetId: props.shareInfo.id,
+  protocol: 'share',
+  vid: props.shareInfo.verification,
+  code: props.shareInfo.extractCode
+}))
 
 const handler = computed(() => {
   return FileSystemHandlerFactory.getShareFileSystemhandler(props.shareInfo as ShareInfo)
@@ -119,11 +129,10 @@ const toolButtons: MenuGroup<FileListContext>[] = [
     }
   }
 ]
-const path = ref('/')
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, provide } from 'vue'
 import { ShareInfo } from 'sfc-common/api/share'
 import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHandler'
 import { MenuGroup } from 'sfc-common/core/context'
