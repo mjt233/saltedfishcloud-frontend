@@ -1,7 +1,7 @@
 <template>
   <file-browser
     v-if="shareInfo?.type == 'DIR'"
-    v-model:path="path"
+    :path="path"
     :file-system-handler="handler"
     :uid="shareInfo.uid"
     read-only
@@ -12,6 +12,7 @@
     :tool-buttons="toolButtons"
     :top-button-min-width="'120px'"
     preview-readme
+    @update:path="emits('update:path', $event)"
   />
 </template>
 
@@ -29,13 +30,16 @@ const props = defineProps({
   compensateHeight: {
     type: Number,
     default: -24
+  },
+  path: {
+    type: String,
+    default: '/'
   }
 })
-const path = ref('/')
 provide('protocolParams', () => ({
   id: props.shareInfo.id,
   name: props.shareInfo.name,
-  path: path.value,
+  path: props.path,
   targetId: props.shareInfo.id,
   protocol: 'share',
   vid: props.shareInfo.verification,
@@ -45,6 +49,8 @@ provide('protocolParams', () => ({
 const handler = computed(() => {
   return FileSystemHandlerFactory.getShareFileSystemhandler(props.shareInfo as ShareInfo)
 })
+
+const emits = defineEmits(['update:path'])
 
 /**
  * 执行打包下载

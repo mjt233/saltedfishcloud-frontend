@@ -55,9 +55,9 @@ export namespace StringUtils {
    * 对URL字符串的每个节点进行一次URL编码转换
    * @param {String} input 表示资源路径的字符串
    */
-   export function encodeURLPath(input: string) {
-     return input.split('/').map(e => encodeURIComponent(e)).join('/').replace(/\/\/+/g, '/')
-   }
+  export function encodeURLPath(input: string) {
+    return input.split('/').map(e => encodeURIComponent(e)).join('/').replace(/\/\/+/g, '/')
+  }
   /**
    * 将多个路径拼接为一个路径（自动添加/或不添加/）
    * @param  {...String} path 待拼接的路径
@@ -82,6 +82,35 @@ export namespace StringUtils {
       }
     })
     return res
+  }
+
+  /**
+   * 在一个基础路径上解析一个相对路径，返回解析后的结果。
+   * 如：basePath: /a/b/c pattern: ../../123 结果为: /a/123
+   * @param basePath 基础路径
+   * @param pattern 待解析路径
+   */
+  export function resolveUrlRelativePath(basePath: string, pattern: string) {
+    const pathArr = basePath.split('/').filter(e => e.length)
+    if (basePath.startsWith('/')) {
+      pathArr.unshift('')
+    }
+    const patternArr = pattern.replaceAll(/^\.\//g, '/')
+      .replaceAll(/\/\.\//g,'/')
+      .split('/')
+    patternArr.forEach(node => {
+      if (!node.length) {
+        return
+      }
+      if (node == '..') {
+        if (pathArr.length) {
+          pathArr.pop()
+        }
+      } else {
+        pathArr.push(node)
+      }
+    })
+    return pathArr.join('/')
   }
 
   /**

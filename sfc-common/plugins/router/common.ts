@@ -80,6 +80,13 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
       meta: {
         allowNoLogin: true
       }
+    },
+    {
+      path: '/s/:sid/:vid/:paths*',
+      component: () => import('sfc-common/views/common/FileShareView.vue'),
+      meta: {
+        allowNoLogin: true
+      }
     }
   ]
 }

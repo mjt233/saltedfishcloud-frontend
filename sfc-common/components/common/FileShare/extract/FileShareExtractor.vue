@@ -40,6 +40,8 @@
           <file-share-dir-browser
             v-if="shareInfo.type == 'DIR'"
             :share-info="shareInfo"
+            :path="path"
+            @update:path="emits('update:path', $event)"
           />
           <file-share-file-extractor v-if="shareInfo.type == 'FILE'" :share-info="shareInfo" />
         </v-card-content>
@@ -79,8 +81,13 @@ const props = defineProps({
   extractCode: {
     type: String,
     default: undefined
+  },
+  path: {
+    type: String,
+    default: '/'
   }
 })
+const emits = defineEmits(['update:path'])
 provide('protocol', 'share')
 provide('protocolParams', () => {
   return {

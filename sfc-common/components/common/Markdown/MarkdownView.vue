@@ -17,7 +17,14 @@ const props = defineProps({
     default: undefined
   }
 })
+
+/**
+ * 超链接转跳替换函数
+ */
+const hrefReplacer = inject('hrefReplacer', (href: string | null) => href)
+
 const rootRef = ref() as Ref<HTMLElement>
+
 let tempRoot: HTMLElement
 const md = new MarkdownIt({
   html: true,
@@ -79,7 +86,13 @@ md.core.ruler.push('render_href_style', state => {
   state.tokens.forEach(rootToken => tokenVisitor(rootToken, token => {
     if (token.tag == 'a' && token.type == 'link_open') {
       token.attrSet('class', 'link break-text')
-      token.attrSet('target', '_blank')
+      const href = token.attrGet('href')
+      const newHref = hrefReplacer(href)
+      token.attrSet('href', newHref || '')
+
+      if (!href || !href.startsWith('.')) {
+        token.attrSet('target', '_blank')
+      }
     }
   }))
 })
@@ -171,7 +184,7 @@ watch(() => props.content, update)
 import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import 'highlight.js/styles/atom-one-dark.css'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick, inject } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
