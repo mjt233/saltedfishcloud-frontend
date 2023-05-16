@@ -47,6 +47,13 @@ const props = defineProps({
   wordWrap: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 文本发生变化时自动滚动到底部
+   */
+  autoToScrollBottom: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['update:modelValue', 'patseImage'])
@@ -161,6 +168,14 @@ onMounted(async() => {
   })
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
+    if (props.autoToScrollBottom) {
+      const height = editor.getLayoutInfo().height
+      const top = editor.getBottomForLineNumber(Number.MAX_VALUE)
+      const theBottomPositionTop = top - height
+      editor.setScrollPosition({
+        scrollTop: theBottomPositionTop <= 0 ? 0 : theBottomPositionTop
+      })
+    }
     growHeight()
   })
   await nextTick()

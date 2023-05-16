@@ -3,8 +3,55 @@ import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from 'sfc
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 
-// const { useJsonBody } = require('sfc-common/utils/FormUtils/CommonFormUtils')
-// const StringUtils = require('sfc-common/utils/StringUtils')
+/**
+ * 创建文件在线压缩的异步任务
+ */
+export interface AsyncCompressParam {
+  /**
+   * 文件源用户id
+   */
+  sourceUid: IdType
+
+  /**
+   * 源目录路径
+   */
+  sourcePath: string
+
+  /**
+   * 源文件名（相对目录路径下的直接一级文件名）
+   */
+  sourceNames: string[]
+
+  /**
+   * 压缩文件输出到的用户id
+   */
+  targetUid: IdType
+
+  /**
+   * 输出文件的完整路径
+   */
+  targetFilePath: string
+
+  /**
+   * 压缩参数
+   */
+  archiveParam: {
+    /**
+     * 类型，目前只支持zip
+     */
+    type: string
+
+    /**
+     * 文件名编码
+     */
+    encoding: string
+  }
+
+  /**
+   * 是否等待完成
+   */
+  waitExit: boolean
+}
 
 const file = {
   prefix: 'diskFile',
@@ -76,6 +123,17 @@ const file = {
       url: `/${this.prefix}/${uid}/compress`,
       method: 'post',
       data: fileTransferObj
+    })
+  },
+  /**
+   * 以异步任务的方式在网盘中创建压缩文件
+   * @param param 压缩参数
+   */
+  asyncCompress(param: AsyncCompressParam): CommonRequest<number> {
+    return useJsonBody({
+      url: `/${this.prefix}/0/asyncCompress`,
+      data: param,
+      method: 'post'
     })
   },
   /**

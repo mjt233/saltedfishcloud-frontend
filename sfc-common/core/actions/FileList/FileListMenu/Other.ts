@@ -1,13 +1,16 @@
+import { VBtn } from 'vuetify/components'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 
 import { FileClipBoard, FileClipBoardType } from 'sfc-common/core/context/type'
 import { FileListContext, FileTransferParam } from 'sfc-common/model'
-import { reactive } from 'vue'
+import { defineComponent, h, reactive } from 'vue'
 import { context } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
+import { WebSocketService } from 'sfc-common/core/serivce/WebSocketService'
+import LogView from 'sfc-common/components/common/LogView.vue'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -104,6 +107,8 @@ const otherGroup: MenuGroup<FileListContext> =
         return ctx.selectFileList.length != 0
       },
       async action(ctx) {
+        let ws: WebSocket | undefined = undefined
+        let isFinish:boolean = false
         try {
           // 选择文件
           const path = await SfcUtils.selectPath({
@@ -127,12 +132,73 @@ const otherGroup: MenuGroup<FileListContext> =
             ]
           })
 
-          // 执行压缩
-          await SfcUtils.request(API.file.compress(ctx.uid, {
-            source: ctx.path,
-            filenames: ctx.selectFileList.map(e => e.name),
-            dest: StringUtils.appendPath(path, name)
+          // 发起异步任务
+          const taskInfo = await SfcUtils.request(API.file.asyncCompress({
+            sourceUid: ctx.uid,
+            sourceNames: ctx.selectFileList.map(e => e.name),
+            sourcePath: ctx.path,
+            targetFilePath: StringUtils.appendPath(path, name),
+            targetUid: ctx.uid,
+            archiveParam: {
+              type: 'zip',
+              encoding: context.feature.value.archiveEncoding
+            },
+            waitExit: false
           }))
+
+          // 连接任务日志消息推送
+          try {
+            const logProp = reactive({
+              logText: '',
+              style: {
+                minHeight: '70vh',
+                height: '1px'
+              }
+            })
+            ws = await WebSocketService.connect({
+              onMessage(response) {
+                logProp.logText += `${response.data}\n`
+              }
+            })
+            WebSocketService.subscribeAsyncTaskLog(ws, taskInfo.data.data)
+            SfcUtils.openComponentDialog(LogView, {
+              props: logProp,
+              title: '在线压缩',
+              extraDialogOptions: {
+                maxWidth: '1200px'
+              },
+              showConfirm: false,
+              async onCancel() {
+                if (!isFinish) {
+                  SfcUtils.beginLoading()
+                  try {
+                    await SfcUtils.request(API.asyncTask.interrupt(taskInfo.data.data))
+                    SfcUtils.snackbar('已发送中断信号')
+                    return false
+                  } catch (err) {
+                    console.error(err)
+                    SfcUtils.snackbar(err)
+                    return false
+                  } finally {
+                    SfcUtils.closeLoading()
+                  }
+                } else {
+                  return true
+                }
+              },
+              persistent: true
+            })
+          } catch (err) {
+            console.error(err)
+            SfcUtils.alert('出错' + err)
+          }
+
+          // 等待任务完成
+          while (!isFinish) {
+            isFinish = (await SfcUtils.request(API.asyncTask.waitTaskExit(taskInfo.data.data))).data.data
+          }
+          
+
 
           // 原地保存时刷新
           if (path == ctx.path) {
@@ -141,6 +207,12 @@ const otherGroup: MenuGroup<FileListContext> =
         } catch(err) {
           if (err != 'cancel') {
             return Promise.reject(err)
+          }
+        } finally {
+          if (ws) {
+            SfcUtils.sleep(5000).then(() => {
+              ws?.close()
+            })
           }
         }
       }
