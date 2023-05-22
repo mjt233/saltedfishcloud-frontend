@@ -25,7 +25,7 @@
       </template>
       <template #tbody="{ fileInfo }">
         <td @click="emits('click-parent', fileInfo as SearchFileInfo)">
-          <a class="link"> {{ (fileInfo as SearchFileInfo).parent }}</a>
+          <a class="link"> {{ (fileInfo as SearchFileInfo).parent || '/' }}</a>
         </td>
       </template>
     </file-list>
@@ -82,6 +82,7 @@ watch(curPage, () => {
 })
 defineExpose({
   getListContext() {
+    listRef.value.context.fileList = searchResult.list
     return listRef.value.context
   }
 })
