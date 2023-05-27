@@ -166,7 +166,7 @@
         :style="readmeViewStyle"
         class="readme-content"
         :content="readme"
-        :resource-params="listResourceParams"
+        :resource-params="{...listResourceParams, isCache: true}"
       />
     </template>
   </resize-container>
