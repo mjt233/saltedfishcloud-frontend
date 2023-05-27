@@ -6,6 +6,7 @@
       :model-value="logType == 'text' ? logText : logArr.join('\n')"
       :use-mini-map="false"
       :auto-to-scroll-bottom="true"
+      hide-line-number
     />
   </div>
 </template>

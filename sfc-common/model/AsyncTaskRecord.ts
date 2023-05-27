@@ -1,4 +1,15 @@
 import { AuditModel } from './Common'
+const AsyncTaskRecordStatusDict = {
+  0: '等待中',
+  1: '执行中',
+  2: '执行成功',
+  3: '执行失败',
+  4: '已取消',
+  5: '任务离线'
+}
+export {
+  AsyncTaskRecordStatusDict
+}
 
 /**
  * 系统通用异步任务
@@ -40,7 +51,7 @@ export interface AsyncTaskRecord extends AuditModel {
   executor: string
 
   /**
-   * 任务状态，0 - 等待中，1 - 执行中，2 - 执行成功，3 - 执行失败，4 - 已取消
+   * 任务状态，0 - 等待中，1 - 执行中，2 - 执行成功，3 - 执行失败，4 - 已取消，5 - 任务离线
    */
-  status: 0 | 1 | 2 | 3 | 4
+  status: 0 | 1 | 2 | 3 | 4 | 5
 }

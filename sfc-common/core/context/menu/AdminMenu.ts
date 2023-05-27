@@ -1,6 +1,7 @@
 import { AdminContext } from './type.d'
 import AdminOverviewVue from 'sfc-common/views/admin/AdminOverview.vue'
 import ClusterManagerVue from 'sfc-common/views/admin/ClusterManager.vue'
+import AdminAsyncTaskView from 'sfc-common/views/admin/AdminAsyncTaskView.vue'
 import { h } from 'vue'
 import { MenuGroup } from './type'
 import MonitorView from 'sfc-common/views/admin/MonitorView.vue'
@@ -32,6 +33,15 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
         ctx.component = h(MonitorView)
       },
       items: []
+    },
+    {
+      id: 'async-task',
+      name: '后台任务',
+      icon: 'mdi-calendar-text-outline',
+      items: [],
+      action(ctx) {
+        ctx.component = h(AdminAsyncTaskView)
+      }
     }
     // {
     //   id: 'plugin-manager',

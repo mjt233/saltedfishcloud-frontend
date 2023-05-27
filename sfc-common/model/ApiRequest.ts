@@ -15,6 +15,12 @@ export interface ApiRequest<T> extends AxiosRequestConfig {
  */
 export type CommonRequest<T=null> = ApiRequest<JsonResult<T>>
 
+export interface CommonPageRequestParam {
+  size: number
+
+  page: number
+}
+
 /**
  * 数据分页查询结果信息
  */
