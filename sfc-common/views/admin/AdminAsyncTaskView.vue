@@ -34,33 +34,43 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(record, index) in queryResult.content" :key="record.id">
+          <tr v-for="(task, index) in queryResult.content" :key="task.id">
             <td>{{ index + 1 + (page - 1 )* size }}</td>
-            <td>{{ record.name }}</td>
-            <td>{{ record.status == 0 ? '[-]' : record.executor }}</td>
+            <td>{{ task.name }}</td>
+            <td>{{ task.status == 0 ? '[-]' : task.executor }}</td>
             <td>
               <div class="tip">
-                <div>发布于: {{ StringFormatter.toDate(record.createAt) }}</div>
-                <div v-if="record.status != 0 && record.executeDate" class="status-text-1">
-                  执行于: {{ StringFormatter.toDate(record.executeDate) }}
+                <div>发布于: {{ StringFormatter.toDate(task.createAt) }}</div>
+                <div v-if="task.status != 0 && task.executeDate" class="status-text-1">
+                  执行于: {{ StringFormatter.toDate(task.executeDate) }}
                 </div>
-                <div v-if="record.status == 2" class="status-text-2">
-                  完成于: {{ StringFormatter.toDate(record.finishDate) }}
+                <div v-if="task.status == 2" class="status-text-2">
+                  完成于: {{ StringFormatter.toDate(task.finishDate) }}
                 </div>
-                <div v-if="(record.status == 3 || record.status == 4) && record.failedDate" class="status-text-3">
-                  失败于: {{ StringFormatter.toDate(record.failedDate) }}
+                <div v-if="(task.status == 3 || task.status == 4) && task.failedDate" class="status-text-3">
+                  失败于: {{ StringFormatter.toDate(task.failedDate) }}
                 </div>
               </div>
             </td>
-            <td><span :class="`status-text-${record.status}`">{{ AsyncTaskRecordStatusDict[record.status] || record.status }}</span></td>
+            <td><span :class="`status-text-${task.status}`">{{ AsyncTaskRecordStatusDict[task.status] || task.status }}</span></td>
             <td>
               <CommonIcon
-                v-if="record.status != 0"
+                v-if="task.status != 0"
                 v-ripple
+                title="查看任务详情"
                 class="simple-icon-btn"
                 color="primary"
                 icon="mdi-eye"
-                @click="actions.showLog(record)"
+                @click="actions.showLog(task)"
+              />
+              <CommonIcon
+                v-if="[0,1,5].includes(task.status)"
+                v-ripple
+                title="中断任务"
+                class="simple-icon-btn"
+                color="error"
+                icon="mdi-stop"
+                @click="interruptTask(task)"
               />
             </td>
           </tr>
@@ -108,8 +118,21 @@ const actions = MethodInterceptor.createAsyncActionProxy({
         maxWidth: '1280px'
       }
     })
+  },
+  async interruptTask(task: AsyncTaskRecord) {
+    return await SfcUtils.request(API.asyncTask.interrupt(task.id))
   }
 }, false, loadingManager)
+
+/**
+ * 中断执行中或待执行的任务
+ * @param task 任务
+ */
+const interruptTask = (task: AsyncTaskRecord) => {
+  SfcUtils.confirm('确定要中断该任务执行吗？', '中断确认')
+    .then(() => actions.interruptTask(task))
+    .then(actions.loadData)
+}
 
 watch(page, actions.loadData)
 watch(size, actions.loadData)
@@ -121,7 +144,7 @@ import { CommonIcon } from 'sfc-common/components'
 import AsyncTaskInfo from 'sfc-common/components/common/AsyncTask/AsyncTaskInfo.vue'
 import CommonPagination from 'sfc-common/components/common/CommonPagination.vue'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
-import { API, CommonPageInfo } from 'sfc-common/index'
+import { API, CommonPageInfo, IdType } from 'sfc-common/index'
 import { AsyncTaskRecord, AsyncTaskRecordStatusDict } from 'sfc-common/model/AsyncTaskRecord'
 import { LoadingManager, MethodInterceptor, StringFormatter } from 'sfc-common/utils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
@@ -153,6 +176,7 @@ export default defineComponent({
   display: inline-block;
   cursor: pointer;
   border-radius: 50%;
+  margin-right: 6px;
 }
 
 .tool-bar {

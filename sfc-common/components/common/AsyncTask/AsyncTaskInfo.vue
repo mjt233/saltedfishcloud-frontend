@@ -18,6 +18,16 @@
           </FormCol>
           <FormCol cols="3" top-label label="任务状态">
             <span :class="`status-text-${taskRecord.status}`">{{ AsyncTaskRecordStatusDict[taskRecord.status] }}</span>
+            <div
+              v-if="[0,1,5].includes(taskRecord.status)"
+              v-ripple
+              title="中断任务"
+              class="d-flex justify-center align-center bg-error"
+              style="width: 24px;height: 24px;cursor: pointer;border-radius: 50%;margin-left: 6px;"
+              @click="interruptTask"
+            >
+              <CommonIcon style="font-size: 12px" icon="mdi-stop" />
+            </div>
           </FormCol>
         </FormRow>
         <FormRow>
@@ -107,6 +117,9 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   },
   async asyncLogLog() {
     await taskLogLoader.loadLogByAjax()
+  },
+  async asyncInterruptTask() {
+    return await SfcUtils.request(API.asyncTask.interrupt(taskRecord.value?.id || 0))
   }
 }, false, loadingManager)
 
@@ -116,6 +129,11 @@ const loadData = async() => {
   if (userResult?.length) {
     createUser.value = userResult[0]
   }
+}
+
+const interruptTask = () => {
+  SfcUtils.confirm('确定要中断该任务执行吗？', '中断确认')
+    .then(actions.asyncInterruptTask)
 }
 
 const formatJsonText = (json: string) => {
@@ -156,7 +174,7 @@ const taskLogLoader = {
       return
     }
     try {
-      await this.loadLogByAjax()
+      await actions.asyncLogLog()
       this.ws = await this.loadLogByWs()
       stopAutoRefresh()
     } catch (err) {
