@@ -129,7 +129,7 @@ const file = {
    * 以异步任务的方式在网盘中创建压缩文件
    * @param param 压缩参数
    */
-  asyncCompress(param: AsyncCompressParam): CommonRequest<number> {
+  asyncCompress(param: AsyncCompressParam): CommonRequest<IdType> {
     return useJsonBody({
       url: `/${this.prefix}/0/asyncCompress`,
       data: param,

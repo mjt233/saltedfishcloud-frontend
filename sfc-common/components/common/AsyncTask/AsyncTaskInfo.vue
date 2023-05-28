@@ -101,6 +101,9 @@ const props = defineProps({
     default: 0
   }
 })
+const emits = defineEmits(['task-exit'])
+
+let isUnmounted = false
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const taskRecord = ref() as Ref<AsyncTaskRecord | undefined>
@@ -204,9 +207,10 @@ const taskLogLoader = {
    * 等待异步任务退出
    */
   async waitTaskExit() {
+    const taskId = props.taskId || 0
     const getIsExit = async() => {
       try {
-        return (await SfcUtils.request(API.asyncTask.waitTaskExit(props.taskId || 0))).data.data
+        return (await SfcUtils.request(API.asyncTask.waitTaskExit(taskId))).data.data
       } catch (err) {
         console.error(err)
         SfcUtils.snackbar('等待任务出错' + err)
@@ -214,8 +218,11 @@ const taskLogLoader = {
         return false
       }
     }
-    while (!(await getIsExit())) {
+    while (!(await getIsExit()) && !isUnmounted ) {
       true
+    }
+    if (!isUnmounted) {
+      emits('task-exit', taskId)
     }
   },
   async loadLogByAjax() {
@@ -270,6 +277,7 @@ const authRefreshHandler = async() => {
     if (![0,1,5].includes(taskRecord.value?.status || 3)) {
       clearInterval(autoRefreshTimer)
       autoRefreshTimer = null
+      emits('task-exit', props.taskId)
     }
   } finally {
     autoLoading = false
@@ -292,6 +300,7 @@ onMounted(async() => {
 })
 
 onUnmounted(() => {
+  isUnmounted = true
   stopAutoRefresh()
   taskLogLoader.clear()
 })

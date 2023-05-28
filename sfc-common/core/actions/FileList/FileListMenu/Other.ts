@@ -11,6 +11,7 @@ import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { WebSocketService } from 'sfc-common/core/serivce/WebSocketService'
 import LogView from 'sfc-common/components/common/LogView.vue'
+import { AsyncTaskInfo } from 'sfc-common/components'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -107,8 +108,6 @@ const otherGroup: MenuGroup<FileListContext> =
         return ctx.selectFileList.length != 0
       },
       async action(ctx) {
-        let ws: WebSocket | undefined = undefined
-        let isFinish:boolean = false
         try {
           // 选择文件
           const path = await SfcUtils.selectPath({
@@ -133,7 +132,7 @@ const otherGroup: MenuGroup<FileListContext> =
           })
 
           // 发起异步任务
-          const taskInfo = await SfcUtils.request(API.file.asyncCompress({
+          const taskId = (await SfcUtils.request(API.file.asyncCompress({
             sourceUid: ctx.uid,
             sourceNames: ctx.selectFileList.map(e => e.name),
             sourcePath: ctx.path,
@@ -144,75 +143,31 @@ const otherGroup: MenuGroup<FileListContext> =
               encoding: context.feature.value.archiveEncoding
             },
             waitExit: false
-          }))
-
-          // 连接任务日志消息推送
-          try {
-            const logProp = reactive({
-              logText: '',
-              style: {
-                minHeight: '70vh',
-                height: '1px'
-              }
-            })
-            ws = await WebSocketService.connect({
-              onMessage(response) {
-                logProp.logText += `${response.data}\n`
-              }
-            })
-            WebSocketService.subscribeAsyncTaskLog(ws, taskInfo.data.data)
-            SfcUtils.openComponentDialog(LogView, {
-              props: logProp,
-              title: '在线压缩',
-              extraDialogOptions: {
-                maxWidth: '1200px'
-              },
-              showConfirm: false,
-              async onCancel() {
-                if (!isFinish) {
-                  SfcUtils.beginLoading()
-                  try {
-                    await SfcUtils.request(API.asyncTask.interrupt(taskInfo.data.data))
-                    SfcUtils.snackbar('已发送中断信号')
-                    return false
-                  } catch (err) {
-                    console.error(err)
-                    SfcUtils.snackbar(err)
-                    return false
-                  } finally {
-                    SfcUtils.closeLoading()
-                  }
-                } else {
-                  return true
-                }
-              },
-              persistent: true
-            })
-          } catch (err) {
-            console.error(err)
-            SfcUtils.alert('出错' + err)
-          }
-
-          // 等待任务完成
-          while (!isFinish) {
-            isFinish = (await SfcUtils.request(API.asyncTask.waitTaskExit(taskInfo.data.data))).data.data
-          }
+          }))).data.data
           
+          let isFinish = false
+          // 查看任务状态
+          const dialog = SfcUtils.openComponentDialog(AsyncTaskInfo, {
+            props: {
+              taskId: taskId,
+              async onTaskExit() {
+                isFinish = true
 
-
-          // 原地保存时刷新
-          if (path == ctx.path) {
-            await ctx.modelHandler.refresh()
-          }
+                // 原地保存时刷新
+                if (path == ctx.path) {
+                  await ctx.modelHandler.refresh()
+                }
+              }
+            },
+            showCancel: false,
+            title: '任务状态',
+            extraDialogOptions: {
+              maxWidth: '1280px'
+            }
+          })
         } catch(err) {
           if (err != 'cancel') {
             return Promise.reject(err)
-          }
-        } finally {
-          if (ws) {
-            SfcUtils.sleep(5000).then(() => {
-              ws?.close()
-            })
           }
         }
       }
