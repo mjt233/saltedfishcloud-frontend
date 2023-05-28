@@ -60,7 +60,7 @@ const asyncTask = {
       url: `${this.prefix}/waitTaskExit`,
       params: {
         taskId,
-        timeout: timeout || 10000
+        timeout: timeout || 9
       }
     }
   }

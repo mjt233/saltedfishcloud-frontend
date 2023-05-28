@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import LoadingMask from '../../LoadingMask.vue'
-import UserAvatar from '../../UserAvatar.vue'
+import { UserAvatar } from 'sfc-common/components'
 import FormGrid from 'sfc-common/components/layout/FormGrid.vue'
 import TextInput from '../../TextInput.vue'
 import FileShareDirBrowser from './FileShareDirBrowser.vue'

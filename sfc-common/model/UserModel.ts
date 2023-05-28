@@ -1,3 +1,4 @@
+import { IdType } from './Common'
 /**
  * 用户角色类型
  */
@@ -17,18 +18,24 @@ export namespace UserTypeConstans {
 export type UserType = 1|0
 
 /**
- * 服务器响应的原始用户对象
+ * 基础用户信息（不包含敏感数据）
  */
-export interface RawUser {
+export interface BaseUserInfo {
   /**
    * 用户id
    */
-  id: number,
+  id: IdType
 
   /**
    * 用户名
    */
-  user: string,
+  user: string
+}
+
+/**
+ * 服务器响应的原始用户对象
+ */
+export interface RawUser extends BaseUserInfo {
 
   /**
    * 用户类型，1 - 管理员，0 - 普通用户

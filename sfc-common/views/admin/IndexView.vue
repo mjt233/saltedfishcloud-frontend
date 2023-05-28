@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import FixedBtn from 'sfc-common/components/common/btn/FixedBtn.vue'
-import UserCard from 'sfc-common/components/common/UserCard.vue'
+import { UserCard } from 'sfc-common/components'
 import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
