@@ -41,6 +41,9 @@ export interface ResourceRequest {
   /** 是否为缩略图资源请求 */
   isThumbnail?: boolean
 
+  /** 浏览器是否需要缓存 */
+  isCache?: boolean
+
   /** 其他自定义附加参数 */
   [key:string]:any
 }

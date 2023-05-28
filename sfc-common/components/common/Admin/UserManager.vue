@@ -1,60 +1,60 @@
 <template>
   <div>
     <LoadingMask :loading="loading" />
-    <div class="d-flex align-center">
-      <span class="tip">用户数: {{ requestResult.totalCount }}</span>
-      <VPagination
-        v-model="curPage"
-        color="primary"
-        :length="requestResult.totalPage"
-        :total-visible="7"
-        size="small"
-      />
-    </div>
-    <VTable>
-      <thead>
-        <tr>
-          <th style="width: 280px">
-            用户名
-          </th>
-          <th style="width: 280px">
-            email
-          </th>
-          <th style="width: 128px;min-width: 128px;">
-            角色
-          </th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="user in requestResult.content" :key="user.id">
-          <td>
-            <div class="d-flex align-center">
+    <VCard>
+      <VTable fixed-header height="70vh">
+        <thead>
+          <tr>
+            <th style="width: 280px;z-index: 1;">
+              用户名
+            </th>
+            <th style="width: 280px;z-index: 1;">
+              email
+            </th>
+            <th style="width: 128px;min-width: 128px;z-index: 1;">
+              角色
+            </th>
+            <th style="z-index: 1;">
+              操作
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="user in requestResult.content" :key="user.id">
+            <td>
+              <div class="d-flex align-center">
 
-              <UserAvatar :uid="user.id" />
-              <div>{{ user.user }}</div>
-            </div>
-          </td>
-          <td>{{ user.email || '未设置' }}</td>
-          <td :class="{'text-error': user.type}">
-            {{ user.type ? '管理员' : '普通用户' }}
-          </td>
-          <td>
-            <div class="user-operate">
-              <VBtn v-if="!user.type && user.user != 'admin'" @click="grant(user, true)">
-                授予管理权
-              </VBtn>
-              <VBtn v-else-if="user.user != 'admin'" color="error" @click="grant(user, false)">
-                撤销管理
-              </VBtn>
-              <VBtn @click="resetPassword(user)">
-                重置密码
-              </VBtn>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </VTable>
+                <UserAvatar :uid="user.id" />
+                <div>{{ user.user }}</div>
+              </div>
+            </td>
+            <td>{{ user.email || '未设置' }}</td>
+            <td :class="{'text-error': user.type}">
+              {{ user.type ? '管理员' : '普通用户' }}
+            </td>
+            <td>
+              <div class="user-operate">
+                <VBtn v-if="!user.type && user.user != 'admin'" @click="grant(user, true)">
+                  授予管理权
+                </VBtn>
+                <VBtn v-else-if="user.user != 'admin'" color="error" @click="grant(user, false)">
+                  撤销管理
+                </VBtn>
+                <VBtn @click="resetPassword(user)">
+                  重置密码
+                </VBtn>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </VTable>
+      <CommonPagination
+        v-model="curPage"
+        v-model:page-size="pageSize"
+        :total-count="requestResult.totalCount"
+        :total-page="requestResult.totalPage"
+      />
+    </VCard>
   </div>
 </template>
 
@@ -62,6 +62,7 @@
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const curPage = ref(1)
+const pageSize = ref(10)
 const requestResult: Ref<CommonPageInfo<RawUser>> = ref(reactive({
   content: [],
   totalCount: 0,
@@ -70,7 +71,10 @@ const requestResult: Ref<CommonPageInfo<RawUser>> = ref(reactive({
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
-    requestResult.value = (await SfcUtils.request(API.user.getUserList(curPage.value))).data.data
+    requestResult.value = (await SfcUtils.request(API.user.getUserList(curPage.value, pageSize.value))).data.data
+    if (requestResult.value.totalPage < curPage.value) {
+      curPage.value = requestResult.value.totalPage
+    }
   },
   async grant(uid: IdType, isAdmin: boolean) {
     await SfcUtils.request(API.user.setUserType(uid, isAdmin))
@@ -116,7 +120,7 @@ const resetPassword = async(user:RawUser) => {
 }
 
 watch(curPage, actions.loadList)
-
+watch(pageSize, actions.loadList)
 onMounted(actions.loadList)
 </script>
 
@@ -127,9 +131,11 @@ import { CommonPageInfo, IdType, RawUser } from 'sfc-common/model'
 import { LoadingManager,MethodInterceptor } from 'sfc-common/utils/'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, nextTick } from 'vue'
+import CommonPagination from '../CommonPagination.vue'
 
 export default defineComponent({
-  name: 'UserManager'
+  name: 'UserManager',
+  components: { CommonPagination }
 })
 </script>
 

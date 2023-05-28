@@ -4,8 +4,17 @@ import { ToRefs, VNode } from 'vue'
 import { AppContext } from '../type'
 
 export interface AdminContext {
+  /**
+   * 当前显示的组件
+   */
   component?: ChildrenType,
+  /**
+   * 当前显示的菜单组
+   */
   group?: IdType,
+  /**
+   * 当前显示的菜单项
+   */
   item?: IdType
 }
 

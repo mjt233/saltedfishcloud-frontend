@@ -47,6 +47,13 @@ const props = defineProps({
   wordWrap: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 文本发生变化时自动滚动到底部
+   */
+  autoToScrollBottom: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['update:modelValue', 'patseImage'])
@@ -146,6 +153,18 @@ const insertText =  async(text: string) => {
   }
 }
 
+const scrollToBottom  = () => {
+  if (!props.autoToScrollBottom) {
+    return
+  }
+  const height = editor.getLayoutInfo().height
+  const top = editor.getBottomForLineNumber(Number.MAX_VALUE)
+  const theBottomPositionTop = top - height
+  editor.setScrollPosition({
+    scrollTop: theBottomPositionTop <= 0 ? 0 : theBottomPositionTop
+  })
+}
+
 onMounted(async() => {
   editor = monaco.editor.create(editorRef.value, {
     language: props.language,
@@ -161,11 +180,14 @@ onMounted(async() => {
   })
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
+    scrollToBottom()
     growHeight()
   })
   await nextTick()
   editor.layout({ height: 100, width: 100 })
   listenPaste()
+  await SfcUtils.sleep(50)
+  scrollToBottom()
 })
 
 onUnmounted(() => {

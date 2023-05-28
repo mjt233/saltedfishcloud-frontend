@@ -40,6 +40,8 @@
           <file-share-dir-browser
             v-if="shareInfo.type == 'DIR'"
             :share-info="shareInfo"
+            :path="path"
+            @update:path="emits('update:path', $event)"
           />
           <file-share-file-extractor v-if="shareInfo.type == 'FILE'" :share-info="shareInfo" />
         </v-card-content>
@@ -51,7 +53,7 @@
 
 <script setup lang="ts">
 import LoadingMask from '../../LoadingMask.vue'
-import UserAvatar from '../../UserAvatar.vue'
+import { UserAvatar } from 'sfc-common/components'
 import FormGrid from 'sfc-common/components/layout/FormGrid.vue'
 import TextInput from '../../TextInput.vue'
 import FileShareDirBrowser from './FileShareDirBrowser.vue'
@@ -79,8 +81,13 @@ const props = defineProps({
   extractCode: {
     type: String,
     default: undefined
+  },
+  path: {
+    type: String,
+    default: '/'
   }
 })
+const emits = defineEmits(['update:path'])
 provide('protocol', 'share')
 provide('protocolParams', () => {
   return {

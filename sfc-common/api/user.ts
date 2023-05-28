@@ -1,4 +1,5 @@
-import { CommonRequest, IdType, PageRequest, RawUser } from 'sfc-common/model'
+import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
+import { BaseUserInfo, CommonRequest, IdType, PageRequest, RawUser } from 'sfc-common/model'
 
 export interface UserRegOpt {
   // 用户名
@@ -22,6 +23,17 @@ export interface UserRegOpt {
 }
 const user = {
   prefix: '/user',
+  /**
+   * 根据id集合批量查询用户基本信息（仅包含用户名和id）
+   * @param ids id集合
+   */
+  findBaseInfoByIds(ids: IdType[]): CommonRequest<BaseUserInfo[]> {
+    return useJsonBody({
+      url: `${this.prefix}/findBaseUserInfo`,
+      data: ids,
+      method: 'post'
+    })
+  },
   /**
      * 发送绑定新邮箱的验证码
      * @param {String} email 接收验证码的新邮箱
@@ -162,11 +174,12 @@ const user = {
    * @param {Number} page 页码
    * @returns
    */
-  getUserList(page = 1): PageRequest<RawUser> {
+  getUserList(page = 1, size = 10): PageRequest<RawUser> {
     return {
       url: `${this.prefix}/list`,
       params: {
-        page: page
+        page,
+        size
       }
     }
   },

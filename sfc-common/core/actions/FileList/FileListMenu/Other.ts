@@ -1,13 +1,17 @@
+import { VBtn } from 'vuetify/components'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 
 import { FileClipBoard, FileClipBoardType } from 'sfc-common/core/context/type'
 import { FileListContext, FileTransferParam } from 'sfc-common/model'
-import { reactive } from 'vue'
+import { defineComponent, h, reactive } from 'vue'
 import { context } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
+import { WebSocketService } from 'sfc-common/core/serivce/WebSocketService'
+import LogView from 'sfc-common/components/common/LogView.vue'
+import { AsyncTaskInfo } from 'sfc-common/components'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -127,17 +131,40 @@ const otherGroup: MenuGroup<FileListContext> =
             ]
           })
 
-          // 执行压缩
-          await SfcUtils.request(API.file.compress(ctx.uid, {
-            source: ctx.path,
-            filenames: ctx.selectFileList.map(e => e.name),
-            dest: StringUtils.appendPath(path, name)
-          }))
+          // 发起异步任务
+          const taskId = (await SfcUtils.request(API.file.asyncCompress({
+            sourceUid: ctx.uid,
+            sourceNames: ctx.selectFileList.map(e => e.name),
+            sourcePath: ctx.path,
+            targetFilePath: StringUtils.appendPath(path, name),
+            targetUid: ctx.uid,
+            archiveParam: {
+              type: 'zip',
+              encoding: context.feature.value.archiveEncoding
+            },
+            waitExit: false
+          }))).data.data
+          
+          let isFinish = false
+          // 查看任务状态
+          const dialog = SfcUtils.openComponentDialog(AsyncTaskInfo, {
+            props: {
+              taskId: taskId,
+              async onTaskExit() {
+                isFinish = true
 
-          // 原地保存时刷新
-          if (path == ctx.path) {
-            await ctx.modelHandler.refresh()
-          }
+                // 原地保存时刷新
+                if (path == ctx.path) {
+                  await ctx.modelHandler.refresh()
+                }
+              }
+            },
+            showCancel: false,
+            title: '任务状态',
+            extraDialogOptions: {
+              maxWidth: '1280px'
+            }
+          })
         } catch(err) {
           if (err != 'cancel') {
             return Promise.reject(err)

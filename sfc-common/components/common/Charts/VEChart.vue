@@ -35,14 +35,16 @@ watch(() => props.option, () => {
   updateOption()
 })
 
+const resizeHandler = () => resizeChart.resizeChart()
+
 onMounted(() => {
   initChart()
   updateOption()
-  window.addEventListener('resize', resizeChart.resizeChart)
+  window.addEventListener('resize', resizeHandler)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', resizeChart.resizeChart)
+  window.removeEventListener('resize', resizeHandler)
   if (chartInst) {
     chartInst.dispose()
   }
