@@ -5,21 +5,17 @@
       后台任务
     </h4>
     <div class="tool-bar d-flex align-center">
-      <span class="tip">总数: {{ queryResult.totalCount }}</span>
-      <v-pagination
-        v-model="page"
-        color="primary"
-        :length="queryResult.totalPage"
-        :total-visible="7"
-      />
-      <VBtn size="small">
-        <CommonIcon icon="mdi-refresh" @click="actions.loadData" />
+      <VBtn @click="actions.loadData">
+        <CommonIcon icon="mdi-refresh" @click="actions.loadData" />刷新
       </VBtn>
     </div>
     <VCard>
       <VTable height="70vh" fixed-header>
         <thead>
           <tr>
+            <th style="width: 64px;">
+              序号
+            </th>
             <th style="min-width: 120px">
               任务名
             </th>
@@ -38,7 +34,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="record in queryResult.content" :key="record.id">
+          <tr v-for="(record, index) in queryResult.content" :key="record.id">
+            <td>{{ index + 1 + (page - 1 )* size }}</td>
             <td>{{ record.name }}</td>
             <td>{{ record.status == 0 ? '[-]' : record.executor }}</td>
             <td>
@@ -69,6 +66,12 @@
           </tr>
         </tbody>
       </VTable>
+      <CommonPagination
+        v-model="page"
+        v-model:page-size="size"
+        :total-count="queryResult.totalCount"
+        :total-page="queryResult.totalPage"
+      />
     </VCard>
   </div>
 </template>
@@ -87,7 +90,12 @@ const queryResult = reactive({
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadData() {
     const result = (await SfcUtils.request(API.asyncTask.listRecord({page: page.value - 1, size: size.value}))).data.data
-    Object.assign(queryResult, result)
+    queryResult.totalCount = Number(result.totalCount)
+    queryResult.totalPage = Number(result.totalPage)
+    queryResult.content = result.content
+    if (queryResult.totalPage < page.value) {
+      page.value = queryResult.totalPage
+    }
   },
   async showLog(task: AsyncTaskRecord) {
     SfcUtils.openComponentDialog(AsyncTaskInfo, {
@@ -104,12 +112,14 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 }, false, loadingManager)
 
 watch(page, actions.loadData)
+watch(size, actions.loadData)
 onMounted(actions.loadData)
 </script>
 
 <script lang="ts">
 import { CommonIcon } from 'sfc-common/components'
 import AsyncTaskInfo from 'sfc-common/components/common/AsyncTask/AsyncTaskInfo.vue'
+import CommonPagination from 'sfc-common/components/common/CommonPagination.vue'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
 import { API, CommonPageInfo } from 'sfc-common/index'
 import { AsyncTaskRecord, AsyncTaskRecordStatusDict } from 'sfc-common/model/AsyncTaskRecord'
@@ -119,7 +129,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive
 
 export default defineComponent({
   name: 'AdminAsyncTaskView',
-  components: { LoadingMask, CommonIcon }
+  components: { LoadingMask, CommonIcon, CommonPagination }
 })
 </script>
 

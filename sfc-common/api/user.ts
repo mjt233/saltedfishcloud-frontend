@@ -162,11 +162,12 @@ const user = {
    * @param {Number} page 页码
    * @returns
    */
-  getUserList(page = 1): PageRequest<RawUser> {
+  getUserList(page = 1, size = 10): PageRequest<RawUser> {
     return {
       url: `${this.prefix}/list`,
       params: {
-        page: page
+        page,
+        size
       }
     }
   },
