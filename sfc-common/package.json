@@ -1,0 +1,8 @@
+{
+  "name": "sfc-common",
+  "version": "1.0.0",
+  "description": "咸鱼云网盘前端通用库",
+  "main": "index.ts",
+  "author": "xiaotao233",
+  "license": "ISC"
+}
