@@ -103,7 +103,11 @@ const props = defineProps({
 })
 const emits = defineEmits(['task-exit'])
 
+// 当前组件是否已卸载
 let isUnmounted = false
+
+// 是否已经触发了task-exit事件
+let isEmitTaskExited = false
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const taskRecord = ref() as Ref<AsyncTaskRecord | undefined>
@@ -172,23 +176,33 @@ const taskLogLoader = {
    */
   async startLoadLogData() {
     isShowLog.value = true
+    // 看看状态是不是已经不是执行中了，如果不是执行中那就直接一次性获取日志好了
     if (taskRecord.value?.status != 1) {
       await actions.asyncLogLog()
       return
     }
     try {
+      // 先获取当前历史日志
       await actions.asyncLogLog()
+      // 通过WebSocket获取追加的日志
       this.ws = await this.loadLogByWs()
       stopAutoRefresh()
     } catch (err) {
+      // 如果WebSocket出错了就用轮询，蠢一点但能跑
       SfcUtils.snackbar('连接WebSocket服务失败，无法实时获取日志，改为轮询')
-      this.loadLogByAjax()
-      this.ajaxTimer = setInterval(() => {
-        this.loadLogByAjax()
+      await this.loadLogByAjax()
+      this.ajaxTimer = setInterval(async() => {
+        if (taskRecord.value?.status != 1 && taskRecord.value?.status != 5) {
+          if (this.ajaxTimer) {
+            clearInterval(this.ajaxTimer)
+          }
+          return
+        }
+        await this.loadLogByAjax()
       }, 1000)
       stopAutoRefresh()
     } finally {
-      await this.waitTaskExit()
+      await waitTaskExit()
       actions.asyncLoadData()
       this.clear()
     }
@@ -203,29 +217,10 @@ const taskLogLoader = {
     WebSocketService.subscribeAsyncTaskLog(ws, props.taskId)
     return ws
   },
-  /**
-   * 等待异步任务退出
-   */
-  async waitTaskExit() {
-    const taskId = props.taskId || 0
-    const getIsExit = async() => {
-      try {
-        return (await SfcUtils.request(API.asyncTask.waitTaskExit(taskId))).data.data
-      } catch (err) {
-        console.error(err)
-        SfcUtils.snackbar('等待任务出错' + err)
-        await SfcUtils.sleep(1000)
-        return false
-      }
-    }
-    while (!(await getIsExit()) && !isUnmounted ) {
-      true
-    }
-    if (!isUnmounted) {
-      emits('task-exit', taskId)
-    }
-  },
   async loadLogByAjax() {
+    if (this.ajaxLoading) {
+      return
+    }
     try {
       this.ajaxLoading = true
       const logData = (await SfcUtils.request(API.asyncTask.getLog(props.taskId))).data.data
@@ -242,6 +237,31 @@ const taskLogLoader = {
     }
   }
 
+}
+
+
+/**
+   * 等待异步任务退出
+   */
+const waitTaskExit = async() => {
+  const taskId = props.taskId || 0
+  const getIsExit = async() => {
+    try {
+      return (await SfcUtils.request(API.asyncTask.waitTaskExit(taskId))).data.data
+    } catch (err) {
+      console.error(err)
+      SfcUtils.snackbar('等待任务出错' + err)
+      await SfcUtils.sleep(1000)
+      return false
+    }
+  }
+  while (!(await getIsExit()) && !isUnmounted ) {
+    true
+  }
+  if (!isUnmounted && !isEmitTaskExited) {
+    isEmitTaskExited = true
+    emits('task-exit', taskId)
+  }
 }
 
 /**
@@ -275,8 +295,7 @@ const authRefreshHandler = async() => {
   try {
     await loadData()
     if (![0,1,5].includes(taskRecord.value?.status || 3)) {
-      clearInterval(autoRefreshTimer)
-      autoRefreshTimer = null
+      stopAutoRefresh()
       emits('task-exit', props.taskId)
     }
   } finally {
@@ -294,8 +313,13 @@ const stopAutoRefresh = () => {
 onMounted(async() => {
   await actions.asyncLoadData()
   // 若任务为等待中或离线，则间隔更新状态
-  if ([0,1,5].includes(taskRecord.value?.status || 3)) {
+  if ([0,5].includes(taskRecord.value?.status || 3)) {
+    await SfcUtils.sleep(1000)
+    authRefreshHandler()
     autoRefreshTimer = setInterval(authRefreshHandler, 5000)
+  } else if (taskRecord.value?.status == 1) {
+    await waitTaskExit()
+    actions.asyncLoadData()
   }
 })
 
