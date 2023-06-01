@@ -105,14 +105,6 @@ md.core.ruler.push('scroll_flag', state => state.tokens.forEach(e => tokenVisito
 })))
 
 
-// 监听资源参数变化，实时更新url
-watch(() => props.resourceParams, () => {
-  if (tempRoot) {
-    html.value = tempRoot.innerHTML
-  }
-  
-}, { deep: true})
-
 /**
  * 给图片添加点击动作，进入看图模式
  */
@@ -175,6 +167,11 @@ const update = async() => {
   await nextTick()
   addImgClickAction()
 }
+
+// 监听资源参数变化，实时更新url
+const throttleUpdate = MethodInterceptor.createThrottleProxy(MethodInterceptor.wrapFun(update)).invoke
+watch(() => props.resourceParams, throttleUpdate, { deep: true})
+
 onMounted(update)
 
 watch(() => props.content, update)
@@ -188,7 +185,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounte
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
-import { API, StringUtils } from 'sfc-common/index'
+import { API, MethodInterceptor, StringUtils } from 'sfc-common/index'
 import Token from 'markdown-it/lib/token'
 
 export default defineComponent({
