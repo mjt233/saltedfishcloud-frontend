@@ -19,3 +19,13 @@ export interface ImagePatseOption {
    */
   name: string
 }
+
+export interface TitleTreeNode {
+  title: string
+
+  level: number
+
+  child: TitleTreeNode[]
+
+  el: HTMLElement
+}
