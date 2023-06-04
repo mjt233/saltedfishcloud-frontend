@@ -197,20 +197,16 @@ const updateChapter = () => {
     // 等级大于上个节点，表示是子节点
     if(newNode.level > prev.level) {
       prev.child.push(newNode)
-      prev = newNode
-      return
-    }
-
-    // 等级等于上个节点，表示是同级关系，添加到上个节点的父级的子级中（做兄弟，认同一个义父）
-    if (newNode.level == prev.level) {
-      // 认义父
-      nodeStack[nodeStack.length - 1].child.push(newNode)
+      // 把上个节点加入到父节点栈中
+      if(nodeStack[nodeStack.length - 1] != prev) {
+        nodeStack.push(prev)
+      }
       prev = newNode
       return
     }
 
     // 等级小于上个节点，上个节点不会再有子节点了，找自己的父节点
-    if (newNode.level < prev.level) {
+    if (newNode.level <= prev.level) {
       let parent = nodeStack.pop()
       while( parent && parent.level >= newNode.level ) {
         // 遍历完了都没找到父级，目前看来自己辈分最大
@@ -262,8 +258,7 @@ import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
 import { API, MethodInterceptor, StringUtils } from 'sfc-common/index'
 import Token from 'markdown-it/lib/token'
-import { TitleTreeNode as ChapterTreeNode } from './type'
-import { number } from 'echarts'
+import { ChapterTreeNode as ChapterTreeNode } from './type'
 
 export default defineComponent({
   name: 'MarkdownView'
