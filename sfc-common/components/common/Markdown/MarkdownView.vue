@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div ref="rootRef" class="markdown-view">
+  <div ref="rootRef" class="markdown-view" @scroll="emits('viewScroll', $event)">
     <div style="user-select: text" class="markdown" v-html="html" />
   </div>
 </template>
@@ -22,7 +22,12 @@ const emits = defineEmits<{
   /**
    * 章节目录树变更事件
    */
-  (e: 'chapterChange', data: ChapterTreeNode[]): void
+  (e: 'chapterChange', data: ChapterTreeNode[]): void,
+
+  /**
+   * 视图滚动事件
+   */
+  (e: 'viewScroll', data: Event): void
 }>()
 
 /**

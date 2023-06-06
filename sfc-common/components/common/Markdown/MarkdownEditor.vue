@@ -1,5 +1,5 @@
 <template>
-  <ResizeContainer ref="containerRef" style="position: relative;" @right-scroll="viewScroll">
+  <ResizeContainer ref="containerRef" style="position: relative;">
     <div style="height: 100%;">
       <div v-if="!readOnly && resourceParams" class="tool-bar">
         <div v-ripple @click="openConfig">
@@ -19,12 +19,19 @@
       />
     </div>
     <template #resizeable>
+      <ChapterMenu
+        v-model:active="showChapter"
+        :nodes="chapters"
+        use-float-style
+        @chapter-click="chapterClick"
+      />
       <MarkdownView
         ref="viewRef"
         :content="curMarkdownText"
+        style="width: 100%;overflow: auto;height: 100%;"
         :resource-params="resourceParams"
         @chapter-change="chapters = $event"
-        @chapter-click="chapterClick"
+        @view-scroll="viewScroll"
       />
     </template>
   </ResizeContainer>
@@ -51,6 +58,7 @@ const emits = defineEmits(['update:modelValue'])
 const viewRef = ref() as Ref<ComponentPublicInstance>
 const curMarkdownText = ref('')
 const chapters = ref([]) as Ref<ChapterTreeNode[]>
+const showChapter = ref(false)
 
 // 视图主动滚动
 let viewInScroll = false
@@ -130,13 +138,13 @@ const viewScroll = (e: Event) => {
  * @param line 源代码行数
  */
 const jumpToViewLine = (line: number) => {
-  const el = containerRef.value?.getRightDOM() as HTMLElement
+  const el = viewRef.value.$el as HTMLElement
   if (el) {
     const mdEls = el.querySelectorAll('.markdown>*')
     Array.from(mdEls).find(e => {
       const elLine = e.getAttribute('line')
       if (elLine && (parseInt(elLine)) >= line) {
-        el.scrollTop = (e as HTMLElement).offsetTop - 128
+        el.scrollTop = (e as HTMLElement).offsetTop
         return true
       } else {
         return false
@@ -310,10 +318,11 @@ import { CONFIG_KEY } from './constants'
 import { API, context, ResourceRequest } from 'sfc-common/index'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import MarkdownView from './MarkdownView.vue'
+import ChapterMenu from './ChapterMenu.vue'
 
 export default defineComponent({
   name: 'MarkdownEditor',
-  components: { MarkdownView }
+  components: { MarkdownView, ChapterMenu }
 })
 </script>
 
