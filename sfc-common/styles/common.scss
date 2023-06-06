@@ -190,3 +190,17 @@ html {
   background-color: black !important;
   opacity: .4 !important;
 }
+
+@keyframes up-in {
+  0% {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  40% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}

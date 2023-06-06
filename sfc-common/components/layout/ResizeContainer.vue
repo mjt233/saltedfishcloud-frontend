@@ -24,7 +24,7 @@
           .<br>.<br>.<br>
         </div>
       </div>
-      <div ref="resizeableRef" style="width: 100%;overflow: auto;scroll-behavior:smooth">
+      <div ref="resizeableRef" style="position: relative;width: 100%;overflow: auto;scroll-behavior:smooth">
         <slot name="resizeable" />
       </div>
     </div>
@@ -134,6 +134,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .left-slot {
+  position: relative;
   min-width: 128px;
   width: calc(60% - var(--width-offset));
   &.hide-right {

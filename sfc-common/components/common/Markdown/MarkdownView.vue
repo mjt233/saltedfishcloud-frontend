@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div ref="rootRef">
+  <div ref="rootRef" class="markdown-view">
     <div style="user-select: text" class="markdown" v-html="html" />
   </div>
 </template>
@@ -29,6 +29,7 @@ const emits = defineEmits<{
  * 超链接转跳替换函数
  */
 const hrefReplacer = inject('hrefReplacer', (href: string | null) => href)
+
 
 const rootRef = ref() as Ref<HTMLElement>
 
@@ -239,10 +240,6 @@ const update = async() => {
   updateChapter()
 }
 
-// 监听资源参数变化，实时更新url
-const throttleUpdate = MethodInterceptor.createThrottleProxy(MethodInterceptor.wrapFun(update)).invoke
-watch(() => props.resourceParams, throttleUpdate, { deep: true})
-
 onMounted(update)
 
 watch(() => props.content, update)
@@ -256,7 +253,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounte
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
-import { API, MethodInterceptor, StringUtils } from 'sfc-common/index'
+import { API, StringUtils } from 'sfc-common/index'
 import Token from 'markdown-it/lib/token'
 import { ChapterTreeNode as ChapterTreeNode } from './type'
 
@@ -264,6 +261,12 @@ export default defineComponent({
   name: 'MarkdownView'
 })
 </script>
+
+<style lang="scss" scoped>
+.markdown-view {
+  position: relative;
+}
+</style>
 
 <style lang="scss">
 .markdown {

@@ -20,12 +20,14 @@ export interface ImagePatseOption {
   name: string
 }
 
-export interface TitleTreeNode {
+export interface ChapterTreeNode {
   title: string
 
   level: number
 
-  child: TitleTreeNode[]
+  child: ChapterTreeNode[]
 
   el: HTMLElement
+
+  active?: boolean
 }
