@@ -1,11 +1,10 @@
 <template>
-  <ResizeContainer ref="containerRef" @right-scroll="viewScroll">
+  <ResizeContainer ref="containerRef" style="position: relative;">
     <div style="height: 100%;">
       <div v-if="!readOnly && resourceParams" class="tool-bar">
         <div v-ripple @click="openConfig">
           <VIcon icon="mdi-cog" />
         </div>
-        
       </div>
       <CodeEditor
         ref="editor"
@@ -20,7 +19,20 @@
       />
     </div>
     <template #resizeable>
-      <MarkdownView ref="viewRef" :content="curMarkdownText" :resource-params="resourceParams" />
+      <ChapterMenu
+        v-model:active="showChapter"
+        :nodes="chapters"
+        use-float-style
+        @chapter-click="chapterClick"
+      />
+      <MarkdownView
+        ref="viewRef"
+        :content="curMarkdownText"
+        style="width: 100%;overflow: auto;height: 100%;"
+        :resource-params="resourceParams"
+        @chapter-change="chapters = $event"
+        @view-scroll="viewScroll"
+      />
     </template>
   </ResizeContainer>
 </template>
@@ -45,6 +57,8 @@ const props = defineProps({
 const emits = defineEmits(['update:modelValue'])
 const viewRef = ref() as Ref<ComponentPublicInstance>
 const curMarkdownText = ref('')
+const chapters = ref([]) as Ref<ChapterTreeNode[]>
+const showChapter = ref(false)
 
 // 视图主动滚动
 let viewInScroll = false
@@ -59,6 +73,10 @@ const updateMarkdownText = MethodInterceptor.createThrottleProxy(
 const modelValueChange = (value: string) => {
   emits('update:modelValue', value)
   updateMarkdownText.invoke(value)
+}
+
+const chapterClick = (node: ChapterTreeNode) => {
+  jumpToViewLine(Number(node.el.getAttribute('line')))
 }
 
 /**
@@ -120,13 +138,13 @@ const viewScroll = (e: Event) => {
  * @param line 源代码行数
  */
 const jumpToViewLine = (line: number) => {
-  const el = containerRef.value?.getRightDOM() as HTMLElement
+  const el = viewRef.value.$el as HTMLElement
   if (el) {
     const mdEls = el.querySelectorAll('.markdown>*')
     Array.from(mdEls).find(e => {
       const elLine = e.getAttribute('line')
       if (elLine && (parseInt(elLine)) >= line) {
-        el.scrollTop = (e as HTMLElement).offsetTop - 128
+        el.scrollTop = (e as HTMLElement).offsetTop
         return true
       } else {
         return false
@@ -294,14 +312,17 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import MarkdownImagePatseFormVue from './MarkdownImagePatseForm.vue'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, reactive, ComponentPublicInstance } from 'vue'
 import MarkdownImagePatseConfirmForm from './MarkdownImagePatseConfirmForm.vue'
-import { ImagePatseOption } from './type'
+import { ChapterTreeNode, ImagePatseOption } from './type'
 import { StringFormatter, StringUtils } from 'sfc-common/utils'
 import { CONFIG_KEY } from './constants'
-import { API, CommonRequest, context, ResourceRequest } from 'sfc-common/index'
+import { API, context, ResourceRequest } from 'sfc-common/index'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
+import MarkdownView from './MarkdownView.vue'
+import ChapterMenu from './ChapterMenu.vue'
 
 export default defineComponent({
-  name: 'MarkdownEditor'
+  name: 'MarkdownEditor',
+  components: { MarkdownView, ChapterMenu }
 })
 </script>
 

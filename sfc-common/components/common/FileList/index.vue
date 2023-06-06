@@ -161,12 +161,21 @@
       </grid-container>
     </div>
     <template #resizeable>
+      <chapter-menu
+        v-if="chapterNodes && chapterNodes.length"
+        v-model:active="showChapterMenu"
+        :nodes="chapterNodes"
+        use-float-style
+        @chapter-click="chapterClick"
+      />
       <markdown-view
-        style="width: 100%"
+        ref="markdownViewRef"
+        style="width: 100%;overflow: auto;"
         :style="readmeViewStyle"
         class="readme-content"
         :content="readme"
         :resource-params="{...listResourceParams, isCache: true}"
+        @chapter-change="chapterNodes = $event"
       />
     </template>
   </resize-container>
@@ -184,7 +193,6 @@ import EmptyTip from '../EmptyTip.vue'
 import GridContainer from 'sfc-common/components/layout/GridContainer.vue'
 import FileListGridItem from './FileListGridItem.vue'
 import SelectArea from '../SelectArea.vue'
-
 
 const props = defineProps(propsOptions)
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
@@ -219,6 +227,19 @@ const emits = defineEmits<{
   (event: 'update:file-list', fileList: FileInfo[]): void
 }>()
 
+
+// readme预览相关
+const chapterNodes = ref([]) as Ref<ChapterTreeNode[]>
+const showChapterMenu = ref(false)
+const markdownViewRef = ref() as Ref<ComponentPublicInstance>
+const chapterClick = (node: ChapterTreeNode) => {
+  if (node.el && markdownViewRef.value) {
+    markdownViewRef.value.$el.scrollTop = node.el.offsetTop  
+  }
+  
+}
+
+
 // README.md预览视图的style，设定最大高度和动态宽度
 const readmeViewStyle = computed(() => {
   return {
@@ -247,7 +268,7 @@ const scrollAnchor = computed(() => {
 
 // 更新readme.md预览框的最大高度，保持和文件列表一致
 const updateReadmeMaxHeight = () => {
-  readmeViewMaxHeight.value = props.height ? (props.height + 'px') : 'auto'
+  readmeViewMaxHeight.value = props.height ? ((props.height - 6) + 'px') : 'auto'
 }
 
 // 该列表的文件资源通用操作参数
@@ -472,7 +493,7 @@ const resizeHandler = async() => {
 }
 
 const containerHeight = computed(() => {
-  return props.height ? ((props.height - 16) + 'px') : 'auto'
+  return props.height ? (props.height + 'px') : 'auto'
 })
 
 const formatSize = (size: number) => {
@@ -540,9 +561,13 @@ import { FileListContext,FileInfo, ResourceRequest } from 'sfc-common/model'
 import { defineExpose ,defineComponent, Ref, reactive, inject, watch, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
 import { SelectResult } from 'sfc-common/model/component/SelectArea'
 import { loadMDToHtml } from './MarkdownLoader'
+import ChapterMenu from '../Markdown/ChapterMenu.vue'
+import MarkdownView from '../Markdown/MarkdownView.vue'
+import { ChapterTreeNode } from '../Markdown/type'
 
 export default defineComponent({
-  name: 'FileList'
+  name: 'FileList',
+  components: { ChapterMenu, MarkdownView }
 })
 </script>
 
