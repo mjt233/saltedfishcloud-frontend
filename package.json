@@ -11,7 +11,8 @@
     "build-ext-demo": "vite build --config build/extension/demo.ts",
     "build-ext-video-enhance": "vite build --config build/extension/video-enhance.ts",
     "build-ext-jntm": "vite build --config build/extension/jntm.ts",
-    "build-ext-quick-share": "vite build --config build/extension/quick-share.ts"
+    "build-ext-quick-share": "vite build --config build/extension/quick-share.ts",
+    "build-ext-network-tools": "vite build --config build/extension/network-tools.ts"
   },
   "dependencies": {
     "@types/highlight.js": "^10.1.0",
