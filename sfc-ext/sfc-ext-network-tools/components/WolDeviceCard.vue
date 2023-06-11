@@ -15,6 +15,12 @@
               icon="mdi-pencil"
               @click="emits('edit', wolDevice)"
             />
+            <CommonIcon
+              class="link d-flex align-center text-error"
+              style="font-size: 10px;margin-left: 6px;--main-color: var(--v-theme-error)"
+              icon="mdi-close"
+              @click="emits('delete', wolDevice)"
+            />
           </div>
           <div>MAC: {{ wolDevice.mac }}</div>
           <div>IP: {{ wolDevice.ip }}</div>
@@ -45,8 +51,12 @@ const props = defineProps({
   }
 })
 const emits = defineEmits<{
+  /** 点击唤醒 */
   (e: 'wake', data: WolDevice): void,
-  (e: 'edit', data: WolDevice): void
+  /** 点击编辑 */
+  (e: 'edit', data: WolDevice): void,
+  /** 点击删除 */
+  (e: 'delete', data: WolDevice): void
 }>()
 
 </script>

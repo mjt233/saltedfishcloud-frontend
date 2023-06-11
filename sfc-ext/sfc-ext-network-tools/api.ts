@@ -26,6 +26,17 @@ export namespace NwtApi {
         params: { id: deviceId }
       }
     }
+
+    export function batchDelete(ids: IdType[]): CommonRequest {
+      return {
+        url: '/nwt/batchDeleteWol',
+        data: ids,
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    }
   }
 
   export function getAllInterface(): CommonRequest<NetworkInterfaceInfo[]> {

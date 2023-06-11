@@ -17,6 +17,7 @@
         :loading="wakingDevice[device.id]"
         @wake="wake"
         @edit="addOrEditDevice($event)"
+        @delete="batchDelete([$event])"
       />
     </div>
   </div>
@@ -45,6 +46,13 @@ const loadDataNoLoading = async() => {
 const wake = async(dev: WolDevice) => {
   await SfcUtils.confirm(`确定要唤醒设备${dev.name}吗？`, '唤醒确认').then(() => actions.wake(dev))
 }
+const batchDelete = async(dev: WolDevice[]) => {
+  const msg = `确定要删除 ${dev.length == 1 ? dev[0].name : dev.length + '个设备'} 吗？`
+  await SfcUtils.confirm(msg, '删除确认')
+  await actions.batchDelete(dev)
+  SfcUtils.snackbar('删除成功')
+  await actions.loadData()
+}
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadData() {
     await loadDataNoLoading()
@@ -52,6 +60,9 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   async wake(dev: WolDevice) {
     await SfcUtils.request(NwtApi.Wol.wakeWolDevice(dev.id))
     wakingDevice[dev.id] = true
+  },
+  async batchDelete(dev: WolDevice[]) {
+    await SfcUtils.request(NwtApi.Wol.batchDelete(dev.map(e => e.id)))
   }
 }, false, lm)
 
