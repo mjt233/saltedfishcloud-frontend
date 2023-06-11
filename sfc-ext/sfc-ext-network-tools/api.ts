@@ -2,10 +2,10 @@ import { NetworkInterfaceInfo, WolDevice } from './model'
 import { CommonRequest, IdType } from 'sfc-common'
 export namespace NwtApi {
   export namespace Wol {
-    export function findByUid(uid: IdType): CommonRequest<WolDevice[]> {
+    export function findByUid(uid: IdType, checkOnline?: boolean): CommonRequest<WolDevice[]> {
       return {
         url: '/nwt/findWolByUid',
-        params: { uid }
+        params: { uid, checkOnline: checkOnline ? true : false }
       }
     }
 

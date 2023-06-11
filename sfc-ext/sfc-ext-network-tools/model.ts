@@ -12,9 +12,14 @@ export interface WolDevice extends AuditModel {
   mac: string
 
   /**
-   * IP地址
+   * IP地址,用于检测是否在线
    */
   ip: string
+
+  /**
+   * 发送/广播地址
+   */
+  sendIp: string
 
   /**
    * 端口

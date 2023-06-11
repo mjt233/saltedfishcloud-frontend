@@ -1,6 +1,6 @@
 <template>
   <div class="WolDeviceList">
-    <VBtn color="primary" @click="addDevice">
+    <VBtn color="primary" @click="addOrEditDevice()">
       添加设备
     </VBtn>
     <VBtn style="margin-left: 12px" @click="actions.loadData">
@@ -15,7 +15,8 @@
         style="animation: up-in .2s"
         :wol-device="device"
         :loading="wakingDevice[device.id]"
-        @wake="actions.wake"
+        @wake="wake"
+        @edit="addOrEditDevice($event)"
       />
     </div>
   </div>
@@ -33,29 +34,43 @@ const lm = new LoadingManager()
 const loading = lm.getLoadingRef()
 const deviceList = ref([]) as Ref<WolDevice[]>
 const wakingDevice = reactive({} as {[idx:IdType]: boolean})
+const loadDataNoLoading = async() => {
+  deviceList.value = (await SfcUtils.request(NwtApi.Wol.findByUid(props.uid, true))).data.data || []
+  deviceList.value.forEach(device => {
+    if (device.isOnline) {
+      wakingDevice[device.id] = false
+    }
+  })
+}
+const wake = async(dev: WolDevice) => {
+  await SfcUtils.confirm(`确定要唤醒设备${dev.name}吗？`, '唤醒确认').then(() => actions.wake(dev))
+}
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadData() {
-    deviceList.value = (await SfcUtils.request(NwtApi.Wol.findByUid(props.uid))).data.data || []
+    await loadDataNoLoading()
   },
   async wake(dev: WolDevice) {
     await SfcUtils.request(NwtApi.Wol.wakeWolDevice(dev.id))
     wakingDevice[dev.id] = true
-    
   }
 }, false, lm)
 
-const addDevice = () => {
+const addOrEditDevice = (device?: WolDevice) => {
   const dialog = SfcUtils.openComponentDialog(WolDeviceForm, {
-    title: '添加设备',
+    title: device ? '编辑设备' : '添加设备',
     props: {
-      initObject: {
+      initObject: device || {
         uid: props.uid
-      }
+      },
+
+    },
+    extraDialogOptions: {
+      persistent: true
     },
     async onConfirm() {
       const res = await dialog.getInstAsForm().submit()
       if (res.success) {
-        SfcUtils.snackbar('添加成功')
+        SfcUtils.snackbar(device ? '保存成功' : '添加成功')
         actions.loadData()
         return true
       } else {
@@ -66,17 +81,26 @@ const addDevice = () => {
   })
 }
 
-const showDevice = (device: WolDevice) => {
-  const dialog = SfcUtils.openComponentDialog(WolDeviceForm, {
-    showConfirm: false,
-    props: {
-      wolDevice: device,
-      readOnly: true
-    }
-  })
-}
-
 actions.loadData()
+
+let autoLoading = false
+let autoRefreshItv = setInterval(async() => {
+  if (autoLoading) {
+    return
+  }
+  try {
+    autoLoading = true
+    await loadDataNoLoading()
+  } finally {
+    autoLoading = false
+  }
+}, 5000)
+
+onUnmounted(() => {
+  if (autoRefreshItv) {
+    clearInterval(autoRefreshItv)
+  }
+})
 </script>
 
 <script lang="ts">
@@ -87,6 +111,7 @@ import { WolDevice } from '../model'
 import WolDeviceCard from './WolDeviceCard.vue'
 import WolDeviceForm from './WolDeviceForm.vue'
 import { reactive } from 'vue'
+import { onUnmounted } from 'vue'
 
 export default defineComponent({
   name: 'WolDeviceList',

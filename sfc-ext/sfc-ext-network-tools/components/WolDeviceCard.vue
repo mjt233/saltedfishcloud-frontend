@@ -7,7 +7,15 @@
           <CommonIcon icon="mdi-laptop" :color="wolDevice.isOnline ? 'primary' : ''" style="font-size: 32px" />
         </div>
         <div class="tip" style="width: calc(100% - 12px);margin-left: 12px;">
-          <div>设备名: {{ wolDevice.name }}</div>
+          <div class="d-flex align-center">
+            设备名: {{ wolDevice.name }}
+            <CommonIcon
+              class="link d-flex align-center"
+              style="font-size: 10px;margin-left: 6px"
+              icon="mdi-pencil"
+              @click="emits('edit', wolDevice)"
+            />
+          </div>
           <div>MAC: {{ wolDevice.mac }}</div>
           <div>IP: {{ wolDevice.ip }}</div>
         </div>
@@ -37,7 +45,8 @@ const props = defineProps({
   }
 })
 const emits = defineEmits<{
-  (e: 'wake', data: WolDevice): void
+  (e: 'wake', data: WolDevice): void,
+  (e: 'edit', data: WolDevice): void
 }>()
 
 </script>
@@ -55,12 +64,13 @@ export default defineComponent({
 .wol-device-card {
   display: inline-block;
   width: 100%;
-  max-width: 320px;
+  max-width: 420px;
   min-width: 280px;
   margin-right: 6px;
+  margin-bottom: 6px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   .wol-device-card {
     max-width: 100%;
   }

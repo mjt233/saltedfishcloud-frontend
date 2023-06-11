@@ -14,7 +14,7 @@
         <TextInput
           v-model="formData.mac"
           :rules="validators.mac"
-          placeholder="很重要！唤醒全靠这个了"
+          placeholder="关键参数"
           :readonly="readOnly"
         />
       </FormCol>
@@ -31,6 +31,14 @@
           v-model="formData.ip"
           :rules="validators.ip"
           placeholder="用来检测是否在线"
+          :readonly="readOnly"
+        />
+      </FormCol>
+      <FormCol label="发送/广播地址" top-label class="mw-50">
+        <TextInput
+          v-model="formData.sendIp"
+          :rules="validators.ip"
+          placeholder="255.255.255.255"
           :readonly="readOnly"
         />
       </FormCol>
@@ -66,7 +74,8 @@ const formInst = defineForm({
     name: '',
     port: 9,
     ip: '',
-    mac: ''
+    mac: '',
+    sendIp: '255.255.255.255'
   } as WolDevice,
   formRef: formRef,
   validators: {
