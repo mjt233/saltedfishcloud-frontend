@@ -31,7 +31,13 @@
       附加参数
     </p>
     <div class="other-param">
-      <ClusterSelector v-model="nodeId" style="max-width: 240px;" />
+      <VCheckbox
+        v-model="selectCluster"
+        color="primary"
+        label="指定节点"
+        hide-details
+      />
+      <ClusterSelector v-if="selectCluster" v-model="nodeId" style="max-width: 240px;" />
       <FormSelect
         v-model="param.charset"
         label="程序输出编码"
@@ -49,11 +55,48 @@
         label="执行超时(s)"
       />
     </div>
+    <p class="text-header text-primary" style="margin-bottom: 18px;">
+      环境变量
+    </p>
+    <div>
+      <VTable style="width: 100%;max-width: 480px;" class="elevation-1">
+        <thead>
+          <tr>
+            <th>
+              Name
+            </th>
+            <th style="min-width: 120px">
+              Value
+            </th>
+            <th style="width: 81px;" />
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, idx) in envList" :key="idx">
+            <td style="max-width: 92px;">
+              <input v-model="item.name" class="plain-input">
+            </td>
+            <td>
+              <input v-model="item.value" class="plain-input">
+            </td>
+            <td>
+              <CommonIcon style="cursor: pointer;" icon="mdi-plus" @click="envList.push({name: '', value: ''})" />
+              <CommonIcon
+                v-if="envList.length != 1"
+                style="cursor: pointer;"
+                icon="mdi-delete"
+                @click="envList.splice(idx, 1)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </VTable>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Components, LoadingManager, MethodInterceptor, SelectOption } from 'sfc-common'
+import { Components, LoadingManager, MethodInterceptor, NameValueType, SelectOption } from 'sfc-common'
 
 const charsetOptions: SelectOption[] = [ {
   title: 'UTF-8',
@@ -68,6 +111,8 @@ const lm = new LoadingManager()
 const loading = lm.getLoadingRef()
 const output = ref('')
 const nodeId = ref('')
+const selectCluster = ref(false)
+const envList = ref([{name: '', value: ''}]) as Ref<NameValueType[]>
 const param = reactive({
   charset: 'utf8',
   cmd: '',
@@ -94,7 +139,11 @@ const asyncActions = MethodInterceptor.createAsyncActionProxy({
 
       // 执行命令
       output.value += `SHELL> ${param.cmd}\n`
-      const res = await SfcUtils.request(WebShellApi.sendSimpleCommand(param, nodeId.value))
+      param.env = {}
+      envList.value.filter(e => e.name.length > 0).forEach(env => {
+        param.env[env.name] = env.value
+      })
+      const res = await SfcUtils.request(WebShellApi.sendSimpleCommand(param, selectCluster.value ? nodeId.value : null))
       output.value += `${res.data.data.output}\n执行耗时: ${res.data.data.time}ms 程序退出码: ${res.data.data.exitCode}\n`
 
       // 滚动到底部
@@ -187,5 +236,16 @@ export default defineComponent({
   .v-field-label--floating {
     top: 6px !important;
   }
+}
+</style>
+
+<style scoped>
+.plain-input {
+  padding: 3px 6px;
+  border-radius: 3px;
+  border: solid 1px rgba(var(--v-theme-primary), .3);
+  width: 100%;
+  outline: none;
+  font-family: Consolas, "Courier New", monospace,Menlo, Monaco;
 }
 </style>

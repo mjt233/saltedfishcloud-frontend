@@ -6,7 +6,7 @@ export namespace WebShellApi {
   /**
    * 发送简单命令执行
    */
-  export function sendSimpleCommand(param: ShellExecuteParameter, nodeId: IdType): CommonRequest<ShellExecuteResult> {
+  export function sendSimpleCommand(param: ShellExecuteParameter, nodeId?: IdType | null): CommonRequest<ShellExecuteResult> {
     return useJsonBody({
       url: `${prefix}/executeCommand`,
       method: 'post',
