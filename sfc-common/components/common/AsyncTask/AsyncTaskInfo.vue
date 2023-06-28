@@ -210,7 +210,6 @@ const taskLogLoader = {
   async loadLogByWs() {
     const ws = await WebSocketService.connect({
       onMessage(msg) {
-        console.log(`onMessage: ${msg}`)
         logText.value += `${msg.data}\n`
       }
     })

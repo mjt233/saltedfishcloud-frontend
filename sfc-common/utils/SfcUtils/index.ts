@@ -31,7 +31,7 @@ const SfcUtils = {
       try {
         ret.push(funcs(...params))
       } catch(err) {
-        console.log(err)
+        console.error(err)
         ret.push(undefined)
       }
       
@@ -40,7 +40,7 @@ const SfcUtils = {
         try {
           ret.push(fun(...params))
         } catch(err) {
-          console.log(err)
+          console.error(err)
           ret.push(undefined)
         }
       })
