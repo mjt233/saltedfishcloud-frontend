@@ -36,7 +36,7 @@ const FileListContextBuilder = {
         } else if (file.md5) {
           return SfcUtils.getApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
         } else {
-          console.log('无法获取该文件的url：',file)
+          console.error('无法获取该文件的url：',file)
           throw new Error('无法获取文件url：' + file.name)
           
         }

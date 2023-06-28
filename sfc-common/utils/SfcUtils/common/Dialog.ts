@@ -201,7 +201,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
           }
         }
       } catch(err) {
-        console.log(err)
+        console.error(err)
         if (autoShowError) {
           SfcUtils.snackbar(err, 1500, {outClose: true})
         }

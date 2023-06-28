@@ -27,7 +27,7 @@ export class DefaultEventBus implements EventBus {
         try {
           fn(data)
         } catch (err) {
-          console.log(err)
+          console.error(err)
         }
       })
     }

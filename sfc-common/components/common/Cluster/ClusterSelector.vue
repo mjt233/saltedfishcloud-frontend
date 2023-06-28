@@ -47,7 +47,6 @@ const loadList = async() => {
     if (props.autoSelect && nodeItems.value && !props.modelValue) {
       emit('update:modelValue', nodeItems.value[0].value)
     }
-    console.log(props.modelValue)
     return nodeItems.value
   } finally {
     loading.value = false

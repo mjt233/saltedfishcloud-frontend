@@ -163,7 +163,7 @@ const doChangePassword = async() => {
     SfcUtils.snackbar('修改成功，请重新登录', 5000, { showClose: true })
     context.routeInfo.value.router?.push('/login')
   } catch(err) {
-    console.log(err)
+    console.error(err)
     SfcUtils.snackbar((err as any).toString())
   } finally {
     changePasswordLoading.value = false
