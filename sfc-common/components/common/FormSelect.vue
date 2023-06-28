@@ -1,23 +1,32 @@
 <template>
-  <v-select
-    v-model="currentSelect"
-    variant="underlined"
-    density="comfortable"
-    class="hide-details no-padding"
-    :class="{' dense-select': dense}"
-    color="primary"
-    :items="items"
-    return-object
-    :multiple="multiple"
-    :label="placeholder"
-    :disabled="disabled"
-  />
+  <div class="form-select">
+    <v-select
+      v-bind="$attrs"
+      v-model="currentSelect"
+      style="width: 100%"
+      variant="underlined"
+      density="comfortable"
+      class="hide-details no-padding"
+      :class="{' dense-select': dense}"
+      color="primary"
+      :items="items"
+      return-object
+      :multiple="multiple"
+      :label="placeholder"
+      :disabled="disabled"
+    />
+    <LoadingMask type="circular" :loading="loading" />
+  </div>
 </template>
 
-<script setup lang="ts">
-const currentSelect = ref() as Ref< SelectOption | undefined >
+<script setup lang="ts" generic="T extends SelectOption">
+const currentSelect = ref() as Ref< T | undefined >
 const props = defineProps({
   dense: {
+    type: Boolean,
+    default: false
+  },
+  loading: {
     type: Boolean,
     default: false
   },
@@ -26,7 +35,7 @@ const props = defineProps({
     default: false
   },
   items: {
-    type: Array as PropType<SelectOption[] | undefined>,
+    type: Array as PropType<T[] | undefined>,
     default: () => []
   },
   placeholder: {
@@ -49,9 +58,37 @@ const props = defineProps({
     default: false
   }
 })
-const emits = defineEmits(['change', 'update:modelValue'])
+const emits = defineEmits<{
+  (e: 'change', v: T): void,
+  (e: 'update:modelValue', v?: any): void
+}>()
+
+
+const updateCurrent = () => {
+  if (props.multiple) {
+    (currentSelect.value as any) = props.items?.filter(e => {
+      return (props.modelValue as any[]).findIndex(e2 => {
+        if (props.returnObject) {
+          return e2.value == e.value
+        } else {
+          return e2 == e.value
+        }
+      }) != -1
+    }) || []
+  } else {
+    currentSelect.value = props.items?.find(e => {
+      if (props.returnObject) {
+        return e.value == props.modelValue.value
+      } else {
+        return e.value == props.modelValue
+      }
+    })
+  }
+}
+
+watch(() => props.items, updateCurrent)
 watch(currentSelect, () => {
-  emits('change', currentSelect.value)
+  emits('change', currentSelect.value as T)
   if (props.returnObject) {
     emits('update:modelValue', currentSelect.value)
   } else {
@@ -83,27 +120,7 @@ watch(() => props.modelValue, (newVal, oldVal) => {
     updateCurrent()
   }
 })
-const updateCurrent = () => {
-  if (props.multiple) {
-    (currentSelect.value as any) = props.items?.filter(e => {
-      return (props.modelValue as any[]).findIndex(e2 => {
-        if (props.returnObject) {
-          return e2.value == e.value
-        } else {
-          return e2 == e.value
-        }
-      }) != -1
-    }) || []
-  } else {
-    currentSelect.value = props.items?.find(e => {
-      if (props.returnObject) {
-        return e.value == props.modelValue.value
-      } else {
-        return e.value == props.modelValue
-      }
-    })
-  }
-}
+
 updateCurrent()
 defineExpose({ updateCurrent })
 </script>
@@ -125,4 +142,8 @@ export default defineComponent({
   }
 }
   
+.form-select {
+  width: 100%;
+  position: relative;
+}
 </style>

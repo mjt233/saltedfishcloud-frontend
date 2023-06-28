@@ -2,6 +2,7 @@
   <FormSelect
     :items="nodeItems"
     placeholder="选择节点"
+    :loading="loading"
     hide-details
     :model-value="modelValue"
     @update:model-value="emit('update:modelValue', $event)"
@@ -31,20 +32,26 @@ const props = defineProps({
     default: undefined
   }
 })
-
+const loading = ref(false)
 const emit = defineEmits(['loaded','update:modelValue', 'change'])
 const loadList = async() => {
-  nodeItems.value = (await SfcUtils.request(API.admin.cluster.listNodes())).data.data.map(node => {
-    return {
-      title: node.host,
-      value: node.id
+  try {
+    loading.value = true
+    nodeItems.value = (await SfcUtils.request(API.admin.cluster.listNodes())).data.data.map(node => {
+      return {
+        title: node.host,
+        value: node.id
+      }
+    })
+    emit('loaded', nodeItems.value)
+    if (props.autoSelect && nodeItems.value && !props.modelValue) {
+      emit('update:modelValue', nodeItems.value[0].value)
     }
-  })
-  emit('loaded', nodeItems.value)
-  if (props.autoSelect && nodeItems.value && !props.modelValue) {
-    emit('update:modelValue', nodeItems.value[0].value)
+    console.log(props.modelValue)
+    return nodeItems.value
+  } finally {
+    loading.value = false
   }
-  return nodeItems.value
 }
 
 onMounted(() => {
