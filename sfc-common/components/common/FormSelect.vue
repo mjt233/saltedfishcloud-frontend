@@ -10,6 +10,7 @@
       :class="{' dense-select': dense}"
       color="primary"
       :items="items"
+      :hide-details="hideDetails"
       return-object
       :multiple="multiple"
       :label="placeholder"
@@ -44,6 +45,10 @@ const props = defineProps({
   },
   returnObject: {
     type: Boolean,
+    default: false
+  },
+  hideDetails: {
+    type: [Boolean, String],
     default: false
   },
   modelValue: {
