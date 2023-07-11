@@ -1,12 +1,7 @@
 <template>
   <div>
     <LoadingMask :loading="loading" />
-    <SimpleTextarea
-      ref="outputRef"
-      v-model="output"
-      readonly
-      class="output"
-    />
+    <WsSimpleTextConsole :output="output" style="height: 50vh;" />
     <div class="d-flex align-center">
       <TextInput
         v-model="param.cmd"
@@ -40,7 +35,7 @@
       <ClusterSelector v-if="selectCluster" v-model="nodeId" style="max-width: 240px;" />
       <FormSelect
         v-model="param.charset"
-        label="程序输出编码"
+        placeholder="程序输出编码"
         style="max-width: 92px;"
         hide-details
         :items="charsetOptions"
@@ -105,7 +100,6 @@ const charsetOptions: SelectOption[] = [ {
   title: 'GBK',
   value: 'gbk'
 }]
-const outputRef = ref() as Ref<ComponentPublicInstance>
 const SfcUtils = window.SfcUtils
 const lm = new LoadingManager()
 const loading = lm.getLoadingRef()
@@ -146,10 +140,6 @@ const asyncActions = MethodInterceptor.createAsyncActionProxy({
       const res = await SfcUtils.request(WebShellApi.sendSimpleCommand(param, selectCluster.value ? nodeId.value : null))
       output.value += `${res.data.data.output}\n执行耗时: ${res.data.data.time}ms 程序退出码: ${res.data.data.exitCode}\n`
 
-      // 滚动到底部
-      await nextTick()
-      const outputDOM = outputRef.value.$el as HTMLElement
-      outputDOM.scrollTop = outputDOM.scrollHeight
       param.cmd = ''
     } catch (err) {
       output.value += '\n执行出错: ' + err + '\n'
@@ -195,6 +185,7 @@ const switchHistoryCmd = (e: KeyboardEvent) => {
 </script>
 
 <script lang="ts">
+import WsSimpleTextConsole from './WsSimpleTextConsole.vue'
 import { defineComponent, Ref, ref } from 'vue'
 import { WebShellApi } from '../api'
 import { reactive } from 'vue'
@@ -205,7 +196,8 @@ export default defineComponent({
   name: 'WsSimpleExecView',
   components: {
     FormSelect: Components.FormSelect,
-    ClusterSelector: Components.ClusterSelector
+    ClusterSelector: Components.ClusterSelector,
+    WsSimpleTextConsole
   }
 })
 </script>
