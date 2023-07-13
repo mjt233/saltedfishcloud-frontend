@@ -1,3 +1,4 @@
+import { ComponentPublicInstance } from 'vue'
 import { AuditModel } from 'sfc-common'
 
 /**
@@ -38,6 +39,22 @@ export interface ShellExecuteParameter {
    * 会话名称
    */
   name?: string
+
+  /**
+   * 是否使用pty模拟终端
+   */
+  pty: boolean
+}
+
+/**
+ * XTerminal组件模型
+ */
+export interface XTerminalModel extends ComponentPublicInstance {
+  /**
+   * 向终端中写入内容
+   * @param text 写入的内容
+   */
+  write: (text:string) => void
 }
 
 /**
@@ -78,4 +95,24 @@ export interface ShellSessionRecord extends AuditModel {
    * 会话名称
    */
   name: string
+
+  /**
+   * 退出代码
+   */
+  exitCode?: number
+
+  /**
+   * pty终端行高
+   */
+  rows: number
+
+  /**
+   * pty终端列宽
+   */
+  cols: number
+
+  /**
+   * 初始化参数
+   */
+  parameter: ShellExecuteParameter
 }

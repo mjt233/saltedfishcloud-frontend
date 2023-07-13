@@ -16,7 +16,16 @@
       <form-col top-label label="程序输出编码">
         <FormSelect v-model="formData.charset" :items="charsetOptions" />
       </form-col>
-      <form-col top-label label="执行节点">
+      <form-col top-label label="类型">
+        <VCheckbox
+          v-model="formData.pty"
+          color="primary"
+          :items="charsetOptions"
+          label="模拟终端"
+          hide-details
+        />
+      </form-col>
+      <form-col class="mw-50" top-label label="执行节点">
         <VCheckboxBtn v-model="isSpecifyHost" color="primary" />
         <ClusterSelector v-if="isSpecifyHost" v-model="host" placeholder="" />
         <span
@@ -73,7 +82,8 @@ const formInst = defineForm({
     name: '新建会话',
     shell: '/bin/bash',
     charset: 'UTF-8',
-    env: {}
+    env: {},
+    pty: true
   } as ShellExecuteParameter,
   formRef: formRef,
   validators: {},
