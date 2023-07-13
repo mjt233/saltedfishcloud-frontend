@@ -27,7 +27,8 @@ const props = defineProps({
   }
 })
 const terminal = new window.xterm.Terminal({
-  cols: props.initCols,
+  // 初始化创建的终端尺寸有点小小偏差，先-1让后面resize来再次重置大小
+  cols: props.initCols - 1,
   rows: props.initRows,
   fontFamily: 'Monaco,Consolas,\'Courier New\',monospace'
 })
@@ -61,7 +62,7 @@ const resizeHandler = () => {
     return
   }
   const rows = Math.floor(dom.value.clientHeight / 18)
-  const cols = Math.floor(dom.value.clientWidth / 7.4)
+  const cols = Math.floor(dom.value.clientWidth / 8)
   if (terminal.rows != rows || terminal.cols != cols) {
     throttleActions.doResize(props.sessionId, rows, cols)
   }
@@ -76,7 +77,9 @@ onMounted(async() => {
   terminal.onKey(e => {
     emits('input', e.key, e.domEvent)
   })
-  await SfcUtils.sleep(300)
+  
+  await SfcUtils.sleep(100)
+  terminal.resize(props.initCols, props.initRows)
   resizeHandler()
   window.addEventListener('resize', resizeHandler)
 })

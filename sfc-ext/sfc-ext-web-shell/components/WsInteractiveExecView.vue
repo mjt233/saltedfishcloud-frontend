@@ -75,7 +75,7 @@ const openPtyConsole = async(session: ShellSessionRecord) => {
     onInput(key: string, event: KeyboardEvent) {
       ws.send(key)
     },
-    sessionId: session.id,
+    sessionId: session.running ? session.id : undefined,
     initRows: session.rows,
     initCols: session.cols,
   })
