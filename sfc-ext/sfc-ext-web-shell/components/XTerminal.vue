@@ -33,7 +33,7 @@ const terminal = new window.xterm.Terminal({
   fontFamily: 'Monaco,Consolas,\'Courier New\',monospace'
 })
 const emits = defineEmits<{
-  (e: 'input', v: string, event: KeyboardEvent): void
+  (e: 'input', v: string): void
 }>()
 
 const write = (text: string) => {
@@ -74,8 +74,8 @@ onMounted(async() => {
   await nextTick()
   terminal.open(dom.value)
   terminal.write(props.initOutput)
-  terminal.onKey(e => {
-    emits('input', e.key, e.domEvent)
+  terminal.onData(text => {
+    emits('input', text)
   })
   
   await SfcUtils.sleep(100)
