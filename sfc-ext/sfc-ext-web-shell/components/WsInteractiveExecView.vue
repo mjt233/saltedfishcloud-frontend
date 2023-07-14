@@ -67,6 +67,16 @@ const openTextConsole = async(session: ShellSessionRecord) => {
 const openPtyConsole = async(session: ShellSessionRecord) => {
   const log = (await SfcUtils.request(WebShellApi.getLog(session.id))).data.data
   const ws = await WebSocketService.connect({url: WebShellApi.getShellWebSocketUrl(session.id)})
+  let isCloseDialog = false
+  ws.onclose = () => {
+    if (!isCloseDialog) {
+      SfcUtils.alert('WebSocket连接已断开，终端无法交互')
+    }
+    
+  }
+  ws.onerror = () => {
+    SfcUtils.snackbar('WebSocket连接出错')
+  }
   const consoleProps = reactive({
     initOutput: log,
     style: {
@@ -84,6 +94,7 @@ const openPtyConsole = async(session: ShellSessionRecord) => {
     props: consoleProps,
     fullscreen: true,
     onCancel() {
+      isCloseDialog = true
       ws.close()
       actions.listSession()
       return true

@@ -78,7 +78,7 @@ onMounted(async() => {
     emits('input', text)
   })
   
-  await SfcUtils.sleep(100)
+  await SfcUtils.sleep(150)
   terminal.resize(props.initCols, props.initRows)
   resizeHandler()
   window.addEventListener('resize', resizeHandler)
