@@ -55,6 +55,15 @@
             <td><span :class="`status-text-${task.status}`">{{ AsyncTaskRecordStatusDict[task.status] || task.status }}</span></td>
             <td>
               <CommonIcon
+                v-if="[2,3,4].includes(task.status)"
+                v-ripple
+                title="再次执行任务"
+                class="simple-icon-btn"
+                color="primary"
+                icon="mdi-play"
+                @click="rerun(task)"
+              />
+              <CommonIcon
                 v-if="task.status != 0"
                 v-ripple
                 title="查看任务详情"
@@ -97,6 +106,10 @@ const queryResult = reactive({
   totalPage: 0
 }) as CommonPageInfo<AsyncTaskRecord>
 
+const rerun = async(task: AsyncTaskRecord) => {
+  await SfcUtils.confirm(`确定要再次执行任务${task.name}吗?`, '确认')
+  actions.rerun(task)
+}
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadData() {
     const result = (await SfcUtils.request(API.asyncTask.listRecord({page: page.value - 1, size: size.value}))).data.data
@@ -118,6 +131,12 @@ const actions = MethodInterceptor.createAsyncActionProxy({
         maxWidth: '1280px'
       }
     })
+  },
+  async rerun(task: AsyncTaskRecord) {
+    await SfcUtils.request(API.asyncTask.rerun(task.id))
+    await SfcUtils.sleep(200)
+    await this.loadData()
+    SfcUtils.snackbar('操作成功')
   },
   async interruptTask(task: AsyncTaskRecord) {
     return await SfcUtils.request(API.asyncTask.interrupt(task.id))
