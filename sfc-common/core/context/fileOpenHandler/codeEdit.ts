@@ -75,10 +75,11 @@ const handler: FileOpenHandler = {
     const extName = file.name.split('.').pop()?.toLowerCase() || file.name
     const supportType = new Set([
       'js', 'ts', 'tsx', 'jsx',
-      'html', 'htm', 'xml',
+      'html', 'htm', 'xml','vue',
       'css', 'scss', 'less',
-      'python', 'php', 'c', 'cpp','java', 'json','bat', 'lua',
-      'txt', 'ini', 'log', 'properties', 'cfg', 'vue'
+      'go', 'c', 'cpp','java',
+      'py','bat', 'cmd', 'lua','php', 
+      'sql', 'json', 'txt', 'ini', 'log', 'properties', 'cfg', 'dockerfile', 'yml', 'yaml'
     ])
     return supportType.has(extName)
   },
@@ -104,6 +105,8 @@ const handler: FileOpenHandler = {
       language = 'java'
     } else if (extName == 'md') {
       language = 'markdown'
+    } else if (extName == 'sql') {
+      language = 'sql'
     } else {
       language = 'editor'
     }

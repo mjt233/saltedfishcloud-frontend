@@ -145,10 +145,8 @@ const interruptTask = () => {
 
 const formatJsonText = (json: string) => {
   const obj = JSON.parse(json)
-  let res = '{'
-  Object.keys(obj).forEach(key => {
-    res += `\n  "${key}": ${JSON.stringify(obj[key])}`
-  })
+  let res = '{\n'
+  res += Object.keys(obj).map(key => `  "${key}": ${JSON.stringify(obj[key])}`).join(',\n')
   res += '\n}'
   return res
 }

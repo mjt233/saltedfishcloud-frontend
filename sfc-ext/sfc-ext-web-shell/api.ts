@@ -56,6 +56,17 @@ export namespace WebShellApi {
   }
 
   /**
+   * 修改pty会话终端尺寸
+   * @param sessionId 会话id
+   */
+  export function resizePty(sessionId: IdType, rows: number, cols: number): CommonRequest<ShellSessionRecord> {
+    return {
+      url: `${prefix}/resizePty`,
+      params: { sessionId, rows, cols }
+    }
+  }
+
+  /**
    * 删除会话
    * @param sessionId 会话id
    */
