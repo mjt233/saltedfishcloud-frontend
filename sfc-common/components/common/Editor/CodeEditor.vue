@@ -56,7 +56,11 @@ const props = defineProps({
     default: false
   }
 })
-const emits = defineEmits(['update:modelValue', 'patseImage'])
+const emits = defineEmits<{
+  (name: 'update:modelValue', val: string): void,
+  (name: 'patseImage', val: File): void,
+  (name: 'save', val: string): void
+}>()
 const workerMap = {
   jsonWorker,
   htmlWorker,
@@ -178,10 +182,24 @@ onMounted(async() => {
     readOnly: props.readOnly,
     wordWrap: props.wordWrap ? 'on' : 'off'
   })
+  // 触发update:modelValue，以及自动滚动到底部和自动拓展高度
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
     scrollToBottom()
     growHeight()
+  })
+  // 注册Ctrl+S保存事件
+  editor.addAction({
+    id: 'save',
+    label: 'save',
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+    run(editor, ...args) {
+      if (!props.readOnly) {
+        emits('save', editor.getValue())
+      } else {
+        SfcUtils.snackbar('只读文件，无法保存')
+      }
+    },
   })
   await nextTick()
   editor.layout({ height: 100, width: 100 })
