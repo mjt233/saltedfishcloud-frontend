@@ -60,6 +60,8 @@ export interface MenuGroup<T> {
   action?: (ctx: T) => any
 }
 
+export type MenuSubItem<T> = MenuGroup<T>[] | ((ctx: T) => MenuGroup<T>[])
+
 /**
  * 菜单项
  */
@@ -83,6 +85,11 @@ export interface MenuItem<T> {
    * 菜单转跳路由
    */
   route?: string,
+
+  /**
+   * 子菜单
+   */
+  subItems?: MenuSubItem<T>
 
   /**
    * 当函数返回true时才显示
