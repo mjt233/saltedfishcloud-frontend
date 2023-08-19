@@ -21,6 +21,8 @@
       <!-- 文件右键菜单组件 -->
       <file-menu
         v-if="menu.length > 0"
+        ref="menuRef"
+        class="file-menu"
         :container="$el"
         :menu="menu"
         :list-context="fileListContext"
@@ -211,6 +213,7 @@ let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null 
 // 执行重命名取消动作的函数，在grid和list模式下是不同的，动态赋值
 let cancelRenameActionFun: Function
 const tableWidth = ref('100%')
+const menuRef = ref() as Ref<ComponentPublicInstance>
 const rootRef = ref() as Ref<HTMLElement>
 const tableRef = ref() as Ref<ComponentPublicInstance>
 const gridRef = ref() as Ref<ComponentPublicInstance>
@@ -411,6 +414,7 @@ const doRename = async() => {
  * @param e 鼠标事件
  */
 const rootLClick = (e: MouseEvent) => {
+  menuRef.value && (menuRef.value as any).closeMenu()
   if (!lastClickFile && !e.ctrlKey && !inSelect) {
     resetSelect()
   }

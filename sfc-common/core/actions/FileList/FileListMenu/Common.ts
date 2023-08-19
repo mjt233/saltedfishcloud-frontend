@@ -1,8 +1,7 @@
 import { VBtn } from 'vuetify/components'
-import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 import { FileListContext } from 'sfc-common/model'
-import { MenuGroup } from 'sfc-common/core/context'
+import { MenuGroup, MenuItem, context } from 'sfc-common/core/context'
 import { ShareService } from 'sfc-common/core/serivce/ShareService'
 import { CreateLinkForm } from 'sfc-common/components/'
 import { h } from 'vue'
@@ -12,6 +11,16 @@ const commonGroup: MenuGroup<FileListContext> = {
   id: 'common',
   name: '通用功能',
   items: [
+    // {
+    //   id: 'open',
+    //   title: '打开',
+    //   action(ctx) {
+    //     SfcUtils.openFile(ctx, ctx.selectFileList[0])
+    //   },
+    //   renderOn(ctx) {
+    //     return ctx.selectFileList && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir
+    //   }
+    // },
     {
       id: 'refresh',
       title: '刷新',
@@ -77,6 +86,46 @@ const commonGroup: MenuGroup<FileListContext> = {
           }
         })
       }
+    },
+    {
+      id: 'open-as',
+      title: '打开方式',
+      icon: '',
+      subItems: (ctx) => {
+        const file = ctx.selectFileList[0]
+        const items = context.fileOpenHandler.value.map(handler => {
+          return {
+            id: `open-as-${handler.id}`,
+            title: handler.title,
+            renderOn: () => handler.matcher(ctx, file),
+            action(ctx) {
+              handler.action(ctx, file)
+            },
+            icon: handler.icon
+          } as MenuItem<FileListContext>
+        })
+        items.push({
+          id: 'open-as-more',
+          title: '更多',
+          action(ctx) {
+            SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], context.fileOpenHandler.value)
+          }
+        })
+        return [
+          {
+            id: 'open-as-group',
+            renderOn: () => true,
+            name: '打开方式',
+            items: items
+          }
+        ]
+      },
+      renderOn(ctx) {
+        return ctx.selectFileList && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir
+      },
+      action(ctx) {
+        SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], context.fileOpenHandler.value)
+      },
     }
   ]
 }

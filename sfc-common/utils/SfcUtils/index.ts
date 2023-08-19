@@ -125,6 +125,35 @@ const SfcUtils = {
   openApiUrl(apiConfig: any) {
     this.openUrl(this.getApiUrl(apiConfig))
   },
+  /**
+   * 打开“文件打开方式选择”对话框
+   * @param ctx 文件列表上下文
+   * @param file 文件信息
+   * @param handlers 文件打开方式列表
+   */
+  openFileOpenSelectorDialog(ctx: FileListContext, file: FileInfo, handlers: FileOpenHandler[]) {
+    const inst = this.openComponentDialog(FileOpenSelectorVue, {
+      props: {
+        ctx,
+        file,
+        handlers,
+        onSelect(handler: FileOpenHandler) {
+          handler.action(ctx, file)
+          inst.close()
+        }
+      },
+      title: '选择打开方式',
+      dense: true,
+      showConfirm: false,
+      showCancel: false,
+      footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
+    })
+  },
+  /**
+   * 打开文件
+   * @param ctx 文件列表上下文
+   * @param file 文件信息
+   */
   openFile(ctx: FileListContext, file: FileInfo) {
     const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))
     if (handlers.length == 1) {
@@ -134,22 +163,7 @@ const SfcUtils = {
     } else if (handlers.length == 2 && handlers[1].isDefault) {
       handlers[1].action(ctx, file)
     } else {
-      const inst = this.openComponentDialog(FileOpenSelectorVue, {
-        props: {
-          ctx,
-          file,
-          handlers,
-          onSelect(handler: FileOpenHandler) {
-            handler.action(ctx, file)
-            inst.close()
-          }
-        },
-        title: '选择打开方式',
-        dense: true,
-        showConfirm: false,
-        showCancel: false,
-        footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
-      })
+      this.openFileOpenSelectorDialog(ctx, file, handlers)
     }
   },
   beginLoading() {

@@ -100,7 +100,7 @@ const handler: FileOpenHandler = {
       'html', 'htm', 'xml','vue',
       'css', 'scss', 'less',
       'go', 'c', 'cpp','java',
-      'py','bat', 'cmd', 'lua','php', 
+      'py','bat', 'cmd', 'lua','php', 'sh',
       'sql', 'json', 'txt', 'ini', 'log', 'properties', 'cfg', 'dockerfile', 'yml', 'yaml'
     ])
     return supportType.has(extName)
