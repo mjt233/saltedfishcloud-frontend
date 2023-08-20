@@ -129,14 +129,16 @@ const SfcUtils = {
    * 打开“文件打开方式选择”对话框
    * @param ctx 文件列表上下文
    * @param file 文件信息
-   * @param handlers 文件打开方式列表
+   * @param handlerOptions 文件打开方式列表或分组
    */
-  openFileOpenSelectorDialog(ctx: FileListContext, file: FileInfo, handlers: FileOpenHandler[]) {
+  openFileOpenSelectorDialog(ctx: FileListContext, file: FileInfo, handlerOptions: {handlers?: FileOpenHandler[], handlerGroups?: {name: string, handlers: FileOpenHandler[]}[] }) {
+    const { handlers, handlerGroups} = handlerOptions
     const inst = this.openComponentDialog(FileOpenSelectorVue, {
       props: {
         ctx,
         file,
         handlers,
+        handlerGroups,
         onSelect(handler: FileOpenHandler) {
           handler.action(ctx, file)
           inst.close()
@@ -163,7 +165,7 @@ const SfcUtils = {
     } else if (handlers.length == 2 && handlers[1].isDefault) {
       handlers[1].action(ctx, file)
     } else {
-      this.openFileOpenSelectorDialog(ctx, file, handlers)
+      this.openFileOpenSelectorDialog(ctx, file, {handlers})
     }
   },
   beginLoading() {

@@ -5,6 +5,7 @@ import { FileInfo, FileListContext } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { context } from '..'
 import { FileOpenHandler } from '../type'
+import { StringFormatter } from 'sfc-common/utils'
 
 async function doSave(ctx: FileListContext, file: FileInfo, content: string) {
   try {
@@ -86,6 +87,53 @@ export async function openFileEditDialog(component: any, componentProps: any, ur
   }
 }
 
+const confirmOpen = async(ctx: FileListContext, file: FileInfo) => {
+  if (file.size > 1024 * 1024 * 32) {
+    return SfcUtils.confirm(`文件较大(${StringFormatter.toSize(file.size)})，可能会导致浏览器卡死或加载时间过长，是否继续？`, '文件太大', {
+      cancelToReject: true
+    })
+  } else {
+    return true
+  }
+}
+
+const doOpen = (ctx: FileListContext, file: FileInfo) => {
+  const url = ctx.getFileUrl(file)
+  if (!url) {
+    throw new Error('无法获取文件url')
+  }
+  const extName = file.name.split('.').pop()?.toLowerCase() || file.name
+
+  // 匹配语言
+  let language
+  if (['js', 'ts', 'tsx', 'jsx'].includes(extName)) {
+    language = 'javascript'
+  } else if (extName == 'json') {
+    language = 'json'
+  } else if (['html', 'htm', 'vue', 'xml'].includes(extName)) {
+    language = 'html'
+  } else if (['css', 'less', 'scss'].includes(extName)) {
+    language = 'css'
+  } else if (extName == 'java') {
+    language = 'java'
+  } else if (extName == 'md') {
+    language = 'markdown'
+  } else if (extName == 'sql') {
+    language = 'sql'
+  } else {
+    language = 'editor'
+  }
+  const props = {
+    language,
+    autoGrow: false,
+    useMiniMap: true,
+    style: {
+      height: '100%'
+    }
+  }
+  openFileEditDialog(CodeEditor, props, url, ctx, file)
+}
+
 const handler: FileOpenHandler = {
   id: 'code-edit',
   title: '编辑器',
@@ -107,40 +155,8 @@ const handler: FileOpenHandler = {
   },
   sort: 0,
   async action(ctx, file) {
-    const url = ctx.getFileUrl(file)
-    if (!url) {
-      throw new Error('无法获取文件url')
-    }
-    const extName = file.name.split('.').pop()?.toLowerCase() || file.name
-
-    // 匹配语言
-    let language
-    if (['js', 'ts', 'tsx', 'jsx'].includes(extName)) {
-      language = 'javascript'
-    } else if (extName == 'json') {
-      language = 'json'
-    } else if (['html', 'htm', 'vue', 'xml'].includes(extName)) {
-      language = 'html'
-    } else if (['css', 'less', 'scss'].includes(extName)) {
-      language = 'css'
-    } else if (extName == 'java') {
-      language = 'java'
-    } else if (extName == 'md') {
-      language = 'markdown'
-    } else if (extName == 'sql') {
-      language = 'sql'
-    } else {
-      language = 'editor'
-    }
-    const props = {
-      language,
-      autoGrow: false,
-      useMiniMap: true,
-      style: {
-        height: '100%'
-      }
-    }
-    openFileEditDialog(CodeEditor, props, url, ctx, file)
+    await confirmOpen(ctx, file)
+    doOpen(ctx, file)
   }
 }
 

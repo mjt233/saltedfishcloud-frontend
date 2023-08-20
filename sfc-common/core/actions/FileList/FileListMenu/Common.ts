@@ -1,3 +1,4 @@
+import { FileOpenHandler } from 'sfc-common/core/context/type'
 import { VBtn } from 'vuetify/components'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 import { FileListContext } from 'sfc-common/model'
@@ -11,16 +12,6 @@ const commonGroup: MenuGroup<FileListContext> = {
   id: 'common',
   name: '通用功能',
   items: [
-    // {
-    //   id: 'open',
-    //   title: '打开',
-    //   action(ctx) {
-    //     SfcUtils.openFile(ctx, ctx.selectFileList[0])
-    //   },
-    //   renderOn(ctx) {
-    //     return ctx.selectFileList && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir
-    //   }
-    // },
     {
       id: 'refresh',
       title: '刷新',
@@ -108,7 +99,7 @@ const commonGroup: MenuGroup<FileListContext> = {
           id: 'open-as-more',
           title: '更多',
           action(ctx) {
-            SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], context.fileOpenHandler.value)
+            openMore(ctx)
           }
         })
         return [
@@ -124,10 +115,36 @@ const commonGroup: MenuGroup<FileListContext> = {
         return ctx.selectFileList && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir
       },
       action(ctx) {
-        SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], context.fileOpenHandler.value)
+        openMore(ctx)
       },
     }
   ]
+}
+
+function openMore(ctx: FileListContext) {
+  var file = ctx.selectFileList[0]
+  var matched: FileOpenHandler[] = []
+  var other: FileOpenHandler[] = []
+  context.fileOpenHandler.value.forEach(handler => {
+    if (handler.matcher(ctx, file)) {
+      matched.push(handler)
+    } else {
+      other.push(handler)
+    }
+  })
+  SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], {
+    handlers: context.fileOpenHandler.value,
+    handlerGroups: matched.length == 0 ? undefined : [
+      {
+        name: '推荐',
+        handlers: matched
+      },
+      {
+        name: '其他',
+        handlers: other
+      }
+    ]
+  })
 }
 
 export default commonGroup
