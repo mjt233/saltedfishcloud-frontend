@@ -1,17 +1,22 @@
 <template>
-  <v-snackbar
-    v-model="active"
-    :timeout="timeout"
-    @mouseover="stopTimeout"
-    @mouseleave="startTimeout"
-  >
-    <span class="break-text text"> {{ text }}</span>
-    <template v-if="showClose" #actions>
-      <v-btn color="red" @click="doClose">
-        CLOSE
-      </v-btn>
-    </template>
-  </v-snackbar>
+  <teleport :to="teleportTo">
+    <div class="custom-snackbar" :class="{leave: !active, enter: isEnter}">
+      <div
+        class="custom-snackbar-content elevation-8"
+        @mouseover="stopTimeout"
+        @mouseleave="startTimeout"
+      >
+        <div class="break-text text">
+          {{ text }}
+        </div>
+        <template v-if="showClose">
+          <v-btn variant="plain" @click="doClose">
+            <span class="text-red">CLOSE</span>
+          </v-btn>
+        </template>
+      </div>
+    </div>
+  </teleport>
 </template>
 
 <script setup lang="ts">
@@ -36,21 +41,24 @@ const props = defineProps({
   outClose: {
     type: Boolean,
     default: false
+  },
+  teleportTo: {
+    type: String,
+    default: '.body-snackbar-container'
   }
 })
-
+const isEnter = ref(true)
 const active = ref(true)
 const closeSnackBar = (e: MouseEvent) => {
-  if(props.outClose  && !DOMUtils.getElParentByClass(e.target as HTMLElement, 'v-overlay-container')) {
-    active.value = false
-    emitClose()
+  if(props.outClose  && !DOMUtils.getElParentByClass(e.target as HTMLElement, 'custom-snackbar')) {
+    doClose()
   }
 }
 
 const emitClose = () => {
   setTimeout(() => {
     emit('close')
-  }, 200)
+  }, 250)
   document.removeEventListener('click', closeSnackBar)
 }
 /**
@@ -58,14 +66,9 @@ const emitClose = () => {
  */
 let time: any = null
 const startTimeout = () => {
-
-  time = setTimeout(() => {
-    active.value = false
-    emitClose()
-  }, props.timeout)
+  time = setTimeout(() => doClose() , props.timeout)
 }
 
-startTimeout()
 
 const doClose = () => {
   active.value = false
@@ -77,6 +80,12 @@ const stopTimeout = () => {
   clearTimeout(time)
 }
 
+onMounted(async() => {
+  await SfcUtils.sleep(250)
+  isEnter.value = false
+  startTimeout()
+})
+
 onMounted(() => {
   setTimeout(() => {
     document.addEventListener('click', closeSnackBar)
@@ -87,6 +96,7 @@ onMounted(() => {
 <script lang="ts">
 import { defineComponent, ref, defineProps, defineEmits, onMounted, getCurrentInstance, nextTick } from 'vue'
 import DOMUtils from 'sfc-common/utils/DOMUtils'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 export default defineComponent({
   name: 'SnackBar'
 })
@@ -94,8 +104,35 @@ export default defineComponent({
 
 
 
-<style scoped>
+<style scoped lang="scss">
 .text {
-  color: white;
+  color: #fff;
+  padding: 12px;
+}
+
+.custom-snackbar-content {
+  background-color: #333333;
+  border-radius: 4px;
+  margin: 6px 0;
+  display: inline-flex;
+  min-width: 280px;
+  position: relative;
+  font-size: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-snackbar {
+  &.enter {
+    animation: up-in .2s;
+  }
+  
+  &.leave {
+    animation: up-in .2s;
+    animation-direction: reverse;
+    opacity: 0;
+  }
 }
 </style>
