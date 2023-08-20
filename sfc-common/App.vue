@@ -7,6 +7,9 @@
     <router-view />
     <file-upload-dialog v-model:show="visiableWindows.uploadList" :task-manager="taskManager" />
     <!-- <debug-console :active="true" /> -->
+
+    <!-- snackbar气泡提示统一容器 -->
+    <div class="body-snackbar-container" />
   </v-app>
   
 </template>
@@ -41,3 +44,15 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+.body-snackbar-container {
+  position: fixed;
+  z-index: 999999;
+  width: 100vw;
+  max-width: 640px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+</style>
