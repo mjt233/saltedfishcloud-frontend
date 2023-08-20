@@ -3,7 +3,6 @@
     <v-btn ref="menuAnchor" class="menu-anchor" v-bind="$attrs">
       <v-menu v-model="showMenu" activator="parent">
         <v-list
-          ref="menuRef"
           bg-color="background"
           class="menu-list"
         >
@@ -74,6 +73,7 @@ const emits = defineEmits<{
   (name: 'close'): void
 }>()
 const subItemRefMap = {} as {[other: string]: any}
+const itemRefMap = {} as {[other: string]: any}
 
 /**
  * 获取菜单子项数组
@@ -83,7 +83,6 @@ const getSubItems = (items?: MenuSubItem<FileListContext>) => {
   if (items instanceof Function) {
     return items(propsAttr.listContext)
   } else {
-    console.log(items)
     return items as unknown as MenuGroup<FileListContext>[]
   }
 }
@@ -105,7 +104,6 @@ const availableMenu = computed(() => {
 })
 
 const menuAnchor = ref()
-const menuRef = ref()
 const showMenu = ref(false)
 
 /**
@@ -225,16 +223,14 @@ const itemOver = (e: MouseEvent, item: MenuItem<FileListContext>) => {
   if (curOpenSubItemRef == subItemRef) {
     return
   } else if (subItemRef && curOpenSubItemRef != subItemRef) {
+    closeAllSubItem()
     curOpenSubItemRef = subItemRef
     
     const activatorDOM = DOMUtils.getElParentByClass(e.target as HTMLElement, 'file-menu-item')
     const { x, y, width, height } = activatorDOM?.getBoundingClientRect() as DOMRect
     subItemRef.openMenu(x + width - 16, y)
   } else {
-    if (curOpenSubItemRef) {
-      curOpenSubItemRef.closeMenu()
-    }
-    curOpenSubItemRef = null
+    closeAllSubItem()
   } 
 }
 watch(() => propsAttr.container, () => {

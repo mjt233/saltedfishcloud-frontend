@@ -1,4 +1,4 @@
-import { ResourceRequest } from 'sfc-common'
+import { ResourceRequest, StringFormatter } from 'sfc-common'
 import { openFileEditDialog } from './codeEdit'
 
 import SfcUtils from 'sfc-common/utils/SfcUtils'
@@ -19,6 +19,9 @@ const handler: FileOpenHandler = {
     if (!url) {
       SfcUtils.alert('获取文件' + file.name + '的url失败')
       return
+    }
+    if (file.size > 1024 * 1024 * 5) {
+      await SfcUtils.confirm(`文件较大(${StringFormatter.toSize(file.size)})，可能会导致浏览器卡死，是否继续？`, '文件过大')
     }
     openFileEditDialog(MarkdownEditor, {
       language: 'markdown',
