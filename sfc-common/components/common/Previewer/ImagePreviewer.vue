@@ -31,7 +31,7 @@
         >
           <div class="bar-img-container">
             <file-icon
-              class="bar-img"
+              class="bar-img d-flex"
               :md5="file.md5"
               :file-name="file.name"
               :dir="false"
@@ -47,11 +47,28 @@
     </div>
 
     <!-- 主图预览 -->
-    <div class="image-container">
+    <div
+      ref="imgContainerRef"
+      class="image-container"
+      @wheel="mouseScrollHandler" 
+      @mousedown.prevent="mouseDownHandler"
+      @mousemove="mousemoveHandler"
+      @mouseup="mouseUpHandler"
+      @dblclick="doubleClickHandler"
+    >
       <loading-mask :loading="loading" />
 
       <!-- 主图 -->
-      <v-img v-if="showMainImg" class="main-img" :src="imgSrc">
+      <v-img
+        v-if="showMainImg"
+        ref="imgRef"
+        class="main-img"
+        :class="{'no-transition': noTransition}"
+        :src="imgSrc"
+        @load="imgLoadHandler"
+        @dragover.prevent
+        @drop.prevent
+      >
         <template #placeholder>
           <loading-mask :loading="true" :type="'circular'" />
         </template>
@@ -71,6 +88,7 @@
             icon="mdi-arrow-right"
             @click="selectImage(activeIdx < fileList.length - 1 ? activeIdx + 1 : 0)"
           />
+          {{ scaleSize.toFixed(0) }} %
         </div>
       </div>
     </div>
@@ -89,6 +107,43 @@ const activeIdx = ref(0)
 
 // 是否显示预览主图
 const showMainImg = ref(true)
+
+// 缩放大小
+const scaleSize = ref(100)
+
+// img主图容器DOM
+const imgContainerRef = ref<HTMLElement>()
+
+// img主图组件实例引用
+const imgRef = ref<InstanceType<typeof VImg>>()
+
+// 鼠标点击按下时的鼠标和图片位置
+const mouseDownPosition = { y: 0, x: 0, imgY: 0, imgX: 0 }
+
+let moving = false
+
+// 图像原始大小
+const naturalSize = reactive({
+  height: 0,
+  width: 0
+})
+
+// 当前显示大小
+const showSize = computed(() => {
+  return {
+    height: (naturalSize.height * scaleSize.value / 100) + 'px',
+    width: (naturalSize.width * scaleSize.value / 100) + 'px',
+  }
+})
+
+// 当前显示位置
+const showPosition = reactive({
+  top: '0px',
+  left: '0px'
+})
+
+// 是否关闭主图的CSS过渡
+const noTransition = ref(false)
 
 const props = defineProps({
   /**
@@ -127,7 +182,127 @@ const props = defineProps({
  */
 const selectImage = (idx: number) => {
   activeIdx.value = idx
+  showPosition.left = '0px'
+  showPosition.top = '0px'
   emits('update:imageIndex', idx)
+}
+
+/**
+ * 主图鼠标按下时处理函数，记录最初点击的鼠标坐标用于后续计算鼠标发生移动的位置。
+ * @param e 鼠标事件
+ */
+const mouseDownHandler = (e: MouseEvent) => {
+  mouseDownPosition.x = e.clientX
+  mouseDownPosition.y = e.clientY
+  mouseDownPosition.imgX = parseFloat(showPosition.left)
+  mouseDownPosition.imgY = parseFloat(showPosition.top)
+  moving = true
+}
+
+/**
+ * 主图鼠标移动时处理函数
+ * @param e 鼠标事件
+ */
+const mousemoveHandler = (e: MouseEvent) => {
+  if (!moving) {
+    return
+  }
+  noTransition.value = true
+  const moveX = e.clientX - mouseDownPosition.x
+  const moveY = e.clientY - mouseDownPosition.y
+  showPosition.left = mouseDownPosition.imgX + moveX + 'px'
+  showPosition.top = mouseDownPosition.imgY + moveY + 'px'
+}
+
+/**
+ * 主图鼠标放开时处理函数
+ * @param e 鼠标事件
+ */
+const mouseUpHandler = (e: MouseEvent) => {
+  noTransition.value = false
+  moving = false
+}
+
+/**
+ * 鼠标滚轮滚动事件处理函数，计算缩放值
+ * @param e 滚轮滚动事件
+ */
+const mouseScrollHandler = (e: WheelEvent) => {
+  let newSize = scaleSize.value - e.deltaY/10
+  if (scaleSize.value >= 1600 && e.deltaY < 0) {
+    newSize = 1600
+  } else {
+    newSize = Math.trunc(newSize / 10)*10
+  }
+  imgActions.setScale(Math.max(0, newSize), true)
+}
+
+/**
+ * 主图价值完毕处理器，记录原始尺寸，并重置缩放
+ */
+const imgLoadHandler = async() => {
+  if (!imgRef.value || !imgRef.value.image) {
+    return
+  }
+  naturalSize.height = imgRef.value.image.naturalHeight
+  naturalSize.width = imgRef.value.image.naturalWidth
+  scaleSize.value = 100
+  await nextTick()
+  imgActions.setAdaptSize()
+  imgActions.setCenter()
+}
+
+const imgActions = {
+  /**
+   * 设置主图缩放大小
+   * @param scale 缩放大小
+   * @param fromCenter  是否从图像中间锚点缩放 
+   */
+  async setScale(scale: number, fromCenter?: boolean) {
+    if (!fromCenter) {
+      scaleSize.value = scale
+    } else {
+      // 计算缩放后前后尺寸之差，
+      const originWidth = parseFloat(showSize.value.width)
+      const originHeight = parseFloat(showSize.value.height)
+      scaleSize.value = scale
+      await nextTick()
+      const newWidth = parseFloat(showSize.value.width)
+      const newHeight = parseFloat(showSize.value.height)
+      showPosition.left = parseFloat(showPosition.left) - ((newWidth - originWidth) / 2) + 'px'
+      showPosition.top = parseFloat(showPosition.top) - ((newHeight - originHeight) / 2) + 'px'
+    }
+  },
+  /**
+   * 使图片定位居中
+   */
+  setCenter() {
+    const { width, height } = showSize.value
+    const { clientHeight: containerHeight, clientWidth: containerWidth } = imgContainerRef.value as HTMLElement
+    const imgWidth = parseFloat(width), imgHeight = parseFloat(height)
+    showPosition.top = (containerHeight - imgHeight) / 2 + 'px'
+    showPosition.left = (containerWidth - imgWidth) / 2 + 'px'
+  },
+  /**
+   * 设置图片为自适应尺寸
+   */
+  setAdaptSize() {
+    const { naturalWidth: imgWidth, naturalHeight: imgHeight } = (imgRef.value?.image) as HTMLImageElement 
+    const { clientHeight: containerHeight, clientWidth: containerWidth } = imgContainerRef.value as HTMLElement
+    if (imgWidth <= containerWidth && imgHeight <= containerHeight) {
+      scaleSize.value = 100
+      return
+    }
+    const xRatio = containerWidth/imgWidth * 100
+    const yRatio = containerHeight/imgHeight * 100
+
+    scaleSize.value = Math.min(xRatio, yRatio)
+  }
+}
+
+const doubleClickHandler = () => {
+  imgActions.setAdaptSize()
+  imgActions.setCenter()
 }
 
 /**
@@ -226,6 +401,10 @@ onMounted(() => {
   activeIdx.value = props.imageIndex
 })
 
+defineExpose({
+  selectImage
+})
+
 </script>
 
 <script lang="ts">
@@ -233,6 +412,8 @@ import { FileInfo } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import API from 'sfc-common/api'
+import { VImg } from 'vuetify/components'
+import { reactive } from 'vue'
 
 export default defineComponent({
   name: 'ImagePreviewer'
@@ -352,6 +533,7 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
     @media screen and (max-width: 1024px) {
       height: calc(100% - 360px)
     }
@@ -361,11 +543,23 @@ export default defineComponent({
     
     // 预览主图
     .main-img {
-      width: 100%;
-      height: 100%;
+      width: v-bind('showSize.width');
+      height: v-bind('showSize.height');
+      top: v-bind('showPosition.top');
+      left: v-bind('showPosition.left');
+      max-width: unset;
+      max-height: unset;
+      transition: all .1s;
+      cursor: grab;
+      &:active {
+        cursor: grabbing;
+      }
+      &.no-transition {
+        transition: none;
+      }
     }
 
-    // 主图下凡的工具按钮栏
+    // 主图下方的工具按钮栏
     .image-tool-bar {
       position: absolute;
       width: 100%;
