@@ -31,7 +31,7 @@
         >
           <div class="bar-img-container">
             <file-icon
-              class="bar-img"
+              class="bar-img d-flex"
               :md5="file.md5"
               :file-name="file.name"
               :dir="false"
