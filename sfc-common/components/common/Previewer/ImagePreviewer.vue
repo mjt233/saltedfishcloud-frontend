@@ -180,10 +180,11 @@ const props = defineProps({
  * 选择一张图片预览
  * @param idx 图片下标索引
  */
-const selectImage = (idx: number) => {
+const selectImage = async(idx: number) => {
   activeIdx.value = idx
-  showPosition.left = '0px'
-  showPosition.top = '0px'
+  imgActions.setAdaptSize()
+  await nextTick()
+  imgActions.setCenter()
   emits('update:imageIndex', idx)
 }
 
@@ -401,8 +402,14 @@ onMounted(() => {
   activeIdx.value = props.imageIndex
 })
 
+onUnmounted(() => {
+  window.removeEventListener('keydown', keyHandler)
+})
+
+
 defineExpose({
-  selectImage
+  selectImage,
+  ...imgActions
 })
 
 </script>
