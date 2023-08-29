@@ -46,7 +46,6 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
   tempDOM.style.top = '0'
   tempDOM.style.width = '100vw'
   tempDOM.style.height = '100vh'
-  tempDOM.style.pointerEvents = 'none'
   tempDOMHandler(tempDOM)
   Object.assign(props, {
     ref: ROOT_REF_NAME
