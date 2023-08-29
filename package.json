@@ -23,6 +23,7 @@
     "highlight.js": "^11.7.0",
     "js-md5": "^0.7.3",
     "markdown-it": "^13.0.1",
+    "markdown-it-task-lists": "^2.1.1",
     "monaco-editor": "^0.34.1",
     "qs": "^6.10.3",
     "roboto-fontface": "*",

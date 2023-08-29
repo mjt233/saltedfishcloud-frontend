@@ -55,7 +55,7 @@ const md = new MarkdownIt({
     }
     return `<div class="markdown-code">${result}</div>`
   }
-})
+}).use(MarkdownItTaskLists, {enabled: true})
 
 /**
  * markdown token访问器，通过访问函数对token自身及其所有子token进行遍历，免去重复编写递归遍历代码
@@ -75,7 +75,7 @@ md.core.ruler.push('replace_img_url', (state) => {
     tokenVisitor(rootToken, token => {
       if (token.tag == 'img') {
         const originSrc = token.attrGet('src')
-        if (!originSrc || !originSrc.startsWith('./') ) {
+        if (!originSrc || originSrc.startsWith('http://') || originSrc.startsWith('https://')) {
           return
         }
 
@@ -253,6 +253,7 @@ watch(() => props.content, update)
 <script lang="ts">
 import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
+import MarkdownItTaskLists from 'markdown-it-task-lists'
 import 'highlight.js/styles/atom-one-dark.css'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick, inject } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
@@ -341,7 +342,7 @@ export default defineComponent({
     border-radius: 6px;
     padding: 12px;
     margin-bottom: 0;
-    // width: 100%;
+    overflow: auto;
   }
 }
 </style>
