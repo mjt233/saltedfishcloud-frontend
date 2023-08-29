@@ -32,7 +32,7 @@
             <v-list-item
               :key="group.id"
               :title="group.name"
-              active-color="primary"
+              color="primary"
               :active="adminContext.group == group.id"
               :prepend-icon="group.icon"
               @click="groupClick(group)"
@@ -56,7 +56,7 @@
                   v-if="item.renderOn == undefined ? true : item.renderOn(adminContext)"
                   :key="item.id"
                   :active="adminContext.item == item.id"
-                  active-color="primary"
+                  color="primary"
                   :prepend-icon="item.icon"
                   :title="item.title"
                   @click="itemClick(group ,item)"

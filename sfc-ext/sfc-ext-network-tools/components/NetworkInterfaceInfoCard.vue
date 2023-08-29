@@ -1,6 +1,6 @@
 <template>
   <VCard class="network-interface-info-card" :title="networkInterface.name">
-    <VCardContent>
+    <VCardText>
       <div class="tip">
         <div>接口: {{ networkInterface.name }}</div>
         <div>名称: {{ networkInterface.displayName }}</div>
@@ -23,7 +23,7 @@
         </div>
         <div>MTU: {{ networkInterface.mtu }}</div>
       </div>
-    </VCardContent> 
+    </VCardText> 
   </VCard>
 </template>
 

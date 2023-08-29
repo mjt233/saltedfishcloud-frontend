@@ -40,14 +40,14 @@
               v-if="item.renderOn == undefined ? true : item.renderOn(context)"
               :key="item.id"
               :active="$route.path == item.route"
-              active-color="primary"
+              color="primary"
               :value="item.route"
               @click="menuClick(item, $event)"
             >
-              <!-- 菜单图标 -->
-              <v-list-item-avatar v-if="item.icon" start>
-                <v-icon :icon="item.icon" color="primary" />
-              </v-list-item-avatar>
+              <template #prepend>
+                <!-- 菜单图标 -->
+                <v-icon v-if="item.icon" :icon="item.icon" color="primary" />
+              </template>
 
               <!-- 菜单文本 -->
               {{ item.title }}

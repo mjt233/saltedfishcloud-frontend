@@ -1,10 +1,9 @@
-import { IdType } from './../model/Common'
+import { IdType } from 'sfc-common'
 import { VBtn } from 'vuetify/components'
 import DownloadTaskView from 'sfc-common/components/common/DownloadTask/DownloadTaskView.vue'
 import DownloadTaskHeader from 'sfc-common/components/common/DownloadTask/DownloadTaskHeader.vue'
 import CreateDownloadForm from 'sfc-common/components/form/CreateDownloadForm.vue'
 import { h } from 'vue'
-import { StringUtils } from 'sfc-common/utils/StringUtils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 

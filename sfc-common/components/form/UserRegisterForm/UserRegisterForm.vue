@@ -1,14 +1,10 @@
 <template>
   <v-card color="background" style="overflow: hidden">
     <loading-mask :loading="loading" />
-    <v-list-item>
-      <!-- 头像 -->
-      <v-list-item-avatar>
-        <v-img :src="avatar" />
-      </v-list-item-avatar>
+    <v-list-item :prepend-avatar="avatar">
 
       <!-- 标题 -->
-      <div style="margin: 8px 16px;">
+      <div style="margin: 8px 0;">
         <v-list-item-title class="headline">
           注册账号
         </v-list-item-title>
@@ -28,7 +24,7 @@
         邮箱注册
       </v-tab>
     </v-tabs>
-    <v-card-content>
+    <v-card-text>
       <base-register-form ref="baseForm" />
       <base-form
         ref="extraForm"
@@ -78,7 +74,7 @@
       <v-btn color="primary" width="100%" @click="emitSubmit">
         立即注册
       </v-btn>
-    </v-card-content>
+    </v-card-text>
     
   </v-card>
 </template>

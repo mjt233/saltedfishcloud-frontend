@@ -1,12 +1,9 @@
 <template>
   <div class="common-view" style="width: 100%;max-width: 480px">
-    <v-card>
-      <v-card-header>
-        <v-card-title>找回账号</v-card-title>
-      </v-card-header>
-      <v-card-content>
+    <v-card title="找回账号">
+      <v-card-text>
         <forget-form ref="form" @submit="doReset" />
-      </v-card-content>
+      </v-card-text>
     </v-card>
   </div>
 </template>

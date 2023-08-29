@@ -1,15 +1,13 @@
 <template>
   <v-card class="collection-item">
-    <v-card-header>
-      <v-card-header-text>
-        <div class="d-flex justify-space-between align-center" style="width: 100%">
-          <span class="title">{{ item?.title }}</span>
-          <span class="state">状态：<span :class="isCollecting ? 'text-success' : 'text-error'">{{ isCollecting ? '收集中' : '已关闭' }}</span></span>
-        </div>
-      </v-card-header-text>
-    </v-card-header>
+    <template #title>
+      <div class="d-flex justify-space-between align-center" style="width: 100%">
+        <span class="title">{{ item?.title }}</span>
+        <span class="state">状态：<span :class="isCollecting ? 'text-success' : 'text-error'">{{ isCollecting ? '收集中' : '已关闭' }}</span></span>
+      </div>
+    </template>
     <v-divider class="card-divider" />
-    <v-card-content class="content">
+    <v-card-text class="content">
       <div>
         剩余可接受文件数：{{ item?.available == -1 ? '无限制' : item?.available }}
       </div>
@@ -19,7 +17,7 @@
       <div class="date text-blue-grey">
         过期日期：{{ formateDate(item?.expiredAt || '') }}
       </div>
-    </v-card-content>
+    </v-card-text>
     <v-card-actions>
       <v-btn color="primary" @click="emits('showDetail')">
         查看详情
@@ -30,20 +28,27 @@
           <v-btn icon="mdi-dots-horizontal" v-bind="menuProps" />
         </template>
         <v-list>
-          <v-list-item v-if="item?.state == 'OPEN'" value="stop" @click="emits('close')">
-            <v-list-item-icon start icon="mdi-stop" />
+          <v-list-item
+            v-if="item?.state == 'OPEN'"
+            value="stop"
+            prepend-icon="mdi-stop"
+            @click="emits('close')"
+          >
             <v-list-item-title>
               停止收集
             </v-list-item-title>
           </v-list-item>
-          <v-list-item v-if="item?.state == 'CLOSED'" value="start" @click="reopen">
-            <v-list-item-icon start icon="mdi-play" />
+          <v-list-item
+            v-if="item?.state == 'CLOSED'"
+            prepend-icon="mdi-play"
+            value="start"
+            @click="reopen"
+          >
             <v-list-item-title>
               重新开启
             </v-list-item-title>
           </v-list-item>
-          <v-list-item value="delete" @click="emits('delete')">
-            <v-list-item-icon start icon="mdi-delete" />
+          <v-list-item prepend-icon="mdi-delete" value="delete" @click="emits('delete')">
             <v-list-item-title>
               删除
             </v-list-item-title>

@@ -1,21 +1,19 @@
 <template>
-  <v-card-header-text>
-    <v-card-title>
-      <span>离线下载任务</span>
-      <v-btn
-        v-if="canOpenCreate"
-        icon
-        size="small"
-        flat
-        style="margin-left: 12px"
-        @click="openCreate"
-      >
-        <v-icon style="font-size: 20px;margin-right: 1px;margin-bottom: 1px;">
-          mdi-plus
-        </v-icon>
-      </v-btn>
-    </v-card-title>
-  </v-card-header-text>
+  <div>
+    <span>离线下载任务</span>
+    <v-btn
+      v-if="canOpenCreate"
+      icon
+      size="small"
+      flat
+      style="margin-left: 12px"
+      @click="openCreate"
+    >
+      <v-icon style="font-size: 20px;margin-right: 1px;margin-bottom: 1px;">
+        mdi-plus
+      </v-icon>
+    </v-btn>
+  </div>
 </template>
 
 <script setup lang="ts">

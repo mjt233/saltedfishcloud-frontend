@@ -16,13 +16,13 @@
       color="background"
       :class="{'dialog-card': !dense}"
     >
-      <v-card-header v-if="$slots.header">
+      <template v-if="$slots.header" #title>
         <slot name="header" />
-      </v-card-header>
-      <v-card-content style="overflow: auto" :class="{'dense-content': dense}" :style="{'maxHeight': contentMaxHeight}">
+      </template>
+      <v-card-text style="overflow: auto" :class="{'dense-content': dense}" :style="{'maxHeight': contentMaxHeight}">
         <!-- 对话框默认正文内容插槽 -->
         <slot />
-      </v-card-content>
+      </v-card-text>
 
       <!-- 对话框操作按钮插槽 -->
       <v-card-actions v-show="!hideBtn || $slots.actions" class="justify-end">
@@ -127,11 +127,11 @@ export default defineComponent({
 }
 
 .dialog-card {
-  .v-card-content {
-    padding: 24px;
+  .v-card-text {
+    padding: 24px !important;
   }
 }
-.v-card-content.dense-content {
+.v-card-text.dense-content {
   padding: 0;
 }
 </style>

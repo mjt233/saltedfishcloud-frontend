@@ -1,7 +1,7 @@
 <template>
   <VCard class="wol-device-card">
     <LoadingMask :loading="loading" type="circular" />
-    <VCardContent>
+    <VCardText>
       <div class="d-flex justify-space-between">
         <div>
           <CommonIcon icon="mdi-laptop" :color="wolDevice.isOnline ? 'primary' : ''" style="font-size: 32px" />
@@ -37,7 +37,7 @@
           />
         </div>
       </div>
-    </VCardContent>
+    </VCardText>
   </VCard>
 </template>
 

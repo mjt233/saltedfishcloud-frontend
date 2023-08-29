@@ -3,7 +3,6 @@
     <VCard title="文件极速传">
       <v-tabs
         v-model="tab"
-        bg-color="primary"
         color="primary"
       >
         <v-tab value="1">
@@ -13,7 +12,7 @@
           <CommonIcon icon="mdi-send" /> 发送文件
         </v-tab>
       </v-tabs>
-      <VCardContent>
+      <VCardText>
         <VWindow v-model="tab">
           <VWindowItem value="1">
             <VForm ref="extractFormRef" @submit.prevent>
@@ -57,6 +56,7 @@
                 />
                 <VTextarea
                   v-model="message"
+                  style="margin-top: 12px;"
                   :rules="validators.message"
                   label="留言"
                   color="primary"
@@ -69,7 +69,7 @@
             </VForm>
           </VWindowItem>
         </VWindow>
-      </VCardContent>
+      </VCardText>
     </VCard>
   </div>
 </template>

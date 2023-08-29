@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-content>
+    <v-card-text>
       <v-row justify="start">
         <v-col style="max-width: 56px;margin-left: 6px;" class="d-flex" cols="1">
           <file-icon :file-name="downloadTask.name || 'unknow'" />
@@ -46,7 +46,7 @@
           </div>
         </v-col>
       </v-row>
-    </v-card-content>
+    </v-card-text>
   </v-card>
 </template>
 

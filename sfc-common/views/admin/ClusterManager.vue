@@ -18,7 +18,7 @@
     </div>
     <div>
       <VCard v-for="item in nodes" :key="item.id" class="node-card">
-        <VCardContent>
+        <VCardText>
           <VTable>
             <tbody>
               <tr>
@@ -49,7 +49,7 @@
               </tr>
             </tbody>
           </VTable>
-        </VCardContent>
+        </VCardText>
       </VCard>
     </div>
   </div>

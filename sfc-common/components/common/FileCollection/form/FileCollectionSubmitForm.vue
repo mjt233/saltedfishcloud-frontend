@@ -17,7 +17,7 @@
     </div>
     <div v-if="collectionInfo?.state == 'OPEN'">
       <v-card :title="'文件收集：' + collectionInfo?.title">
-        <v-card-content style="position: relative">
+        <v-card-text style="position: relative">
           <v-row class="form-row">
             <v-col>
               <span class="form-label">收集人：</span>
@@ -98,7 +98,7 @@
               </v-btn>
             </v-col>
           </v-row>
-        </v-card-content>
+        </v-card-text>
       </v-card>
     </div>
   </base-form>

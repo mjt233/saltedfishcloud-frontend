@@ -7,7 +7,7 @@
     <VRow>
       <VCol>
         <VCard title="选项">
-          <VCardContent>
+          <VCardText>
             <ClusterSelector
               ref="selectorRef"
               v-model="curNodeId"
@@ -15,14 +15,14 @@
               style="width: 280px;"
               @change="loadAllWithLoading"
             />
-          </VCardContent>
+          </VCardText>
         </VCard>
       </VCol>
     </VRow>
     <VRow>
       <VCol>
         <VCard title="系统基础信息" style="height: 100%">
-          <VCardContent>
+          <VCardText>
             <VTable>
               <tbody>
                 <tr>
@@ -47,12 +47,12 @@
                 </tr>
               </tbody>
             </VTable>
-          </VCardContent>
+          </VCardText>
         </VCard>
       </VCol>
       <VCol>
         <VCard title="负载信息">
-          <VCardContent>
+          <VCardText>
             <div>
               <VRow>
                 <VCol>
@@ -64,18 +64,18 @@
               </VRow>
               
             </div>
-          </VCardContent>
+          </VCardText>
         </VCard>
       </VCol>
     </VRow>
     <VRow>
       <VCol>
         <VCard title="近期CPU与内存负载">
-          <VCardContent>
+          <VCardText>
             <div style="width: 100%;height: 280px;">
               <VEChart style="width: 100%;height: 100%;" :option="chartsOption.rangeCpuLoad" />
             </div>
-          </VCardContent>
+          </VCardText>
         </VCard>
       </VCol>
     </VRow>

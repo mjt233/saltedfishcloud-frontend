@@ -1,7 +1,7 @@
 <template>
   <VCard class="ws-card">
-    <VCardHeader>
-      <VCardTitle class="d-flex align-center justify-between" style="width: 100%">
+    <template #title>
+      <div class="d-flex align-center justify-between" style="width: 100%">
         <div class="status-icon elevation-2" :class="{active: session?.running}" />
         <div class="d-flex align-center text-primary" style="width: 100%">
           <div style="width: 40px;">
@@ -45,9 +45,9 @@
             @click="remove"
           />
         </div>
-      </VCardTitle>
-    </VCardHeader>
-    <VCardContent>
+      </div>
+    </template>
+    <VCardText>
       <div class="d-flex">
         <div class="tip">
           <div class="d-flex">
@@ -64,7 +64,7 @@
           </div>
         </div>
       </div>
-    </VCardContent>
+    </VCardText>
   </VCard>
 </template>
 
