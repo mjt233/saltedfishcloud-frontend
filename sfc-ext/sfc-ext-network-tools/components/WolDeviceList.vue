@@ -1,9 +1,14 @@
 <template>
   <div class="WolDeviceList">
-    <VBtn color="primary" @click="addOrEditDevice()">
+    <VBtn
+      v-if="showAdd"
+      color="primary"
+      style="margin-right: 12px"
+      @click="addOrEditDevice()"
+    >
       添加设备
     </VBtn>
-    <VBtn style="margin-left: 12px" @click="actions.loadData">
+    <VBtn @click="actions.loadData">
       <CommonIcon icon="mdi-refresh" />
       刷新
     </VBtn>
@@ -14,6 +19,7 @@
         :key="device.id"
         style="animation: up-in .2s"
         :wol-device="device"
+        :editable="editable"
         :loading="wakingDevice[device.id]"
         @wake="wake"
         @edit="addOrEditDevice($event)"
@@ -29,6 +35,34 @@ const props = defineProps({
   uid: {
     type: [String, Number] as PropType<IdType>,
     default: 0
+  },
+  /**
+   * 是否显示添加设备按钮
+   */
+  showAdd: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 存在唤醒中的设备时，是否自动刷新设备列表
+   */
+  autoRefresh: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 桌面组件配置信息
+   */
+  desktopComponentConfig: {
+    type: Object as PropType<DesktopComponentConfig>,
+    default: undefined
+  },
+  /**
+   * 是否可编辑
+   */
+  editable: {
+    type: Boolean,
+    default: true
   }
 })
 const lm = new LoadingManager()
@@ -36,7 +70,7 @@ const loading = lm.getLoadingRef()
 const deviceList = ref([]) as Ref<WolDevice[]>
 const wakingDevice = reactive({} as {[idx:IdType]: boolean})
 const loadDataNoLoading = async() => {
-  deviceList.value = (await SfcUtils.request(NwtApi.Wol.findByUid(props.uid, true))).data.data || []
+  deviceList.value = (await SfcUtils.request(NwtApi.Wol.findByUid(props.desktopComponentConfig?.uid || props.uid, true))).data.data || []
   deviceList.value.forEach(device => {
     if (device.isOnline) {
       wakingDevice[device.id] = false
@@ -71,7 +105,7 @@ const addOrEditDevice = (device?: WolDevice) => {
     title: device ? '编辑设备' : '添加设备',
     props: {
       initObject: device || {
-        uid: props.uid
+        uid: props.desktopComponentConfig?.uid || props.uid
       },
 
     },
@@ -96,7 +130,7 @@ actions.loadData()
 
 let autoLoading = false
 let autoRefreshItv = setInterval(async() => {
-  if (autoLoading) {
+  if (!props.autoRefresh || autoLoading || !deviceList.value.find(e => wakingDevice[e.id])) {
     return
   }
   try {
@@ -123,6 +157,7 @@ import WolDeviceCard from './WolDeviceCard.vue'
 import WolDeviceForm from './WolDeviceForm.vue'
 import { reactive } from 'vue'
 import { onUnmounted } from 'vue'
+import { DesktopComponentConfig } from 'sfc-common/model/Desktop'
 
 export default defineComponent({
   name: 'WolDeviceList',

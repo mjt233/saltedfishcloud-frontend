@@ -28,7 +28,7 @@ const props = defineProps({
    */
   labelGap: {
     type: String,
-    default: '-3px'
+    default: '6px'
   },
   /**
    * 表单行高

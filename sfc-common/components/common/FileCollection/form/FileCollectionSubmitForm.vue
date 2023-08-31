@@ -6,7 +6,7 @@
     :model-value="formData"
     :submit-action="actions.submit"
     label-width="81px"
-    row-height="64px"
+    row-height="96px"
   >
     <div v-if="notFound">
       <div class="d-flex align-center">
@@ -17,65 +17,79 @@
     </div>
     <div v-if="collectionInfo?.state == 'OPEN'">
       <v-card :title="'文件收集：' + collectionInfo?.title">
-        <v-card-content style="position: relative">
-          <v-row class="form-row">
-            <v-col>
-              <span class="form-label">收集人：</span>
+        <v-card-text style="position: relative">
+          <FormRow>
+            <FormCol label="收集人" top-label>
               <div>{{ collectionInfo?.nickname }}</div>
-            </v-col>
-            <v-col>
-              <span class="form-label">截止日期：</span>
+            </FormCol>
+            <FormCol label="截止日期" top-label>
               <div>{{ toDate(collectionInfo?.expiredAt) }}</div>
-            </v-col>
-          </v-row>
-          <v-row class="form-row">
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol style="height: auto" label="描述" top-label>
+              <div style="height: 300px;overflow: auto;width: 100%;margin-top: 24px;">
+                <MarkdownView :content="collectionInfo?.describe" />
+              </div>
+            </FormCol>
+          </FormRow>
+          <!-- <v-row class="form-row">
             <v-col style="height: auto" class="align-start">
               <span class="form-label">描述：</span>
               <multi-line-text :text="collectionInfo?.describe" />
             </v-col>
-          </v-row>
+          </v-row> -->
 
           <!-- 字段约束类型的表单填写部分 -->
           <template v-if="useField">
-            <v-row>
-              <v-col><v-divider style="margin: 12px 0" /></v-col>
-            </v-row>
-            <v-row>
+            <FormRow>
+              <FormCol><v-divider style="margin: 12px 0" /></FormCol>
+            </FormRow>
+            <FormRow>
               <v-col>文件提交需要填写信息：</v-col>
-            </v-row>
-            <v-row class="form-row" :style="{'--form-label-width': fieldLabelWidth}">
-              <v-col v-for="(field,index) in collectionInfo.field" :key="index">
-                <span class="form-label">{{ field.name }}：</span>
-                <text-input v-if="field.type == 'TEXT'" v-model="formData.field[index].value" :rules="fieldRules[index]" />
-                <form-select v-else v-model="formData.field[index].value" :items="selectOptions[field.name]" />
-              </v-col>
-            </v-row>
+            </FormRow>
+            <FormRow>
+              <FormCol v-for="(field,index) in collectionInfo.field" :key="index">
+                <text-input
+                  v-if="field.type == 'TEXT'"
+                  v-model="formData.field[index].value"
+                  :label="field.name"
+                  :rules="fieldRules[index]"
+                />
+                <form-select
+                  v-else
+                  v-model="formData.field[index].value"
+                  :placeholder="field.name"
+                  :items="selectOptions[field.name]"
+                />
+              </FormCol>
+            </FormRow>
           </template>
-          <v-row v-else class="form-row">
-            <v-col>
-              <span class="form-label" style="max-width: 180px">文件重命名：</span>
-              <text-input v-model="formData.filename" :rules="validators.filename" />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-file-input
-                v-model="file"
-                label="请选择文件"
-                color="primary"
-                show-size
-                :variant="'filled'"
-                :rules="validators.fileRules"
-              >
-                <template #selection="{ fileNames }">
-
-                  <v-chip v-for="(filename, idx) in fileNames" :key="idx" color="primary">
-                    {{ filename }}
-                  </v-chip>
-                </template>
-              </v-file-input>
-            </v-col>
-          </v-row>
+          <FormRow v-else class="form-row">
+            <FormCol>
+              <text-input v-model="formData.filename" label="文件重命名" :rules="validators.filename" />
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol label="文件" top-label style="height: auto;">
+              <div style="margin-top: 16px;">
+                <v-file-input
+                  v-model="file"
+                  label="请选择文件"
+                  color="primary"
+                  show-size
+                  :variant="'filled'"
+                  :rules="validators.fileRules"
+                >
+                  <template #selection="{ fileNames }">
+                    <v-chip v-for="(filename, idx) in fileNames" :key="idx" color="primary">
+                      {{ filename }}
+                    </v-chip>
+                  </template>
+                </v-file-input>
+              </div>
+            </FormCol>
+          </FormRow>
           <v-row>
             <v-col>
               <v-progress-linear
@@ -98,7 +112,7 @@
               </v-btn>
             </v-col>
           </v-row>
-        </v-card-content>
+        </v-card-text>
       </v-card>
     </div>
   </base-form>
@@ -340,6 +354,8 @@ import { Validators } from 'sfc-common/core/helper/Validators'
 import { ValidateRule } from 'sfc-common/model/component/type'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import { context } from 'sfc-common/core/context'
+import { FormCol, FormRow } from 'sfc-common/components/layout'
+import { MarkdownView } from '../../Markdown'
 
 export default defineComponent({
   name: 'FileCollectionSubmitForm'

@@ -1,17 +1,15 @@
 <template>
   <VCard class="plugin-item">
-    <VCardHeader>
-      <VCardTitle>
-        <div class="d-flex align-center ">
-          <CommonIcon color="primary" style="margin-right: 9px" :icon="pluginInfo.icon || 'mdi-puzzle'" />
-          <span>{{ pluginInfo.alias || pluginInfo.name }}</span>
-          <div class="tip">
-            ({{ pluginInfo.name }})
-          </div>
+    <template #title>
+      <div class="d-flex align-center ">
+        <CommonIcon color="primary" style="margin-right: 9px" :icon="pluginInfo.icon || 'mdi-puzzle'" />
+        <span>{{ pluginInfo.alias || pluginInfo.name }}</span>
+        <div class="tip">
+          ({{ pluginInfo.name }})
         </div>
-      </VCardTitle>
-    </VCardHeader>
-    <VCardContent style="padding-top: 0px;" :style="{'padding-bottom': showActions ? '0' : '12px'}">
+      </div>
+    </template>
+    <VCardText style="padding-top: 0px;" :style="{'padding-bottom': showActions ? '0' : '12px'}">
       <div>
         描述: {{ pluginInfo.describe || '-' }}
       </div>
@@ -42,21 +40,23 @@
           </div>
         </div>
       </div>
-    </VCardContent>
-    <VCardActions v-if="showActions" class="justify-end">
-      <VBtn color="primary" @click="download">
-        <div class="d-flex align-center">
-          <VIcon icon="mdi-download" color="primary" />
-          从服务器下载
-        </div>
-      </VBtn>
-      <VBtn color="error" @click="deleteConfirm">
-        <div class="d-flex align-center">
-          <VIcon icon="mdi-delete" color="error" />
-          删除
-        </div>
-      </VBtn>
-    </VCardActions>
+    </VCardText>
+    <template v-if="showActions" #actions>
+      <div class="justify-end">
+        <VBtn color="primary" @click="download">
+          <div class="d-flex align-center">
+            <VIcon icon="mdi-download" color="primary" />
+            从服务器下载
+          </div>
+        </VBtn>
+        <VBtn color="error" @click="deleteConfirm">
+          <div class="d-flex align-center">
+            <VIcon icon="mdi-delete" color="error" />
+            删除
+          </div>
+        </VBtn>
+      </div>
+    </template>
   </VCard>
 </template>
 

@@ -40,14 +40,14 @@
         max-width="640px"
         width="100%"
       >
-        <v-card-content>
+        <v-card-text>
           <p style="margin-bottom: 16px">
             私人网盘功能需要登录账号才能使用捏~φ(゜▽゜*)♪
           </p>
           <v-btn color="primary" @click="login">
             立即登录
           </v-btn>
-        </v-card-content>
+        </v-card-text>
       </v-card>
     </div>
     <template v-if="showSearch">

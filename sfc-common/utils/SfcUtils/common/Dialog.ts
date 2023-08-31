@@ -403,7 +403,7 @@ export function loadingDialog(param?: LoadingDialogParam) {
     props: param,
     extraDialogOptions: {
       hideBtn: true,
-      width: '280px'
+      width: '280px !important',
     },
     fullscreen: false,
     persistent: true

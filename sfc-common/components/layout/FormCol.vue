@@ -40,7 +40,7 @@ const props = defineProps({
     default: false
   }
 })
-const injectLabelGap:Ref<string> = inject('labelGap', ref('-3px'))
+const injectLabelGap:Ref<string> = inject('labelGap', ref('6px'))
 const cLabelGap = computed(() => {
   return props.labelGap || injectLabelGap.value
 })

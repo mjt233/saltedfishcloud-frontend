@@ -18,12 +18,14 @@
               @click="itemClick($event, item)"
               @mouseover="itemOver($event, item)"
             >
-              <v-list-item-icon
-                v-if="item.icon"
-                size="small"
-                :icon="item.icon"
-                style="margin-right: 8px"
-              />
+              <template #prepend>
+                <CommonIcon
+                  v-if="item.icon"
+                  size="small"
+                  :icon="item.icon"
+                  style="margin-right: 8px"
+                />
+              </template>
               <v-list-item-title :style="{'marginLeft': item.icon ? '0px' : '28px'}">
                 {{ item.title }}
                 <template v-if="item.subItems">

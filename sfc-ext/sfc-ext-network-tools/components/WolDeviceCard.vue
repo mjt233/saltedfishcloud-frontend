@@ -1,7 +1,7 @@
 <template>
   <VCard class="wol-device-card">
     <LoadingMask :loading="loading" type="circular" />
-    <VCardContent>
+    <VCardText>
       <div class="d-flex justify-space-between">
         <div>
           <CommonIcon icon="mdi-laptop" :color="wolDevice.isOnline ? 'primary' : ''" style="font-size: 32px" />
@@ -10,12 +10,14 @@
           <div class="d-flex align-center">
             设备名: {{ wolDevice.name }}
             <CommonIcon
+              v-if="editable"
               class="link d-flex align-center"
               style="font-size: 10px;margin-left: 6px"
               icon="mdi-pencil"
               @click="emits('edit', wolDevice)"
             />
             <CommonIcon
+              v-if="editable"
               class="link d-flex align-center text-error"
               style="font-size: 10px;margin-left: 6px;--main-color: var(--v-theme-error)"
               icon="mdi-close"
@@ -35,7 +37,7 @@
           />
         </div>
       </div>
-    </VCardContent>
+    </VCardText>
   </VCard>
 </template>
 
@@ -48,6 +50,10 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  editable: {
+    type: Boolean,
+    default: true
   }
 })
 const emits = defineEmits<{

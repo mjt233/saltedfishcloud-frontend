@@ -86,9 +86,14 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['submit'])
+const extraJson = ref('{\n\n}')
+
+let customConfigObj = {} as {[k: string]:any}
+
 const customConfig = computed(() => {
   const params = props.initValue?.params || '{}'
   const paramsObj = JSON.parse(params)
+  mergeDefaultValueToObj(paramsObj)
   return [{
     nodes: props.component.config.map(node => {
       const newNode = {} as ConfigNodeModel
@@ -98,9 +103,8 @@ const customConfig = computed(() => {
     })
   }] as ConfigNodeModel[]
 })
-let customConfigObj = {} as {[k: string]:any}
 
-const extraJson = ref('{\n\n}')
+
 watch(extraJson, () => {
   try {
     const extraObj = JSON.parse(extraJson.value || '{}')
@@ -119,7 +123,21 @@ watch(extraJson, () => {
   
 })
 
+const mergeDefaultValueToObj = (obj: any) => {
+  const configuredKeys = new Set(Object.keys(obj));
+  (props.component.config || []).forEach(k => {
+    if (!configuredKeys.has(k.name)) {
+      if (k.inputType == 'switch') {
+        obj[k.name] = 'true' == new String(k.defaultValue).toLowerCase()
+      } else {
+        obj[k.name] = k.defaultValue
+      }
+    }
+  })
+}
+
 const updateParams = () => {
+  mergeDefaultValueToObj(customConfigObj)
   formData.params = JSON.stringify(customConfigObj)
 }
 
@@ -205,6 +223,7 @@ onMounted(() => {
   } else {
     formData.uid = props.uid
   }
+  updateParams()
   updateExtraJson()
 })
 

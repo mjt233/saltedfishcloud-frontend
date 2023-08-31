@@ -64,6 +64,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .tool-bar {
+  position: relative;
   height: 0px;
   opacity: 0;
   transition: all .2s;

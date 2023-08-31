@@ -9,7 +9,7 @@
       @finish="isFinish = true"
     />
     <v-card v-else>
-      <v-card-content>
+      <v-card-text>
         <v-row>
           <v-col style="max-width: 360px">
             <div class="text-h4 d-flex align-center justify-space-around">
@@ -19,7 +19,7 @@
           </v-col>
         </v-row>
         
-      </v-card-content>
+      </v-card-text>
       
     </v-card>
   </base-view>

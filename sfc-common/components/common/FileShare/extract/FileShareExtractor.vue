@@ -14,7 +14,7 @@
         <template #subtitle>
           创建于：{{ toDate(shareInfo.createdAt) }}
         </template>
-        <v-card-content v-if="!shareInfo.validateSuccess">
+        <v-card-text v-if="!shareInfo.validateSuccess">
           <form-grid style="padding: 12px 0">
             <v-row
               class="form-row justify-center" 
@@ -34,8 +34,8 @@
               </v-col>
             </v-row>
           </form-grid>
-        </v-card-content>
-        <v-card-content v-else>
+        </v-card-text>
+        <v-card-text v-else>
           <!-- 文件提取成功，文件浏览界面 -->
           <file-share-dir-browser
             v-if="shareInfo.type == 'DIR'"
@@ -44,7 +44,7 @@
             @update:path="emits('update:path', $event)"
           />
           <file-share-file-extractor v-if="shareInfo.type == 'FILE'" :share-info="shareInfo" />
-        </v-card-content>
+        </v-card-text>
       </v-card>
     </div>
     <not-found-tip v-if="isError" :text="errorText" />

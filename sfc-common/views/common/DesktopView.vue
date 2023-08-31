@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-left: 18px">
+  <div style="margin-left: 18px;position: relative;">
     <LoadingMask :loading="loading" />
     <template v-if="configItems && configItems.length">
       <VContainer fluid>
@@ -12,17 +12,19 @@
           >
             <template v-if="item.useCard">
               <VCard>
-                <VCardHeader v-if="item.title?.length" style="padding-bottom: 0px">
-                  <VCardTitle>{{ item.title }}</VCardTitle>
-                </VCardHeader>
-                <VCardContent>
+                <template v-if="item.title?.length" #title>
+                  <div style="padding-bottom: 0px">
+                    {{ item.title }}
+                  </div>
+                </template>
+                <VCardText>
                   <component
                     :is="item.name"
                     class="desktop-component"
                     v-bind="getComponentProps(item)"
                     :style="getComponentStyle(item)"
                   />
-                </VCardContent>
+                </VCardText>
               </VCard>
             </template>
             <component

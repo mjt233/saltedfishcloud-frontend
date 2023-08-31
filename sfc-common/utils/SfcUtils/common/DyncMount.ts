@@ -1,6 +1,4 @@
 import { createApp, h, App, Component, ComponentPublicInstance, VNode, reactive } from 'vue'
-import vuetify from 'sfc-common/plugins/vuetify'
-import router from 'sfc-common/plugins/router'
 import { context } from 'sfc-common/core/context'
 import { VApp } from 'vuetify/components'
 import { buildApp } from 'sfc-common/core/boot/AppFactory'
@@ -61,7 +59,10 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
         return h(
           VApp, reactive({
             theme: context.theme.value,
-            ...vappProps
+            ...vappProps,
+            style: {
+              background: 'transparent'
+            }
           }),
           () => [
             h(component as any, props, children as any)

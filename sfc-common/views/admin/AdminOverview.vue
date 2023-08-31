@@ -2,9 +2,9 @@
   <div>
     <LoadingMask :loading="loading" />
     <VCard title="选项" style="margin: 0 12px;">
-      <VCardContent>
+      <VCardText>
         <ClusterSelector v-model="curNodeId" style="width: 280px" @change="actions.loadData" />
-      </VCardContent>
+      </VCardText>
     </VCard>
     <EmptyTip v-if="!overviewData" text="加载中" />
     <div v-else>
@@ -20,7 +20,7 @@
             md="6"
           >
             <VCard>
-              <VCardContent>
+              <VCardText>
                 <VTable>
                   <tbody>
                     <tr>
@@ -55,7 +55,7 @@
                     </tr>
                   </tbody>
                 </VTable>
-              </VCardContent>
+              </VCardText>
             </VCard>
           </v-col>
         </v-row>
@@ -71,7 +71,7 @@
             class="overview-item"
           >
             <VCard :title="statusGroup.title || statusGroup.name">
-              <VCardContent>
+              <VCardText>
                 <VTable>
                   <tbody>
                     <tr v-for="item in statusGroup.nodes" :key="item.name">
@@ -89,7 +89,7 @@
                     </tr>
                   </tbody>
                 </VTable>
-              </VCardContent>
+              </VCardText>
             </VCard>
           </v-col>
         </v-row>
