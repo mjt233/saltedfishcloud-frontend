@@ -74,7 +74,7 @@
 
   <!-- 功能视图路由 -->
   <v-main :class="{'bg-main-view': enabledBg}">
-    <div class="main-body">
+    <div class="main-body" style="position: relative;">
       <component :is="adminContext.component" v-if="adminContext.component" />
     </div>
   </v-main>
@@ -370,6 +370,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
+    pointer-events: none;
   }
 }
 </style>
