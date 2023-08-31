@@ -1,9 +1,9 @@
 <template>
-  <v-row v-if="!readonly" :align="'center'" class="form-row">
-    <v-col class="mw-50">
-      <span class="form-label">有效天数：</span>
+  <FormRow v-if="!readonly">
+    <FormCol class="mw-50">
       <v-select
         v-model="expiredStrategy"
+        label="有效天数"
         color="primary"
         :items="expiredOptions"
         :item-title="'title'"
@@ -12,13 +12,13 @@
         density="comfortable"
         class="hide-details no-padding"
       />
-    </v-col>
-  </v-row>
-  <v-row v-if="expiredStrategy?.value == '0'" align="center" class="form-row">
-    <v-col class="mw-50">
-      <span class="form-label">自定义过期：</span>
+    </FormCol>
+  </FormRow>
+  <FormRow v-if="expiredStrategy?.value == '0'">
+    <FormCol class="mw-50">
       <text-input
         v-model="customExpired"
+        label="自定义过期"
         suffix="天"
         placeholder="过期时间"
         variant="underlined"
@@ -26,19 +26,19 @@
         color="primary"
         :rules="validators"
       />
-    </v-col>
-  </v-row>
-  <v-row v-if="readonly" class="form-row">
-    <v-col>
-      <span class="form-label">过期时间：</span>
+    </FormCol>
+  </FormRow>
+  <FormRow v-if="readonly" class="form-row">
+    <FormCol label="过期时间" top-label>
       <div style="color: #555555;">
         {{ toDate(expiredAt) }}
       </div>
-    </v-col>
-  </v-row>
+    </FormCol>
+  </FormRow>
 </template>
 
 <script setup lang="ts">
+import { FormCol } from 'sfc-common/components/layout'
 import TextInput from '../../TextInput.vue'
 interface ExpiredStrategyOption {
   title: string
@@ -125,6 +125,7 @@ defineExpose({select})
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
+import FormRow from 'sfc-common/components/layout/FormRow.vue'
 
 export default defineComponent({
   name: 'FileCollectionCreateExpiredStrategy'

@@ -65,9 +65,12 @@ html {
       min-width: 280px;
       height: var(--row-height);
       .text-input {
-        margin-top: 26px;
+        margin-top: 16px;
       }
     }
+  }
+  .v-row + .v-row {
+    margin-top: 0 !important;
   }
 }
 .base-form {

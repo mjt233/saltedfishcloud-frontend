@@ -6,78 +6,57 @@
     label-width="64px"
     :model-value="formData"
   >
-    <v-row class="form-row" :align="'center'">
-      <v-col>
+    <FormRow>
+      <FormCol>
+        <text-input
+          v-model="formData.name"
+          label="字段名"
+          class="dense-details"
+          :rules="validators.name"
+          :readonly="readonly"
+        />
+      </FormCol>
+      <FormCol>
+        <FormSelect
+          v-model="formData.type"
+          placeholder="类型"
+          :items="typeOptions" 
+          :disabled="readonly"
+        />
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol>
+        <text-input
+          v-model="formData.describe"
+          label="描述"
+          :readonly="readonly"
+        />
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol class="mw-50">
+        <text-input
+          v-model="formData.value"
+          label="默认值"
+          :readonly="readonly"
+        />
+      </FormCol>
+      <FormCol v-if="formData.type == 'TEXT'">
+        <text-input
+          v-model="formData.pattern"
+          label="正则约束"
+          :readonly="readonly"
+          :items="typeOptions"
+          :rules="validators.regex"
+        />
+      </FormCol>
+      <FormCol v-if="formData.type == 'OPTION' && !readonly">
         <div class="d-flex align-center" style="width: 100%">
-          <div class="form-label">
-            <span>字段名：</span>
-          </div>
-          <text-input
-            v-model="formData.name"
-            class="dense-details"
-            style="margin: 12px 0 0 0"
-            :rules="validators.name"
-            :readonly="readonly"
-          />
-        </div>
-      </v-col>
-      <v-col>
-        <div class="d-flex align-center" style="width: 100%">
-          <span class="form-label">
-            类型：
-          </span>
-          <form-select
-            v-model="formData.type"
-            :items="typeOptions" 
-            :disabled="readonly"
-          />
-        </div>
-      </v-col>
-    </v-row>
-    <v-row class="form-row" :align="'center'">
-      <v-col style="max-width: 100%">
-        <span class="form-label">
-          描述：
-        </span>
-        <div class="d-flex align-center" style="width: 100%">
-          <text-input
-            v-model="formData.describe"
-            :readonly="readonly"
-          />
-        </div>
-      </v-col>
-    </v-row>
-    <v-row class="form-row" :align="'center'">
-      <v-col class="mw-50">
-        <div class="d-flex align-center" style="width: 100%">
-          <span class="form-label">
-            默认值：
-          </span>
-          <text-input
-            v-model="formData.value"
-            :readonly="readonly"
-          />
-        </div>
-      </v-col>
-      <v-col v-if="formData.type == 'TEXT'">
-        <div class="d-flex align-center" style="width: 100%">
-          <span class="form-label" style="max-width: 120px">
-            正则约束：
-          </span>
-          <text-input
-            v-model="formData.pattern"
-            :readonly="readonly"
-            :items="typeOptions"
-            :rules="validators.regex"
-          />
-        </div>
-      </v-col>
-      <v-col v-if="formData.type == 'OPTION' && !readonly">
-        <div class="d-flex align-center" style="width: 100%">
-          <span class="form-label">候选值：</span>
           <text-input
             ref="optionEditor"
             v-model="editingOption"
+            label="候选值"
             :items="typeOptions"
             style="width: 120px;margin-top: 0;margin-bottom: 12px;"
             hide-details
@@ -94,24 +73,25 @@
             添加
           </v-btn>
         </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
-          <v-chip color="primary" style="margin: 6px">
-            <v-icon 
-              v-if="!readonly"
-              class="option-chip"
-              icon="mdi-close"
-              @click="removeOption(index)"
-            />
-            {{ option }}
-          </v-chip>
-        </span>
-      </v-col>
-    </v-row>
-    <v-row style="margin-top: 25px" class="form-row" :align="'center'" />
+      </FormCol>
+    </FormRow>
+    <FormRow v-if="formData.type == 'OPTION'">
+      <FormCol class="elevation-2" style="height: auto;max-height: 240px;">
+        <div style="height: 100%; overflow: auto">
+          <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
+            <v-chip color="primary" style="margin: 6px">
+              <v-icon 
+                v-if="!readonly"
+                class="option-chip"
+                icon="mdi-close"
+                @click="removeOption(index)"
+              />
+              {{ option }}
+            </v-chip>
+          </span>
+        </div>
+      </FormCol>
+    </FormRow>
   </base-form>
 </template>
 
@@ -209,6 +189,7 @@ import { SelectOption } from 'sfc-common/model/Common'
 import { TextInputModel } from 'sfc-common/model/component/FormModel'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
+import { FormRow, FormCol } from 'sfc-common/components/layout'
 
 export default defineComponent({
   name: 'CollectionFieldForm'
