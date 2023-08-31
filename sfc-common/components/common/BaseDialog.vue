@@ -5,8 +5,10 @@
     :max-width="maxWidth"
     :fullscreen="fullscreen"
     :persistent="persistent"
+    :model-value="modelValue"
+    @update:model-value="emits('update:modelValue', $event)"
   >
-    <loading-mask :loading="loading || loadingRef" />
+    <loading-mask ref="loadingMaskRef" :loading="loading || loadingRef" />
     <div v-if="!useCard">
       <slot />
     </div>
@@ -42,10 +44,17 @@
 
 <script setup lang="ts">
 import LoadingMask from './LoadingMask.vue'
-defineProps({
+const props = defineProps({
   showConfirm: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 是否显示对话框
+   */
+  modelValue: {
+    type: Boolean,
+    default: false
   },
   showCancel: {
     type: Boolean,
@@ -98,7 +107,8 @@ defineProps({
     default: 'none'
   }
 })
-const emits = defineEmits(['confirm', 'cancel', 'update:show'])
+const loadingMaskRef = ref<InstanceType<typeof LoadingMask>>()
+const emits = defineEmits(['confirm', 'cancel', 'update:modelValue'])
 const loadingManager = new LoadingManager()
 const loadingRef = loadingManager.getLoadingRef()
 const formManager = new FormManager()
@@ -108,13 +118,26 @@ defineExpose({
   beginLoading: () => loadingManager.beginLoading(),
   closeLoading: () => loadingManager.closeLoading()
 } as DialogModel )
+
+watch(() => props.modelValue, () => {
+  // 当对话框关闭时，利用LoadingMask组件实例的$el向上找到VDialog的DOM，进而找到.v-overlay__scrim
+  // 给.v-overlay__scrim添加CSS属性 - opacity: 0 实现关闭时自动过渡效果而不是突然消失
+  if (loadingMaskRef.value) {
+    const overlayScrim = DOMUtils.getElParentByClass(loadingMaskRef.value.$el, 'v-dialog')?.querySelector('.v-overlay__scrim')
+    if (overlayScrim) {
+      (overlayScrim as HTMLElement).style.opacity = '0'
+    }
+  }
+})
 </script>
 
 <script lang="ts">
-import { FormManager } from 'sfc-common/utils'
-import { defineComponent, ref, defineProps, onMounted, provide } from 'vue'
+import { DOMUtils, FormManager } from 'sfc-common/utils'
+import { defineComponent, ref, defineProps, provide } from 'vue'
 import { LoadingManager } from 'sfc-common/utils'
 import { DialogModel } from 'sfc-common/model/component/DialogModel'
+import { watch } from 'vue'
+import { type VDialog } from 'vuetify/components'
 
 export default defineComponent({
   name: 'BaseDialog'

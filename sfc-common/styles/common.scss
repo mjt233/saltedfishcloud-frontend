@@ -187,8 +187,8 @@ html {
 
 
 .v-overlay__scrim {
+  transition: all .15s;
   background-color: black !important;
-  opacity: .4 !important;
 }
 
 @keyframes up-in {
