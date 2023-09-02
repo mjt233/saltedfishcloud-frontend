@@ -56,19 +56,12 @@ html {
   }
 }
 
+.w100 {
+  width: 100%;
+}
+
 .base-form {
   --row-height: 108px;
-  .v-row.form-row {
-    &>.v-col {
-      display: flex;
-      align-items: center;
-      min-width: 280px;
-      height: var(--row-height);
-      .text-input {
-        margin-top: 16px;
-      }
-    }
-  }
   .v-row + .v-row {
     margin-top: 0 !important;
   }
@@ -128,11 +121,6 @@ html {
       padding: 0;
     }
   }
-}
-.v-col.form-label,.form-label,.v-col.common-label,.common-label {
-  max-width: var(--form-label-width);
-  min-width: var(--form-label-width);
-  color: #555555;
 }
 .text-gray {
   color: #555555;

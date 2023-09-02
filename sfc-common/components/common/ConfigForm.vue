@@ -3,7 +3,7 @@
   <base-form
     ref="formRef"
     v-model="valObj"
-    row-height="56px"
+    row-height="80px"
     :label-width="labelWidth"
   >
     <template v-for="item in groups" :key="item.name">
@@ -14,11 +14,17 @@
         <form-col
           v-for="field in item.nodes"
           :key="field.name"
-          :label="field.title"
+          :label="['text'].includes(field.inputType) ? undefined : field.title"
           class="mw-50"
+          top-label
         >
           <template v-if="field.inputType == 'text'">
-            <text-input v-model="formData[field.name]" :type="field.mask ? 'password': 'text'" />
+            <text-input
+              v-model="formData[field.name]"
+              :label="field.title"
+              :type="field.mask ? 'password': 'text'"
+              :rules="field.required ? [Validators.notNull(field.title + '不能为空')] : []"
+            />
           </template>
           <template v-else-if="field.inputType == 'switch'">
             <v-switch
@@ -88,6 +94,7 @@ defineExpose(form)
 import { ConfigNodeModel } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, computed } from 'vue'
 import { defineBaseForm, defineForm } from 'sfc-common/utils/FormUtils'
+import { Validators } from 'sfc-common/core'
 
 export default defineComponent({
   name: 'ConfigForm'
@@ -100,5 +107,9 @@ export default defineComponent({
   font-weight: 600;
   margin-bottom: 12px;
   padding: 12px 0 6px 0;
+}
+
+.v-row {
+  margin-bottom: 12px;
 }
 </style>

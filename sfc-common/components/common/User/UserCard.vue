@@ -21,9 +21,6 @@ const props = defineProps({
 
 <script lang="ts">
 import { defineComponent, computed, defineProps } from 'vue'
-import { context } from 'sfc-common/core/context'
-import API from 'sfc-common/api'
-import axios from 'sfc-common/plugins/axios'
 export default defineComponent({
   name: 'UserCard'
 })

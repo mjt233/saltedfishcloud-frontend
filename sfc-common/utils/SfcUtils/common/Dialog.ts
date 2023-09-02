@@ -13,7 +13,7 @@ import LoginFormVue from 'sfc-common/components/form/LoginForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { Session } from 'sfc-common/core/context/session'
 import { context } from 'sfc-common/core/context'
-import { LoadingDialog } from 'sfc-common/components'
+import { BaseForm, LoadingDialog } from 'sfc-common/components'
 
 export interface DialogOpt {
   /**
