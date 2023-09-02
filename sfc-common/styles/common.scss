@@ -194,6 +194,15 @@ html {
   background-color: black !important;
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes up-in {
   0% {
     transform: translateY(-6px);
