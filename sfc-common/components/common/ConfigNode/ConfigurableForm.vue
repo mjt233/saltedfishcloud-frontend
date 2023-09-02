@@ -9,13 +9,13 @@
       row-height="72px"
     >
       <template v-for="group in nodes" :key="group.name">
-        <form-row style="margin-top: 24px;">
+        <form-row>
           <template v-for="node in group.nodes" :key="node.name">
             <component
               :is="node.isRow ? 'div' : 'form-col'"
               :required="node.required"
               top-label
-              :label="node.inputType == 'switch' ? '' : (node.title || node.name)"
+              :label="['switch', 'text'].includes(node.inputType) ? '' : (node.title || node.name)"
               :class="node.isRow ? 'custom-row' : 'mw-50'"
             >
               <config-node

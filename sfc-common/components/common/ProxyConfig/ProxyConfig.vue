@@ -30,17 +30,19 @@
           <td>{{ item.address }}</td>
           <td>{{ item.port }}</td>
           <td>
-            <div class="handle-btn-group">
-              <v-icon color="primary" class="link" @click="openProxyForm(item)">
-                mdi-pencil
-              </v-icon>
-              <v-icon
+            <div class="d-flex">
+              <CommonIcon
+                icon="mdi-pencil"
+                color="primary"
                 class="link"
+                @click="openProxyForm(item)"
+              />
+              <CommonIcon
+                icon="mdi-delete-forever"
                 style="--main-color: var(--v-theme-error)"
+                class="link"
                 @click="deleteProxy(item.name)"
-              >
-                mdi-delete-forever
-              </v-icon>
+              />
             </div>
           </td>
         </tr>
@@ -79,6 +81,9 @@ const openProxyForm = (val?: ProxyInfo) => {
     props: {
       initValue: val
     },
+    extraDialogOptions: {
+      width: '420px !important'
+    },
     async onConfirm() {
       const form = formInst.getComponentInstRef() as any as CommonForm
       const res = await form.submit()
@@ -105,6 +110,7 @@ import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, h } from 'vue'
 import ProxyConfigFormVue from './ProxyConfigForm.vue'
+import { CommonIcon } from '..'
 
 export default defineComponent({
   name: 'ProxyConfig'

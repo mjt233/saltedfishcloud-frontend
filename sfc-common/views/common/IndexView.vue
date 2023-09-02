@@ -16,7 +16,7 @@
       <v-icon v-else size="24" icon="mdi-swap-vertical" />
     </v-btn>
     <dark-switch brightness />
-    <user-card :uid="session.user.id" :name="session.user.name" style="margin-left: 16px" />
+    <user-card :uid="session.user.id" :name="session.user.name" style="margin:0 16px 0 12px;" />
   </v-app-bar>
 
   <!-- 侧边抽屉 -->

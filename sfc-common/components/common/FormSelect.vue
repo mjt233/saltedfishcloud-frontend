@@ -13,7 +13,7 @@
       :hide-details="hideDetails"
       return-object
       :multiple="multiple"
-      :label="placeholder"
+      :label="label || placeholder"
       :disabled="disabled"
     />
     <LoadingMask type="circular" :loading="loading" />
@@ -40,6 +40,10 @@ const props = defineProps({
     default: () => []
   },
   placeholder: {
+    type: String,
+    default: ''
+  },
+  label: {
     type: String,
     default: ''
   },
@@ -149,6 +153,7 @@ export default defineComponent({
   
 .form-select {
   width: 100%;
+  padding-top: 6px;
   position: relative;
 }
 </style>

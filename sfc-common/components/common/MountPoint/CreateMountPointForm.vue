@@ -11,11 +11,16 @@
   >
     <loading-mask :loading="loadingRef" /> 
     <form-row style="padding: 0 12px">
-      <form-col top-label label="挂载类型">
-        <form-select v-model="formData.protocol" :items="selectOptions" :disabled="readOnly" />
+      <form-col>
+        <form-select
+          v-model="formData.protocol"
+          placeholder="挂载类型"
+          :items="selectOptions"
+          :disabled="readOnly"
+        />
       </form-col>
-      <form-col top-label label="目录名称">
-        <text-input v-model="formData.name" :readonly="readOnly" />
+      <form-col>
+        <TextInput v-model="formData.name" label="目录名称" :readonly="readOnly" />
       </form-col>
     </form-row>
     <form-row style="padding: 0 12px">
@@ -27,7 +32,7 @@
       </form-col>
     </form-row>
 
-    <v-divider style="margin: 12px 12px 12px 12px" />
+    <v-divider style="margin: 21px 12px 0px 12px" />
     <configurable-form
       ref="mountForm"
       :read-only="readOnly"
@@ -43,7 +48,7 @@
 <script setup lang="ts">
 import API from 'sfc-common/api'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
-import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode } from 'sfc-common/components'
+import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode, TextInput } from 'sfc-common/components'
 import { ConfigNodeModel, IdType, MountPoint, NameValueType, SelectOption } from 'sfc-common/model'
 import { CommonForm, defineForm } from 'sfc-common/utils/FormUtils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'

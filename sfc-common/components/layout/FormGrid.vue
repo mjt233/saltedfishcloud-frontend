@@ -35,7 +35,7 @@ const props = defineProps({
    */
   rowHeight: {
     type: String,
-    default: '48px'
+    default: '81px'
   }
 })
 provide('labelGap', computed(() => props.labelGap))

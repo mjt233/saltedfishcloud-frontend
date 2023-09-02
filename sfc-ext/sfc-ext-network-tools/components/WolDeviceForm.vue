@@ -2,41 +2,46 @@
   <base-form ref="formRef" :model-value="formData" :submit-action="actions.submit">
     <LoadingMask :loading="loading" />
     <FormRow>
-      <FormCol label="设备名称" top-label>
+      <FormCol>
         <TextInput
           v-model="formData.name"
+          label="设备名称"
           :rules="validators.name"
           placeholder="起个名字吧~"
           :readonly="readOnly"
         />
       </FormCol>
-      <FormCol label="MAC地址" top-label>
+      <FormCol>
         <TextInput
           v-model="formData.mac"
+          label="MAC地址"
           :rules="validators.mac"
           placeholder="关键参数"
           :readonly="readOnly"
         />
       </FormCol>
-      <FormCol label="端口(udp)" top-label>
+      <FormCol>
         <TextInput
           v-model="formData.port"
+          label="端口(udp)"
           :rules="validators.port"
           placeholder="默认UDP端口-9"
           :readonly="readOnly"
         />
       </FormCol>
-      <FormCol label="IP地址(ipv4)" top-label>
+      <FormCol>
         <TextInput
           v-model="formData.ip"
+          label="IP地址(ipv4)"
           :rules="validators.ip"
           placeholder="用来检测是否在线"
           :readonly="readOnly"
         />
       </FormCol>
-      <FormCol label="发送/广播地址" top-label class="mw-50">
+      <FormCol class="mw-50">
         <TextInput
           v-model="formData.sendIp"
+          label="发送/广播地址"
           :rules="validators.ip"
           placeholder="255.255.255.255"
           :readonly="readOnly"

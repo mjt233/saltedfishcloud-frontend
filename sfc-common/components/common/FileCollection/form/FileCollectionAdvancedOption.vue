@@ -30,7 +30,6 @@
         <FormCol v-if="recvStrategy != '-1'">
           <text-input
             v-model="formData.allowMax"
-            style="margin-top: 16px;"
             :readonly="readonly"
             label="最大接收数量"
           />

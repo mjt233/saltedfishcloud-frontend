@@ -1,11 +1,15 @@
 <template>
-  <v-col :class="{'top-label':topLabel}">
-    <span v-if="label" class="form-label tip">
-      <span v-if="required" style="color: red">*</span>
-      {{ label }}
-      <template v-if="!topLabel">:</template>
+  <v-col class="form-col" :class="{'form-col-top-label': topLabel}">
+    <span v-if="label || $slots.label " class="form-label tip">
+      <slot name="label">
+        <span v-if="required" style="color: red">*</span>
+        {{ `${label}${topLabel ? '' : ':'}` }}
+      </slot>
     </span>
-    <slot />
+    <div class="form-col-content">
+      <slot />
+    </div>
+    
   </v-col>
 </template>
 
@@ -23,7 +27,7 @@ const props = defineProps({
    */
   topLabel: {
     type: [Boolean, String],
-    default: false
+    default: true
   },
   /**
    * 标签间隔，优先级高于form-grid中的定义
@@ -58,13 +62,33 @@ export default defineComponent({
 .form-label {
   margin-right: 6px;
   font-size: 14px;
+  max-width: var(--form-label-width);
+  min-width: var(--form-label-width);
 }
-.top-label {
+
+.form-col-top-label {
   position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: start;
   .form-label {
-    position: absolute;
-    top: v-bind(cLabelGap);
-    left: 12px;
+    display: block;
+    max-width: 100%;
   }
+}
+
+.form-col-content {
+  width: 100%;
+}
+</style>
+
+<style lang="scss">
+.form-col {
+  display: flex;
+  align-items: center;
+  min-width: 280px;
+  flex-direction: row;
+  min-height: var(--row-height);
+  padding: 0 12px;
 }
 </style>

@@ -7,14 +7,14 @@
   >
     <LoadingMask :loading="loadingRef" />
     <form-row style="margin-top: 12px">
-      <form-col top-label label="会话名称">
-        <TextInput v-model="formData.name" />
+      <form-col>
+        <TextInput v-model="formData.name" label="会话名称" />
       </form-col>
-      <form-col top-label label="shell">
-        <FormSelect v-model="formData.shell" :items="shellOptions" />
+      <form-col>
+        <FormSelect v-model="formData.shell" label="shell" :items="shellOptions" />
       </form-col>
-      <form-col top-label label="程序输出编码">
-        <FormSelect v-model="formData.charset" :items="charsetOptions" />
+      <form-col>
+        <FormSelect v-model="formData.charset" label="程序输出编码" :items="charsetOptions" />
       </form-col>
       <form-col top-label label="类型">
         <VCheckbox
@@ -25,15 +25,21 @@
           hide-details
         />
       </form-col>
-      <form-col class="mw-50" top-label label="执行节点">
-        <VCheckboxBtn v-model="isSpecifyHost" color="primary" />
-        <ClusterSelector v-if="isSpecifyHost" v-model="host" placeholder="" />
-        <span
-          v-else
-          class="tip"
-          style="font-size: 16px;cursor: pointer;"
-          @click="isSpecifyHost=true"
-        >指定节点</span>
+      <form-col class="mw-50" label="执行节点">
+        <div class="d-flex align-center">
+          <VCheckboxBtn
+            v-model="isSpecifyHost"
+            style="padding-top: 12px;"
+            color="primary"
+            :label="isSpecifyHost ? '' : '指定节点'"
+          />
+          <ClusterSelector
+            v-if="isSpecifyHost"
+            v-model="host"
+            placeholder=""
+            style="padding: 0;top: -6px"
+          />
+        </div>
       </form-col>
     </form-row>
   </base-form>

@@ -19,6 +19,7 @@
         :key="node.name"
         :node="node"
         :class="{'template-node': node.inputType == 'template'}"
+        :use-inner-label="false"
         @change="nodeValueChange(node, $event)"
       />
     </div>

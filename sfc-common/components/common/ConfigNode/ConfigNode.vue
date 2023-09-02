@@ -30,6 +30,7 @@
           class="config-simple-input"
           :readonly="node.readonly || readOnly"
           :hide-details="dense"
+          :label="useInnerLabel ? (node.title || node.name) : undefined"
           :type="node.mask ? 'password': 'text'"
           :class="{'no-margin no-padding': dense}"
           @update:model-value="nodeValue = $event;updateValue(nodeValue)"
@@ -86,6 +87,13 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 是否使用数组组件内置的标签
+   */
+  useInnerLabel: {
+    type: Boolean,
+    default: true
   }
 })
 const nodeValue = ref('') as Ref<any>
@@ -162,8 +170,6 @@ onMounted(() => {
 <script lang="ts">
 import { ConfigNodeModel } from 'sfc-common/model'
 import { ValidateRule } from 'sfc-common/model/component/type'
-import { ValidatorFunction } from 'sfc-common/utils/FormUtils'
-import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, computed, readonly } from 'vue'
 
 export default defineComponent({
@@ -218,6 +224,7 @@ export default defineComponent({
   &.change .change-flag {
     left: 3px;
     width: 3px;
+    z-index: 1000;
   }
   &.change .change-flag:hover {
     left: 0;
