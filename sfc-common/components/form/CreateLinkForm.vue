@@ -53,7 +53,7 @@
         </div>
       </v-window-item>
       <v-window-item value="path">
-        <form-row>
+        <form-row style="padding-top: 12px;">
           <form-col class="mw-50">
             <form-select v-model="formData.expr" placeholder="有效期" :items="exprOptions" />
           </form-col>
