@@ -84,6 +84,9 @@ const enableSwitchLoading: {[k:IdType]: boolean | undefined} = reactive({})
 const preview = () => {
   const inst = SfcUtils.openComponentDialog(DesktopView, {
     title: '桌面预览',
+    props: {
+      uid: props.uid
+    },
     fullscreen: true,
     showConfirm: false,
     showCancel: false,

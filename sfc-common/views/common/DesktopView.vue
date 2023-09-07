@@ -46,9 +46,15 @@
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const configItems = ref<DesktopComponentConfig[]>([])
+const props = defineProps({
+  uid: {
+    type: [String, Number],
+    default: 0
+  }
+})
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadComponentConfig() {
-    configItems.value = (await SfcUtils.request(API.desktop.listComponentConfig(0))).data.data
+    configItems.value = (await SfcUtils.request(API.desktop.listComponentConfig(props.uid))).data.data
     if (configItems.value?.length) {
       configItems.value = configItems.value.filter(e => e.enabled)
     }
