@@ -1,6 +1,7 @@
 <template>
   <div class="empty-tip">
     (～￣▽￣)～{{ text }}
+    <slot name="append" />
   </div>
 </template>
 

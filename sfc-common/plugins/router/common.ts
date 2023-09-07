@@ -1,6 +1,6 @@
 import * as VueRouter from 'vue-router'
 import Index from 'sfc-common/views/common/IndexView.vue'
-import DesktopView from 'sfc-common/views/common/DesktopView.vue'
+import IndexDesktopView from 'sfc-common/views/common/IndexDesktopView.vue'
 
 
 const commonRoute: VueRouter.RouteRecordRaw  =  {
@@ -9,14 +9,14 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
   children: [
     {
       path: '/',
-      component: DesktopView,
+      component: IndexDesktopView,
       meta: {
         allowNoLogin: true
       }
     },
     {
       path: '/**',
-      component: DesktopView,
+      component: IndexDesktopView,
       meta: {
         allowNoLogin: true
       }

@@ -84,6 +84,9 @@ const enableSwitchLoading: {[k:IdType]: boolean | undefined} = reactive({})
 const preview = () => {
   const inst = SfcUtils.openComponentDialog(DesktopView, {
     title: '桌面预览',
+    props: {
+      uid: props.uid
+    },
     fullscreen: true,
     showConfirm: false,
     showCancel: false,
@@ -171,7 +174,7 @@ import { DesktopComponent, DesktopComponentConfig } from 'sfc-common/model/Deskt
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import DesktopView from 'sfc-common/views/common/DesktopView.vue'
+import DesktopView from './DesktopView.vue'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, h } from 'vue'
 import { VBtn } from 'vuetify/components'
 import DesktopComponentSelector from './DesktopComponentSelector.vue'
