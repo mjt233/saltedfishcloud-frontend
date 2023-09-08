@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-left: 18px;position: relative;">
+  <div class="desktop-view">
     <LoadingMask :loading="loading" />
     <template v-if="configItems && configItems.length">
       <VContainer fluid>
@@ -39,7 +39,7 @@
       </VContainer>
     </template>
     <div v-else>
-      <EmptyTip>
+      <EmptyTip v-if="isEmpty">
         <template v-if="hasLogin && ((uid == 0 && isAdmin) || uid != 0)" #append>
           请 <a class="link" @click="gotoConfigure(false)">前往配置桌面</a> 或 <a class="link" @click="gotoConfigure(true)">快速配置</a>
         </template>
@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+const isEmpty = ref(false)
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const configItems = ref<DesktopComponentConfig[]>([])
@@ -62,7 +63,10 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   async loadComponentConfig() {
     configItems.value = (await SfcUtils.request(API.desktop.listComponentConfig(props.uid))).data.data
     if (configItems.value?.length) {
+      isEmpty.value = false
       configItems.value = configItems.value.filter(e => e.enabled)
+    } else {
+      isEmpty.value = true
     }
   }
 }, false, loadingManager)
@@ -145,5 +149,9 @@ export default defineComponent({
 }
 .desktop-component {
   width: 100%;
+}
+.desktop-view {
+  position: relative;
+  min-height: 32px;
 }
 </style>

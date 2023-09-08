@@ -6,12 +6,22 @@
       align-tabs="center"
       @update:model-value="curTab = $event;emits('update:modelValue', $event)"
     >
-      <VTab v-for="item in tabs" :key="item.id" :value="item.id">
+      <VTab
+        v-for="item in tabs"
+        :key="item.id"
+        v-ripple
+        :value="item.id"
+      >
         {{ item.label }}
       </VTab>
     </VTabs>
-    <VWindow v-if="curTab !== undefined" :model-value="curTab">
-      <VWindowItem v-for="item in tabs" :key="item.id" :value="item.id">
+    <VWindow v-if="curTab !== undefined" :model-value="curTab" @update:model-value="curTab = $event;emits('update:modelValue', $event)">
+      <VWindowItem
+        v-for="item in tabs"
+        :key="item.id"
+        :value="item.id"
+        :eager="true"
+      >
         <DesktopView :uid="item.uid" />
       </VWindowItem>
     </VWindow>
