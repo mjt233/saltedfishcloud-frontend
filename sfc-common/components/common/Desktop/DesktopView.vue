@@ -63,7 +63,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   async loadComponentConfig() {
     configItems.value = (await SfcUtils.request(API.desktop.listComponentConfig(props.uid))).data.data
     if (configItems.value?.length) {
-      isEmpty.value = false
+      isEmpty.value = configItems.value.findIndex(e => e.enabled == 1) == -1
       configItems.value = configItems.value.filter(e => e.enabled)
     } else {
       isEmpty.value = true
