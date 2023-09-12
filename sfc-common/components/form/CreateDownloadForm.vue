@@ -17,7 +17,14 @@
         <v-switch v-model="formData.useProxy" label="使用代理" color="primary" />
       </v-col>
       <v-col>
-        <v-select
+        <form-select
+          v-if="formData.useProxy"
+          v-model="formData.proxy"
+          :items="proxyOptions"
+          :return-object="false"
+          label="选择节点"
+        />
+        <!-- <v-select
           v-if="formData.useProxy"
           v-model="formData.proxy"
           color="primary"
@@ -26,6 +33,7 @@
           variant="underlined"
           no-data-text="无可用代理"
         />
+      </v-col> -->
       </v-col>
     </v-row>
     
@@ -67,7 +75,18 @@ const validators = {
     return true
   }]
 }
-const proxys: string[] = reactive([])
+const proxys: ProxyInfo[] = reactive([])
+const proxyOptions = computed(() => {
+  return proxys.map(proxy => {
+    return {
+      title: proxy.name,
+      value: proxy.id,
+      action() {
+        formData.proxy = proxy.id + ''
+      },
+    } as SelectOption
+  })
+})
 const actions = MethodInterceptor.createAutoCatch(
   MethodInterceptor.createAutoLoadingProxy({
     async createTask() {
@@ -82,7 +101,10 @@ const actions = MethodInterceptor.createAutoCatch(
     },
     async loadProxy() {
       (await SfcUtils.request(API.task.download.getProxy())).data.data.forEach(e => {
-        proxys.push(e.name)
+        proxys.push({
+          ...e,
+          name: e.uid == 0 ? `【公共代理】${e.name}` : `${e.name}`
+        })
       })
     }
   }
@@ -110,6 +132,9 @@ import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { CommonForm, deconstructForm } from 'sfc-common/utils/FormUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
+import FormSelect from '../common/FormSelect.vue'
+import { ProxyInfo, SelectOption } from 'sfc-common/model'
+import { computed } from 'vue'
 
 export default defineComponent({
   name: 'CreateDownloadForm'
