@@ -27,6 +27,22 @@ const sys = {
     }
   },
   /**
+   * 测试代理连通性
+   * @param proxyId 代理id
+   * @param timeout 超时时间（ms）
+   * @param useCache 是否使用缓存结果（默认使用）
+   */
+  test(proxyId: IdType, timeout?: number, useCache?: boolean): CommonRequest<boolean> {
+    return {
+      url: `${this.prefix}/test`,
+      params: {
+        proxyId,
+        timeout: timeout || 10000,
+        useCache: useCache === undefined ? true : useCache
+      }
+    }
+  },
+  /**
    * 保存一个代理信息
    * @param {ProxyInfo} proxy 要保存的代理
    * @returns {import("axios").AxiosRequestConfig}

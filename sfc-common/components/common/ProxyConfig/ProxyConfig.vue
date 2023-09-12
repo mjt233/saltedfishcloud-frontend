@@ -21,6 +21,9 @@
           <th>
             操作
           </th>
+          <th>
+            连通性
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -45,6 +48,26 @@
               />
             </div>
           </td>
+          <td>
+            <v-progress-circular
+              v-if="testResult[item.id] == 'testing'"
+              title="连通性测试中" 
+              indeterminate
+              color="primary"
+            />
+            <CommonIcon
+              v-if="testResult[item.id] == 'pass'"
+              title="连通性测试成功"
+              icon="mdi-check"
+              color="success"
+            />
+            <CommonIcon
+              v-if="testResult[item.id] == 'failed'"
+              title="连通性测试失败"
+              icon="mdi-alert"
+              color="warning"
+            />
+          </td>
         </tr>
       </tbody>
     </v-table>
@@ -60,17 +83,39 @@ const props = defineProps({
     default: 0
   }
 })
+const testResult = reactive({}) as {[proxyId: IdType]: 'pass'|'testing'|'failed'|'notest'}
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const proxyList: Ref<ProxyInfo[]> = ref([])
+
+const testAllProxy = (useCache?: boolean) => {
+  return Promise.all(proxyList.value.map(e => testProxy(e, useCache)))
+}
+
+const testProxy = (proxy: ProxyInfo, useCache?: boolean) => {
+  testResult[proxy.id] = 'testing'
+  return SfcUtils.request(API.admin.proxy.test(proxy.id, 10000, useCache))
+    .then(res => {
+      testResult[proxy.id] = res.data.data ? 'pass' : 'failed'
+    })
+    .catch(err => {
+      testResult[proxy.id] = 'failed'
+      return Promise.reject(err)
+    })
+}
+
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
-    const list = (await SfcUtils.request(API.admin.proxy.findByUid(props.uid))).data.data.content
+    const list = (await SfcUtils.request(API.admin.proxy.findByUid(props.uid))).data.data.content || []
+    list.forEach(e => testResult[e.id] = 'notest')
     proxyList.value = list
+    testAllProxy(true)
   },
   deleteOne(name: string) {
     return SfcUtils.request(API.admin.proxy.deleteProxy(name))
-  }
+  },
+  testProxy,
+  testAllProxy
 }, true, loadingManager)
 
 const deleteProxy = async(name: string) => {
@@ -110,7 +155,7 @@ actions.loadList()
 
 <script lang="ts">
 import API from 'sfc-common/api'
-import { ProxyInfo } from 'sfc-common/model'
+import { IdType, ProxyInfo } from 'sfc-common/model'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
@@ -118,6 +163,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, h } from 'vue'
 import ProxyConfigFormVue from './ProxyConfigForm.vue'
 import { CommonIcon } from '..'
+import { reactive } from 'vue'
 
 export default defineComponent({
   name: 'ProxyConfig'
