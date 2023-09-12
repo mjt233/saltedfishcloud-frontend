@@ -4,6 +4,9 @@ import FileCollectionView from 'sfc-common/components/common/FileCollection/File
 import { context } from '..'
 import FileShareView from 'sfc-common/components/common/FileShare/FileShareView.vue'
 import DesktopConfigList from 'sfc-common/components/common/Desktop/DesktopConfigList.vue'
+import { ConditionFunction } from 'sfc-common/core/helper'
+import ProxyConfigForm from 'sfc-common/components/common/ProxyConfig/ProxyConfigForm.vue'
+import { ProxyConfig } from 'sfc-common/components'
 
 /**
  * 默认的百宝箱菜单
@@ -45,11 +48,11 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
   },
   {
     id: 'custom',
-    name: '个性定制',
+    name: '定制选项',
     items: [
       {
         id: 'desktop',
-        title: '首页桌面',
+        title: '我的桌面',
         icon: 'mdi-home',
         action(ctx) {
           ctx.currentComponent = h(DesktopConfigList, {
@@ -72,6 +75,18 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         renderOn(ctx) {
           return !!context.session.value.token
         },
+      },
+      {
+        id: 'proxy',
+        title: '代理节点',
+        icon: 'mdi-web',
+        renderOn(ctx) {
+          return ConditionFunction.hasLogin(context)
+        },
+        action(ctx) {
+          ctx.title = '代理节点'
+          ctx.currentComponent = h(ProxyConfig, { uid: context.session.value.user.id })
+        }
       }
     ]
   }

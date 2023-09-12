@@ -54,12 +54,18 @@
 
 <script setup lang="ts">
 import EmptyTip from '../EmptyTip.vue'
+const props = defineProps({
+  uid: {
+    type: [Number, String],
+    default: 0
+  }
+})
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const proxyList: Ref<ProxyInfo[]> = ref([])
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
-    const list = (await SfcUtils.request(API.admin.proxy.getAllProxy())).data.data
+    const list = (await SfcUtils.request(API.admin.proxy.findByUid(props.uid))).data.data.content
     proxyList.value = list
   },
   deleteOne(name: string) {
@@ -79,14 +85,15 @@ const openProxyForm = (val?: ProxyInfo) => {
   const formInst = SfcUtils.openComponentDialog(ProxyConfigFormVue, {
     title: isEdit ? '修改代理节点' : '新增代理节点',
     props: {
-      initValue: val
+      initValue: val,
+      uid: props.uid
     },
     extraDialogOptions: {
       width: '420px !important'
     },
     async onConfirm() {
       const form = formInst.getComponentInstRef() as any as CommonForm
-      const res = await form.submit()
+      const res = await form.submit({ showError: false })
       if (!res.success) {
         return false
       } else {
