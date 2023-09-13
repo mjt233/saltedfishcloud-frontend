@@ -5,39 +5,34 @@
     :submit-action="actions.createTask"
   >
     <loading-mask :loading="loading" />
-    <text-input
-      ref="urlRef"
-      v-model="formData.url"
-      label="URL-下载地址，仅支持http(s)"
-      :rules="validators.url"
-      @keypress.enter="emitSubmit"
-    />
-    <v-row>
-      <v-col style="max-width: 160px">
+    <FormRow>
+      <FormCol>
+        <text-input
+          ref="urlRef"
+          v-model="formData.url"
+          label="URL-下载地址，仅支持http(s)"
+          :rules="validators.url"
+          @keypress.enter="emitSubmit"
+        />
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol style="min-height: 48px;">
+        <p class="text-title" style="margin-top: 12px;">
+          其他选项
+        </p>
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol>
         <v-switch v-model="formData.useProxy" label="使用代理" color="primary" />
-      </v-col>
-      <v-col>
-        <form-select
-          v-if="formData.useProxy"
-          v-model="formData.proxy"
-          :items="proxyOptions"
-          :return-object="false"
-          label="选择节点"
-        />
-        <!-- <v-select
-          v-if="formData.useProxy"
-          v-model="formData.proxy"
-          color="primary"
-          :items="proxys"
-          label="选择节点"
-          variant="underlined"
-          no-data-text="无可用代理"
-        />
-      </v-col> -->
-      </v-col>
-    </v-row>
-    
-    
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol>
+        <proxy-selector v-if="formData.useProxy" v-model="formData.proxy" />
+      </FormCol>
+    </FormRow>
   </base-form>
 </template>
 
@@ -80,10 +75,7 @@ const proxyOptions = computed(() => {
   return proxys.map(proxy => {
     return {
       title: proxy.name,
-      value: proxy.id,
-      action() {
-        formData.proxy = proxy.id + ''
-      },
+      value: proxy.id + ''
     } as SelectOption
   })
 })
@@ -135,6 +127,8 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import FormSelect from '../common/FormSelect.vue'
 import { ProxyInfo, SelectOption } from 'sfc-common/model'
 import { computed } from 'vue'
+import propsOptions from '../common/FileList/props'
+import ProxySelector from '../common/ProxyConfig/ProxySelector.vue'
 
 export default defineComponent({
   name: 'CreateDownloadForm'

@@ -44,29 +44,12 @@
                 icon="mdi-delete-forever"
                 style="--main-color: var(--v-theme-error)"
                 class="link"
-                @click="deleteProxy(item.name)"
+                @click="deleteProxy(item)"
               />
             </div>
           </td>
           <td>
-            <v-progress-circular
-              v-if="testResult[item.id] == 'testing'"
-              title="连通性测试中" 
-              indeterminate
-              color="primary"
-            />
-            <CommonIcon
-              v-if="testResult[item.id] == 'pass'"
-              title="连通性测试成功"
-              icon="mdi-check"
-              color="success"
-            />
-            <CommonIcon
-              v-if="testResult[item.id] == 'failed'"
-              title="连通性测试失败"
-              icon="mdi-alert"
-              color="warning"
-            />
+            <ProxyTestStatus :status="testResult[item.id]" />
           </td>
         </tr>
       </tbody>
@@ -83,44 +66,29 @@ const props = defineProps({
     default: 0
   }
 })
-const testResult = reactive({}) as {[proxyId: IdType]: 'pass'|'testing'|'failed'|'notest'}
+const tester = createProxyTester()
+const testResult = tester.getReactiveResult()
+
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const proxyList: Ref<ProxyInfo[]> = ref([])
 
-const testAllProxy = (useCache?: boolean) => {
-  return Promise.all(proxyList.value.map(e => testProxy(e, useCache)))
-}
-
-const testProxy = (proxy: ProxyInfo, useCache?: boolean) => {
-  testResult[proxy.id] = 'testing'
-  return SfcUtils.request(API.admin.proxy.test(proxy.id, 10000, useCache))
-    .then(res => {
-      testResult[proxy.id] = res.data.data ? 'pass' : 'failed'
-    })
-    .catch(err => {
-      testResult[proxy.id] = 'failed'
-      return Promise.reject(err)
-    })
-}
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
-    const list = (await SfcUtils.request(API.admin.proxy.findByUid(props.uid))).data.data.content || []
+    const list = (await SfcUtils.request(API.proxy.findByUid(props.uid))).data.data.content || []
     list.forEach(e => testResult[e.id] = 'notest')
     proxyList.value = list
-    testAllProxy(true)
+    tester.testAllProxy(proxyList.value, true)
   },
-  deleteOne(name: string) {
-    return SfcUtils.request(API.admin.proxy.deleteProxy(name))
-  },
-  testProxy,
-  testAllProxy
+  deleteOne(proxyId: IdType) {
+    return SfcUtils.request(API.proxy.deleteProxy(proxyId))
+  }
 }, true, loadingManager)
 
-const deleteProxy = async(name: string) => {
+const deleteProxy = async(proxy: ProxyInfo) => {
   await SfcUtils.confirm('确定要删除这个代理节点吗？', '删除确认')
-  await actions.deleteOne(name)
+  await actions.deleteOne(proxy.id)
   SfcUtils.snackbar('删除成功')
   await actions.loadList()
 }
@@ -164,6 +132,8 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, h } from
 import ProxyConfigFormVue from './ProxyConfigForm.vue'
 import { CommonIcon } from '..'
 import { reactive } from 'vue'
+import { createProxyTester } from './ProxyTester'
+import ProxyTestStatus from './ProxyTestStatus.vue'
 
 export default defineComponent({
   name: 'ProxyConfig'

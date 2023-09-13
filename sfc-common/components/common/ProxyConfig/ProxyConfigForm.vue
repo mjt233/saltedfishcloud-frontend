@@ -60,7 +60,7 @@ const proxyTypeOptions: SelectOption[] = [
 ]
 
 const submit = async() => {
-  return await SfcUtils.request(API.admin.proxy.save(formData))
+  return await SfcUtils.request(API.proxy.save(formData))
 }
 const formInst = defineForm({
   actions: {

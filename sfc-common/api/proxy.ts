@@ -2,7 +2,7 @@ import { CommonPageInfo, CommonPageRequestParam, CommonRequest, IdType, ProxyInf
 import { useJsonBody } from 'sfc-common/utils'
 
 const sys = {
-  prefix: '/admin/sys/proxy',
+  prefix: '/proxy',
   /**
    * 删除一个代理
    * @param proxyId 代理id
