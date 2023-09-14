@@ -61,7 +61,7 @@
         </FormRow>
         <FormRow>
           <FormCol top-label label="任务创建人">
-            <div class="d-flex align-center justify-center">
+            <div class="d-flex align-center">
               <UserAvatar :uid="taskRecord.uid" />
               <template v-if="createUser?.user">
                 {{ createUser.user }}
@@ -72,7 +72,7 @@
             <div
               v-ripple
               class="text-primary"
-              style="cursor: pointer;"
+              style="cursor: pointer;display: inline-block;"
               @click="showParams"
             >
               <CommonIcon icon="mdi-eye" />查看

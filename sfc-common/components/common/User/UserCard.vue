@@ -1,7 +1,9 @@
 <template>
   <div>
+    <slot name="prepend" />
     <user-avatar :uid="uid" :name="name" :transition="false" />
     <span style="font-size: 14px;">{{ uid == 0 ? '[游客]' : name }}</span>
+    <slot name="append" />
   </div>
 </template>
 

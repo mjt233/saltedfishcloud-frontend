@@ -30,10 +30,10 @@
       <v-card-actions v-show="!hideBtn || $slots.actions" class="justify-end">
         <template v-if="!hideBtn">
           <v-btn v-if="showConfirm" color="primary" @click="emits('confirm')">
-            确定
+            {{ confirmText }}
           </v-btn>
           <v-btn v-if="showCancel" color="primary" @click="emits('cancel')">
-            取消
+            {{ cancelText }}
           </v-btn>
         </template>
         <slot name="actions" />
@@ -105,6 +105,14 @@ const props = defineProps({
   contentMaxHeight: {
     type: String,
     default: 'none'
+  },
+  confirmText: {
+    type: String,
+    default: '确定'
+  },
+  cancelText: {
+    type: String,
+    default: '取消'
   }
 })
 const loadingMaskRef = ref<InstanceType<typeof LoadingMask>>()
