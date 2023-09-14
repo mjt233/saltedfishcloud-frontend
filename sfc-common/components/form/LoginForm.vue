@@ -81,7 +81,12 @@
           </v-col>
         </v-row>
       </base-form>
-      <v-btn style="margin-top: 14px" color="primary" @click="emit('submit')">
+      <v-btn
+        v-if="showLogin"
+        style="margin-top: 14px"
+        color="primary"
+        @click="emit('submit')"
+      >
         登录
       </v-btn>
     </v-card-text>
@@ -105,6 +110,10 @@ const props = defineProps({
   plain: {
     type: Boolean,
     default: false
+  },
+  showLogin: {
+    type: Boolean,
+    default: true
   }
 })
 
