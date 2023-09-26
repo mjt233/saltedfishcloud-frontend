@@ -1,8 +1,8 @@
 import { BootContext, BootProcessor } from 'sfc-common/model'
 // import AppVue from 'sfc-common/App.vue'
 import contextHandler from './BootContextHandler'
-import { buildApp } from './AppFactory'
 import { App } from 'vue'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 
 const processorList:BootProcessor[] = []
 
@@ -23,9 +23,14 @@ const bootContext: BootContext = {
         contextHandler.logInfo(`(${curIdx + 1}/${processorList.length})处理完成：${processor.taskName}`)
       } catch (err) {
         console.error(err)
-        contextHandler.logError(`(${curIdx + 1}/${processorList.length})处理失败：${processor.taskName}`)
+        const errMsg = `(${curIdx + 1}/${processorList.length})处理失败：${processor.taskName}`
+        contextHandler.logError(errMsg)
         contextHandler.setInterruptMsg('流程失败：' + processor.taskName)
-        return err
+        try {
+          await SfcUtils.confirm(`初始化加载错误: ${errMsg}，是否忽略？`, '加载错误', { cancelToReject: true })
+        } catch {
+          return err
+        }
       } finally {
         curIdx ++
         contextHandler.updateProgress(processorList.length, curIdx)
