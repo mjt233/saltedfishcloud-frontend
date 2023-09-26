@@ -97,7 +97,7 @@ function buildExtensionManager(context: ExtensionContext): ExtensionManager {
         context.bootContextHandler.logInfo(`[加载资源-${extension.name}]: ${cssPath}`)
 
         return waitDOMLoaded(tag).then(() => {
-          context.bootContextHandler.logInfo(`[加载成功-${extension.name}]: ${cssPath}`)
+          context.bootContextHandler.logInfo(`[加载完成-${extension.name}]: ${cssPath}`)
         }).catch(err => {
           context.bootContextHandler.logWarning(`[加载失败-${extension.name}]: ${cssPath}`)
           context.bootContextHandler.logError(err)
