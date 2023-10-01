@@ -36,31 +36,33 @@
     </FormRow>
     <FormRow v-if="typeStrategy == 'field'">
       <FormCol>
-        <span>
-          <v-tooltip top>
-            <template #activator="{ props: vProps }">
-              <v-icon
-                style="margin-right: 12px"
-                size="18"
-                dark
-                v-bind="vProps"
-              >
-                mdi-help-circle
-              </v-icon>
-            </template>
-            <p>字段模式需要设定文件名表达式用于构造提交的文件名</p>
-            <p>字段变量用法：${字段名}，内置的变量__ext__表示用户上传的文件拓展名，推荐一般放到末尾</p>
-            <p>表达式样例：${学号}-${学院}-${班级}-${姓名}.${__ext__}</p>
-            <p>提交文件后，将构造成：114514-茶艺学院-雷普1班-李天所.docx</p>
-          </v-tooltip>
-        </span>
-        <text-input
-          v-model="formData.pattern"
-          label="文件名表达式"
-          :readonly="readonly"
-          class="dense-details"
-          :rules="validators.nameExpress"
-        />
+        <div class="d-flex align-center">
+          <span>
+            <v-tooltip top>
+              <template #activator="{ props: vProps }">
+                <v-icon
+                  style="margin-right: 12px"
+                  size="18"
+                  dark
+                  v-bind="vProps"
+                >
+                  mdi-help-circle
+                </v-icon>
+              </template>
+              <p>字段模式需要设定文件名表达式用于构造提交的文件名</p>
+              <p>字段变量用法：${字段名}，内置的变量__ext__表示用户上传的文件拓展名，推荐一般放到末尾</p>
+              <p>表达式样例：${学号}-${学院}-${班级}-${姓名}.${__ext__}</p>
+              <p>提交文件后，将构造成：114514-茶艺学院-雷普1班-李天所.docx</p>
+            </v-tooltip>
+          </span>
+          <text-input
+            v-model="formData.pattern"
+            label="文件名表达式"
+            :readonly="readonly"
+            class="dense-details"
+            :rules="validators.nameExpress"
+          />
+        </div>
       </FormCol>
       <FormCol>
         <text-input
