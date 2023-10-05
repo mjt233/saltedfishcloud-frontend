@@ -13,7 +13,8 @@
     "build-ext-jntm": "vite build --config build/extension/jntm.ts",
     "build-ext-quick-share": "vite build --config build/extension/quick-share.ts",
     "build-ext-network-tools": "vite build --config build/extension/network-tools.ts",
-    "build-ext-web-shell": "vite build --config build/extension/web-shell.ts"
+    "build-ext-web-shell": "vite build --config build/extension/web-shell.ts",
+    "build-ext-static-publish": "vite build --config build/extension/static-publish.ts"
   },
   "dependencies": {
     "@types/highlight.js": "^10.1.0",

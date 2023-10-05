@@ -57,7 +57,7 @@ export type IdType = number | string
 /**
  * 配置节点类型
  */
-export type ConfigNodeInputType = 'switch' | 'select' | 'multi-select' | 'ratio' | 'checkbox' | 'text' | 'form' | 'template'
+export type ConfigNodeInputType = 'switch' | 'select' | 'multi-select' | 'radio' | 'checkbox' | 'text' | 'form' | 'template'
 
 /**
  * 基本原始数据类型

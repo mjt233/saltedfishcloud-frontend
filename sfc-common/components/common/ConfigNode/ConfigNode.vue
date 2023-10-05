@@ -46,6 +46,22 @@
           @change="nodeValue = $event.value; updateValue($event.value)"
         />
       </template>
+      <template v-if="node.inputType == 'radio'">
+        <v-radio-group
+          :model-value="nodeValue"
+          color="primary"
+          inline
+          :hide-details="true"
+          @update:model-value="nodeValue = $event;updateValue(nodeValue)"
+        >
+          <v-radio
+            v-for="item in node.options"
+            :key="item.value"
+            :value="item.value"
+            :label="item.title"
+          />
+        </v-radio-group>
+      </template>
       <template v-if="node.inputType == 'form'">
         <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
       </template>
