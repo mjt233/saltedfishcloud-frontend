@@ -53,7 +53,7 @@
                   icon="mdi-close"
                   title="删除"
                   color="error"
-                  @click="preview(item)"
+                  @click="deleteSite(item)"
                 />
               </td>
             </tr>
@@ -141,12 +141,20 @@ const toAddOrEdit = async(record?: StaticPublishRecord) => {
   const saveData = await openEditRecordForm(record)
   try {
     await asyncActions.save(saveData)
+    SfcUtils.snackbar('保存成功')
   } catch (err) {
     if (err != 'cancel') {
       await toAddOrEdit(saveData)
       return
     }
   }
+  await asyncActions.loadList()
+}
+
+const deleteSite = async(record: StaticPublishRecord) => {
+  await SfcUtils.confirm(`确定要删除站点${record.isNeedLogin}吗？`, '删除确认')
+  await asyncActions.delete(record.id)
+  SfcUtils.snackbar('删除成功')
   await asyncActions.loadList()
 }
 
