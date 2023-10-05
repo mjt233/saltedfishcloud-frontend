@@ -152,7 +152,7 @@ const toAddOrEdit = async(record?: StaticPublishRecord) => {
 }
 
 const deleteSite = async(record: StaticPublishRecord) => {
-  await SfcUtils.confirm(`确定要删除站点${record.isNeedLogin}吗？`, '删除确认')
+  await SfcUtils.confirm(`确定要删除站点${record.siteName}吗？`, '删除确认')
   await asyncActions.delete(record.id)
   SfcUtils.snackbar('删除成功')
   await asyncActions.loadList()
