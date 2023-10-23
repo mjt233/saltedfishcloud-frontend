@@ -27,7 +27,7 @@
             <tr v-for="item in list" :key="item.id">
               <td>{{ item.siteName }}</td>
               <td>{{ item.path }}</td>
-              <td>{{ item.accessWay == 1 ? '按主机名' : '按用户路径' }}</td>
+              <td>{{ item.accessWay == 1 ? '按主机名' : item.accessWay == 2 ? '按用户路径' : '按根路径' }}</td>
               <td><a class="link" :href="getSiteUrl(item)" target="_blank">{{ getSiteUrl(item) }}</a></td>
               <td class="handle-btns">
                 <CommonIcon
@@ -95,8 +95,10 @@ const property = StaticPublishApi.getProperty()
 const getSiteUrl = (record: StaticPublishRecord) => {
   if (record.accessWay == 1) {
     return `${property.protocol}://${record.siteName}.${property.byHostSuffix}`
-  } else {
+  } else if (record.accessWay == 2) {
     return `${property.protocol}://${record.username}.${property.byPathSuffix}/${record.siteName}`
+  } else {
+    return `${property.protocol}://${property.serverAddress}/${record.siteName}`
   }
 }
 

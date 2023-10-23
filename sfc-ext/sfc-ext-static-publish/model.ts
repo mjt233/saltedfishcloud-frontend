@@ -1,9 +1,9 @@
 import { AuditModel } from 'sfc-common'
 
 /**
- * 站点访问方式：1 - 按主机名匹配，2 - 按路径匹配
+ * 站点访问方式：1 - 按主机名匹配，2 - 按路径匹配，3 - 按根路径匹配
  */
-export type AccessWay = 1 | 2;
+export type AccessWay = 1 | 2 | 3;
 
 export interface StaticPublishProperty {
   /**
@@ -20,6 +20,16 @@ export interface StaticPublishProperty {
    * 是否只允许管理员发布站点
    */
   isOnlyAdminPublish: boolean
+
+  /**
+   * 是否启用根路径站点功能
+   */
+  isEnableDirectRootPath: boolean
+
+  /**
+   * 静态站点服务器地址，用于按根路径匹配时页面展示URL
+   */
+  serverAddress: string
 
   /**
    * 按系统主机名匹配站点的主机后缀
@@ -48,7 +58,7 @@ export interface StaticPublishRecord extends AuditModel {
   username: string
 
   /**
-   * 站点访问方式：1 - 按主机名匹配，2 - 按路径匹配
+   * 站点访问方式：1 - 按主机名匹配，2 - 按路径匹配, 3 - 按根路径匹配
    */
   accessWay: AccessWay
 

@@ -12,6 +12,12 @@
             {{ group.title || group.name }}
           </sticky-container> -->
           <span class="node-title">{{ group.title || group.name }}</span>
+          <MultiLineText
+            v-if="group.describe"
+            style="margin-left: 12px;"
+            class="tip"
+            :text="group.describe"
+          />
         </template>
       </slot>
       <config-node
@@ -27,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ConfigNode ,StickyContainer } from 'sfc-common/components'
+import { ConfigNode ,MultiLineText,StickyContainer } from 'sfc-common/components'
 const props = defineProps({
   items: {
     type: Array as PropType<ConfigNodeModel[]>,

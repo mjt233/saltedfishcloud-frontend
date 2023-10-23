@@ -8,6 +8,7 @@
         <VRadioGroup v-model="formData.accessWay" inline color="primary">
           <VRadio :value="1" label="按主机名" />
           <VRadio :disabled="initObject?.uid == 0" :value="2" label="按用户路径" />
+          <VRadio :disabled="!isEnableDirectRootPath" :value="3" label="按根路径" />
         </VRadioGroup>
       </FormCol>
     </FormRow>
@@ -54,7 +55,7 @@
 
 <script setup lang="ts">
 /* VS Code代码片段生成 prefix: vform */
-import { CommonForm, FormFieldType, IdType, Validators, defineForm } from 'sfc-common'
+import { CommonForm, FormFieldType, IdType, Validators, context, defineForm } from 'sfc-common'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   initObject: {
@@ -68,7 +69,9 @@ const props = defineProps({
 })
 const emits = defineEmits(['submit'])
 const SfcUtils = window.SfcUtils
-
+const isEnableDirectRootPath = computed(() => {
+  return StaticPublishApi.getProperty().isEnableDirectRootPath
+})
 const formInst = defineForm({
   actions: {
     submit() {
@@ -128,8 +131,10 @@ const selectPath = async() => {
 const getSiteUrl = (record: StaticPublishRecord) => {
   if (record.accessWay == 1) {
     return `${property.protocol}://${record.siteName}.${property.byHostSuffix}`
-  } else {
+  } else if (record.accessWay == 2) {
     return `${property.protocol}://${record.username || '[用户名]'}.${property.byPathSuffix}/${record.siteName}`
+  } else {
+    return `${property.protocol}://${property.serverAddress}/${record.siteName}`
   }
 }
 
@@ -152,7 +157,7 @@ defineExpose(formInst)
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StaticPublishRecord } from '../model'
 import { onMounted } from 'vue'
 import StaticPublishApi from '../api'
