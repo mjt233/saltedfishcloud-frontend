@@ -6,6 +6,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { context } from '..'
 import { FileOpenHandler } from '../type'
 import { StringFormatter } from 'sfc-common/utils'
+import * as monaco from 'monaco-editor'
 
 async function doSave(ctx: FileListContext, file: FileInfo, content: string) {
   try {
@@ -103,26 +104,11 @@ const doOpen = (ctx: FileListContext, file: FileInfo) => {
     throw new Error('无法获取文件url')
   }
   const extName = file.name.split('.').pop()?.toLowerCase() || file.name
+  const dotExtName = `.${extName}`
 
   // 匹配语言
-  let language
-  if (['js', 'ts', 'tsx', 'jsx'].includes(extName)) {
-    language = 'javascript'
-  } else if (extName == 'json') {
-    language = 'json'
-  } else if (['html', 'htm', 'vue', 'xml'].includes(extName)) {
-    language = 'html'
-  } else if (['css', 'less', 'scss'].includes(extName)) {
-    language = 'css'
-  } else if (extName == 'java') {
-    language = 'java'
-  } else if (extName == 'md') {
-    language = 'markdown'
-  } else if (extName == 'sql') {
-    language = 'sql'
-  } else {
-    language = 'editor'
-  }
+  const language = monaco.languages.getLanguages().find(l => l.id == extName || l.extensions?.includes(dotExtName))?.id || 'plaintext'
+
   const props = {
     language,
     autoGrow: false,
