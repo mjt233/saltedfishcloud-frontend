@@ -1,4 +1,4 @@
-import { AuditModel } from 'sfc-common'
+import { AuditModel, ClusterNodeInfo, NodeInfo } from 'sfc-common'
 
 /**
  * 站点访问方式：1 - 按主机名匹配，2 - 按路径匹配，3 - 按根路径匹配
@@ -40,6 +40,28 @@ export interface StaticPublishProperty {
    * 按用户路径匹配站点的主机后缀
    */
   byPathSuffix: string
+}
+
+export interface SiteStatus {
+  /**
+   * 站点所在的集群节点信息
+   */
+  nodeInfo: ClusterNodeInfo
+
+  /**
+   * 静态站点服务端口
+   */
+  serverPort: number
+
+  /**
+   * 是否运行中
+   */
+  isRunning: boolean
+
+  /**
+   * 错误信息
+   */
+  errorMsg: string
 }
 
 /**

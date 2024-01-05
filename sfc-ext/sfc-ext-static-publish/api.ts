@@ -1,5 +1,5 @@
 import { CommonRequest, IdType, context, useJsonBody } from 'sfc-common'
-import { StaticPublishProperty, StaticPublishRecord } from './model'
+import { SiteStatus, StaticPublishProperty, StaticPublishRecord } from './model'
 const StaticPublishApi = {
   prefix: '/staticPublish',
   save(entity: StaticPublishRecord): CommonRequest {
@@ -28,6 +28,14 @@ const StaticPublishApi = {
    */
   getProperty() {
     return context.feature.value['staticPublish'] as StaticPublishProperty
+  },
+  /**
+   * 获取集群中所有站点的运行状态信息
+   */
+  listStatus(): CommonRequest<SiteStatus[]> {
+    return {
+      url: `${this.prefix}/listStatus`
+    }
   }
 }
 
