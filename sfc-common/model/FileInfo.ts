@@ -1,3 +1,4 @@
+import { AuditModel } from './Common'
 import { IdType } from './index'
 import { FileListModel, FileListModelHandler } from './component/FileListModel'
 
@@ -6,17 +7,17 @@ export namespace FileTypeConstant {
   export const DIR = 1
 }
 export type FileType = 1|2
-export interface FileInfo {
-  uid: number
+export interface FileInfo extends AuditModel {
   md5: string
   node: string
   name: string
   size: number
   dir: boolean
   type: FileType
-  createdAt: Date
   suffix: string
-  mountId: string,
+  mountId: string
+  ctime: string
+  mtime: string
   /* 是否来自挂载的文件系统 */
   mount: boolean
 

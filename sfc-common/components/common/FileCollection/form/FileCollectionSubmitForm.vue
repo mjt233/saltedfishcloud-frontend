@@ -67,7 +67,7 @@
           </template>
           <FormRow v-else class="form-row">
             <FormCol>
-              <text-input v-model="formData.filename" label="文件重命名" :rules="validators.filename" />
+              <text-input v-model="formData.fileParam.name" label="文件重命名" :rules="validators.filename" />
             </FormCol>
           </FormRow>
           <FormRow>
@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import API from 'sfc-common/api'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
-import { CollectionInfo, CollectionInfoField, CollectionSubmitInfo } from 'sfc-common/model/FileCollection'
+import { CollectionInfo, CollectionInfoField, CollectionSubmitInfo, FieldInfo } from 'sfc-common/model/FileCollection'
 import { CommonForm, defineForm, ValidatorFunction } from 'sfc-common/utils/FormUtils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
@@ -258,8 +258,11 @@ const formInst = defineForm({
     }
   },
   formData: {
-    filename: '',
-    field: []
+    field: [] as FieldInfo[],
+    fileParam: {
+      name: '',
+      size: 0
+    }
   } as CollectionSubmitInfo,
   formRef: formRef,
   validators: {
@@ -328,13 +331,15 @@ const initFieldValidator = () => {
 const toLogin = async() => {
   await SfcUtils.openLoginDialog()
   setTimeout(() => {
-    location.reload()  
+    location.reload()
   }, 300)
   
 }
 watch(file, () => {
   if(file.value && file.value.length > 0) {
-    formData.filename = file.value[0].name
+    formData.fileParam.name = file.value[0].name
+    formData.fileParam.size = file.value[0].size
+    formData.fileParam.mtime = file.value[0].lastModified
   } else {
     formData.filename = ''
   }

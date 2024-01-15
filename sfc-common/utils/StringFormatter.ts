@@ -30,6 +30,9 @@ export namespace StringFormatter {
      * @returns {String}
      */
   export function toDate(inputDate: number | string | Date) {
+    if (inputDate == Number(inputDate)) {
+      inputDate = Number(inputDate)
+    }
     const date = new Date(inputDate)
     var month = date.getMonth() + 1
     var day = date.getDate()

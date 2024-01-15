@@ -32,6 +32,12 @@ export interface ResourceRequest {
   /** 资源文件名 */
   name: string
 
+  /** 文件修改日期 */
+  mtime?: number,
+
+  /** 文件创建日期 */
+  ctime?: number
+
   /** 目标资源id，如公共网盘/私人网盘则使用用户id，文件分享使用分享id等，取决于具体文件协议提供者 */
   targetId: IdType
 

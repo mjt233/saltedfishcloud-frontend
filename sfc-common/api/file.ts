@@ -215,8 +215,8 @@ const file = {
     }
     
     if (file) {
-
       fd.set('file', file)
+      fd.set('mtime', file.lastModified.toString())
     }
     return {
       url: StringUtils.appendPath(`/${this.prefix}/${uid}/file`, path),
