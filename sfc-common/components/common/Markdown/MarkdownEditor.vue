@@ -234,6 +234,9 @@ const patseImage = async(file: File) => {
     params.path = option.path
     params.targetId = context.session.value.user.id
   }
+  if (file.lastModified) {
+    params.mtime = file.lastModified
+  }
   const conf = API.resource.uploadCommonResource(params, file)
   
   // 打开上传进度对话框

@@ -11,7 +11,7 @@
 import UserAvatar from './UserAvatar.vue'
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   name: {
