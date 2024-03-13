@@ -12,7 +12,7 @@
           {{ shareInfo.username }}的分享：{{ shareInfo.name }}
         </template>
         <template #subtitle>
-          创建于：{{ toDate(shareInfo.createdAt) }}
+          创建于：{{ toDate(shareInfo.createAt) }}
         </template>
         <v-card-text v-if="!shareInfo.validateSuccess">
           <form-grid style="padding: 12px 0">

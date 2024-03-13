@@ -11,10 +11,12 @@
         <form-select v-model="formData.expiredAt" placeholder="有效期" :items="expiredOptions" />
       </FormCol>
       <FormCol>
-        <text-input v-model="formData.extractCode" label="提取码" :rules="validators.code" />
-        <v-btn size="small" style="margin-left: 18px;" @click="randomCode">
-          随机
-        </v-btn>
+        <div class="d-flex align-center">
+          <text-input v-model="formData.extractCode" label="提取码" :rules="validators.code" />
+          <v-btn size="small" style="margin-left: 18px;" @click="randomCode">
+            随机
+          </v-btn>
+        </div>
       </FormCol>
     </FormRow>
   </base-form>
@@ -28,7 +30,7 @@ import TextInput from '../../TextInput.vue'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   path: {

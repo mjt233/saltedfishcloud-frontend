@@ -1,3 +1,4 @@
+import { AuditModel } from './../model/Common'
 import { CommonPageInfo, CommonRequest } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { FileInfo, FileTransferInfo } from 'sfc-common/model/FileInfo'
@@ -19,9 +20,7 @@ export interface CreateShareConfig {
 
 export type ShareType = 'FILE' | 'DIR'
 
-export interface ShareInfo {
-  /** 分享id */
-  id: number
+export interface ShareInfo extends AuditModel {
 
   /** 所属用户id */
   uid: number
@@ -51,7 +50,10 @@ export interface ShareInfo {
   name: string
 
   /** 创建日期 */
-  createdAt: string
+  createAt: string
+
+  /** 修改日期 */
+  updateAt: string
 
   /** 过期日期 */
   expiredAt: string

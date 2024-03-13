@@ -54,7 +54,7 @@
             <div style="width: 81px;text-align: right;">
               创建于：
             </div>
-            <div>{{ StringFormatter.toDate(Number(session?.createAt)) }}</div>
+            <div>{{ StringFormatter.toDate(session.createAt) }}</div>
           </div>
           <div class="d-flex">
             <div style="width: 81px;text-align: right;">
@@ -73,7 +73,7 @@ const SfcUtils = window.SfcUtils
 const props = defineProps({
   session: {
     type: Object as PropType<ShellSessionRecord>,
-    default: undefined
+    default() { return {} }
   }
 })
 
