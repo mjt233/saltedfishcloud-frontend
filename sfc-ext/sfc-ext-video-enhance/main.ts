@@ -90,7 +90,7 @@ const videoOpenHandler: FileOpenHandler = {
   matcher(ctx, file) {
     return isVideo(file.name)
   },
-  title: '播放视频',
+  title: '播放视频(增强版)',
   async action(ctx, file) {
     try {
       // 如果文件信息中没有所处路径数据，则通过节点id解析获取
@@ -222,19 +222,13 @@ context.menu.value.boxMenu.push({
   ]
 })
 
-const originPlayerIndex = context.fileOpenHandler.value.findIndex(e => e.id == 'play-video')
-if (originPlayerIndex != -1) {
-  context.fileOpenHandler.value[originPlayerIndex] = videoOpenHandler
-} else {
-  context.fileOpenHandler.value.push(videoOpenHandler)
-}
-
+context.fileOpenHandler.value.push(videoOpenHandler)
 context.menu.value.fileListMenu.push(videoMenu)
 
 window.bootContext.addProcessor({
   taskName: '注册组件-video-enhance',
   execute(app) {
-    app.component(VideoEnhanceCheck.name, VideoEnhanceCheck)
+    app.component(VideoEnhanceCheck.name as string, VideoEnhanceCheck)
   }
 })
 
