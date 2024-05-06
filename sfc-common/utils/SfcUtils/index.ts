@@ -80,18 +80,22 @@ const SfcUtils = {
    * @param text 待复制的文本
    */
   async copyToClipboard(text: string) {
-    const input = document.createElement('textarea')
-    input.readOnly = true
+    if (navigator.clipboard) {
+      return await navigator.clipboard.writeText(text)
+    }
+    const input = document.createElement('div')
+    document.body.appendChild(input)
     input.style.position = 'fixed'
-    input.style.display = 'hidden'
     input.style.zIndex = '1145141919'
     input.style.top = '0'
     input.style.left = '0'
-    input.value = text
-    document.body.appendChild(input)
-    input.focus()
-    input.select()
+    input.innerText = text
     try {
+      const sel = window.getSelection()
+      const range = document.createRange()
+      range.selectNodeContents(input)
+      sel?.removeAllRanges()
+      sel?.addRange(range)
       document.execCommand('copy')
     } finally {
       document.body.removeChild(input)
