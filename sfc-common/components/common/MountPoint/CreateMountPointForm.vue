@@ -93,11 +93,10 @@ const parseParams = async(mp: MountPoint) => {
     .flatMap(e => e.nodes)
     .forEach(node => {
       if (node) {
-        node.value = params[node.name]
+        node.value = params[node.name] || node.defaultValue
       }
     })
   mountConfig = JSON.parse(formData.params)
-  console.log(mountConfig)
   
   selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
 }
@@ -146,13 +145,14 @@ const formInst = defineForm({
                 describe.configNode.flatMap(e => e.nodes).forEach(node => {
                   if (node) {
                     mountConfig[node.name] = node.defaultValue
+                    if (node.value === undefined || node.value === null) {
+                      node.value = node.defaultValue
+                    }
                   }
                 })
               }
               configGroup.value = describe.configNode
               formData.protocol = describe.protocol
-
-              
             }
           })
         })
@@ -169,7 +169,6 @@ const formInst = defineForm({
     async loadById() {
       if (props.dataId) {
         try {
-          
           const res = await SfcUtils.request(API.mountPoint.getById(props.dataId))  
           const data = res.data.data
           await parseParams(data)
