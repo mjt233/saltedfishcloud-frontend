@@ -32,7 +32,7 @@
       </form-col>
     </form-row>
 
-    <v-divider style="margin: 21px 12px 0px 12px" />
+    <v-divider class="form-divider" />
     <configurable-form
       ref="mountForm"
       :read-only="readOnly"
@@ -204,3 +204,11 @@ export default defineComponent({
   name: 'CreateMountPointForm'
 })
 </script>
+
+<style lang="scss" scoped>
+.form-divider {
+  padding-bottom: 24px;
+  width: 50%;
+  margin: 0 auto;
+}
+</style>

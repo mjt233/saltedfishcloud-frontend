@@ -15,7 +15,7 @@
               :is="node.isRow ? 'div' : 'form-col'"
               :required="node.required"
               top-label
-              :label="['switch', 'text'].includes(node.inputType) ? '' : (node.title || node.name)"
+              :label="['switch', 'text', 'select'].includes(node.inputType) ? '' : (node.title || node.name)"
               :class="node.isRow ? 'custom-row' : 'mw-50'"
             >
               <config-node
