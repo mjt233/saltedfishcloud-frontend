@@ -52,7 +52,7 @@
         :data-id="files[0].mountId"
         style="padding: 0"
         read-only
-        @loaded="showMountInfo = true"
+        @loaded="emits('mountPointLoaded', $event) ;showMountInfo = true"
       />
     </template>
     
@@ -61,6 +61,9 @@
 
 <script setup lang="ts">
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+const emits = defineEmits<{
+  (event: 'mountPointLoaded', param: MountPoint): any
+}>()
 const props = defineProps({
   /**
    * 要展示的文件列表
@@ -91,7 +94,7 @@ const showMountInfo = ref(false)
 </script>
 
 <script lang="ts">
-import { FileInfo } from 'sfc-common/model'
+import { FileInfo, MountPoint } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { context } from 'sfc-common/core/context'

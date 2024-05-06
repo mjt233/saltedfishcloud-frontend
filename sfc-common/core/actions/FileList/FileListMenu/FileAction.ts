@@ -1,10 +1,12 @@
 import DeleteConfirm from 'sfc-common/components/common/DeleteConfirm.vue'
-import { FileListContext } from 'sfc-common/model'
+import { FileListContext, MountPoint } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { h } from 'vue'
+import { h, ref } from 'vue'
 import { MenuGroup } from 'sfc-common/core/context'
 import { FileAttribute } from 'sfc-common/components'
 import { VBtn } from 'vuetify/components'
+import API from 'sfc-common/api'
+import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
 {
@@ -55,18 +57,48 @@ const fileActionGroup: MenuGroup<FileListContext> =
         return ctx.selectFileList && ctx.selectFileList.length > 0
       },
       action(ctx) {
-        const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
-        const inst = SfcUtils.openComponentDialog(FileAttribute, {
-          title: '文件属性',
-          props: {
-            files: ctx.selectFileList,
-            path: ctx.path,
-            thumbnailUrl
-          },
-          showCancel: false,
-          showConfirm: false,
-          footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
-        })
+        const doAction = () => {
+          const mountPointRef = ref<MountPoint>()
+          const closeBtn = h(VBtn, {color: 'primary', onClick: () => attrInst.close()}, () => '关闭')
+          const editBtn = h(VBtn, {color: 'primary', onClick: () => editMountPoint()}, () => '编辑挂载参数')
+          const editMountPoint = () => {
+            attrInst.close()
+            const mpInst = SfcUtils.openComponentDialog(CreateMountPointFormVue, {
+              title: '修改挂载点',
+              props: {
+                initValue: mountPointRef.value
+              },
+              async onConfirm() {
+                try {
+                  const res = await mpInst.getInstAsForm().submit()
+                  if (!res.success) {
+                    return false
+                  }
+                  doAction()
+                  return true
+                } catch (err) {
+                  return false
+                }
+              },
+            })
+          }
+          const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
+          const attrInst = SfcUtils.openComponentDialog(FileAttribute, {
+            title: '文件属性',
+            props: {
+              files: ctx.selectFileList,
+              path: ctx.path,
+              thumbnailUrl,
+              onMountPointLoaded(mountPoint: MountPoint) {
+                mountPointRef.value = mountPoint
+              }
+            },
+            showCancel: false,
+            showConfirm: false,
+            footer: () => mountPointRef.value ? [editBtn, closeBtn] : [closeBtn]
+          })
+        }
+        doAction()
       }
     }
   ]

@@ -39,6 +39,7 @@
       <template v-if="node.inputType == 'select'">
         <form-select
           v-model="nodeValue"
+          :placeholder="node.title || node.value"
           :disabled="node.disabled || readOnly"
           :rules="validators"
           :items="selectOptions"
@@ -250,6 +251,5 @@ export default defineComponent({
 
 .config-simple-input {
   max-width: 360px;
-  padding: 0px;
 }
 </style>
