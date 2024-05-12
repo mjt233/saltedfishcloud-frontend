@@ -93,7 +93,8 @@ const parseParams = async(mp: MountPoint) => {
     .flatMap(e => e.nodes)
     .forEach(node => {
       if (node) {
-        node.value = params[node.name] || node.defaultValue
+        const val = params[node.name]
+        node.value = (val === null || val === undefined) ? node.defaultValue : val
       }
     })
   mountConfig = JSON.parse(formData.params)
