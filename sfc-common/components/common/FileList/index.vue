@@ -21,6 +21,8 @@
       <!-- 文件右键菜单组件 -->
       <file-menu
         v-if="menu.length > 0"
+        ref="menuRef"
+        class="file-menu"
         :container="$el"
         :menu="menu"
         :list-context="fileListContext"
@@ -161,12 +163,21 @@
       </grid-container>
     </div>
     <template #resizeable>
+      <chapter-menu
+        v-if="chapterNodes && chapterNodes.length"
+        v-model:active="showChapterMenu"
+        :nodes="chapterNodes"
+        use-float-style
+        @chapter-click="chapterClick"
+      />
       <markdown-view
-        style="width: 100%"
+        ref="markdownViewRef"
+        style="width: 100%;overflow: auto;"
         :style="readmeViewStyle"
         class="readme-content"
         :content="readme"
         :resource-params="{...listResourceParams, isCache: true}"
+        @chapter-change="chapterNodes = $event"
       />
     </template>
   </resize-container>
@@ -185,7 +196,6 @@ import GridContainer from 'sfc-common/components/layout/GridContainer.vue'
 import FileListGridItem from './FileListGridItem.vue'
 import SelectArea from '../SelectArea.vue'
 
-
 const props = defineProps(propsOptions)
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
 
@@ -203,6 +213,7 @@ let renamePromiseReject: ((value: string | PromiseLike<string>) => void) | null 
 // 执行重命名取消动作的函数，在grid和list模式下是不同的，动态赋值
 let cancelRenameActionFun: Function
 const tableWidth = ref('100%')
+const menuRef = ref() as Ref<ComponentPublicInstance>
 const rootRef = ref() as Ref<HTMLElement>
 const tableRef = ref() as Ref<ComponentPublicInstance>
 const gridRef = ref() as Ref<ComponentPublicInstance>
@@ -218,6 +229,19 @@ const emits = defineEmits<{
   (event: 'refresh'): void,
   (event: 'update:file-list', fileList: FileInfo[]): void
 }>()
+
+
+// readme预览相关
+const chapterNodes = ref([]) as Ref<ChapterTreeNode[]>
+const showChapterMenu = ref(false)
+const markdownViewRef = ref() as Ref<ComponentPublicInstance>
+const chapterClick = (node: ChapterTreeNode) => {
+  if (node.el && markdownViewRef.value) {
+    markdownViewRef.value.$el.scrollTop = node.el.offsetTop  
+  }
+  
+}
+
 
 // README.md预览视图的style，设定最大高度和动态宽度
 const readmeViewStyle = computed(() => {
@@ -247,7 +271,7 @@ const scrollAnchor = computed(() => {
 
 // 更新readme.md预览框的最大高度，保持和文件列表一致
 const updateReadmeMaxHeight = () => {
-  readmeViewMaxHeight.value = props.height ? (props.height + 'px') : 'auto'
+  readmeViewMaxHeight.value = props.height ? ((props.height - 6) + 'px') : 'auto'
 }
 
 // 该列表的文件资源通用操作参数
@@ -390,6 +414,7 @@ const doRename = async() => {
  * @param e 鼠标事件
  */
 const rootLClick = (e: MouseEvent) => {
+  menuRef.value && (menuRef.value as any).closeMenu()
   if (!lastClickFile && !e.ctrlKey && !inSelect) {
     resetSelect()
   }
@@ -472,7 +497,7 @@ const resizeHandler = async() => {
 }
 
 const containerHeight = computed(() => {
-  return props.height ? ((props.height - 16) + 'px') : 'auto'
+  return props.height ? (props.height + 'px') : 'auto'
 })
 
 const formatSize = (size: number) => {
@@ -540,9 +565,13 @@ import { FileListContext,FileInfo, ResourceRequest } from 'sfc-common/model'
 import { defineExpose ,defineComponent, Ref, reactive, inject, watch, ref, onMounted, onUnmounted, computed, nextTick, ComponentPublicInstance } from 'vue'
 import { SelectResult } from 'sfc-common/model/component/SelectArea'
 import { loadMDToHtml } from './MarkdownLoader'
+import ChapterMenu from '../Markdown/ChapterMenu.vue'
+import MarkdownView from '../Markdown/MarkdownView.vue'
+import { ChapterTreeNode } from '../Markdown/type'
 
 export default defineComponent({
-  name: 'FileList'
+  name: 'FileList',
+  components: { ChapterMenu, MarkdownView }
 })
 </script>
 

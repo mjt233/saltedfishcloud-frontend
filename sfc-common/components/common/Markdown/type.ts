@@ -19,3 +19,15 @@ export interface ImagePatseOption {
    */
   name: string
 }
+
+export interface ChapterTreeNode {
+  title: string
+
+  level: number
+
+  child: ChapterTreeNode[]
+
+  el: HTMLElement
+
+  active?: boolean
+}

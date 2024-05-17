@@ -13,7 +13,7 @@ export function buildAsyncTaskQueue<T>(): AsyncTaskQueue<T> {
         const runner = queue[0] as TaskRunner<T>
         await runner()
       } catch(err) {
-        console.log(err)
+        console.error(err)
         SfcUtils.snackbar(err)
       } finally {
         queue.shift()

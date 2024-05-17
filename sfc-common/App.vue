@@ -1,12 +1,19 @@
 <template>
   <v-app :theme="theme">
     <teleport to="body">
+      <!-- 全局加载遮罩 -->
       <loading-mask style="position: fixed; z-index: 114514" :style="{'background-color': loadingMaskBgColor}" :loading="loading" />
+
+      <!-- snackbar气泡提示统一容器 -->
+      <div class="body-snackbar-container" />
+
+      <!-- 临时调试窗口 -->
+      <!-- <debug-console :active="true" /> -->
     </teleport>
     
     <router-view />
     <file-upload-dialog v-model:show="visiableWindows.uploadList" :task-manager="taskManager" />
-    <!-- <debug-console :active="true" /> -->
+
   </v-app>
   
 </template>
@@ -41,3 +48,15 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+.body-snackbar-container {
+  position: fixed;
+  z-index: 999999;
+  width: 100vw;
+  max-width: 640px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+</style>

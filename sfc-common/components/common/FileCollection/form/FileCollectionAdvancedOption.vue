@@ -4,64 +4,47 @@
     :model-value="formData"
     :son-forms="sonForm"
     :label-width="labelWidth"
+    row-height="96px"
   >
-    <v-row :align="'center'">
-      <v-col class="form-label" style="max-width: 140px">
-        <span>开启高级选项：</span>
-      </v-col>
-      <v-col>
+    <FormRow>
+      <FormCol label="高级选项" top-label>
         <v-switch
           v-model="useAdvanced"
+          label="启用"
           :readonly="readonly"
           hide-details
           color="primary"
         />
-      </v-col>
-    </v-row>
+      </FormCol>
+    </FormRow>
     <template v-if="useAdvanced">
-      <v-row :align="'center'" class="form-row">
-        <v-col class="mw-50">
-          <v-row>
-            <v-col class="form-label">
-              <span>接受数量：</span>
-            </v-col>
-            <v-col>
-              <form-select
-                v-model="recvStrategy"
-                :disabled="readonly"
-                :items="recvOption"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col v-if="recvStrategy != '-1'">
-          <v-row>
-            <v-col>
-              <text-input
-                v-model="formData.allowMax"
-                :readonly="readonly"
-                label="最大接收数量"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-      <v-row :align="'center'" class="form-row">
-        <v-col class="mw-50">
-          <v-row>
-            <v-col class="form-label">
-              大小限制：
-            </v-col>
-            <v-col>
-              <form-select
-                v-model="sizeStrategy"
-                :disabled="readonly"
-                :items="sizeOption"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col v-if="sizeStrategy != '-1'">
+      <FormRow>
+        <FormCol class="mw-50">
+          <FormSelect
+            v-model="recvStrategy"
+            placeholder="接受数量"
+            :disabled="readonly"
+            :items="recvOption"
+          />
+        </FormCol>
+        <FormCol v-if="recvStrategy != '-1'">
+          <text-input
+            v-model="formData.allowMax"
+            :readonly="readonly"
+            label="最大接收数量"
+          />
+        </FormCol>
+      </FormRow>
+      <FormRow>
+        <FormCol class="mw-50">
+          <form-select
+            v-model="sizeStrategy"
+            placeholder="大小限制"
+            :disabled="readonly"
+            :items="sizeOption"
+          />
+        </FormCol>
+        <FormCol v-if="sizeStrategy != '-1'">
           <text-input
             v-model="sizeValue"
             :readonly="readonly"
@@ -69,9 +52,9 @@
             :label="'指定大小(' + sizeStrategy + ')'"
             :rules="validators.size"
           />
-        </v-col>
-      </v-row>
-      <file-collection-type-strategy
+        </FormCol>
+      </FormRow>
+      <FileCollectionTypeStrategy
         ref="sonformRef"
         :init-value="initValue"
         :readonly="readonly"
@@ -251,6 +234,7 @@ import { SelectOption } from 'sfc-common/model/Common'
 import { defineForm, FormFieldType } from 'sfc-common/utils/FormUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { CollectionInfo } from 'sfc-common/model/FileCollection'
+import { FormCol, FormRow } from 'sfc-common/components/layout'
 
 export default defineComponent({
   name: 'FileCollectionAdvancedOption'

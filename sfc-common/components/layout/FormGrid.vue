@@ -28,14 +28,14 @@ const props = defineProps({
    */
   labelGap: {
     type: String,
-    default: '-3px'
+    default: '6px'
   },
   /**
    * 表单行高
    */
   rowHeight: {
     type: String,
-    default: '48px'
+    default: '81px'
   }
 })
 provide('labelGap', computed(() => props.labelGap))

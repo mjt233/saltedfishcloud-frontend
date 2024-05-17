@@ -110,7 +110,7 @@ async function uploadSliceFile({ file, begin = 1, taskId, onUploadProg, onBlockF
 
     if (executeTime < 1500 || executeTime > 5000) {
       const change = Math.ceil(1500 / (executeTime / sliceMultipie))
-      console.log(`${sliceMultipie} -> ${change} time: ${executeTime}`)
+      console.error(`${sliceMultipie} -> ${change} time: ${executeTime}`)
       sliceMultipie = change
     }
   }

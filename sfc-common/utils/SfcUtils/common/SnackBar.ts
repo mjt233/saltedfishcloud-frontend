@@ -44,7 +44,10 @@ export function snackbar(message: string | any, timeout: number = 2000, { showCl
         handler.unmount()
         onClose && onClose()
       }
-    }
+    },
+    tempDOMHandler(dom) {
+      dom.style.pointerEvents = 'none'
+    },
   })
 
 

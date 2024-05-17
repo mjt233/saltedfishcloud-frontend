@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div ref="rootRef">
+  <div ref="rootRef" class="markdown-view" @scroll="emits('viewScroll', $event)">
     <div style="user-select: text" class="markdown" v-html="html" />
   </div>
 </template>
@@ -18,10 +18,23 @@ const props = defineProps({
   }
 })
 
+const emits = defineEmits<{
+  /**
+   * 章节目录树变更事件
+   */
+  (e: 'chapterChange', data: ChapterTreeNode[]): void,
+
+  /**
+   * 视图滚动事件
+   */
+  (e: 'viewScroll', data: Event): void
+}>()
+
 /**
  * 超链接转跳替换函数
  */
 const hrefReplacer = inject('hrefReplacer', (href: string | null) => href)
+
 
 const rootRef = ref() as Ref<HTMLElement>
 
@@ -42,7 +55,7 @@ const md = new MarkdownIt({
     }
     return `<div class="markdown-code">${result}</div>`
   }
-})
+}).use(MarkdownItTaskLists, {enabled: true})
 
 /**
  * markdown token访问器，通过访问函数对token自身及其所有子token进行遍历，免去重复编写递归遍历代码
@@ -62,7 +75,7 @@ md.core.ruler.push('replace_img_url', (state) => {
     tokenVisitor(rootToken, token => {
       if (token.tag == 'img') {
         const originSrc = token.attrGet('src')
-        if (!originSrc || !originSrc.startsWith('./') ) {
+        if (!originSrc || originSrc.startsWith('http://') || originSrc.startsWith('https://')) {
           return
         }
 
@@ -103,6 +116,8 @@ md.core.ruler.push('scroll_flag', state => state.tokens.forEach(e => tokenVisito
     token.attrSet('line', token.map[0] + '')
   }
 })))
+
+
 
 
 /**
@@ -160,17 +175,75 @@ const addImgClickAction = () => {
   })
 }
 const html = ref('')
+const chapterList = ref([]) as Ref<ChapterTreeNode[]>
+const updateChapter = () => {
+  const createNode = (el: Element) => {
+    const level = Number(el.tagName.substring(1))
+    const htmlEl = el as HTMLElement
+    return {
+      title: htmlEl.innerText,
+      level: level,
+      child: [],
+      el: htmlEl
+    }
+  }
+  const els = tempRoot.querySelectorAll('h1,h2,h3,h4,h5')
+  chapterList.value = []
+  const nodeStack: ChapterTreeNode[] = []
+  let prev: ChapterTreeNode
+
+  els.forEach(e => {
+    const newNode = createNode(e)
+    // 栈空，表示当前是顶级节点
+    if (nodeStack.length == 0) {
+      nodeStack.push(newNode)
+      prev = newNode
+      return
+    }
+    // 等级大于上个节点，表示是子节点
+    if(newNode.level > prev.level) {
+      prev.child.push(newNode)
+      // 把上个节点加入到父节点栈中
+      if(nodeStack[nodeStack.length - 1] != prev) {
+        nodeStack.push(prev)
+      }
+      prev = newNode
+      return
+    }
+
+    // 等级小于上个节点，上个节点不会再有子节点了，找自己的父节点
+    if (newNode.level <= prev.level) {
+      let parent = nodeStack.pop()
+      while( parent && parent.level >= newNode.level ) {
+        // 遍历完了都没找到父级，目前看来自己辈分最大
+        if (nodeStack.length == 0) {
+          nodeStack.push(newNode)
+          chapterList.value.push(parent)
+          prev = newNode
+          return
+        }
+        parent = nodeStack.pop()
+      }
+      if (parent) {
+        parent?.child.push(newNode)
+        nodeStack.push(parent)
+      }
+      prev = newNode
+    }
+  })
+  if (nodeStack.length) {
+    chapterList.value.push(nodeStack[0])
+  }
+  emits('chapterChange', chapterList.value)
+}
 const update = async() => {
   const tempHtml = md.render(props.content || '')
   tempRoot = rootRef.value
   html.value = tempHtml
   await nextTick()
   addImgClickAction()
+  updateChapter()
 }
-
-// 监听资源参数变化，实时更新url
-const throttleUpdate = MethodInterceptor.createThrottleProxy(MethodInterceptor.wrapFun(update)).invoke
-watch(() => props.resourceParams, throttleUpdate, { deep: true})
 
 onMounted(update)
 
@@ -180,18 +253,26 @@ watch(() => props.content, update)
 <script lang="ts">
 import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
+import MarkdownItTaskLists from 'markdown-it-task-lists'
 import 'highlight.js/styles/atom-one-dark.css'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick, inject } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
-import { API, MethodInterceptor, StringUtils } from 'sfc-common/index'
+import { API, StringUtils } from 'sfc-common/index'
 import Token from 'markdown-it/lib/token'
+import { ChapterTreeNode as ChapterTreeNode } from './type'
 
 export default defineComponent({
   name: 'MarkdownView'
 })
 </script>
+
+<style lang="scss" scoped>
+.markdown-view {
+  position: relative;
+}
+</style>
 
 <style lang="scss">
 .markdown {
@@ -261,7 +342,7 @@ export default defineComponent({
     border-radius: 6px;
     padding: 12px;
     margin-bottom: 0;
-    // width: 100%;
+    overflow: auto;
   }
 }
 </style>

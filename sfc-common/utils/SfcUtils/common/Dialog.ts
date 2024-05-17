@@ -13,7 +13,7 @@ import LoginFormVue from 'sfc-common/components/form/LoginForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { Session } from 'sfc-common/core/context/session'
 import { context } from 'sfc-common/core/context'
-import { LoadingDialog } from 'sfc-common/components'
+import { BaseForm, LoadingDialog } from 'sfc-common/components'
 
 export interface DialogOpt {
   /**
@@ -201,7 +201,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
           }
         }
       } catch(err) {
-        console.log(err)
+        console.error(err)
         if (autoShowError) {
           SfcUtils.snackbar(err, 1500, {outClose: true})
         }
@@ -292,7 +292,17 @@ export interface DialogProps {
   /**
    * 是否使用卡片样式
    */
-  useCard?: boolean
+  useCard?: boolean,
+
+  /**
+   * 确认按钮文本
+   */
+  confirmText?: string
+
+  /**
+   * 取消按钮文本
+   */
+  cancelText?: string
 
   [other: string]: any
 }
@@ -403,7 +413,7 @@ export function loadingDialog(param?: LoadingDialogParam) {
     props: param,
     extraDialogOptions: {
       hideBtn: true,
-      width: '280px'
+      width: '280px !important',
     },
     fullscreen: false,
     persistent: true
@@ -543,10 +553,18 @@ export function openLoginDialog(): Promise<Session> {
   return new Promise((resolve, reject) => {
     const inst = openComponentDialog(LoginFormVue, {
       title: '登录',
+      extraDialogOptions: {
+        confirmText: '登录'
+      },
       props: {
         plain: true,
         onSubmit() {
           inst.doConfirm()
+        },
+        showLogin: false,
+        style: {
+          'border': 'none',
+          'box-shadow': 'none'
         }
       },
       async onConfirm() {
@@ -555,7 +573,6 @@ export function openLoginDialog(): Promise<Session> {
           resolve(context.session.value)
           return true
         } else {
-          SfcUtils.snackbar(ret.err)
           reject(ret.err)
           return false
         }

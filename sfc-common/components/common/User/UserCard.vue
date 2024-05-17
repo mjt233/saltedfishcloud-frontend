@@ -1,7 +1,9 @@
 <template>
   <div>
+    <slot name="prepend" />
     <user-avatar :uid="uid" :name="name" :transition="false" />
     <span style="font-size: 14px;">{{ uid == 0 ? '[游客]' : name }}</span>
+    <slot name="append" />
   </div>
 </template>
 
@@ -9,7 +11,7 @@
 import UserAvatar from './UserAvatar.vue'
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   name: {
@@ -21,9 +23,6 @@ const props = defineProps({
 
 <script lang="ts">
 import { defineComponent, computed, defineProps } from 'vue'
-import { context } from 'sfc-common/core/context'
-import API from 'sfc-common/api'
-import axios from 'sfc-common/plugins/axios'
 export default defineComponent({
   name: 'UserCard'
 })

@@ -90,6 +90,39 @@ export interface CollectionSubmitInfo {
 
   /** 提交的字段数组信息 */
   field: FieldInfo[]
+
+  fileParam: {
+    
+    /**
+     * 用户id
+     */
+    uid?:number
+
+    /**
+     * 文件md5
+     */
+    md5?:string
+
+    /**
+     * 文件名称
+     */
+    name:string
+
+    /**
+     * 文件大小
+     */
+    size:number
+
+    /**
+     * 文件创建日期
+     */
+    ctime?:number
+
+    /**
+     * 文件修改日期
+     */
+    mtime?:number
+  }
 }
 
 /**

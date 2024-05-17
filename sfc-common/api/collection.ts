@@ -1,4 +1,4 @@
-import { CommonPageInfo, CommonRequest, JpaPageInfo } from './../core/model/ApiRequest'
+import { CommonPageInfo, CommonRequest, JpaPageInfo } from 'sfc-common'
 import { ApiRequest, PageInfo } from 'sfc-common/model'
 import { CollectionInfo, CollectionParam, CollectionRecord, CollectionSubmitInfo } from 'sfc-common/model/FileCollection'
 
@@ -13,7 +13,6 @@ const collection = {
    * @returns {import("axios").AxiosRequestConfig}
    */
   submit(cid: number | string, vid: string, submitInfo: CollectionSubmitInfo, file: File): CommonRequest {
-    console.log(submitInfo)
     const fd = new FormData()
     fd.append('submitInfo', new Blob([window.JSON.stringify(submitInfo)], { type: 'application/json' }))
     fd.append('file', file)

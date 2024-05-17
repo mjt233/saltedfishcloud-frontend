@@ -46,11 +46,11 @@ export namespace Validators {
   }
 
   export function minNum(min: number) {
-    return (e: FormFieldType) => e < min ? '不能小于' + min : true
+    return (e: FormFieldType) => Number(e) < min ? '不能小于' + min : true
   }
 
   export function maxNum(max: number) {
-    return (e: FormFieldType) => e > max ? '不能大于' + max : true
+    return (e: FormFieldType) => Number(e) > max ? '不能大于' + max : true
   }
 
   export function isRegex(msg = '不是有效的正则表达式') {

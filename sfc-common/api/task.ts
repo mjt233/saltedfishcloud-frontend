@@ -1,8 +1,6 @@
-import { JpaPageInfo } from './../core/model/ApiRequest'
-import { DownloadTaskInfo } from './../core/model/DownloadTask'
-import { CommonRequest } from 'sfc-common/model'
+import { CommonRequest, DownloadTaskInfo, JpaPageInfo } from 'sfc-common/model'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-import { ProxyBaseInfo } from 'sfc-common/model/Proxy'
+import { ProxyBaseInfo, ProxyInfo } from 'sfc-common/model/Proxy'
 export type TaskType = 'DOWNLOAD' | 'FINISH' | 'ALL'
 export type RequestMethod = 'GET' | 'POST'
 export interface DownloadTaskCreateOpt {
@@ -84,7 +82,7 @@ const task = {
     /**
      * 获取可用的代理列表
      */
-    getProxy(): CommonRequest<ProxyBaseInfo[]> {
+    getProxy(): CommonRequest<ProxyInfo[]> {
       return {
         url: `${this.prefix}/proxy`
       }

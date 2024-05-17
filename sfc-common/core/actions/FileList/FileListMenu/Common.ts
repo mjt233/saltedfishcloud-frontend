@@ -1,8 +1,8 @@
+import { FileOpenHandler } from 'sfc-common/core/context/type'
 import { VBtn } from 'vuetify/components'
-import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 import { FileListContext } from 'sfc-common/model'
-import { MenuGroup } from 'sfc-common/core/context'
+import { MenuGroup, MenuItem, context } from 'sfc-common/core/context'
 import { ShareService } from 'sfc-common/core/serivce/ShareService'
 import { CreateLinkForm } from 'sfc-common/components/'
 import { h } from 'vue'
@@ -77,8 +77,74 @@ const commonGroup: MenuGroup<FileListContext> = {
           }
         })
       }
+    },
+    {
+      id: 'open-as',
+      title: '打开方式',
+      icon: '',
+      subItems: (ctx) => {
+        const file = ctx.selectFileList[0]
+        const items = context.fileOpenHandler.value.map(handler => {
+          return {
+            id: `open-as-${handler.id}`,
+            title: handler.title,
+            renderOn: () => handler.matcher(ctx, file),
+            action(ctx) {
+              handler.action(ctx, file)
+            },
+            icon: handler.icon
+          } as MenuItem<FileListContext>
+        })
+        items.push({
+          id: 'open-as-more',
+          title: '更多',
+          action(ctx) {
+            openMore(ctx)
+          }
+        })
+        return [
+          {
+            id: 'open-as-group',
+            renderOn: () => true,
+            name: '打开方式',
+            items: items
+          }
+        ]
+      },
+      renderOn(ctx) {
+        return ctx.selectFileList && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir
+      },
+      action(ctx) {
+        openMore(ctx)
+      },
     }
   ]
+}
+
+function openMore(ctx: FileListContext) {
+  var file = ctx.selectFileList[0]
+  var matched: FileOpenHandler[] = []
+  var other: FileOpenHandler[] = []
+  context.fileOpenHandler.value.forEach(handler => {
+    if (handler.matcher(ctx, file)) {
+      matched.push(handler)
+    } else {
+      other.push(handler)
+    }
+  })
+  SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], {
+    handlers: context.fileOpenHandler.value,
+    handlerGroups: matched.length == 0 ? undefined : [
+      {
+        name: '推荐',
+        handlers: matched
+      },
+      {
+        name: '其他',
+        handlers: other
+      }
+    ]
+  })
 }
 
 export default commonGroup

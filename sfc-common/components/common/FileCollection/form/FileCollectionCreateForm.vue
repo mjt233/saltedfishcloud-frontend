@@ -5,7 +5,7 @@
     :model-value="formData"
     :submit-action="actions.submit"
     :son-forms="sonForms"
-    label-width="120px"
+    row-height="96px"
   >
     <loading-mask :loading="loadingRef" />
     <v-row v-if="readonly">
@@ -16,19 +16,18 @@
         <a class="link" target="_blank" :href="'/#/collect/' + initValue?.id + '/' + initValue?.verification">
           {{ submitLink }}
         </a> 
-        
       </v-col>
     </v-row>
-    <v-row class="form-row">
-      <v-col>
+    <FormRow>
+      <FormCol>
         <text-input 
           v-model="formData.title"
           :readonly="readonly"
           label="标题"
           :rules="validators.title"
         />
-      </v-col>
-      <v-col>
+      </FormCol>
+      <FormCol>
         <text-input
           v-model="formData.nickname"
           variant="underlined"
@@ -37,25 +36,24 @@
           :readonly="readonly"
           color="primary"
         />
-      </v-col>
-    </v-row>
-    <v-row class="form-row">
-      <v-col>
-        <v-textarea
-          v-model="formData.describe"
-          :readonly="readonly"
-          class="plain-textarea hide-details"
-          label="描述"
-          rows="1"
-          color="primary"
-          auto-grow
-        />
-      </v-col>
-    </v-row>
-    <v-row :align="'center'" :justify="'start'" class="form-row">
-      <v-col>
-        <span class="form-label">保存位置：</span>
-        <div class="d-flex align-center">
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol style="height: auto;" label="描述" top-label>
+        <div :class="readonly ? 'elevation-2' : ''" style="width: calc(100% - 3px);margin-top: 24px;margin-right:  auto; margin-left: auto;height: 300px;overflow: auto;">
+          <component
+            :is="readonly ? MarkdownView : MarkdownEditor"
+            v-model="formData.describe"
+            :content="formData.describe"
+            style="width: 100%;height: 100%;"
+            :read-only="readonly"
+          />
+        </div>
+      </FormCol>
+    </FormRow>
+    <FormRow style="margin-top: 24px !important">
+      <FormCol label="保存位置" top-label>
+        <div class="d-flex align-center" style="margin-top: 6px;">
           <template v-if="!readonly">
             <a class="link" style="padding: 0 8px" @click="selectPath">
               {{ fullPath }}
@@ -74,33 +72,31 @@
             {{ fullPath }}
           </router-link>
         </div>
-      </v-col>
-    </v-row>
+      </FormCol>
+    </FormRow>
     <!-- 过期策略选择 -->
     <file-collection-create-expired-strategy
       v-model="formData.expiredAt"
       :readonly="readonly"
     />
-    <v-row class="form-row">
-      <v-col>
-        <span class="form-label">单独文件夹：</span>
+    <FormRow>
+      <FormCol label="其他选项" top-label>
         <v-switch
           v-model="aloneDir"
+          label="单独文件夹"
           :readonly="readonly"
           hide-details
           color="primary"
         />
-      </v-col>
-      <v-col>
-        <span class="form-label">要求登录：</span>
         <v-switch
           v-model="requireLogin"
+          label="要求登录"
           :readonly="readonly"
           hide-details
           color="primary"
         />
-      </v-col>
-    </v-row>
+      </FormCol>
+    </FormRow>
     <v-row>
       <v-col>
         <v-divider style="margin-top: 16px" />
@@ -251,6 +247,8 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { CollectionInfo } from 'sfc-common/model/FileCollection'
+import { FormCol, FormRow } from 'sfc-common/components/layout'
+import { MarkdownEditor, MarkdownView, SimpleTextarea } from '../..'
 
 export default defineComponent({
   name: 'FileCollectionCreateForm'

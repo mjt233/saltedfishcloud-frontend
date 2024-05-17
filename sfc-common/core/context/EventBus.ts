@@ -12,7 +12,13 @@ export interface EventBus {
    * @see {EventNameConstants}
    */
   emit: (eventName: string, data?: any) => void,
+  /**
+   * @see {EventNameConstants}
+   */
   on: (eventName: string, fn: (e: any) => void) => void,
+  /**
+   * @see {EventNameConstants}
+   */
   off: (eventName: string, fn: (e: any) => void) => void
 }
 
@@ -27,7 +33,7 @@ export class DefaultEventBus implements EventBus {
         try {
           fn(data)
         } catch (err) {
-          console.log(err)
+          console.error(err)
         }
       })
     }

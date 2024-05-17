@@ -15,6 +15,7 @@ import desktop from './desktop'
 import comment from './comment'
 import plugin from './admin/plugin'
 import asyncTask from './asyncTask'
+import proxy from './proxy'
 
 const API = {
   user,
@@ -32,6 +33,7 @@ const API = {
   comment,
   plugin,
   asyncTask,
+  proxy,
   /**
    * 获取API URL的完整前缀。
    * 因为封装的API对象中URL是缺少公共前缀的，如果需要绕开通用的请求方法单独使用URL，则需要这个方法来补全前缀

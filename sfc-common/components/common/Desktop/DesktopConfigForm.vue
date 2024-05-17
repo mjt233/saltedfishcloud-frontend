@@ -18,37 +18,33 @@
     <div class="text-h6">
       标准配置项
     </div>
-    <FormGrid row-height="68px" style="margin: 18px 0 12px 0" label-gap="-6px">
-      <FormRow>
-        <FormCol top-label label="显示顺序" class="mw-50">
-          <TextInput v-model="formData.showOrder" />
-        </FormCol>
-        <FormCol top-label label="标题" class="mw-50">
-          <TextInput v-model="formData.title" />
-        </FormCol>
-        <FormCol top-label label="宽度" class="mw-50">
-          <TextInput v-model="formData.width" />
-        </FormCol>
-        <FormCol top-label label="高度" class="mw-50">
-          <TextInput v-model="formData.height" />
-        </FormCol>
-        <FormCol top-label class="mw-50" style="padding: 0;height: 32px;margin-bottom: 12px">
-          <VCheckbox
-            v-model="formData.useCard"
-            :true-value="1"
-            :false-value="0"
-            color="primary"
-            label="使用卡片样式"
-            hide-details
-          />
-        </FormCol>
-      </FormRow>
-      <FormRow style="margin-top: 12px">
-        <FormCol top-label label="备注">
-          <TextInput v-model="formData.remark" />
-        </FormCol>
-      </FormRow>
-    </FormGrid>
+    <FormRow>
+      <FormCol top-label class="mw-50">
+        <TextInput v-model="formData.showOrder" label="显示顺序" />
+      </FormCol>
+      <FormCol top-label class="mw-50">
+        <TextInput v-model="formData.title" label="标题" />
+      </FormCol>
+      <FormCol top-label class="mw-50">
+        <TextInput v-model="formData.width" label="宽度" />
+      </FormCol>
+      <FormCol top-label class="mw-50">
+        <TextInput v-model="formData.height" label="高度" />
+      </FormCol>
+      <FormCol top-label class="mw-50">
+        <VSwitch
+          v-model="formData.useCard"
+          :true-value="1"
+          :false-value="0"
+          color="primary"
+          label="启用卡片样式"
+          hide-details
+        />
+      </FormCol>
+      <FormCol top-label>
+        <TextInput v-model="formData.remark" label="备注" />
+      </FormCol>
+    </FormRow>
     <div class="text-h6">
       组件配置项
     </div>
@@ -56,7 +52,7 @@
       <ConfigurableForm :nodes="customConfig" @change="customChange" />
     </div>
     <EmptyTip v-else />
-    <div class="text-h6" style="margin-top: 12px">
+    <div class="text-h6" style="margin: 0 0 12px 0">
       额外json配置项
     </div>
     <CodeEditor v-model="extraJson" language="json" />
@@ -86,9 +82,14 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['submit'])
+const extraJson = ref('{\n\n}')
+
+let customConfigObj = {} as {[k: string]:any}
+
 const customConfig = computed(() => {
   const params = props.initValue?.params || '{}'
   const paramsObj = JSON.parse(params)
+  mergeDefaultValueToObj(paramsObj)
   return [{
     nodes: props.component.config.map(node => {
       const newNode = {} as ConfigNodeModel
@@ -98,9 +99,8 @@ const customConfig = computed(() => {
     })
   }] as ConfigNodeModel[]
 })
-let customConfigObj = {} as {[k: string]:any}
 
-const extraJson = ref('{\n\n}')
+
 watch(extraJson, () => {
   try {
     const extraObj = JSON.parse(extraJson.value || '{}')
@@ -119,7 +119,21 @@ watch(extraJson, () => {
   
 })
 
+const mergeDefaultValueToObj = (obj: any) => {
+  const configuredKeys = new Set(Object.keys(obj));
+  (props.component.config || []).forEach(k => {
+    if (!configuredKeys.has(k.name)) {
+      if (k.inputType == 'switch') {
+        obj[k.name] = 'true' == new String(k.defaultValue).toLowerCase()
+      } else {
+        obj[k.name] = k.defaultValue
+      }
+    }
+  })
+}
+
 const updateParams = () => {
+  mergeDefaultValueToObj(customConfigObj)
   formData.params = JSON.stringify(customConfigObj)
 }
 
@@ -205,6 +219,7 @@ onMounted(() => {
   } else {
     formData.uid = props.uid
   }
+  updateParams()
   updateExtraJson()
 })
 
@@ -220,3 +235,10 @@ export default defineComponent({
   name: 'DesktopConfigForm'
 })
 </script>
+
+
+<style scoped>
+.text-h6 {
+  margin-bottom: 12px;
+}
+</style>

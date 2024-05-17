@@ -2,27 +2,30 @@
   <base-form
     ref="formRef"
     :model-value="formData"
-    :submit-action="actions.submit"
-    label-width="92px"
+    :submit-action="submit"
     :auto-loading="true"
   >
     <form-row>
-      <form-col label="代理名称">
-        <text-input v-model="formData.name" :rules="validators.name" />
-      </form-col>
-      <form-col label="代理类型">
+      <form-col>
         <form-select
           v-model="formData.type"
-          dense
+          placeholder="代理类型"
           :items="proxyTypeOptions"
-          color="primary"
         />
       </form-col>
-      <form-col label="服务器地址">
-        <text-input v-model="formData.address" :rules="validators.address" />
+    </form-row>
+    <form-row style="flex-direction: column;">
+      <form-col>
+        <text-input v-model="formData.name" label="代理名称" :rules="validators.name" />
       </form-col>
-      <form-col label="服务器端口">
-        <text-input v-model="formData.port" :rules="validators.port" />
+      <form-col>
+        <text-input v-model="formData.address" label="服务器地址" :rules="validators.address" />
+      </form-col>
+      <form-col>
+        <text-input v-model="formData.port" label="服务器端口" :rules="validators.port" />
+      </form-col>
+      <form-col>
+        <text-input v-model="formData.testUrl" label="连通测试URL" :rules="validators.testUrl" />
       </form-col>
     </form-row>
   </base-form>
@@ -37,6 +40,10 @@ const props = defineProps({
   initValue: {
     type: Object as PropType<ProxyInfo>,
     default: undefined
+  },
+  uid: {
+    type: [String, Number] as PropType<IdType>,
+    default: 0
   }
 })
 const emits = defineEmits(['submit'])
@@ -51,22 +58,21 @@ const proxyTypeOptions: SelectOption[] = [
     value: 'HTTP'
   }
 ]
+
+const submit = async() => {
+  return await SfcUtils.request(API.proxy.save(formData))
+}
 const formInst = defineForm({
   actions: {
-    submit() {
-      if (props.initValue) {
-        return SfcUtils.request(API.admin.proxy.updateProxy(props.initValue.name, formData))
-      } else {
-        return SfcUtils.request(API.admin.proxy.addProxy(formData))
-      }
-      
-    }
+    submit
   },
   formData: {
     type: 'SOCKS',
     name: '新的代理',
     address: '127.0.0.1',
-    port: 1080
+    port: 1080,
+    testUrl: 'https://www.baidu.com',
+    uid: props.uid
   } as ProxyInfo,
   formRef: formRef,
   validators: {
@@ -79,7 +85,8 @@ const formInst = defineForm({
     ],
     name: [
       Validators.notNull()
-    ]
+    ],
+    testUrl: [ Validators.maxLen('url长度不能超过255',255) ]
   },
   throwError: true
 })
@@ -94,10 +101,11 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
-import { ProxyInfo, SelectOption } from 'sfc-common/model'
+import { IdType, ProxyInfo, SelectOption } from 'sfc-common/model'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
+import { FormCol, FormRow } from 'sfc-common/components/layout'
 
 export default defineComponent({
   name: 'ProxyConfigForm'

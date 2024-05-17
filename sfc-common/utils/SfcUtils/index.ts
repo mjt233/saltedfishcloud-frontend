@@ -31,7 +31,7 @@ const SfcUtils = {
       try {
         ret.push(funcs(...params))
       } catch(err) {
-        console.log(err)
+        console.error(err)
         ret.push(undefined)
       }
       
@@ -40,7 +40,7 @@ const SfcUtils = {
         try {
           ret.push(fun(...params))
         } catch(err) {
-          console.log(err)
+          console.error(err)
           ret.push(undefined)
         }
       })
@@ -80,18 +80,22 @@ const SfcUtils = {
    * @param text 待复制的文本
    */
   async copyToClipboard(text: string) {
-    const input = document.createElement('textarea')
-    input.readOnly = true
+    if (navigator.clipboard) {
+      return await navigator.clipboard.writeText(text)
+    }
+    const input = document.createElement('div')
+    document.body.appendChild(input)
     input.style.position = 'fixed'
-    input.style.display = 'hidden'
     input.style.zIndex = '1145141919'
     input.style.top = '0'
     input.style.left = '0'
-    input.value = text
-    document.body.appendChild(input)
-    input.focus()
-    input.select()
+    input.innerText = text
     try {
+      const sel = window.getSelection()
+      const range = document.createRange()
+      range.selectNodeContents(input)
+      sel?.removeAllRanges()
+      sel?.addRange(range)
       document.execCommand('copy')
     } finally {
       document.body.removeChild(input)
@@ -125,6 +129,37 @@ const SfcUtils = {
   openApiUrl(apiConfig: any) {
     this.openUrl(this.getApiUrl(apiConfig))
   },
+  /**
+   * 打开“文件打开方式选择”对话框
+   * @param ctx 文件列表上下文
+   * @param file 文件信息
+   * @param handlerOptions 文件打开方式列表或分组
+   */
+  openFileOpenSelectorDialog(ctx: FileListContext, file: FileInfo, handlerOptions: {handlers?: FileOpenHandler[], handlerGroups?: {name: string, handlers: FileOpenHandler[]}[] }) {
+    const { handlers, handlerGroups} = handlerOptions
+    const inst = this.openComponentDialog(FileOpenSelectorVue, {
+      props: {
+        ctx,
+        file,
+        handlers,
+        handlerGroups,
+        onSelect(handler: FileOpenHandler) {
+          handler.action(ctx, file)
+          inst.close()
+        }
+      },
+      title: '选择打开方式',
+      dense: true,
+      showConfirm: false,
+      showCancel: false,
+      footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
+    })
+  },
+  /**
+   * 打开文件
+   * @param ctx 文件列表上下文
+   * @param file 文件信息
+   */
   openFile(ctx: FileListContext, file: FileInfo) {
     const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))
     if (handlers.length == 1) {
@@ -134,22 +169,7 @@ const SfcUtils = {
     } else if (handlers.length == 2 && handlers[1].isDefault) {
       handlers[1].action(ctx, file)
     } else {
-      const inst = this.openComponentDialog(FileOpenSelectorVue, {
-        props: {
-          ctx,
-          file,
-          handlers,
-          onSelect(handler: FileOpenHandler) {
-            handler.action(ctx, file)
-            inst.close()
-          }
-        },
-        title: '选择打开方式',
-        dense: true,
-        showConfirm: false,
-        showCancel: false,
-        footer: () => h(VBtn, {color: 'primary', onClick: () => inst.close()}, () => '关闭')
-      })
+      this.openFileOpenSelectorDialog(ctx, file, {handlers})
     }
   },
   beginLoading() {

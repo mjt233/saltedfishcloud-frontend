@@ -1,22 +1,15 @@
 <template>
-  <div style="margin: 12px 0" class="dense-form">
-    <v-row>
-      <form-col label="状态" cols="3">
+  <FormGrid :style="{'max-width': maxWidth}">
+    <FormRow>
+      <FormCol class="mw-50">
         <VSwitch
           v-model="valueObj.enabled"
           color="primary"
-          label="是否启用"
+          label="启用背景图"
           hide-details
         />
-      </form-col>
-    </v-row>
-    <v-row>
-      <form-col label="图片url" cols="4">
-        <TextInput v-model="valueObj.url" hide-details />
-      </form-col>
-    </v-row>
-    <v-row>
-      <form-col label="不透明度" cols="2">
+      </FormCol>
+      <FormCol class="mw-50" label="不透明度">
         <v-slider
           style="margin-top: 12px"
           :model-value="(valueObj.operacity || 0.9)*100"
@@ -31,12 +24,15 @@
             {{ v + '%' }}
           </template>
         </v-slider>
-      </form-col>
-      <form-col label="尺寸" cols="2">
-        <FormSelect v-model="valueObj.size" :items="sizeOptions" />
-      </form-col>
-    </v-row>
-  </div>
+      </FormCol>
+      <FormCol class="mw-50">
+        <FormSelect v-model="valueObj.size" placeholder="尺寸" :items="sizeOptions" />
+      </FormCol>
+      <FormCol class="mw-50">
+        <TextInput v-model="valueObj.url" label="图片url" hide-details />
+      </FormCol>
+    </FormRow>
+  </FormGrid>
 </template>
 
 <script setup lang="ts">
@@ -48,6 +44,10 @@ const props = defineProps({
   useJson: {
     type: Boolean,
     default: false
+  },
+  maxWidth: {
+    type: String,
+    default: '640px'
   }
 })
 const emits = defineEmits(['update:modelValue'])
@@ -100,6 +100,7 @@ onMounted(initObj)
 <script lang="ts">
 import { BgOption } from 'sfc-common/core/context'
 import { SelectOption } from 'sfc-common/model'
+import { FormGrid, FormRow, FormCol } from '../layout'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, computed, watch, onMounted } from 'vue'
 
 export default defineComponent({

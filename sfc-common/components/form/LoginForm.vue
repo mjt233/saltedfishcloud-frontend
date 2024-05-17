@@ -6,15 +6,10 @@
   >
     <v-progress-linear v-if="loading" indeterminate color="primary" />
     <!-- 头部 -->
-    <v-list-item>
-
-      <!-- 头像 -->
-      <v-list-item-avatar>
-        <v-img :src="avatar" />
-      </v-list-item-avatar>
+    <v-list-item :prepend-avatar="avatar">
 
       <!-- 标题 -->
-      <div style="margin: 8px 16px;">
+      <div style="margin: 8px 0">
         <v-list-item-title class="headline">
           登录账号
         </v-list-item-title>
@@ -23,7 +18,7 @@
     </v-list-item>
 
     <!-- 表单 -->
-    <v-card-content>
+    <v-card-text>
       <base-form ref="form" :submit-action="doLogin" :model-value="formData">
         <v-row>
           <v-col :xs="8">
@@ -86,10 +81,15 @@
           </v-col>
         </v-row>
       </base-form>
-      <v-btn color="primary" @click="emit('submit')">
+      <v-btn
+        v-if="showLogin"
+        style="margin-top: 14px"
+        color="primary"
+        @click="emit('submit')"
+      >
         登录
       </v-btn>
-    </v-card-content>
+    </v-card-text>
   </v-card>
 </template>
 
@@ -110,6 +110,10 @@ const props = defineProps({
   plain: {
     type: Boolean,
     default: false
+  },
+  showLogin: {
+    type: Boolean,
+    default: true
   }
 })
 

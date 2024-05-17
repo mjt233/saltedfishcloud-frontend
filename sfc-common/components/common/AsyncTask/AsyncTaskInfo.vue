@@ -61,7 +61,7 @@
         </FormRow>
         <FormRow>
           <FormCol top-label label="任务创建人">
-            <div class="d-flex align-center justify-center">
+            <div class="d-flex align-center">
               <UserAvatar :uid="taskRecord.uid" />
               <template v-if="createUser?.user">
                 {{ createUser.user }}
@@ -72,7 +72,7 @@
             <div
               v-ripple
               class="text-primary"
-              style="cursor: pointer;"
+              style="cursor: pointer;display: inline-block;"
               @click="showParams"
             >
               <CommonIcon icon="mdi-eye" />查看
@@ -145,10 +145,8 @@ const interruptTask = () => {
 
 const formatJsonText = (json: string) => {
   const obj = JSON.parse(json)
-  let res = '{'
-  Object.keys(obj).forEach(key => {
-    res += `\n  "${key}": ${JSON.stringify(obj[key])}`
-  })
+  let res = '{\n'
+  res += Object.keys(obj).map(key => `  "${key}": ${JSON.stringify(obj[key])}`).join(',\n')
   res += '\n}'
   return res
 }
@@ -210,7 +208,6 @@ const taskLogLoader = {
   async loadLogByWs() {
     const ws = await WebSocketService.connect({
       onMessage(msg) {
-        console.log(`onMessage: ${msg}`)
         logText.value += `${msg.data}\n`
       }
     })

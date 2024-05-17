@@ -2,6 +2,37 @@ import { context } from 'sfc-common/core/context'
 import { getPublicUser } from 'sfc-common/core/context/session'
 import axios from 'axios'
 import qs from 'qs'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
+import { h } from 'vue'
+import { API, StringUtils } from 'sfc-common/index'
+
+function showEmegrencyInfo() {
+  setTimeout(() => {
+    const component = () => [
+      h('iframe', {
+        src: StringUtils.appendPath(API.getDefaultPrefix(), '/errorView'),
+        style: {
+          'border': 'none',
+          'width': '100%',
+          'height': 'calc(100% - 81px)'
+        }
+      })
+    ]
+    SfcUtils.openComponentDialog(component, {
+      title: '启动失败',
+      persistent: true,
+      fullscreen: true,
+      onConfirm() {
+        location.reload()
+        return false
+      },
+      extraDialogOptions: {
+        confirmText: '重试'
+      },
+      showCancel: false
+    })
+  }, 10)
+}
 
 const inst = axios.create()
 inst.defaults.baseURL = '/api'
@@ -34,22 +65,22 @@ inst.interceptors.response.use(
     }
   },
   err => {
-    if (!err.response) {
-      err.msg = '网络错误'
+    // 判断系统是否启动失败了
+    const isEmergency = err?.response?.headers && err.response.headers['is-emergency'] == '1'
+    if (isEmergency) {
+      showEmegrencyInfo()
       return Promise.reject(err)
     }
+
+
+    // 常规包装信息 msg、code、status 三个字段，确保在任何情况下都能获取到
     const status = err.status || err.response.status
-    const msg = err.response.data.msg
-
-    // mdui.snackbar(`错误：${msg}`, {
-    //     position: 'bottom'
-    // })
-
+    const msg = err?.response?.data?.msg
     if (status === 401) {
       context.session.value.setUserInfo(getPublicUser())
     }
-    err.msg = msg || err.response.data.message || (Math.trunc(status / 100) == 5 ? '服务器错误' : '未知错误')
-    err.code = err.response.data.code
+    err.msg = msg || err?.response?.data?.message || (Math.trunc(status / 100) == 5 ? '服务器错误' : (err.toString() || '未知错误'))
+    err.code = err?.response?.data?.code || -1
     err.status = status
     err.toString = () => {
       return err.msg

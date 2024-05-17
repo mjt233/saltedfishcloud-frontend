@@ -1,28 +1,42 @@
 <template>
   <v-form ref="form" v-model="formValid" @submit.prevent>
-    <v-text-field
-      v-if="inputOldPassword"
-      v-model="originPassword"
-      label="原密码"
-      :rules="[rules.notNull, rules.validLength]"
-      type="password"
-      required
-    />
-    <v-text-field
-      v-model="newPassword"
-      label="新密码"
-      :rules="[rules.notNull, rules.validLength]"
-      type="password"
-      required
-    />
-    <v-text-field
-      v-model="replacePassword"
-      label="确认密码"
-      :rules="[rules.notNull, rules.passwordEquals]"
-      type="password"
-      required
-      @keyup.enter="emits('submit')"
-    />
+    <FormGrid>
+      <FormRow>
+        <FormCol>
+          <TextInput
+            v-if="inputOldPassword"
+            v-model="originPassword"
+            label="原密码"
+            :rules="[rules.notNull, rules.validLength]"
+            type="password"
+            required
+          />
+        </FormCol>
+      </FormRow>
+      <FormRow>
+        <FormCol>
+          <TextInput
+            v-model="newPassword"
+            label="新密码"
+            :rules="[rules.notNull, rules.validLength]"
+            type="password"
+            required
+          />
+        </FormCol>
+      </FormRow>
+      <FormRow>
+        <FormCol>
+          <TextInput
+            v-model="replacePassword"
+            label="确认密码"
+            :rules="[rules.notNull, rules.passwordEquals]"
+            type="password"
+            required
+            @keyup.enter="emits('submit')"
+          />
+        </FormCol>
+      </FormRow>
+    </FormGrid>
     
   </v-form>
 </template>
@@ -62,7 +76,7 @@ const rules = {
 const submit = async() => {
   const res: ValidateResult = await form.value.validate()
   if (!res.valid) {
-    throw new Error('表单校验不通过')
+    throw new Error(res.errors.map(e => e.errorMessages).join(';'))
   }
   await SfcUtils.axios(API.user.modifyPasswd(props.uid === null ? userInfo.id : props.uid, originPassword.value, newPassword.value, props.forceChange))
   return true
@@ -80,6 +94,8 @@ import { defineComponent, ref, defineExpose, defineEmits } from 'vue'
 import { context, ValidateResult } from 'sfc-common/core/context'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
+import { FormCol, FormGrid, FormRow } from '../layout'
+import { TextInput } from '../common'
 
 export default defineComponent({
   name: 'ChangePasswordForm'

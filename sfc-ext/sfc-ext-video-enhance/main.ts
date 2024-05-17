@@ -81,6 +81,10 @@ function isVideo(filename: string) {
   return !!extName && videoType.has(extName)
 }
 
+// 获取原版内置的播放器组件
+const originPlayerIndex = context.fileOpenHandler.value.findIndex(e => e.id == 'play-video')
+const originPlayer = originPlayerIndex == -1 ? null : context.fileOpenHandler.value[originPlayerIndex]
+
 /**
  * 视频文件打开动作
  */
@@ -121,7 +125,13 @@ const videoOpenHandler: FileOpenHandler = {
         }
       })
     } catch(err) {
-      SfcUtils.snackbar(err)
+      // 增强版播放器播放失败，改用原版
+      if(originPlayer && originPlayer.matcher(ctx, file)) {
+        SfcUtils.snackbar(`增强版播放器播放失败, 改用通用版本。原因: ${err}`)
+        originPlayer.action(ctx, file)
+      } else {
+        SfcUtils.snackbar(err)
+      }
     } finally {
       SfcUtils.closeLoading()
     }
@@ -222,20 +232,11 @@ context.menu.value.boxMenu.push({
   ]
 })
 
-const originPlayerIndex = context.fileOpenHandler.value.findIndex(e => e.id == 'play-video')
 if (originPlayerIndex != -1) {
   context.fileOpenHandler.value[originPlayerIndex] = videoOpenHandler
 } else {
   context.fileOpenHandler.value.push(videoOpenHandler)
 }
-
 context.menu.value.fileListMenu.push(videoMenu)
-
-window.bootContext.addProcessor({
-  taskName: '注册组件-video-enhance',
-  execute(app) {
-    app.component(VideoEnhanceCheck.name, VideoEnhanceCheck)
-  }
-})
 
 export {}

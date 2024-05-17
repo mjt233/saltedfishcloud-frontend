@@ -6,19 +6,19 @@
     :label-width="'80px'"
     auto-loading
   >
-    <v-row class="form-row">
-      <v-col>
-        <span class="form-label">有效期：</span>
-        <form-select v-model="formData.expiredAt" :items="expiredOptions" />
-      </v-col>
-      <v-col>
-        <span class="form-label">提取码：</span>
-        <text-input v-model="formData.extractCode" :rules="validators.code" />
-        <v-btn size="small" style="margin-left: 18px;" @click="randomCode">
-          随机
-        </v-btn>
-      </v-col>
-    </v-row>
+    <FormRow>
+      <FormCol>
+        <form-select v-model="formData.expiredAt" placeholder="有效期" :items="expiredOptions" />
+      </FormCol>
+      <FormCol>
+        <div class="d-flex align-center">
+          <text-input v-model="formData.extractCode" label="提取码" :rules="validators.code" />
+          <v-btn size="small" style="margin-left: 18px;" @click="randomCode">
+            随机
+          </v-btn>
+        </div>
+      </FormCol>
+    </FormRow>
   </base-form>
 </template>
 
@@ -30,7 +30,7 @@ import TextInput from '../../TextInput.vue'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   path: {
@@ -101,6 +101,7 @@ import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
+import { FormCol, FormRow } from 'sfc-common/components/layout'
 
 export default defineComponent({
   name: 'FileShareCreateForm'

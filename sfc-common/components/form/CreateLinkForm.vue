@@ -1,62 +1,69 @@
 <template>
   <base-form ref="formRef" :model-value="formData" :submit-action="actions.submit">
-    <form-grid row-height="72px" label-width="auto">
-      <form-row>
-        <form-col>
-          {{ fileName }}
-        </form-col>
-      </form-row>
-      <form-row>
-        <form-col label="生成类型">
-          <div class="d-flex align-center">
-            <v-tooltip top>
-              <template #activator="{ props: vProps }">
-                <v-icon
-                  style="margin-right: 12px"
-                  size="18"
-                  dark
-                  v-bind="vProps"
-                >
-                  mdi-help-circle
-                </v-icon>
-              </template>
-              <p>按路径：链接与文件路径绑定，可设定有效期。若链接有效期内文件发生移动、重命名、删除后，链接不再可用，直到在有效期内再次在同名路径下创建同名文件</p>
-              <br>
-              <p>按MD5：只要网盘中仍然存在该份文件，无论是在其他网盘，以何种文件名和路径存在，都能被下载到</p>
-            </v-tooltip>
-            <v-radio-group
-              v-model="formData.type"
-              class="hide-details"
-              inline
-            >
-              <v-radio
-                color="primary"
-                label="按路径"
-                value="path"
-              />
-              <v-radio
-                color="primary"
-                label="按MD5"
-                value="md5"
-              />
-            </v-radio-group>
-          </div>
-        </form-col>
-      </form-row>
-      <v-divider style="margin-bottom: 12px" />
-      <v-window v-model="formData.type">
-        <v-window-item value="md5">
-          <div class="tip" style="margin-top: 12px">
-            无需设置
-          </div>
-        </v-window-item>
-        <v-window-item value="path">
-          <form-row>
-            <form-col label="有效期" class="mw-50">
-              <form-select v-model="formData.expr" :items="exprOptions" />
-            </form-col>
-            <form-col label="启用预览" class="mw-50">
-              <div class="d-flex align-center">
+    <form-row>
+      <form-col>
+        {{ fileName }}
+      </form-col>
+    </form-row>
+    <form-row>
+      <form-col top-label label="生成类型">
+        <template #label>
+          生成类型
+          <v-tooltip top>
+            <template #activator="{ props: vProps }">
+              <v-icon
+                style="margin-right: 12px"
+                size="18"
+                dark
+                v-bind="vProps"
+              >
+                mdi-help-circle
+              </v-icon>
+            </template>
+            <p>按路径：下载链接与文件路径进行绑定（注意：绑定的不是文件，是路径），可设定有效期。</p>
+            <br>
+            <p>按MD5：只要网盘中仍然存在该份文件，无论是在其他网盘，以何种文件名和路径存在，都能被下载到</p>
+          </v-tooltip>
+        </template>
+        <div class="d-flex align-center">
+          <v-radio-group
+            v-model="formData.type"
+            class="hide-details"
+            inline
+          >
+            <v-radio
+              color="primary"
+              label="按路径"
+              value="path"
+            />
+            <v-radio
+              color="primary"
+              label="按MD5"
+              value="md5"
+            />
+          </v-radio-group>
+        </div>
+      </form-col>
+    </form-row>
+    <v-divider style="margin-bottom: 12px" />
+    <v-window v-model="formData.type">
+      <v-window-item value="md5">
+        <div class="tip" style="margin-top: 12px">
+          无需设置
+        </div>
+      </v-window-item>
+      <v-window-item value="path">
+        <form-row style="padding-top: 12px;">
+          <form-col class="mw-50">
+            <form-select v-model="formData.expr" placeholder="有效期" :items="exprOptions" />
+          </form-col>
+          <form-col top-label label="启用预览" class="mw-50">
+            <template #label>
+              <div
+                class="d-flex align-center"
+                style="position: relative;margin-top: 12px;font-size: 12px;"
+              >
+                启用预览
                 <v-tooltip top>
                   <template #activator="{ props: vProps }">
                     <v-icon
@@ -70,18 +77,18 @@
                   </template>
                   <span>若关闭预览，浏览器中打开链接时将永远弹出下载，而不会使用浏览器内置的在线预览</span>
                 </v-tooltip>
-                <v-switch
-                  v-model="formData.enablePreview"
-                  style="width: 63px"
-                  color="primary"
-                  class="hide-details"
-                />
               </div>
-            </form-col>
-          </form-row>
-        </v-window-item>
-      </v-window>
-    </form-grid>
+            </template>
+            <v-switch
+              v-model="formData.enablePreview"
+              hide-details
+              style="position: relative; top: -6px;"
+              color="primary"
+            />
+          </form-col>
+        </form-row>
+      </v-window-item>
+    </v-window>
   </base-form>
 </template>
 

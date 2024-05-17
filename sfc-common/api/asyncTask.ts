@@ -63,6 +63,18 @@ const asyncTask = {
         timeout: timeout || 9
       }
     }
+  },
+
+  /**
+   * 再次运行任务
+   * @param taskId 任务id
+   */
+  rerun(taskId: IdType) : CommonRequest<AsyncTaskRecord> {
+    return {
+      url: `${this.prefix}/rerun`,
+      method: 'post',
+      params: { taskId }
+    }
   }
 }
 

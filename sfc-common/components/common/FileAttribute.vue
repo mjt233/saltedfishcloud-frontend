@@ -32,8 +32,8 @@
         <form-col label="大小" top-label>
           {{ size && StringFormatter.toSize(size) }}(不包含文件夹)
         </form-col>
-        <form-col v-if="files.length == 1" label="创建日期" top-label>
-          {{ StringFormatter.toDate(files[0].createdAt) }}
+        <form-col v-if="files.length == 1" label="修改日期" top-label>
+          {{ StringFormatter.toDate(files[0].mtime || files[0].updateAt || files[0].createAt) }}
         </form-col>
         <form-col v-if="files.length == 1" :label="files[0].dir ? '节点id':'md5校验值'" top-label>
           {{ files[0].md5 || '不可用' }}
@@ -52,7 +52,7 @@
         :data-id="files[0].mountId"
         style="padding: 0"
         read-only
-        @loaded="showMountInfo = true"
+        @loaded="emits('mountPointLoaded', $event) ;showMountInfo = true"
       />
     </template>
     
@@ -61,6 +61,9 @@
 
 <script setup lang="ts">
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+const emits = defineEmits<{
+  (event: 'mountPointLoaded', param: MountPoint): any
+}>()
 const props = defineProps({
   /**
    * 要展示的文件列表
@@ -91,7 +94,7 @@ const showMountInfo = ref(false)
 </script>
 
 <script lang="ts">
-import { FileInfo } from 'sfc-common/model'
+import { FileInfo, MountPoint } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { context } from 'sfc-common/core/context'

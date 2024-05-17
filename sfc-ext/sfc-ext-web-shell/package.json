@@ -1,0 +1,14 @@
+{
+  "name": "sfc-ext-web-shell",
+  "version": "1.0.0",
+  "description": "Web-Shell插件前端组件",
+  "main": "main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "mjt233@qq.com",
+  "license": "ISC",
+  "dependencies": {
+    "xterm": "^5.2.1"
+  }
+}

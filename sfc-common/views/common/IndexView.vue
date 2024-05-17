@@ -16,7 +16,14 @@
       <v-icon v-else size="24" icon="mdi-swap-vertical" />
     </v-btn>
     <dark-switch brightness />
-    <user-card :uid="session.user.id" :name="session.user.name" style="margin-left: 16px" />
+    <user-card
+      v-ripple
+      class="header-user-card"
+      :uid="session.user.id"
+      :name="session.user.name"
+      style="margin:0 16px 0 12px;"
+      @click="userCardClick()"
+    />
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
@@ -40,14 +47,14 @@
               v-if="item.renderOn == undefined ? true : item.renderOn(context)"
               :key="item.id"
               :active="$route.path == item.route"
-              active-color="primary"
+              color="primary"
               :value="item.route"
               @click="menuClick(item, $event)"
             >
-              <!-- 菜单图标 -->
-              <v-list-item-avatar v-if="item.icon" start>
-                <v-icon :icon="item.icon" color="primary" />
-              </v-list-item-avatar>
+              <template #prepend>
+                <!-- 菜单图标 -->
+                <v-icon v-if="item.icon" :icon="item.icon" color="primary" />
+              </template>
 
               <!-- 菜单文本 -->
               {{ item.title }}
@@ -76,11 +83,24 @@ const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 
 const session = context.session
+
+const userCardClick = () => {
+  if (!ConditionFunction.hasLogin(context)) {
+    if(context.routeInfo.value.curr?.path != '/login') {
+      SfcUtils.openLoginDialog()
+      // context.routeInfo.value.router?.replace('/login')
+    }
+  } else if (context.routeInfo.value.curr?.path != '/personalCenter') {
+    context.routeInfo.value.router?.push('/personalCenter')
+  }
+}
 </script>
 
 <script lang="ts">
 import { ref, defineComponent, ToRefs } from 'vue'
 import { AppContext, context, MenuItem } from 'sfc-common/core/context/'
+import { ConditionFunction } from 'sfc-common/core'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 
 export default defineComponent({
   name: 'CommonIndex',
@@ -125,6 +145,15 @@ a {
 
 <style scoped lang="scss">
 
+.header-user-card {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
 .bg-main-view {
   position: relative;
   background-image: v-bind(bgUrl);
@@ -140,6 +169,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
+    pointer-events: none;
   }
 }
 </style>

@@ -15,7 +15,7 @@
         <grid-menu :items="context.menu.value.boxMenu" :arg-provider="argProvider" @click="itemClick" />
       </v-window-item>
       <v-window-item value="1">
-        <div style="padding: 0 16px">
+        <div style="padding: 0 16px; overflow: auto;min-height: 360px;">
           <component :is="menuContext.currentComponent" v-if="menuContext.currentComponent" />
         </div>
       </v-window-item>
@@ -64,6 +64,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .tool-bar {
+  position: relative;
   height: 0px;
   opacity: 0;
   transition: all .2s;

@@ -56,18 +56,14 @@ html {
   }
 }
 
+.w100 {
+  width: 100%;
+}
+
 .base-form {
   --row-height: 108px;
-  .v-row.form-row {
-    &>.v-col {
-      display: flex;
-      align-items: center;
-      min-width: 280px;
-      height: var(--row-height);
-      .text-input {
-        margin-top: 26px;
-      }
-    }
+  .v-row + .v-row {
+    margin-top: 0 !important;
   }
 }
 .base-form {
@@ -126,11 +122,6 @@ html {
     }
   }
 }
-.v-col.form-label,.form-label,.v-col.common-label,.common-label {
-  max-width: var(--form-label-width);
-  min-width: var(--form-label-width);
-  color: #555555;
-}
 .text-gray {
   color: #555555;
 }
@@ -187,6 +178,29 @@ html {
 
 
 .v-overlay__scrim {
+  transition: all .15s;
   background-color: black !important;
-  opacity: .4 !important;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes up-in {
+  0% {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  40% {
+    transform: translateY(10px);
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 1;
+  }
 }

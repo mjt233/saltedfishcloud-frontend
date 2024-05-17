@@ -14,7 +14,7 @@
           <tr>
             <th>字段名</th>
             <th>默认值</th>
-            <th style="width: 96px">
+            <th style="width: 120px">
               类型
             </th>
             <th style="width: 81px">

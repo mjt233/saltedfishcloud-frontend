@@ -1,40 +1,51 @@
 <template>
   <div v-if="hasLogin">
-    <v-card max-width="640px" style="margin: 0 auto; overflow: hidden;">
+    <v-card max-width="640px" style="margin: 0 auto;">
       <loading-mask ref="loading" type="linear" />
       <!-- <v-progress-linear v-if="loading" indeterminate /> -->
-      <v-list bg-color="background">
+      <v-list style="padding: 12px 0;">
         <v-list-subheader>个人信息</v-list-subheader>
         <v-list-item v-ripple title="头像">
-          <user-avatar
-            :uid="session.user.id"
-            :name="session.user.name"
-            :size="48"
-            class="elevation-1"
-            @click="doUploadAvatar"
-          />
+          <template #append>
+            <user-avatar
+              :uid="session.user.id"
+              :name="session.user.name"
+              :size="48"
+              class="elevation-1"
+              @click="doUploadAvatar"
+            />
+          </template>
         </v-list-item>
         <v-divider />
         <v-list-item v-ripple min-height="48" title="用户ID">
-          <span class="list-content">{{ session.user.id }}</span>
+          <template #append>
+            <span class="list-content">{{ session.user.id }}</span>
+          </template>
         </v-list-item>
         <v-list-item v-ripple min-height="48" title="用户名">
-          <span class="list-content">{{ session.user.name }}</span>
+          <template #append>
+            <span class="list-content">{{ session.user.name }}</span>
+          </template>
         </v-list-item>
         <v-list-item
           v-ripple
           min-height="48"
           title="邮箱"
         >
-          <template v-if="session.user.email">
-            <span class="list-content">{{ session.user.email }}<v-icon style="margin-left: 6px" color="primary" @click="showEmailDialog = true">mdi-pencil</v-icon></span>
-          </template>
-          <template v-else>
-            <span class="list-content"><a class="text-decoration-none text-primary" @click="showEmailDialog = true">立即绑定</a></span>
+          <template #append>
+            <template v-if="session.user.email">
+              <span class="list-content">{{ session.user.email }}<v-icon style="margin-left: 6px" color="primary" @click="showEmailDialog = true">mdi-pencil</v-icon></span>
+            </template>
+            <template v-else>
+              <span class="list-content"><a class="text-decoration-none text-primary" @click="showEmailDialog = true">立即绑定</a></span>
+            </template>
           </template>
         </v-list-item>
         <v-list-item v-ripple min-height="48" title="身份">
-          <span class="list-content">{{ session.user.role }}</span>
+          <template #append>
+            <span class="list-content">{{ session.user.role }}</span>
+          </template>
+          
         </v-list-item>
         <v-divider />
         <v-list-item v-ripple min-height="48" @click="showPasswordDialog = true">
@@ -42,22 +53,26 @@
         </v-list-item>
         <v-divider />
         <v-list-item v-ripple min-height="48" title="存储使用情况">
-          <div style="width: 180px">
-            <div class="list-content" style="text-align: right; margin-bottom: 6px">
-              {{ StringFormatter.toSize(quotaUsed.used) }} / {{ StringFormatter.toSize(quotaUsed.quota) }}
+          <template #append>
+            <div style="width: 180px">
+              <div class="list-content" style="text-align: right; margin-bottom: 6px">
+                {{ StringFormatter.toSize(quotaUsed.used) }} / {{ StringFormatter.toSize(quotaUsed.quota) }}
+              </div>
+              <v-progress-linear
+                :color="quotaColor"
+                rounded
+                height="5"
+                :model-value="quotaUsed.used"
+                :max="quotaUsed.quota"
+              />
             </div>
-            <v-progress-linear
-              :color="quotaColor"
-              rounded
-              height="5"
-              :model-value="quotaUsed.used"
-              :max="quotaUsed.quota"
-            />
-          </div>
+          </template>
         </v-list-item>
         <v-divider />
         <v-list-item title="黑暗模式" height="48">
-          <dark-switch />
+          <template #append>
+            <dark-switch />
+          </template>
         </v-list-item>
       </v-list>
       <base-dialog
@@ -163,7 +178,7 @@ const doChangePassword = async() => {
     SfcUtils.snackbar('修改成功，请重新登录', 5000, { showClose: true })
     context.routeInfo.value.router?.push('/login')
   } catch(err) {
-    console.log(err)
+    console.error(err)
     SfcUtils.snackbar((err as any).toString())
   } finally {
     changePasswordLoading.value = false

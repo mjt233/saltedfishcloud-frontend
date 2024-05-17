@@ -17,7 +17,7 @@
       <v-icon v-else size="24" icon="mdi-swap-vertical" />
     </v-btn>
     <dark-switch brightness />
-    <user-card :uid="session.user.id" :name="session.user.name" style="margin-left: 16px" />
+    <user-card :uid="session.user.id" :name="session.user.name" style="margin: 0 16px 0 12px;" />
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
@@ -32,7 +32,7 @@
             <v-list-item
               :key="group.id"
               :title="group.name"
-              active-color="primary"
+              color="primary"
               :active="adminContext.group == group.id"
               :prepend-icon="group.icon"
               @click="groupClick(group)"
@@ -56,7 +56,7 @@
                   v-if="item.renderOn == undefined ? true : item.renderOn(adminContext)"
                   :key="item.id"
                   :active="adminContext.item == item.id"
-                  active-color="primary"
+                  color="primary"
                   :prepend-icon="item.icon"
                   :title="item.title"
                   @click="itemClick(group ,item)"
@@ -74,7 +74,7 @@
 
   <!-- 功能视图路由 -->
   <v-main :class="{'bg-main-view': enabledBg}">
-    <div class="main-body">
+    <div class="main-body" style="position: relative;">
       <component :is="adminContext.component" v-if="adminContext.component" />
     </div>
   </v-main>
@@ -370,6 +370,7 @@ a {
     left: 0;
     width: 100%;
     height: 100%;
+    pointer-events: none;
   }
 }
 </style>

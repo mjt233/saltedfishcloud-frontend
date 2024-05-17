@@ -3,15 +3,13 @@
     <div v-for="(group, idx) in items" :key="idx" class="node-group">
       <slot name="title" :group="group">
         <template v-if="group.title || group.name">
-          <!-- <sticky-container
-            v-if="useStickTitle"
-            :top="64"
-            content-class="node-title"
-            style="width: 100%"
-          >
-            {{ group.title || group.name }}
-          </sticky-container> -->
           <span class="node-title">{{ group.title || group.name }}</span>
+          <MultiLineText
+            v-if="group.describe"
+            style="margin-left: 12px;"
+            class="tip"
+            :text="group.describe"
+          />
         </template>
       </slot>
       <config-node
@@ -19,6 +17,7 @@
         :key="node.name"
         :node="node"
         :class="{'template-node': node.inputType == 'template'}"
+        :use-inner-label="false"
         @change="nodeValueChange(node, $event)"
       />
     </div>
@@ -26,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ConfigNode ,StickyContainer } from 'sfc-common/components'
+import { ConfigNode ,MultiLineText,StickyContainer } from 'sfc-common/components'
 const props = defineProps({
   items: {
     type: Array as PropType<ConfigNodeModel[]>,

@@ -37,7 +37,7 @@ const props = defineProps({
   },
   rowHeight: {
     type: String,
-    default: '108px'
+    default: '81px'
   },
   /**
    * 是否自动管理表单提交时的loading

@@ -1,99 +1,79 @@
 <template>
-  <base-form ref="formRef" :model-value="formData">
-    <v-row class="form-row">
-      <v-col class="mw-50">
-        <span class="form-label">
-          文件名约束：
-        </span>
+  <base-form ref="formRef" :model-value="formData" row-height="96px">
+    <FormRow class="form-row">
+      <FormCol class="mw-50">
         <form-select
           v-model="typeStrategy"
+          placeholder="文件名约束"
           :items="typeStrategyOption"
           :disabled="readonly"
         />
-      </v-col>
-      <v-col v-if="typeStrategy == 'type'">
-        <span class="form-label">
-          选择类型：
-        </span>
+      </FormCol>
+      <FormCol v-if="typeStrategy == 'type'">
         <form-select
           v-model="acceptType"
+          placeholder="选择类型"
           :disabled="readonly"
           multiple
           :items="typeOption"
         />
-      </v-col>
-      <v-col v-if="typeStrategy == 'regex'">
-        <div class="form-label">
-          自定义正则：
-        </div>
+      </FormCol>
+      <FormCol v-if="typeStrategy == 'regex'">
         <text-input
           v-model="formData.pattern"
+          label="自定义正则"
           class="dense-details"
-          style="margin-top: 6px"
           :rules="validators.regex"
         />
-      </v-col>
-    </v-row>
-    <v-row v-if="typeStrategy == 'field'">
-      <v-col>
-        <v-row>
-          <v-col>
-            <file-collection-field-option v-model="formData.field" :readonly="readonly" />
-          </v-col>
-        </v-row>
-        <v-row class="form-row">
-          <v-col>
-            <v-row :align="'center'">
-              <v-col class="form-label" style="max-width: 180px">
-                <span>
-                  
-                  <v-tooltip top>
-                    <template #activator="{ props: vProps }">
-                      <v-icon
-                        style="margin-right: 12px"
-                        size="18"
-                        dark
-                        v-bind="vProps"
-                      >
-                        mdi-help-circle
-                      </v-icon>
-                    </template>
-                    <p>字段模式需要设定文件名表达式用于构造提交的文件名</p>
-                    <p>字段变量用法：${字段名}，内置的变量__ext__表示用户上传的文件拓展名，推荐一般放到末尾</p>
-                    <p>表达式样例：${学号}-${学院}-${班级}-${姓名}.${__ext__}</p>
-                    <p>提交文件后，将构造成：114514-茶艺学院-雷普1班-李天所.docx</p>
-                  </v-tooltip>
-                </span>
-                <span>文件名表达式：</span>
-              </v-col>
-              <v-col>
-                <text-input
-                  v-model="formData.pattern"
-                  class="dense-details"
-                  style="margin-top: 6px;position: relative; left: -18px;width: calc(100% + 18px);"
-                  :rules="validators.nameExpress"
-                />
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col>
-            <v-row :align="'center'">
-              <v-col class="form-label">
-                后缀名正则：
-              </v-col>
-              <v-col>
-                <text-input
-                  v-model="formData.extPattern"
-                  class="dense-details"
-                  style="margin-top: 6px;"
-                  :rules="validators.extRegex"
-                />
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
+      </FormCol>
+    </FormRow>
+    <FormRow v-if="typeStrategy == 'field'">
+      <FormCol style="height: auto;">
+        <div style="width: 100%">
+          <file-collection-field-option v-model="formData.field" :readonly="readonly" />
+        </div>
+      </FormCol>
+    </FormRow>
+    <FormRow v-if="typeStrategy == 'field'">
+      <FormCol>
+        <div class="d-flex align-center">
+          <span>
+            <v-tooltip top>
+              <template #activator="{ props: vProps }">
+                <v-icon
+                  style="margin-right: 12px"
+                  size="18"
+                  dark
+                  v-bind="vProps"
+                >
+                  mdi-help-circle
+                </v-icon>
+              </template>
+              <p>字段模式需要设定文件名表达式用于构造提交的文件名</p>
+              <p>字段变量用法：${字段名}，内置的变量__ext__表示用户上传的文件拓展名，推荐一般放到末尾</p>
+              <p>表达式样例：${学号}-${学院}-${班级}-${姓名}.${__ext__}</p>
+              <p>提交文件后，将构造成：114514-茶艺学院-雷普1班-李天所.docx</p>
+            </v-tooltip>
+          </span>
+          <text-input
+            v-model="formData.pattern"
+            label="文件名表达式"
+            :readonly="readonly"
+            class="dense-details"
+            :rules="validators.nameExpress"
+          />
+        </div>
+      </FormCol>
+      <FormCol>
+        <text-input
+          v-model="formData.extPattern"
+          label="后缀名正则"
+          :readonly="readonly"
+          class="dense-details"
+          :rules="validators.extRegex"
+        />
+      </FormCol>
+    </FormRow>
   </base-form>
 </template>
 
@@ -245,6 +225,7 @@ import { defineForm, FormFieldType } from 'sfc-common/utils/FormUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, watch, onMounted, nextTick } from 'vue'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { CollectionInfo, CollectionInfoField } from 'sfc-common/model/FileCollection'
+import { FormRow, FormCol } from 'sfc-common/components/layout'
 
 export default defineComponent({
   name: 'FileCollectionTypeStrategyForm'

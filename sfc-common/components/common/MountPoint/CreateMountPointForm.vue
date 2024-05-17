@@ -11,23 +11,28 @@
   >
     <loading-mask :loading="loadingRef" /> 
     <form-row style="padding: 0 12px">
-      <form-col top-label label="挂载类型">
-        <form-select v-model="formData.protocol" :items="selectOptions" :disabled="readOnly" />
+      <form-col>
+        <form-select
+          v-model="formData.protocol"
+          placeholder="挂载类型"
+          :items="selectOptions"
+          :disabled="readOnly || isEdit"
+        />
       </form-col>
-      <form-col top-label label="目录名称">
-        <text-input v-model="formData.name" :readonly="readOnly" />
+      <form-col>
+        <TextInput v-model="formData.name" label="目录名称" :readonly="readOnly || isEdit" />
       </form-col>
     </form-row>
     <form-row style="padding: 0 12px">
       <form-col top-label label="挂载目录">
         <span class="link" style="margin-right: 12px">{{ selectPath }}</span>
-        <v-btn v-if="!readOnly" flat @click="actions.selectPath">
+        <v-btn v-if="!readOnly && !isEdit" flat @click="actions.selectPath">
           浏览
         </v-btn>
       </form-col>
     </form-row>
 
-    <v-divider style="margin: 12px 12px 12px 12px" />
+    <v-divider class="form-divider" />
     <configurable-form
       ref="mountForm"
       :read-only="readOnly"
@@ -43,7 +48,7 @@
 <script setup lang="ts">
 import API from 'sfc-common/api'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
-import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode } from 'sfc-common/components'
+import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode, TextInput } from 'sfc-common/components'
 import { ConfigNodeModel, IdType, MountPoint, NameValueType, SelectOption } from 'sfc-common/model'
 import { CommonForm, defineForm } from 'sfc-common/utils/FormUtils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
@@ -60,6 +65,10 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  initValue: {
+    type: Object as PropType<MountPoint>,
+    default: undefined
   }
 })
 const mountForm = ref()
@@ -74,6 +83,24 @@ const selectOptions: Ref<SelectOption[]> = ref([])
 const configGroup: Ref<ConfigNodeModel[]> = ref([])
 
 let mountConfig = {} as any
+const parseParams = async(mp: MountPoint) => {
+
+  Object.assign(formData, mp)
+  const opt = selectOptions.value.find(e => e.value == formData.protocol)
+  opt && opt.action && opt.action()
+  const params = JSON.parse(formData.params)
+  configGroup.value.filter(e => e.nodes)
+    .flatMap(e => e.nodes)
+    .forEach(node => {
+      if (node) {
+        const val = params[node.name]
+        node.value = (val === null || val === undefined) ? node.defaultValue : val
+      }
+    })
+  mountConfig = JSON.parse(formData.params)
+  
+  selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
+}
 const formInst = defineForm({
   actions: {
     selectPath() {
@@ -113,14 +140,20 @@ const formInst = defineForm({
             value: describe.protocol,
             title: describe.name,
             action() {
+              // 编辑初始数据且未切换过挂载类型时，不需要重置挂载配置参数。
+              if (!(isEdit.value && props.initValue?.protocol == formData.protocol)) {
+                mountConfig = {}
+                describe.configNode.flatMap(e => e.nodes).forEach(node => {
+                  if (node) {
+                    mountConfig[node.name] = node.defaultValue
+                    if (node.value === undefined || node.value === null) {
+                      node.value = node.defaultValue
+                    }
+                  }
+                })
+              }
               configGroup.value = describe.configNode
               formData.protocol = describe.protocol
-              mountConfig = {}
-              describe.configNode.flatMap(e => e.nodes).forEach(node => {
-                if (node) {
-                  mountConfig[node.name] = node.defaultValue
-                }
-              })
             }
           })
         })
@@ -137,22 +170,9 @@ const formInst = defineForm({
     async loadById() {
       if (props.dataId) {
         try {
-          
           const res = await SfcUtils.request(API.mountPoint.getById(props.dataId))  
           const data = res.data.data
-          Object.assign(formData, data)
-          const opt = selectOptions.value.find(e => e.value == formData.protocol)
-          opt && opt.action && opt.action()
-          const params = JSON.parse(formData.params)
-          configGroup.value.filter(e => e.nodes)
-            .flatMap(e => e.nodes)
-            .forEach(node => {
-              if (node) {
-                node.value = params[node.name]
-              }
-            })
-
-          selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
+          await parseParams(data)
           return true
         } catch (err) {
           if (SfcUtils.isForbidden(err)) {
@@ -164,25 +184,31 @@ const formInst = defineForm({
       }
     }
   },
-  formData: {
+  formData: reactive({
     uid: props.uid,
     path: '/',
     protocol: '',
     name: '挂载点1',
     params: '{}',
     nid: props.uid
-  } as MountPoint,
+  }) as MountPoint,
   formRef: formRef,
   validators: {},
   throwError: true
 })
+const isEdit = ref<boolean>(false)
 const { formData, actions, validators, loadingRef, loadingManager  } = formInst
 
 
 onMounted(async() => {
   try {
-    if(await actions.loadSystem() && await actions.loadById()) {
-      emits('loaded')
+    if(await actions.loadSystem()) {
+      if (props.initValue) {
+        isEdit.value = !!props.initValue.id
+        parseParams(props.initValue)
+      } else if(await actions.loadById()) {
+        emits('loaded', formData)
+      }
     }
   } catch(err) {
     emits('error', err)
@@ -194,8 +220,17 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
+import { reactive } from 'vue'
 
 export default defineComponent({
   name: 'CreateMountPointForm'
 })
 </script>
+
+<style lang="scss" scoped>
+.form-divider {
+  padding-bottom: 24px;
+  width: 50%;
+  margin: 0 auto;
+}
+</style>
