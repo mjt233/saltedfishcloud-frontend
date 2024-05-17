@@ -9,6 +9,7 @@
       row-height="72px"
     >
       <template v-for="group in nodes" :key="group.name">
+        <span class="text-primary d-block pb-6 pt-3">{{ group.title || group.name }}</span>
         <form-row>
           <template v-for="node in group.nodes" :key="node.name">
             <component
