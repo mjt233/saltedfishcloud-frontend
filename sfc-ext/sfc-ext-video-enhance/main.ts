@@ -1,6 +1,6 @@
 import { FileOpenHandler, MenuGroup, MenuItem,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
-import { EncodeConvertRule, VideoInfo } from './model'
+import { EncodeConvertRule, Subtitle, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
 import VideoConvertForm from './components/VideoConvertForm.vue'
@@ -106,16 +106,40 @@ const videoOpenHandler: FileOpenHandler = {
       SfcUtils.beginLoading()
       await window.SfcUtils.sleep(100)
       const videoInfo = await getVideoInfo(ctx, file, path)
+
+      const subtitleList: Subtitle[] = []
+      // 尝试获取外挂字幕信息
+      const dotIdx = file.name.lastIndexOf('.')
+      if (dotIdx != -1) {
+        const noExtName = file.name.substring(0, dotIdx)
+        const subtitleExtName = ['ass', 'vtt'].map(e => `${noExtName}.${e}`)
+        const extraSubtitleFile = ctx.fileList.filter(f => subtitleExtName.find(e => e == f.name))
+          .forEach(subtitleFile => {
+            const url = ctx.getFileUrl(subtitleFile)
+            if (url) {
+              subtitleList.push({
+                title: `[外挂字幕] ${subtitleFile.name}`,
+                url: url,
+                type: subtitleFile.name.endsWith('.ass') ? 'ass' : 'webvtt'
+              })
+            }
+          })
+      }
+      
+      // 尝试从视频数据流中获取内嵌字幕信息
+      videoInfo.streams.filter(s => s.codecType == 'subtitle').forEach(s => {
+        subtitleList.push({
+          title: `${s.language}${s.title ? '(' + s.title + ')' : ''}`,
+          url: getSubtitleUrl(ctx, file, path as string, s.index),
+          type: 'webvtt'
+        } as Subtitle)
+      })
+
       SfcUtils.openComponentDialog(VideoEnhancePlayerVue, {
         props: {
           url: ctx.getFileUrl(file),
           videoInfo: videoInfo,
-          subtitleUrls: videoInfo.streams.filter(s => s.codecType == 'subtitle').map(s => {
-            return {
-              index: s.index,
-              url: getSubtitleUrl(ctx, file, path as string, s.index)
-            }
-          })
+          subtitleList: subtitleList
         },
         dense: true,
         showCancel: false,
