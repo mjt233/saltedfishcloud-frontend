@@ -1,5 +1,5 @@
-import { AsyncTaskRecord } from './../../core/model/AsyncTaskRecord'
-import { ResourceRequest,IdType, CommonProgress } from '@/core/model'
+import { AsyncTaskRecord  } from 'sfc-common/model/AsyncTaskRecord'
+import { ResourceRequest,IdType, CommonProgress } from 'sfc-common'
 export interface Encoder {
   name: string
   describe: string
@@ -31,6 +31,14 @@ export interface EncodeConvertTaskLog {
   taskId: string
 
   taskLog: string
+}
+
+export interface Subtitle {
+  title: string
+
+  url: string
+
+  type: 'ass' | 'webvtt'
 }
 
 export interface StreamInfo {

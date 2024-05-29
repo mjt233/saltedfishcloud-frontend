@@ -1,10 +1,10 @@
 <template>
   <v-radio-group>
     <v-radio
-      v-for="item in props.subtitles"
-      :key="item.index"
+      v-for="(item, idx) in props.subtitleList"
+      :key="idx"
       color="primary"
-      :label="`${item.language}${item.title ? '(' + item.title + ')' : ''}`"
+      :label="item.title"
       :value="item"
     />
   </v-radio-group>
@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 const props = defineProps({
-  subtitles: {
-    type: Array as PropType<StreamInfo[]>,
+  subtitleList: {
+    type: Array as PropType<Subtitle[]>,
     default: () => []
   }
 })
@@ -21,7 +21,7 @@ const props = defineProps({
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
-import { StreamInfo } from '../model'
+import { Subtitle } from '../model'
 
 export default defineComponent({
   name: 'SubtitleSelector'
