@@ -1,0 +1,13 @@
+{
+  "name": "sfc-ext-video-enhance",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "private": "true",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "assjs": "^0.0.11"
+  }
+}
