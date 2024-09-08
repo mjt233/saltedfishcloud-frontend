@@ -1,4 +1,4 @@
-import { ConfigNodeModel } from './Common'
+import { ConfigNodeModel, IdType } from './Common'
 
 /**
  * 文件系统参数描述
@@ -29,4 +29,18 @@ export interface MountPoint {
   /** 挂载点名称 */
   name: string
 
+  /** 是否委托存储记录 */
+  isProxyStoreRecord: boolean
+
+}
+
+/**
+ * 挂载点同步文件记录参数
+ */
+export interface MountPointSyncFileRecordParam {
+  /** 挂载点id */
+  id: IdType
+
+  /** 文件md5缺失时，是否计算 */
+  isComputeMd5: boolean
 }

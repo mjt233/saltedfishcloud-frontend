@@ -39,7 +39,7 @@
           {{ files[0].md5 || '不可用' }}
         </form-col>
         <form-col label="是否处于挂载目录" top-label>
-          {{ files[0].mount ? '是' : '否' }}
+          {{ files[0].isMount ? '是' : '否' }}
         </form-col>
       </form-row>
     </form-grid>

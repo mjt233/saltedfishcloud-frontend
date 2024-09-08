@@ -319,6 +319,10 @@ export interface OpenComponentDialogOption {
   header?: ChildrenType
   footer?: ChildrenType
   fullscreen?: boolean | 'auto'
+
+  /**
+   * 是否为持久弹框，无法通过ESC或点击外部关闭（默认为false）
+   */
   persistent?: boolean
 
   /** 在onConfirm和onCancel抛出异常时是否气泡显示错误 */
@@ -408,7 +412,7 @@ export interface LoadingDialogParam {
  * @param param 加载对话框参数
  */
 export function loadingDialog(param?: LoadingDialogParam) {
-  return SfcUtils.openComponentDialog(LoadingDialog, {
+  const dialog = SfcUtils.openComponentDialog(LoadingDialog, {
     title: '',
     props: param,
     extraDialogOptions: {
@@ -418,6 +422,8 @@ export function loadingDialog(param?: LoadingDialogParam) {
     fullscreen: false,
     persistent: true
   })
+  dialog.closeLoading = dialog.close.bind(dialog)
+  return dialog
 }
 
 
