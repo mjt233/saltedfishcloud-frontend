@@ -197,8 +197,10 @@ const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
       }
     }
   } catch (error: any) {
-    SfcUtils.snackbar(error, 1500, { outClose: true })
-    console.error(error)
+    if (error != 'cancel') {
+      SfcUtils.snackbar(error, 1500, { outClose: true })
+      console.error(error)
+    }
   } finally {
     if (inloading) {
       propsAttr.loadingManager.closeLoading()

@@ -19,7 +19,7 @@ export interface FileInfo extends AuditModel {
   ctime: string
   mtime: string
   /* 是否来自挂载的文件系统 */
-  mount: boolean
+  isMount: boolean
 
   /* 所处路径 */
   path?: string

@@ -1,5 +1,5 @@
 import DeleteConfirm from 'sfc-common/components/common/DeleteConfirm.vue'
-import { FileListContext, MountPoint } from 'sfc-common/model'
+import { FileListContext, IdType, MountPoint } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { h, ref } from 'vue'
 import { MenuGroup } from 'sfc-common/core/context'
@@ -7,6 +7,8 @@ import { FileAttribute } from 'sfc-common/components'
 import { VBtn } from 'vuetify/components'
 import API from 'sfc-common/api'
 import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
+import MountPointSyncFileRecordForm from 'sfc-common/components/form/MountPointSyncFileRecordForm.vue'
+import { MountPointService } from 'sfc-common/core/serivce/MountPointService'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
 {
@@ -50,6 +52,17 @@ const fileActionGroup: MenuGroup<FileListContext> =
       }
     },
     {
+      id: 'syncFileRecord',
+      title: '同步存储记录',
+      icon: 'mdi-sync',
+      renderOn(ctx) {
+        return ctx.selectFileList && ctx.selectFileList.length == 1 && ctx.selectFileList[0].mountId != null
+      },
+      async action(ctx) {
+        await MountPointService.syncFileRecord(ctx.selectFileList[0].mountId)
+      }
+    },
+    {
       id: 'showAttr',
       title: '属性',
       icon: 'mdi-information',
@@ -70,11 +83,19 @@ const fileActionGroup: MenuGroup<FileListContext> =
               },
               async onConfirm() {
                 try {
-                  const res = await mpInst.getInstAsForm().submit()
+                  const form = mpInst.getInstAsForm()
+                  const mountPointFormData = form.getFormData() as MountPoint
+                  const res = await form.submit()
                   if (!res.success) {
                     return false
                   }
                   doAction()
+                  if (mountPointFormData.isProxyStoreRecord && mountPointRef.value && !mountPointRef.value.isProxyStoreRecord) {
+                    await MountPointService.syncFileRecord(
+                      mountPointFormData.id as IdType,
+                      `挂载点 【${mountPointFormData.name}】 的委托存储记录功能已切换为开启，是否需要立即同步存储记录？`
+                    )
+                  }
                   return true
                 } catch (err) {
                   return false
