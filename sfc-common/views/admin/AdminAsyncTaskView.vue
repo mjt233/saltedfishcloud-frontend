@@ -112,7 +112,7 @@ const rerun = async(task: AsyncTaskRecord) => {
 }
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadData() {
-    const result = (await SfcUtils.request(API.asyncTask.listRecord({page: page.value - 1, size: size.value}))).data.data
+    const result = (await SfcUtils.request(API.asyncTask.listRecord({page: Math.max(page.value - 1, 0), size: size.value}))).data.data
     queryResult.totalCount = Number(result.totalCount)
     queryResult.totalPage = Number(result.totalPage)
     queryResult.content = result.content
