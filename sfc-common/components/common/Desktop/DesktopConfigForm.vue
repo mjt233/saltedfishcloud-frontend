@@ -52,7 +52,7 @@
       <ConfigurableForm :nodes="customConfig" @change="customChange" />
     </div>
     <EmptyTip v-else />
-    <div class="text-h6" style="margin: 0 0 12px 0">
+    <div class="text-h6" style="margin: 12px 0 12px 0">
       额外json配置项
     </div>
     <CodeEditor v-model="extraJson" language="json" />
