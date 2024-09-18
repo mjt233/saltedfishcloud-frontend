@@ -1,6 +1,15 @@
 <template>
   <span>
-    <v-icon v-if="icon" :color="props.color" :icon="icon" />
+    <template v-if="icon">
+      <v-icon
+        v-if="icon.startsWith('mdi-')"
+        :color="props.color"
+        :icon="icon"
+        :style="size ? `font-size: ${size}px`: ''"
+      />
+      <img v-if="isUrl" :src="props.icon" :width="`${size}px`">
+    </template>
+    
   </span>
 </template>
 
@@ -13,12 +22,22 @@ const props = defineProps({
   color: {
     type: String,
     default: undefined
+  },
+  size: {
+    type: [Number, String],
+    default: undefined
   }
+})
+const isUrl = computed(() => {
+  if(!props.icon || props.icon.startsWith('mdi-')) {
+    return false
+  }
+  return props.icon.startsWith('http') || props.icon.startsWith('data:')
 })
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 
 export default defineComponent({
   name: 'CommonIcon'

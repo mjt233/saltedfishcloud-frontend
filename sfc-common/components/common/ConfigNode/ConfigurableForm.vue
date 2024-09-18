@@ -9,7 +9,7 @@
       row-height="72px"
     >
       <template v-for="group in nodes" :key="group.name">
-        <span class="text-primary d-block pb-6 pt-3">{{ group.title || group.name }}</span>
+        <span class="text-primary d-block pb-6 pt-3" :class="showChange ? 'pl-3' : ''">{{ group.title || group.name }}</span>
         <form-row>
           <template v-for="node in group.nodes" :key="node.name">
             <component
@@ -22,12 +22,12 @@
               <config-node
                 :read-only="readOnly"
                 dense
-                style="width: 100%; padding: 0;"
-                :show-change="false"
+                :style="`width: 100%; ${showChange ? '' : 'padding: 0;'}`"
                 :show-describe="false"
                 :show-title="false"
                 :node="node"
-                @change="emits('change', {name: node.name, value: $event})"
+                :show-change="showChange"
+                @change="emits('change', {name: node.name, value: $event, node: node})"
               />
             </component>
           </template>
@@ -49,9 +49,19 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 是否高亮显示修改项
+   */
+  showChange: {
+    type: Boolean,
+    default: false
   }
 })
-const emits = defineEmits(['submit', 'change'])
+const emits = defineEmits<{
+  (e: 'submit'): any,
+  (e: 'change', value: { name:string, value: any, node: ConfigNodeModel }): any
+}>()
 
 const formInst = defineForm({
   actions: {

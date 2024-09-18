@@ -5,6 +5,7 @@
       hide-details
       :model-value="inDark"
       color="primary"
+      density="compact"
       @click="switchDark"
     />
     <template v-else>

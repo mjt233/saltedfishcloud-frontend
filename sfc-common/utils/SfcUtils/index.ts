@@ -101,6 +101,13 @@ const SfcUtils = {
       document.body.removeChild(input)
     }
   },
+  /**
+   * 打开小窗口
+   * @param url url
+   */
+  openSmallWindow(url: string) {
+    window.open(url, '_blank', 'menubar=no')
+  },
 
   /**
    * 在新窗口中打开url

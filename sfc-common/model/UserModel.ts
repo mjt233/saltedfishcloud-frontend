@@ -52,6 +52,11 @@ export interface RawUser extends BaseUserInfo {
    * 绑定的邮箱
    */
   email?: string
+
+  /**
+   * 用户的token
+   */
+  token?: string
 }
 
 

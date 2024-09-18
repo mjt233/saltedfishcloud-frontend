@@ -19,7 +19,7 @@
 
     <!-- 表单 -->
     <v-card-text>
-      <base-form ref="form" :submit-action="doLogin" :model-value="formData">
+      <base-form ref="form" :submit-action="actions.doLogin" :model-value="formData">
         <v-row>
           <v-col :xs="8">
             <v-text-field
@@ -89,6 +89,20 @@
       >
         登录
       </v-btn>
+      <template v-if="availableThirdPlatformList.length">
+
+        <VDivider v-if="showLogin" class="mt-3 pb-2" />
+        <div class="d-flex justify-center">
+          <div
+            v-for="item in availableThirdPlatformList"
+            :key="item.type"
+            style="cursor: pointer;"
+            @click="doThirdPlatformLogin(item)"
+          >
+            <CommonIcon :icon="item.icon" :size="32" :title="item.name" />
+          </div>
+        </div>
+      </template>
     </v-card-text>
   </v-card>
 </template>
@@ -102,7 +116,6 @@ const formData = reactive({
 })
 
 const avatar = context.defaultAvatar
-const loading = ref(false)
 const props = defineProps({
   /**
    * 是否只显示登录输入组件
@@ -111,30 +124,78 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  /**
+   * 是否显示登录按钮
+   */
   showLogin: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 是否显示第三方平台登录
+   */
+  showThirdPartyPlatform: {
     type: Boolean,
     default: true
   }
 })
 
-const emit = defineEmits(['submit'])
+const thirdPlatformList = ref([]) as Ref<ThirdPartyAuthPlatform[]>
+const availableThirdPlatformList = computed(() => thirdPlatformList.value.filter(e => e.isEnable))
+const lm = new LoadingManager()
+const loading = lm.getLoadingRef()
+const emit = defineEmits(['submit', 'success', 'thirdLoginBegin', 'thirdLoginEnd'])
 
-const doLogin = async(_event: KeyboardEvent | MouseEvent) => {
-  loading.value = true
-  const loginConf = API.user.login(formData.username, formData.password)
-  const session = context.session.value
-  try {
+const actions = MethodInterceptor.createAsyncActionProxy({
+  async doLogin() {
+    const session = context.session.value
     // 登录
     // 设置token
-    const loginRet = await axios(loginConf)
+    const loginRet = await SfcUtils.request(API.user.login(formData.username, formData.password))
     session.setToken(loginRet.data.data)
-    
+      
     // 获取用户信息
-    const userInfoRet = await axios(API.user.getUserInfo())
+    const userInfoRet = await SfcUtils.request(API.user.getUserInfo())
     session.setUserInfo(userInfoRet.data.data)
-  } finally {
-    loading.value = false
+    doLoginSuccess(userInfoRet.data.data, loginRet.data.data)
+  },
+}, true, lm)
+
+async function loadThirdPlatformList() {
+  try {
+    thirdPlatformList.value = (await SfcUtils.request(API.oauth.listPlatform())).data.data
+  } catch (err) {
+    if (err != 'cancel') {
+      console.error(err)
+      SfcUtils.snackbar(err)
+    }
   }
+}
+function doLoginSuccess(user: RawUser, token: string) {
+  const session = context.session.value
+  session.setToken(token)
+  session.setUserInfo(user)
+  emit('success')
+}
+
+async function doThirdPlatformLogin(platform: ThirdPartyAuthPlatform) {
+  try {
+    emit('thirdLoginBegin')
+    const res = await UserService.startThirdPlatformLogin(platform)
+    if (res.success) {
+      doLoginSuccess(res.result?.user as RawUser, res.token as string)
+    }
+  } catch (err) {
+    if (err != 'cancel') {
+      console.error(err)
+      SfcUtils.snackbar(err)
+    }
+  } finally {
+    emit('thirdLoginEnd')
+  }
+}
+if (props.showThirdPartyPlatform) {
+  loadThirdPlatformList()
 }
 
 defineExpose(deconstructForm(form))
@@ -144,8 +205,12 @@ defineExpose(deconstructForm(form))
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { context, ValidateResult } from 'sfc-common/core/context'
-import axios from 'sfc-common/plugins/axios'
-import { defineComponent, reactive, ref, toRefs } from 'vue'
+import { computed, defineComponent, onMounted, onUnmounted, reactive, Ref, ref, toRefs } from 'vue'
+import { LoadingManager, MethodInterceptor } from 'sfc-common/utils'
+import { RawUser, ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult, UserService } from 'sfc-common'
+import { CommonIcon, UserBindConfirm } from '../common'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
+import { DialogPromise, ComponentDialogInstance } from 'sfc-common/utils/SfcUtils/common/Dialog'
 
 export default defineComponent({
   name: 'LoginForm'
