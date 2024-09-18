@@ -1,9 +1,13 @@
 <template>
   <span>
     <template v-if="icon">
-      <v-icon v-if="icon.startsWith('mdi-')" :color="props.color" :icon="icon" />
-
-      <img v-if="isUrl" :src="props.icon">
+      <v-icon
+        v-if="icon.startsWith('mdi-')"
+        :color="props.color"
+        :icon="icon"
+        :style="size ? `font-size: ${size}px`: ''"
+      />
+      <img v-if="isUrl" :src="props.icon" :width="`${size}px`">
     </template>
     
   </span>
@@ -17,6 +21,10 @@ const props = defineProps({
   },
   color: {
     type: String,
+    default: undefined
+  },
+  size: {
+    type: [Number, String],
     default: undefined
   }
 })

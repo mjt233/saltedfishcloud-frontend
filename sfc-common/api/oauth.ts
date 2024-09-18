@@ -1,6 +1,6 @@
-import { url } from 'inspector'
-import { CommonRequest, ConfigNodeModel, JsonResult } from 'sfc-common/model'
-import { ThirdPartyAuthPlatform } from 'sfc-common/model/Oauth'
+import { BindUserParam, ThirdPartyPlatformUser } from './../model/Oauth'
+import { CommonRequest, ConfigNodeModel, IdType, JsonResult, RawUser } from 'sfc-common/model'
+import { ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model/Oauth'
 import { useJsonBody } from 'sfc-common/utils'
 
 export default {
@@ -31,5 +31,39 @@ export default {
       data: platformList,
       method: 'post'
     })
+  },
+  /**
+   * 列出系统当前可用的第三方平台
+   */
+  listPlatform(): CommonRequest<ThirdPartyAuthPlatform[]> {
+    return {
+      url: `${this.prefix}/listPlatform`
+    }
+  },
+  /**
+   * 使用第三方登录创建新账号
+   * @param actionId 第三方登录的操作动作id
+   * @returns 创建成功后的新token
+   */
+  createUser(actionId: string): CommonRequest<ThirdPartyPlatformCallbackResult> {
+    return {
+      url: `${this.prefix}/createUser`,
+      params: {
+        actionId
+      }
+    }
+  },
+  bindUser(param: BindUserParam): CommonRequest<RawUser & {token: string}> {
+    return useJsonBody({
+      url: `${this.prefix}/bindUser`,
+      method: 'post',
+      data: param
+    })
+  },
+  listAssocPlatformUser(uid: IdType): CommonRequest<ThirdPartyPlatformUser[]> {
+    return {
+      url: `${this.prefix}/listAssocPlatformUser`,
+      params: {uid}
+    }
   }
 }

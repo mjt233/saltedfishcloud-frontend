@@ -21,7 +21,6 @@
               <template #prepend>
                 <CommonIcon
                   v-if="item.icon"
-                  size="small"
                   :icon="item.icon"
                   style="margin-right: 8px"
                 />

@@ -74,6 +74,26 @@
             <dark-switch />
           </template>
         </v-list-item>
+        <v-divider />
+        <v-list-item v-ripple title="第三方平台关联" height="48">
+          <template #append>
+            <div>
+              <LoadingMask :loading="platformLoadingCnt > 0" :type="'circular'" />
+              <div v-for="item in thirdPartyAuthPlatformList" :key="item.type">
+                <div class="platform-item" @click="assocPlatform(item)">
+                  <CommonIcon :icon="item.icon" :title="item.name" :size="36" />
+                  <CommonIcon
+                    v-if="thirdPartyPlatformUserMap[item.type]"
+                    class="platform-item-check-icon"
+                    color="success"
+                    icon="mdi-check-circle"
+                    :size="14"
+                  />
+                </div>
+              </div>
+            </div>
+          </template>
+        </v-list-item>
       </v-list>
       <base-dialog
         v-model="showEmailDialog"
@@ -127,6 +147,9 @@ const session = context.session
 const hasLogin = ConditionFunction.hasLogin(context)
 const changePasswordRef = ref()
 const changePasswordLoading = ref(false)
+const thirdPartyAuthPlatformList = ref<ThirdPartyAuthPlatform[]>([])
+const thirdPartyPlatformUserMap = reactive({}) as {[type:string]: ThirdPartyPlatformUser}
+const platformLoadingCnt = ref(0)
 const emailRef = ref() as Ref<CommonForm>
 let quotaUsed = reactive({
   used: 0,
@@ -138,6 +161,9 @@ const showEmailDialog = ref(false)
 // 获取存储使用情况
 SfcUtils.request(API.user.getQuotaUsed()).then(e => {
   const info = e.data.data
+  if (!info) {
+    return
+  }
   quotaUsed.used = info.used
   quotaUsed.quota = info.quota
   const ratio = quotaUsed.used / quotaUsed.quota
@@ -192,6 +218,38 @@ const submitEamil = async() => {
     showEmailDialog.value = false
   }
 }
+
+async function loadThirdPlatformList() {
+  try {
+    Object.keys(thirdPartyPlatformUserMap).forEach(type => delete thirdPartyPlatformUserMap[type])
+    platformLoadingCnt.value++
+    thirdPartyAuthPlatformList.value = (await SfcUtils.request(API.oauth.listPlatform())).data.data
+    if (thirdPartyAuthPlatformList.value.length > 0) {
+      (await SfcUtils.request(API.oauth.listAssocPlatformUser(session.value.user.id))).data.data.forEach(u => {
+        thirdPartyPlatformUserMap[u.platformType] = u
+      })
+    }
+  } finally {
+    platformLoadingCnt.value--
+  }
+}
+
+/**
+ * 关联第三方平台
+ * @param platform 要关联的第三方平台
+ */
+async function assocPlatform(platform: ThirdPartyAuthPlatform) {
+  if (thirdPartyPlatformUserMap[platform.type]) {
+    return
+  }
+  const res = await UserService.startThirdPlatformLogin(platform)
+  if (res.success) {
+    SfcUtils.snackbar('关联成功')
+    await loadThirdPlatformList()
+  }
+}
+
+loadThirdPlatformList()
 </script>
 
 <script lang="ts">
@@ -201,13 +259,15 @@ import { context } from 'sfc-common/core/context'
 import { ConditionFunction } from 'sfc-common/core/helper/ConditionFunction'
 import API from 'sfc-common/api'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { ThirdPartyAuthPlatform, ThirdPartyPlatformUser } from 'sfc-common/model'
+import { UserService } from 'sfc-common/core'
 export default defineComponent({
   name: 'PersonalCenter'
 })
 </script>
 
 
-<style scoped>
+<style scoped lang="scss">
 .v-list-item {
   cursor: pointer;
   background-color: rgba(223, 223, 223, 0);
@@ -220,5 +280,15 @@ export default defineComponent({
 
 .v-divider {
   margin: 8px 0;
+}
+
+.platform-item {
+  position: relative;
+
+  .platform-item-check-icon {
+    position: absolute;
+    right: 3px;
+    bottom: -6px;
+  }
 }
 </style>
