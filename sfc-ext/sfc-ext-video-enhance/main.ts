@@ -1,13 +1,12 @@
 import { FileOpenHandler, MenuGroup, MenuItem,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
-import { EncodeConvertRule, Subtitle, VideoInfo } from './model'
+import { EncodeConvertRule, Format, Subtitle, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
 import VideoConvertForm from './components/VideoConvertForm.vue'
 import { VEAPI } from './api'
 import { h } from 'vue'
 import EncodeConvertTask from './components/EncodeConvertTask.vue'
-import VideoEnhanceCheck from './components/VideoEnhanceCheck.vue'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -105,7 +104,18 @@ const videoOpenHandler: FileOpenHandler = {
       }
       SfcUtils.beginLoading()
       await window.SfcUtils.sleep(100)
-      const videoInfo = await getVideoInfo(ctx, file, path)
+      let videoInfo:VideoInfo
+      try {
+        videoInfo = await getVideoInfo(ctx, file, path)
+      } catch (err) {
+        console.error(err)
+        videoInfo = {
+          chapters: [],
+          format: {} as Format,
+          streams: []
+        }
+      }
+      
 
       const subtitleList: Subtitle[] = []
       // 尝试获取外挂字幕信息
@@ -139,7 +149,8 @@ const videoOpenHandler: FileOpenHandler = {
         props: {
           url: ctx.getFileUrl(file),
           videoInfo: videoInfo,
-          subtitleList: subtitleList
+          subtitleList: subtitleList,
+          file: file
         },
         dense: true,
         showCancel: false,
