@@ -202,7 +202,7 @@ let recordPromise: Promise<any> | null = null
 function getTimeProgressStr(time: number) {
   const hour = Math.floor(time / 3600)
   const minute = Math.floor(time / 60)
-  const second = Math.floor(time)
+  const second = Math.floor(time % 60)
   if (hour) {
     return `${paddingZero(hour)}:${paddingZero(minute)}:${paddingZero(second)}`
   }
