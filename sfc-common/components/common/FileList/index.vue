@@ -195,6 +195,7 @@ import EmptyTip from '../EmptyTip.vue'
 import GridContainer from 'sfc-common/components/layout/GridContainer.vue'
 import FileListGridItem from './FileListGridItem.vue'
 import SelectArea from '../SelectArea.vue'
+import './style.scss'
 
 const props = defineProps(propsOptions)
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
@@ -577,7 +578,6 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-@import './style.scss';
 .grid-container {
   height: v-bind(containerHeight);
   padding: 6px 8px;
