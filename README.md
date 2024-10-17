@@ -1,8 +1,8 @@
 # 咸鱼云网盘-前端
 
 ![](https://img.shields.io/badge/Vue-3.2-green.svg)
-![](https://img.shields.io/badge/Vite-2.9-blue.svg)
-![](https://img.shields.io/badge/Vuetify-3.0_beta-orange.svg)
+![](https://img.shields.io/badge/Vite-5-blue.svg)
+![](https://img.shields.io/badge/Vuetify-3.7-orange.svg)
 ![](https://img.shields.io/badge/TypeScript-4.6-blue.svg)
 
 ## 简介
@@ -51,6 +51,8 @@
 
 
 ## 快速开始  
+
+> 注意：Node.js版本需要20+，推荐使用20.18.0(LTS)
 
 1. 构建项目  
 ```bash
