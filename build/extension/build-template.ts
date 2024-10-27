@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vuetify from 'vite-plugin-vuetify'
-
+import path from 'path'
 /**
  * 拓展声明配置
  */
@@ -17,8 +16,6 @@ export interface ExtensionConfig {
  * @param conf 拓展配置
  */
 export function defineExtension(conf: ExtensionConfig) {
-  
-  const path = require('path')
   const extensionName = conf.name
   return defineConfig({
     base: `/ext/${extensionName}/`,

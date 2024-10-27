@@ -11,6 +11,7 @@ import * as components from 'sfc-common/components'
 import DOMUtils from 'sfc-common/utils/DOMUtils'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import qs from 'qs'
 // import * as SfcCommon from 'sfc-common'
 import * as echarts from 'echarts'
 
@@ -35,6 +36,7 @@ function mountGlobalAttr() {
   window.StringUtils = StringUtils
   // window.SfcCommon = SfcCommon
   window.echarts = echarts
+  window.qs = qs
 }
 
 export {
