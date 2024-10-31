@@ -16,7 +16,7 @@
         :file-system-handler="handler"
         :read-only="readOnly"
         :uid="uid"
-        :tool-buttons="context.menu.value.fileBrowserBtn"
+        :tool-buttons="getContext().menu.value.fileBrowserBtn"
         auto-compute-height
         :show-mount-icon="true"
         :preview-readme="previewReadme"
@@ -98,7 +98,7 @@ const props = defineProps({
 })
 const showSearch = ref(false)
 const inDragging = ref(false)
-const session = context.session
+const session = getContext().session
 const browser = ref()
 const emits = defineEmits(['update:path'])
 const searchName = ref('')
@@ -178,7 +178,7 @@ const clickSearchItem = async(item: SearchFileInfo) => {
 </script>
 
 <script lang="ts">
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { computed, defineComponent, inject, nextTick, onMounted, provide, Ref, ref, watch } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'

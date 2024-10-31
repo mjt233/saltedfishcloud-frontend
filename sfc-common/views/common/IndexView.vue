@@ -1,14 +1,14 @@
 <template>
   <!-- 顶部栏 -->
-  <v-app-bar :color="context.theme.value == 'dark' ? 'surface': 'primary'">
+  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'primary'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
-    <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
+    <v-toolbar-title>{{ getContext().appTitle.value }}</v-toolbar-title>
     <v-spacer />
     <v-btn
       v-ripple
       icon
       style="border-radius: 50%;"
-      @click="context.visiableWindows.value.uploadList = !context.visiableWindows.value.uploadList"
+      @click="getContext().visiableWindows.value.uploadList = !getContext().visiableWindows.value.uploadList"
     >
       <v-badge v-if="uploadingExecutor.length != 0" dot color="error">
         <v-icon size="24" icon="mdi-swap-vertical" />
@@ -36,7 +36,7 @@
     <!-- 抽屉菜单列表本体 -->
     <v-list class="main-menu-list">
       <template v-for="(group) in menuObj.group" :key="group.id">
-        <template v-if="!group.renderOn || group.renderOn(context)">
+        <template v-if="!group.renderOn || group.renderOn(getContext())">
 
           <!-- 副标题 -->
           <v-list-subheader>{{ group.name }}</v-list-subheader>
@@ -44,7 +44,7 @@
           <!-- 菜单项 -->
           <template v-for="(item) in group.items">
             <v-list-item
-              v-if="item.renderOn == undefined ? true : item.renderOn(context)"
+              v-if="item.renderOn == undefined ? true : item.renderOn(getContext())"
               :key="item.id"
               :active="$route.path == item.route"
               color="primary"
@@ -78,27 +78,27 @@
 // import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize } from 'sfc-common/core/context/mainBgAttr'
-const menuObj = context.menu.value.mainMenu
+const menuObj = getContext().menu.value.mainMenu
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 
-const session = context.session
+const session = getContext().session
 
 const userCardClick = () => {
-  if (!ConditionFunction.hasLogin(context)) {
-    if(context.routeInfo.value.curr?.path != '/login') {
+  if (!ConditionFunction.hasLogin(getContext())) {
+    if(getContext().routeInfo.value.curr?.path != '/login') {
       SfcUtils.openLoginDialog()
       // context.routeInfo.value.router?.replace('/login')
     }
-  } else if (context.routeInfo.value.curr?.path != '/personalCenter') {
-    context.routeInfo.value.router?.push('/personalCenter')
+  } else if (getContext().routeInfo.value.curr?.path != '/personalCenter') {
+    getContext().routeInfo.value.router?.push('/personalCenter')
   }
 }
 </script>
 
 <script lang="ts">
 import { ref, defineComponent, ToRefs } from 'vue'
-import { AppContext, context, MenuItem } from 'sfc-common/core/context/'
+import { AppContext, getContext, MenuItem } from 'sfc-common/core/context/'
 import { ConditionFunction } from 'sfc-common/core'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 
@@ -107,7 +107,7 @@ export default defineComponent({
   methods: {
     menuClick(menuItem: MenuItem<ToRefs<AppContext>>, event: MouseEvent) {
       if (menuItem.action) {
-        menuItem.action(context)
+        menuItem.action(getContext())
       }
       if (menuItem.route && this.$route.path != menuItem.route) {
         this.$router.push(menuItem.route)

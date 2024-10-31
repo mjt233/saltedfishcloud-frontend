@@ -1,4 +1,4 @@
-import { API } from 'sfc-common/index'
+import API from 'sfc-common/api'
 import { IdType, ProxyInfo } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { reactive } from 'vue'

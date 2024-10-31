@@ -217,7 +217,7 @@ function getVideoIdentify() {
  * 记录视频进度
  */
 function recordProgress(time: number) {
-  const uid = context.session.value.user.id
+  const uid = getContext().session.value.user.id
   const identify = getVideoIdentify()
   if (uid) {
     if (recordPromise) {
@@ -231,7 +231,7 @@ function recordProgress(time: number) {
  * 获取上次观看记录
  */
 async function getLastProgress() {
-  const uid = context.session.value.user.id
+  const uid = getContext().session.value.user.id
   const identify = getVideoIdentify()
   if (uid) {
     return (await SfcUtils.request(VEAPI.getWatchProgress(uid, identify))).data.data
@@ -261,7 +261,7 @@ import { DPlayerContextMenuItem, DPlayerEvents, DPlayerOptions } from 'dplayer'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch, reactive, onUnmounted } from 'vue'
 import { StreamInfo, Subtitle, VideoInfo } from '../model'
 import SubtitleSelector from './SubtitleSelector.vue'
-import { context, FileInfo, MethodInterceptor } from 'sfc-common'
+import { FileInfo, getContext, MethodInterceptor } from 'sfc-common'
 import { VEAPI } from '../api'
 import { number } from 'echarts'
 

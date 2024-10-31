@@ -1,15 +1,15 @@
 <template>
   <loading-mask :loading="loadingManager.getLoadingRef().value" />
   <!-- 顶部栏 -->
-  <v-app-bar :color="context.theme.value == 'dark' ? 'surface': 'primary'">
+  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'primary'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
-    <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
+    <v-toolbar-title>{{ getContext().appTitle.value }}</v-toolbar-title>
     <v-spacer />
     <v-btn
       v-ripple
       icon
       style="border-radius: 50%;"
-      @click="context.visiableWindows.value.uploadList = !context.visiableWindows.value.uploadList"
+      @click="getContext().visiableWindows.value.uploadList = !getContext().visiableWindows.value.uploadList"
     >
       <v-badge v-if="uploadingExecutor.length != 0" dot color="error">
         <v-icon size="24" icon="mdi-swap-vertical" />
@@ -95,7 +95,7 @@ const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 const router = useRouter()
-const session = context.session
+const session = getContext().session
 const hideConfirm = ref(true)
 let initPromise:Promise<any>
 
@@ -306,7 +306,7 @@ const confirmChange = async() => {
         updateHideConfirm()
         dialogInst.closeLoading()
         SfcUtils.snackbar('修改成功')
-        context.eventBus.value.emit(EventNameConstants.SYS_CONFIG_CHANGE, changeList)
+        getContext().eventBus.value.emit(EventNameConstants.SYS_CONFIG_CHANGE, changeList)
         return true
       } catch(err) {
         const msg = err ? err.toString && err.toString() : '未知错误'
@@ -373,7 +373,7 @@ const loadView = (groupId: string, itemId: string) => {
 
 const loadViewFromRoute = async() => {
   await initPromise
-  const nodes = context.routeInfo.value.curr?.params.configNode as string[]
+  const nodes = getContext().routeInfo.value.curr?.params.configNode as string[]
   let res
   if (!nodes || nodes.length == 0) {
     // 未从路由中获取到一级和二级菜单id，则默认加载总览e'e页面
@@ -408,7 +408,7 @@ watch(
 
 <script lang="ts">
 import { ref, defineComponent, reactive, onMounted, h, watch, Ref } from 'vue'
-import { AdminContext, AdminContextConfigChangeEvent, context, MenuGroup, MenuItem } from 'sfc-common/core/context/'
+import { AdminContext, AdminContextConfigChangeEvent, getContext, MenuGroup, MenuItem } from 'sfc-common/core/context/'
 import { getDefaultAdminMenu } from 'sfc-common/core/context/menu/AdminMenu'
 import NotFoundTipVue from 'sfc-common/components/common/NotFoundTip.vue'
 import { useRouter } from 'vue-router'

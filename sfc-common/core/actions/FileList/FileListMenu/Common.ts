@@ -2,7 +2,7 @@ import { FileOpenHandler } from 'sfc-common/core/context/type'
 import { VBtn } from 'vuetify/components'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 import { FileListContext } from 'sfc-common/model'
-import { MenuGroup, MenuItem, context } from 'sfc-common/core/context'
+import { MenuGroup, MenuItem, getContext } from 'sfc-common/core/context'
 import { ShareService } from 'sfc-common/core/serivce/ShareService'
 import { CreateLinkForm } from 'sfc-common/components/'
 import { h } from 'vue'
@@ -84,7 +84,7 @@ const commonGroup: MenuGroup<FileListContext> = {
       icon: '',
       subItems: (ctx) => {
         const file = ctx.selectFileList[0]
-        const items = context.fileOpenHandler.value.map(handler => {
+        const items = getContext().fileOpenHandler.value.map(handler => {
           return {
             id: `open-as-${handler.id}`,
             title: handler.title,
@@ -125,7 +125,7 @@ function openMore(ctx: FileListContext) {
   var file = ctx.selectFileList[0]
   var matched: FileOpenHandler[] = []
   var other: FileOpenHandler[] = []
-  context.fileOpenHandler.value.forEach(handler => {
+  getContext().fileOpenHandler.value.forEach(handler => {
     if (handler.matcher(ctx, file)) {
       matched.push(handler)
     } else {
@@ -133,7 +133,7 @@ function openMore(ctx: FileListContext) {
     }
   })
   SfcUtils.openFileOpenSelectorDialog(ctx, ctx.selectFileList[0], {
-    handlers: context.fileOpenHandler.value,
+    handlers: getContext().fileOpenHandler.value,
     handlerGroups: matched.length == 0 ? undefined : [
       {
         name: '推荐',

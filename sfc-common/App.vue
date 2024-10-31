@@ -19,13 +19,13 @@
 </template>
 <script setup lang="ts">
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
-const theme = context.theme
-const visiableWindows = context.visiableWindows.value
+const theme = getContext().theme
+const visiableWindows = getContext().visiableWindows.value
 const taskManager = fileUploadTaskManager
 const loading = SfcUtils.getGlobalLoadingManager().getLoadingRef()
 
 const loadingMaskBgColor = computed(() => {
-  if (context.theme.value == 'dark') {
+  if (getContext().theme.value == 'dark') {
     return 'rgba(0, 0, 0, .4)'
   } else {
     return 'rgba(255, 255, 255, .4)'
@@ -35,7 +35,7 @@ const loadingMaskBgColor = computed(() => {
 
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 
 export default defineComponent({

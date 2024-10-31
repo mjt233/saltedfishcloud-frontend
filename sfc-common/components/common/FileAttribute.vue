@@ -97,7 +97,6 @@ const showMountInfo = ref(false)
 import { FileInfo, MountPoint } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'FileAttribute'

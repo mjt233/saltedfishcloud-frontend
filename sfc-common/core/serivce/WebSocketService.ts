@@ -1,6 +1,5 @@
 import { IdType } from 'sfc-common/model/Common'
-import { context } from 'sfc-common'
-
+import { getContext } from '../context'
 
 let ws: WebSocket
 
@@ -63,7 +62,7 @@ function doConnect(option: WebSocketOption) {
     port = location.port
   }
 
-  ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.hostname}:${port}/${url}?Token=${context.session.value.token}`)
+  ws = new WebSocket(`${location.protocol == 'https:' ? 'wss' : 'ws'}://${location.hostname}:${port}/${url}?Token=${getContext().session.value.token}`)
   return new Promise<WebSocket>((resolve, reject) => {
     ws.onerror = e => {
       option.onError && option.onError(e)

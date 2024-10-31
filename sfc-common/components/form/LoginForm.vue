@@ -115,7 +115,7 @@ const formData = reactive({
   password: ''
 })
 
-const avatar = context.defaultAvatar
+const avatar = getContext().defaultAvatar
 const props = defineProps({
   /**
    * 是否只显示登录输入组件
@@ -148,7 +148,7 @@ const emit = defineEmits(['submit', 'success', 'thirdLoginBegin', 'thirdLoginEnd
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async doLogin() {
-    const session = context.session.value
+    const session = getContext().session.value
     // 登录
     // 设置token
     const loginRet = await SfcUtils.request(API.user.login(formData.username, formData.password))
@@ -172,7 +172,7 @@ async function loadThirdPlatformList() {
   }
 }
 function doLoginSuccess(user: RawUser, token: string) {
-  const session = context.session.value
+  const session = getContext().session.value
   session.setToken(token)
   session.setUserInfo(user)
   emit('success')
@@ -204,7 +204,7 @@ defineExpose(deconstructForm(form))
 <script lang="ts">
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
-import { context, ValidateResult } from 'sfc-common/core/context'
+import { getContext, ValidateResult } from 'sfc-common/core/context'
 import { computed, defineComponent, onMounted, onUnmounted, reactive, Ref, ref, toRefs } from 'vue'
 import { LoadingManager, MethodInterceptor } from 'sfc-common/utils'
 import { RawUser, ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult, UserService } from 'sfc-common'

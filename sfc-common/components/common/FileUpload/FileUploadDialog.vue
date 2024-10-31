@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-const session = context.session
+const session = getContext().session
 const tab = ref('upload')
 const props = defineProps({
   show: {
@@ -95,7 +95,7 @@ watch(() => props.taskManager, (newVal, oldVal) => {
 
 <script lang="ts">
 import { defineComponent, ref, defineProps, defineEmits, computed, PropType, onMounted, onUnmounted, watch, reactive } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { FileUploadExecutor, FileUploadInfo, FileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 
 export default defineComponent({

@@ -168,7 +168,6 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { ComponentPublicInstance, defineComponent, defineEmits, nextTick, reactive, Ref, ref } from 'vue'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'ForgetForm'

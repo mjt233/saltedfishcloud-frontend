@@ -255,7 +255,8 @@ onUnmounted(() => {
 
 <script lang="ts">
 import * as echarts from 'echarts'
-import { LoadingManager, API, SystemInfo, StringFormatter, TimestampRecord, SelectOption, MethodInterceptor } from 'sfc-common'
+import { LoadingManager, SystemInfo, StringFormatter, TimestampRecord, SelectOption, MethodInterceptor } from 'sfc-common'
+import API from 'sfc-common/api'
 import { ClusterSelector, FormSelect, VEChart } from 'sfc-common/components'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, reactive } from 'vue'

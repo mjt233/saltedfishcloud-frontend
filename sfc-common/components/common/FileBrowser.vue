@@ -247,7 +247,7 @@ const listHeight: Ref<undefined | number> = ref(undefined)
 const listRef = ref() as Ref<FileListModel>
 
 // 文件列表右键菜单
-const menu = context.menu
+const menu = getContext().menu
 const listMenu = computed(() => {
   const allMenu = menu.value.fileListMenu.concat(props.appendMenu)
   const enableSet = new Set(props.enableMenu)
@@ -493,7 +493,7 @@ import { FileInfo, FileListContext } from 'sfc-common/model'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from 'sfc-common/core/serivce/FileSystemHandler'
 import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive, ComponentPublicInstance } from 'vue'
-import { context, MenuGroup, MenuItem } from 'sfc-common/core/context'
+import { getContext, MenuGroup, MenuItem } from 'sfc-common/core/context'
 import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 

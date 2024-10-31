@@ -17,10 +17,10 @@
       color="primary"
       grow
     >
-      <v-tab v-if="context.feature.value.enableRegCode" value="regCode">
+      <v-tab v-if="getContext().feature.value.enableRegCode" value="regCode">
         邀请码
       </v-tab>
-      <v-tab v-if="context.feature.value.enableEmailReg" value="email" optional>
+      <v-tab v-if="getContext().feature.value.enableEmailReg" value="email" optional>
         邮箱注册
       </v-tab>
     </v-tabs>
@@ -89,7 +89,7 @@ import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 import TimeoutBtn from 'sfc-common/components/common/btn/TimeoutBtn.vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-const avatar = context.defaultAvatar.value
+const avatar = getContext().defaultAvatar.value
 const baseForm = ref()
 const extraForm = ref()
 const regType = ref('regCode')
@@ -174,7 +174,7 @@ defineExpose(deconstructForm(extraForm))
 
 <script lang="ts">
 import { computed, defineComponent, reactive, ref, toRefs, watch } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { Validators } from 'sfc-common/core/helper/Validators'
 
 export default defineComponent({

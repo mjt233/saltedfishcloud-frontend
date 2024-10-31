@@ -12,7 +12,7 @@ import TextInputVue from 'sfc-common/components/common/TextInput.vue'
 import LoginFormVue from 'sfc-common/components/form/LoginForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { Session } from 'sfc-common/core/context/session'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { BaseForm, LoadingDialog } from 'sfc-common/components'
 
 export interface DialogOpt {
@@ -597,7 +597,7 @@ export function openLoginDialog(): Promise<Session> {
           'box-shadow': 'none'
         },
         onSuccess() {
-          resolve(context.session.value)
+          resolve(getContext().session.value)
           inst.close()
           SfcUtils.snackbar('登录成功')
         },
@@ -612,7 +612,7 @@ export function openLoginDialog(): Promise<Session> {
       async onConfirm() {
         const ret = await (inst.getComponentInstRef() as any as CommonForm).submit()
         if (ret.success) {
-          resolve(context.session.value)
+          resolve(getContext().session.value)
           return true
         } else {
           reject(ret.err)

@@ -2,7 +2,7 @@ import * as MethodInterceptor from 'sfc-common/utils/MethodInterceptor'
 import DPlayer from 'dplayer'
 import router from 'sfc-common/plugins/router'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { context } from '../context'
+import { getContext } from '../context'
 import * as Vue from 'vue'
 import * as FormUtils from 'sfc-common/utils/FormUtils'
 import API from 'sfc-common/api'
@@ -21,8 +21,8 @@ import * as echarts from 'echarts'
  */
 
 function mountGlobalAttr() {
-  context.routeInfo.value.router = router
-  window.context = context
+  getContext().routeInfo.value.router = router
+  window.context = getContext()
   window.Vue = Vue
   window.SfcUtils = SfcUtils
   window.API = API
@@ -34,6 +34,7 @@ function mountGlobalAttr() {
   window.MethodInterceptor = MethodInterceptor
   window.StringFormatter = StringFormatter
   window.StringUtils = StringUtils
+  window.Components = components
   // window.SfcCommon = SfcCommon
   window.echarts = echarts
   window.qs = qs

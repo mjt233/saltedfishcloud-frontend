@@ -28,10 +28,10 @@
 
 <script setup lang="ts">
 import FileCollectionSubmitForm from 'sfc-common/components/common/FileCollection/form/FileCollectionSubmitForm.vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import BaseView from 'sfc-common/components/common/BaseView.vue'
 const formRef = ref() as Ref<CommonForm>
-const {cid, vid} = context.routeInfo.value.curr?.params as any
+const {cid, vid} = getContext().routeInfo.value.curr?.params as any
 const isFinish = ref(false)
 
 const submit = () => {

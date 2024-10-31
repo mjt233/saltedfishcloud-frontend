@@ -1,10 +1,11 @@
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { getPublicUser } from 'sfc-common/core/context/session'
 import axios from 'axios'
 import qs from 'qs'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { h } from 'vue'
-import { API, StringUtils } from 'sfc-common/index'
+import { StringUtils } from 'sfc-common/index'
+import API from 'sfc-common/api'
 
 function showEmegrencyInfo() {
   setTimeout(() => {
@@ -44,8 +45,8 @@ inst.interceptors.request.use(conf => {
   if (!conf.headers) {
     conf.headers = {}
   }
-  if (context.session.value.token != null && context.session.value.token.length > 0) {
-    conf.headers.Token = context.session.value.token
+  if (getContext().session.value.token != null && getContext().session.value.token.length > 0) {
+    conf.headers.Token = getContext().session.value.token
   }
   if (conf.data !== undefined && conf.method !== 'get') {
     const name = conf.data.constructor.name
@@ -77,7 +78,7 @@ inst.interceptors.response.use(
     const status = err.status || err.response.status
     const msg = err?.response?.data?.msg
     if (status === 401) {
-      context.session.value.setUserInfo(getPublicUser())
+      getContext().session.value.setUserInfo(getPublicUser())
     }
     err.msg = msg || err?.response?.data?.message || (Math.trunc(status / 100) == 5 ? '服务器错误' : (err.toString() || '未知错误'))
     err.code = err?.response?.data?.code || -1
