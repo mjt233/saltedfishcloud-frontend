@@ -202,13 +202,14 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { Components,Validators,ValidateResult, StringUtils, StringFormatter, getContext } from 'sfc-common'
+import { Validators,ValidateResult, StringUtils, StringFormatter, getContext } from 'sfc-common'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, h, onMounted } from 'vue'
 import QuickShareApi from '../api'
+import { CommonIcon } from 'sfc-common/components'
 
 export default defineComponent({
   name: 'QuickShareView',
-  components: { CommonIcon: Components.CommonIcon }
+  components: { CommonIcon }
 })
 </script>
