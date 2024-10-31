@@ -62,7 +62,7 @@ import TimeoutBtn from '../common/btn/TimeoutBtn.vue'
 import LoadingMask from '../common/LoadingMask.vue'
 const loading = ref(false)
 const newMailInput = ref()
-const session = context.session
+const session = getContext().session
 const formData = reactive({
   email: '',
   newCode: '',
@@ -86,9 +86,9 @@ const submitAction = async() => {
     loading.value = true
     await SfcUtils.axios(API.user.bindNewEmail(formData.email, formData.originCode, formData.newCode))
     const newToken = (await SfcUtils.axios(API.user.updateToken())).data.data
-    context.session.value.setToken(newToken)
+    getContext().session.value.setToken(newToken)
     const userInfo = (await SfcUtils.axios(API.user.getUserInfo())).data.data
-    context.session.value.setUserInfo(userInfo)
+    getContext().session.value.setUserInfo(userInfo)
   } finally {
     loading.value = false
   }
@@ -129,7 +129,7 @@ defineExpose(deconstructForm(form))
 
 <script lang="ts">
 import { defineComponent, reactive, defineExpose, ref } from 'vue'
-import { context, ValidateResult } from 'sfc-common/core/context'
+import { getContext, ValidateResult } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'BindEmailForm'

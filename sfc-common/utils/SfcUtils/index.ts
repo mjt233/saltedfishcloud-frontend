@@ -9,7 +9,7 @@ import axios from 'sfc-common/plugins/axios'
 import { AxiosError, AxiosResponse } from 'axios'
 import * as dialog from './common/Dialog'
 import * as fileSelector from './file/fileSelector'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import FileOpenSelectorVue from 'sfc-common/components/common/FileOpenSelector.vue'
 import { dyncmount } from './common/DyncMount'
 import { h } from 'vue'
@@ -168,7 +168,7 @@ const SfcUtils = {
    * @param file 文件信息
    */
   openFile(ctx: FileListContext, file: FileInfo) {
-    const handlers = context.fileOpenHandler.value.filter(e => e.matcher(ctx, file))
+    const handlers = getContext().fileOpenHandler.value.filter(e => e.matcher(ctx, file))
     if (handlers.length == 1) {
       handlers[0].action(ctx, file)
     } else if (handlers.length == 0) {
@@ -201,7 +201,7 @@ const SfcUtils = {
    * @param key 配置项
    */
   getSystemFeature(prefix: string, key: string) {
-    return context.feature.value[prefix] && context.feature.value[prefix][key]
+    return getContext().feature.value[prefix] && getContext().feature.value[prefix][key]
   }
 }
 

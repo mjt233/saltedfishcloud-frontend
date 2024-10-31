@@ -37,7 +37,7 @@ const avatarUrl = computed(() => {
 
   // uid为0 公共用户或未登录 显示默认头像
   if (props.uid == 0) {
-    return context.defaultAvatar.value
+    return getContext().defaultAvatar.value
   }
   
   // 根据用户名构造头像获取url
@@ -73,13 +73,13 @@ const avatarUpdateListener = (e: any) => {
 onMounted(() => {
 
   // 监听到用户头像更新事时，刷新头像
-  context.eventBus.value.on(EventNameConstants.AVATAR_UPDATE, avatarUpdateListener)
+  getContext().eventBus.value.on(EventNameConstants.AVATAR_UPDATE, avatarUpdateListener)
 })
 
 onUnmounted(() => {
 
   // 移除监听
-  context.eventBus.value.off(EventNameConstants.AVATAR_UPDATE, avatarUpdateListener)
+  getContext().eventBus.value.off(EventNameConstants.AVATAR_UPDATE, avatarUpdateListener)
 })
 </script>
 
@@ -88,7 +88,7 @@ import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { defineComponent, computed, onMounted, ref, watch, onUnmounted } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { EventNameConstants } from 'sfc-common/core/constans/EventName'
 
 export default defineComponent({

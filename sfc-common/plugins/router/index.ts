@@ -1,6 +1,6 @@
 
 import { EventNameConstants } from 'sfc-common/core/constans/EventName'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import * as VueRouter from 'vue-router'
 import { isNavigationFailure } from 'vue-router'
 import AdminRoute from './admin'
@@ -20,9 +20,9 @@ router.afterEach((to, from, failure) => {
     console.log('failed navigation', failure)
     return
   }
-  context.routeInfo.value.curr = to
-  context.routeInfo.value.prev = from
-  context.eventBus.value.emit(EventNameConstants.ROUTE_CHANGE, {
+  getContext().routeInfo.value.curr = to
+  getContext().routeInfo.value.prev = from
+  getContext().eventBus.value.emit(EventNameConstants.ROUTE_CHANGE, {
     to,
     from
   })

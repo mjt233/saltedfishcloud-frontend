@@ -3,7 +3,7 @@ import API from 'sfc-common/api'
 import { CodeEditor } from 'sfc-common/components'
 import { FileInfo, FileListContext } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { context } from '..'
+import { getContext } from '..'
 import { FileOpenHandler } from '../type'
 import { StringFormatter } from 'sfc-common/utils'
 import * as monaco from 'monaco-editor'
@@ -38,7 +38,7 @@ async function doSave(ctx: FileListContext, file: FileInfo, content: string) {
 export async function openFileEditDialog(component: any, componentProps: any, url: string, ctx: FileListContext, file: FileInfo) {
   SfcUtils.beginLoading()
   try {
-    const session = context.session.value
+    const session = getContext().session.value
     const ret = await SfcUtils.request({ url })
     let newText = ret.request.responseText
     let originText = newText

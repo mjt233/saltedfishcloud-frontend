@@ -33,7 +33,8 @@
 
 <script setup lang="ts">
 /* VS Code代码片段生成 prefix: vform */
-import { API, CommonForm, IdType, MountPointSyncFileRecordParam, defineForm } from 'sfc-common'
+import { CommonForm, IdType, MountPointSyncFileRecordParam, defineForm } from 'sfc-common'
+import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({

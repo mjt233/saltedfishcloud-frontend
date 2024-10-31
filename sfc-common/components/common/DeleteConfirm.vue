@@ -29,7 +29,6 @@ const props = defineProps({
 import { FileInfo } from 'sfc-common/model'
 import { PropType } from 'vue'
 import { defineComponent, defineProps } from 'vue'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'DeleteConfirm'

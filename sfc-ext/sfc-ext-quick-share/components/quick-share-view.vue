@@ -187,7 +187,7 @@ const sendFile = async() => {
 
 // 使用url中传入的提取码参数
 const useCodeParam = async() => {
-  const params = context.routeInfo.value.curr?.query
+  const params = getContext().routeInfo.value.curr?.query
   if (params && params.code) {
     extractCode.value = decodeURIComponent(params.code as string)
     // await SfcUtils.sleep(100)
@@ -202,7 +202,7 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { Components,Validators,ValidateResult, context, StringUtils, StringFormatter } from 'sfc-common'
+import { Components,Validators,ValidateResult, StringUtils, StringFormatter, getContext } from 'sfc-common'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, h, onMounted } from 'vue'
 import QuickShareApi from '../api'

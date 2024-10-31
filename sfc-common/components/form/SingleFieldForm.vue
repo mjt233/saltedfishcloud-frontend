@@ -49,7 +49,6 @@ onMounted(() => {
 <script lang="ts">
 import { CommonForm, deconstructForm, defineBaseForm } from 'sfc-common/utils/FormUtils'
 import { defineComponent, defineProps, PropType, ref, Ref, defineExpose, defineEmits, onMounted, computed, ComponentPublicInstance } from 'vue'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'SingleFieldForm'

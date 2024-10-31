@@ -12,7 +12,7 @@ const login = async() => {
   await form.value.submit()
 }
 const doLoginSuccess = () => {
-  const routeInfo = context.routeInfo.value
+  const routeInfo = getContext().routeInfo.value
   router.push(routeInfo.prev?.path || '/personalCenter')
   SfcUtils.snackbar('登录成功')
 }
@@ -20,7 +20,7 @@ const doLoginSuccess = () => {
 
 <script lang="ts">
 import { defineComponent, Ref, ref } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { useRouter } from 'vue-router'
 import SfcUtils from 'sfc-common/utils/SfcUtils'

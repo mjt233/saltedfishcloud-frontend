@@ -1,4 +1,4 @@
-import { CommonRequest, IdType, context, useJsonBody } from 'sfc-common'
+import { CommonRequest, IdType, getContext, useJsonBody } from 'sfc-common'
 import { SiteStatus, StaticPublishProperty, StaticPublishRecord } from './model'
 const StaticPublishApi = {
   prefix: '/staticPublish',
@@ -27,7 +27,7 @@ const StaticPublishApi = {
    * 获取静态资源发布插件的配置参数
    */
   getProperty() {
-    return context.feature.value['staticPublish'] as StaticPublishProperty
+    return getContext().feature.value['staticPublish'] as StaticPublishProperty
   },
   /**
    * 获取集群中所有站点的运行状态信息

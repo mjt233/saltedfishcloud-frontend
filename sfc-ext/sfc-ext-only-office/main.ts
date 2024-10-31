@@ -1,6 +1,6 @@
 import qs from 'qs'
-import { context, FileOpenHandler } from 'sfc-common'
-import OnlyFfficeHelp from './components/OnlyFfficeHelp.vue'
+import { getContext, FileOpenHandler } from 'sfc-common'
+import OnlyFfficeHelp from './components/OnlyOfficeHelp.vue'
 const ACCEPT_OFFICE_FILE = ['.docx', '.doc', '.xlsx', '.xls', '.ppt', '.pptx', '.pdf', '.hwp', '.wps', '.html', '.odt']
 
 function getOfficeOpenHandler(title: string, isView: boolean, icon: string, id: string) {
@@ -14,7 +14,7 @@ function getOfficeOpenHandler(title: string, isView: boolean, icon: string, id: 
       }
       return ACCEPT_OFFICE_FILE.findIndex(e => files.name.endsWith(e)) != -1
     },
-    sort: context.fileOpenHandler.value.length,
+    sort: getContext().fileOpenHandler.value.length,
     action(ctx, files) {
       const param = {
         targetId: ctx.uid,
@@ -30,12 +30,11 @@ function getOfficeOpenHandler(title: string, isView: boolean, icon: string, id: 
   } as FileOpenHandler
 }
 
-context.fileOpenHandler.value.push(getOfficeOpenHandler('文档在线编辑', false, 'mdi-file-document-edit','only-office-edit'))
-context.fileOpenHandler.value.push(getOfficeOpenHandler('文档在线预览', true, 'mdi-file-eye-outline', 'only-office-view'))
-
 window.bootContext.addProcessor({
   taskName: '注册文档组件',
   execute(app, handler) {
+    getContext().fileOpenHandler.value.push(getOfficeOpenHandler('文档在线编辑', false, 'mdi-file-document-edit','only-office-edit'))
+    getContext().fileOpenHandler.value.push(getOfficeOpenHandler('文档在线预览', true, 'mdi-file-eye-outline', 'only-office-view'))
     app.component('OnlyOfficeHelp', OnlyFfficeHelp)
   },
 })

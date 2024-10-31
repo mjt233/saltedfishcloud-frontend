@@ -87,7 +87,7 @@ const type = computed(() => {
 })
 
 const isSupportType = (type: string) => {
-  return context.feature.value.thumbType.findIndex(e => e.toLocaleLowerCase() == type.toLocaleLowerCase()) != -1
+  return getContext().feature.value.thumbType.findIndex(e => e.toLocaleLowerCase() == type.toLocaleLowerCase()) != -1
 }
 
 const loadError = () => {
@@ -110,7 +110,7 @@ const imgUrl = computed(() => {
 <script lang="ts">
 import { computed, defineComponent, defineProps, onMounted, PropType, ref } from 'vue'
 import iconProvider from 'sfc-common/core/serivce/FileIconProvider'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import API from 'sfc-common/api'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 

@@ -17,11 +17,11 @@
 
 <script setup lang="ts">
 const inDark = computed(() => {
-  return context.theme.value == 'dark' 
+  return getContext().theme.value == 'dark' 
 })
 
 const switchDark = () => {
-  context.theme.value = inDark.value ? context.originTheme.value : 'dark'
+  getContext().theme.value = inDark.value ? getContext().originTheme.value : 'dark'
 }
 const props = defineProps({
   brightness: {
@@ -32,7 +32,7 @@ const props = defineProps({
 </script>
 
 <script lang="ts">
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { computed } from '@vue/reactivity'
 import { defineComponent, defineProps } from 'vue'
 

@@ -16,7 +16,6 @@ defineProps({
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'EmptyTip'

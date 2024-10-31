@@ -63,7 +63,6 @@ defineExpose({
 
 <script lang="ts">
 import { defineComponent, defineProps, PropType, ref, } from 'vue'
-import { context } from 'sfc-common/core/context'
 import { computed } from '@vue/reactivity'
 
 export default defineComponent({

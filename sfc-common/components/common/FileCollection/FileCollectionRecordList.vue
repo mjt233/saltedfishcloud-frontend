@@ -24,7 +24,7 @@ const loadList = async() => {
   try {
     loading.value = true
     const list = (await SfcUtils.request(
-      API.collection.getRecords(props.cid || context.session.value.user.id, 1, 500)
+      API.collection.getRecords(props.cid || getContext().session.value.user.id, 1, 500)
     )).data
 
     records.value = list.data.content
@@ -47,7 +47,7 @@ onMounted(() => {
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
 import API from 'sfc-common/api'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { CollectionRecord } from 'sfc-common/model/FileCollection'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 

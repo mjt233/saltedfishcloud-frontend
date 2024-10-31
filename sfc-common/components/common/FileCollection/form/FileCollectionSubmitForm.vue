@@ -177,7 +177,7 @@ const uploadStatus = reactive({
 // 是否使用了字段约束
 const useField = ref(false)
 
-const session = context.session
+const session = getContext().session
 
 // 表单基本属性定义
 const formInst = defineForm({
@@ -358,7 +358,7 @@ import { SelectOption } from 'sfc-common/model/Common'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { ValidateRule } from 'sfc-common/model/component/type'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { FormCol, FormRow } from 'sfc-common/components/layout'
 import { MarkdownView } from '../../Markdown'
 

@@ -84,7 +84,6 @@ watch(phone, async(newVal, oldVal) => {
 
 <script lang="ts">
 import { defineComponent, ref, defineProps, defineEmits, nextTick, watch, Ref } from 'vue'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'PhoneInput'

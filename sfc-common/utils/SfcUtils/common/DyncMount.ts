@@ -1,5 +1,5 @@
 import { createApp, h, App, Component, ComponentPublicInstance, VNode, reactive } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { VApp } from 'vuetify/components'
 import { buildApp } from 'sfc-common/core/boot/AppFactory'
 
@@ -58,7 +58,7 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
       if (wrapVApp) {
         return h(
           VApp, reactive({
-            theme: context.theme.value,
+            theme: getContext().theme.value,
             ...vappProps,
             style: {
               background: 'transparent'

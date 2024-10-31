@@ -143,8 +143,8 @@ import BindEmailForm from 'sfc-common/components/form/BindEmailForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 const loading = ref()
 const showPasswordDialog = ref(false)
-const session = context.session
-const hasLogin = ConditionFunction.hasLogin(context)
+const session = getContext().session
+const hasLogin = ConditionFunction.hasLogin(getContext())
 const changePasswordRef = ref()
 const changePasswordLoading = ref(false)
 const thirdPartyAuthPlatformList = ref<ThirdPartyAuthPlatform[]>([])
@@ -185,7 +185,7 @@ const doUploadAvatar = async() => {
     try {
       loading.value.startLoading()
       await SfcUtils.axios(API.user.uploadAvatar(file))
-      context.eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, {
+      getContext().eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, {
         uid: session.value.user.id,
         name: session.value.user.name
       })
@@ -202,7 +202,7 @@ const doChangePassword = async() => {
     changePasswordLoading.value = true
     const res = await changePasswordRef.value.submit()
     SfcUtils.snackbar('修改成功，请重新登录', 5000, { showClose: true })
-    context.routeInfo.value.router?.push('/login')
+    getContext().routeInfo.value.router?.push('/login')
   } catch(err) {
     console.error(err)
     SfcUtils.snackbar((err as any).toString())
@@ -255,7 +255,7 @@ loadThirdPlatformList()
 <script lang="ts">
 import FileUtils from 'sfc-common/utils/FileUtils'
 import { defineComponent, reactive, Ref, ref } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { ConditionFunction } from 'sfc-common/core/helper/ConditionFunction'
 import API from 'sfc-common/api'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
