@@ -38,7 +38,6 @@ const props = defineProps({
 })
 provide('protocolParams', () => ({
   id: props.shareInfo.id,
-  name: props.shareInfo.name,
   path: props.path,
   targetId: props.shareInfo.id,
   protocol: 'share',

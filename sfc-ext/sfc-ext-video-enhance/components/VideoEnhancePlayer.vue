@@ -22,6 +22,10 @@ const props = defineProps({
   subtitleList: {
     type: Array as PropType<Subtitle[]>,
     default: () => []
+  },
+  file: {
+    type: Object as PropType<FileInfo>,
+    default: undefined
   }
 })
 const rootRef = ref() as Ref<HTMLElement>
@@ -37,6 +41,7 @@ const reloadPlayer = async(playerOpt: DPlayerOptions) => {
   const cur = dp.video.currentTime
   dp.destroy()
   dp = new window.DPlayer(playerOpt)
+  initPlayerListener(dp)
   dp.play()
   dp.seek(cur)
 }
@@ -164,7 +169,77 @@ const initPlayer = () => {
     }
   }
   dp = new window.DPlayer(opt)
+  initPlayerListener(dp)
   dp.play()
+  dp.video.addEventListener('loadeddata', async() => {
+    const lastProgress = await getLastProgress()
+    if (lastProgress) {
+      SfcUtils.snackbar(`已自动定位到${getTimeProgressStr(lastProgress)}`)
+      dp.seek(lastProgress)
+    }
+  })
+}
+
+function initPlayerListener(dp: DPlayer) {
+  dp.video.addEventListener(
+    'timeupdate',
+    MethodInterceptor.createThrottleProxy(
+      MethodInterceptor.wrapFun(() => recordProgress(dp.video.currentTime)),
+      {
+        delay: 5000
+      }
+    ).invoke
+  )
+  dp.video.addEventListener('seeked', () => recordProgress(dp.video.currentTime))
+}
+
+function paddingZero(num: number) {
+  return num < 10 ? `0${num}` : num
+}
+
+let recordPromise: Promise<any> | null = null
+
+function getTimeProgressStr(time: number) {
+  const hour = Math.floor(time / 3600)
+  const minute = Math.floor(time / 60)
+  const second = Math.floor(time % 60)
+  if (hour) {
+    return `${paddingZero(hour)}:${paddingZero(minute)}:${paddingZero(second)}`
+  }
+  return `${paddingZero(minute)}:${paddingZero(second)}`
+}
+
+function getVideoIdentify() {
+  return (props.file?.md5 || props.file?.id || props.url) as string
+}
+
+/**
+ * 记录视频进度
+ */
+function recordProgress(time: number) {
+  const uid = context.session.value.user.id
+  const identify = getVideoIdentify()
+  if (uid) {
+    if (recordPromise) {
+      return
+    }
+    recordPromise = SfcUtils.request(VEAPI.recordWatchProgress(uid, identify, time)).then(() => recordPromise = null)
+  }
+  localStorage.setItem(`watchRecord_${uid}`, String(time))
+}
+/**
+ * 获取上次观看记录
+ */
+async function getLastProgress() {
+  const uid = context.session.value.user.id
+  const identify = getVideoIdentify()
+  if (uid) {
+    return (await SfcUtils.request(VEAPI.getWatchProgress(uid, identify))).data.data
+  }
+  const time = localStorage.getItem(`watchRecord_${uid}`)
+  if (time) {
+    return Number(time)
+  }
 }
 
 onMounted(async() => {
@@ -182,11 +257,13 @@ watch(() => props.url, initPlayer)
 
 <script lang="ts">
 import type DPlayer from 'dplayer'
-import { DPlayerContextMenuItem, DPlayerOptions } from 'dplayer'
+import { DPlayerContextMenuItem, DPlayerEvents, DPlayerOptions } from 'dplayer'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch, reactive, onUnmounted } from 'vue'
 import { StreamInfo, Subtitle, VideoInfo } from '../model'
 import SubtitleSelector from './SubtitleSelector.vue'
-import { MethodInterceptor } from 'sfc-common'
+import { context, FileInfo, MethodInterceptor } from 'sfc-common'
+import { VEAPI } from '../api'
+import { number } from 'echarts'
 
 export default defineComponent({
   name: 'VideoEnhancePlayer'

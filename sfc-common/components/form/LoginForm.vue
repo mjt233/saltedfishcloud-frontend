@@ -141,7 +141,7 @@ const props = defineProps({
 })
 
 const thirdPlatformList = ref([]) as Ref<ThirdPartyAuthPlatform[]>
-const availableThirdPlatformList = computed(() => thirdPlatformList.value.filter(e => e.isEnable))
+const availableThirdPlatformList = computed(() => thirdPlatformList.value.filter(e => e.isEnable && e.authUrl))
 const lm = new LoadingManager()
 const loading = lm.getLoadingRef()
 const emit = defineEmits(['submit', 'success', 'thirdLoginBegin', 'thirdLoginEnd'])

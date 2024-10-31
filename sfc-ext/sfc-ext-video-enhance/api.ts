@@ -61,4 +61,35 @@ export namespace VEAPI {
       params: { taskId }
     }
   }
+
+  /**
+   * 记录视频观看时长
+   * @param uid 观看的用户id
+   * @param identify 视频标识
+   * @param time 观看时长
+   */
+  export function recordWatchProgress(uid: IdType, identify: string, time: number): CommonRequest {
+    return {
+      url: '/video/recordWatchProgress',
+      params: {
+        uid, identify, time
+      },
+      method: 'post'
+    }
+  }
+
+  /**
+   * 获取视频观看时长
+   * @param uid 观看的用户id
+   * @param identify 视频标识
+   */
+  export function getWatchProgress(uid: IdType, identify: string): CommonRequest<number | undefined> {
+    return {
+      url: '/video/getWatchProgress',
+      params: {
+        uid, identify
+      }
+    }
+  }
+
 }
