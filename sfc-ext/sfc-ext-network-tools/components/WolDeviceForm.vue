@@ -54,7 +54,6 @@
 <script setup lang="ts">
 /* VS Code代码片段生成 prefix: vform */
 import { CommonForm, Validators, defineForm } from 'sfc-common'
-import { Components } from 'sfc-common'
 const SfcUtils = window.SfcUtils
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
@@ -113,13 +112,14 @@ defineExpose(formInst)
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 import { WolDevice } from '../model'
 import { NwtApi } from '../api'
+import { FormRow, FormCol, TextInput } from 'sfc-common/components'
 
 export default defineComponent({
   name: 'WolDeviceForm',
   components: {
-    FormRow: Components.FormRow,
-    FormCol: Components.FormCol,
-    TextInput: Components.TextInput
+    FormRow: FormRow,
+    FormCol: FormCol,
+    TextInput: TextInput
   }
 })
 </script>
