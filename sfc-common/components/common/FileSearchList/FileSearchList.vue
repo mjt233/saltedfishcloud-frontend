@@ -18,10 +18,15 @@
       :read-only="true"
       :show-back="false"
       :use-select="false"
+      :path="listPath"
       @click-item="actions.clickItem"
     >
       <template #thead>
-        <th>位置</th>
+        <th
+          style="background-color: transparent !important"
+        >
+          位置
+        </th>
       </template>
       <template #tbody="{ fileInfo }">
         <td @click="emits('click-parent', fileInfo as SearchFileInfo)">
@@ -33,9 +38,11 @@
 </template>
 
 <script setup lang="ts">
+// 简易的文件搜索列表，仅能针对特定用户的私人网盘或公共网盘进行主存储的搜索
 import LoadingMask from '../LoadingMask.vue'
 import FileList from '../FileList/index.vue'
 import type { SearchFileInfo } from 'sfc-common/model'
+const listPath = ref('/')
 const listRef = ref() as Ref<FileListModel>
 const props = defineProps({
   uid: {
@@ -68,7 +75,14 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     searchResult.total = result.total
     searchResult.totalPages = result.pages
   },
-  clickItem(ctx: FileListContext, item: FileInfo) {
+  async clickItem(ctx: FileListContext, item: FileInfo) {
+    // 由于搜索文件列表并没有固定的路径记录
+    // 为了确保能正确被文件打开操作器识别打开的文件路径，这里需要根据节点id获取路径
+    if (item.path) {
+      listPath.value = item.path
+    } else {
+      listPath.value = (await SfcUtils.request(API.resource.parseNodeId(props.uid, item.node))).data.data
+    }
     emits('click-item', item as SearchFileInfo)
   }
 }, false, loadingManager)
