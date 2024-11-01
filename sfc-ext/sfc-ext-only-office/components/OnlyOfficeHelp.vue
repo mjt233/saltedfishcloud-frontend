@@ -49,7 +49,6 @@ $ docker pull onlyoffice/documentserver
 import { MarkdownView } from 'sfc-common/components'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 
-console.info(MarkdownView)
 export default defineComponent({
   name: 'OnlyOfficeHelp',
   components: {

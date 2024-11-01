@@ -132,7 +132,6 @@ const openEditRecordForm = (record?: StaticPublishRecord) => {
         }
         const editData = form.getFormData() as StaticPublishRecord
         resolve(editData)
-        console.info(editData)
         return true
       },
     })
