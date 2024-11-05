@@ -77,7 +77,7 @@
         <v-divider />
         <v-list-item v-ripple title="第三方平台关联" height="48">
           <template #append>
-            <div>
+            <div v-if="thirdPartyAuthPlatformList.length">
               <LoadingMask :loading="platformLoadingCnt > 0" :type="'circular'" />
               <div v-for="item in thirdPartyAuthPlatformList" :key="item.type">
                 <div class="platform-item" @click="assocPlatform(item)">
@@ -91,6 +91,9 @@
                   />
                 </div>
               </div>
+            </div>
+            <div class="tip">
+              不可用
             </div>
           </template>
         </v-list-item>
@@ -136,7 +139,7 @@ import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
 import { EventNameConstants } from 'sfc-common/core/constans/EventName'
-import { UserAvatar } from 'sfc-common/components'
+import { EmptyTip, UserAvatar } from 'sfc-common/components'
 import ChangePassowrdForm from 'sfc-common/components/form/ChangePassowrdForm.vue'
 import BaseDialog from 'sfc-common/components/common/BaseDialog.vue'
 import BindEmailForm from 'sfc-common/components/form/BindEmailForm.vue'
@@ -223,7 +226,7 @@ async function loadThirdPlatformList() {
   try {
     Object.keys(thirdPartyPlatformUserMap).forEach(type => delete thirdPartyPlatformUserMap[type])
     platformLoadingCnt.value++
-    thirdPartyAuthPlatformList.value = (await SfcUtils.request(API.oauth.listPlatform())).data.data
+    thirdPartyAuthPlatformList.value = (await SfcUtils.request(API.oauth.listPlatform())).data.data.filter(e => e.authUrl)
     if (thirdPartyAuthPlatformList.value.length > 0) {
       (await SfcUtils.request(API.oauth.listAssocPlatformUser(session.value.user.id))).data.data.forEach(u => {
         thirdPartyPlatformUserMap[u.platformType] = u
