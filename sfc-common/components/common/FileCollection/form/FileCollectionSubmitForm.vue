@@ -166,7 +166,7 @@ const notFound = ref(false)
 const msg = ref('')
 const fieldLabelWidth = ref('120px')
 const fieldRules = ref([]) as Ref<ValidateRule[][]>
-const file = ref() as Ref<File[]>
+const file = ref() as Ref<File>
 
 // 提交上传信息
 const uploadStatus = reactive({
@@ -190,7 +190,7 @@ const formInst = defineForm({
       }
       try {
         uploadStatus.uploading = true
-        const conf = API.collection.submit(props.cid, props.vid, formData, file.value[0])
+        const conf = API.collection.submit(props.cid, props.vid, formData, file.value)
         conf.onUploadProgress = (e: Prog) => {
           uploadStatus.total = e.total
           uploadStatus.loaded = e.loaded
@@ -336,10 +336,10 @@ const toLogin = async() => {
   
 }
 watch(file, () => {
-  if(file.value && file.value.length > 0) {
-    formData.fileParam.name = file.value[0].name
-    formData.fileParam.size = file.value[0].size
-    formData.fileParam.mtime = file.value[0].lastModified
+  if(file.value) {
+    formData.fileParam.name = file.value.name
+    formData.fileParam.size = file.value.size
+    formData.fileParam.mtime = file.value.lastModified
   } else {
     formData.filename = ''
   }
