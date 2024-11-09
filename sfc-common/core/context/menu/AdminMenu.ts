@@ -65,7 +65,7 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
         },
         {
           id: 'third-platform-income',
-          title: 'OAuth接入',
+          title: 'OAuth Apps',
           action(ctx) {
             ctx.component = h('div', null, '未开发')
           },

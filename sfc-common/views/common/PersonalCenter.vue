@@ -92,7 +92,7 @@
                 </div>
               </div>
             </div>
-            <div class="tip">
+            <div v-else class="tip">
               不可用
             </div>
           </template>

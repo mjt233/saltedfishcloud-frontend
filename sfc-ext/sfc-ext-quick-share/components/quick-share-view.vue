@@ -86,7 +86,7 @@ const extractCode = ref('')
 // 输入 - 发送的文件提取码
 const sendCode = ref('')
 // 输入 - 发送的文件
-const file = ref([]) as Ref<File[]>
+const file = ref() as Ref<File>
 // 输入 - 留言消息
 const message = ref('')
 
@@ -150,7 +150,7 @@ const sendFile = async() => {
     msg: '上传中'
   })
   const loading = SfcUtils.loadingDialog(loadingParam)
-  const requestParam = QuickShareApi.upload(file.value[0], {
+  const requestParam = QuickShareApi.upload(file.value, {
     code: sendCode.value,
     message: message.value,
   })
