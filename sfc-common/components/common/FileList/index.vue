@@ -504,9 +504,6 @@ const containerHeight = computed(() => {
 const formatSize = (size: number) => {
   return StringFormatter.toSize(size)
 }
-watch(() => props.readOnly, () => {
-  fileListContext.readonly = props.readOnly
-})
 
 /**
  * 加载README.md预览
@@ -532,7 +529,11 @@ const loadReadme = async() => {
   }
 }
 
+watch(() => props.readOnly, () => {
+  fileListContext.readonly = props.readOnly
+})
 watch(() => props.fileList, () => {
+  fileListContext.fileList = props.fileList
   loadReadme()
   resetSelect()
 })
