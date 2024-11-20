@@ -110,7 +110,7 @@
     <!-- 文件列表 -->
     <file-list
       ref="listRef"
-      v-model:file-list="fileList"
+      v-model:fileList="fileList"
       :type="listType"
       :preview-readme="previewReadme"
       :loading-manager="loadingManager"
@@ -222,11 +222,26 @@ const props = defineProps({
   useSelect: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 是否自动打开用户点击的文件
+   */
+  autoOpenFile: {
+    type: Boolean,
+    default: true
   }
 })
 
 const emits = defineEmits<{
-  (event: 'update:path', path: string): void
+  (event: 'update:path', path: string): void,
+  /**
+   * 文件被点击的事件
+   */
+  (event: 'clickFile', ctx: FileListContext, file: FileInfo): void,
+  /**
+   * 文件或目录被点击的事件
+   */
+  (event: 'clickItem', ctx: FileListContext, file: FileInfo): void,
 }>()
 
 // data
@@ -302,6 +317,9 @@ const handler = computed(() => {
 
 provide('fileSystemHandler', handler)
 
+/**
+ * 文件上传成功后，文件列表自动刷新回调用
+ */
 const autoRefresher = MethodInterceptor.createThrottleProxy({
   loading: false,
   async refresh(info: FileUploadInfo) {
@@ -328,6 +346,9 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
   afterExecute: true,
   delay: 2500
 })
+/**
+ * 文件上传成功监听器
+ */
 const successListener = async(executor: FileUploadExecutor) => {
   autoRefresher.refresh(executor.getUploadInfo())
 }
@@ -392,11 +413,15 @@ const back = async() => {
  * @param e 点击的文件
  */
 const clickItem = async(ctx: FileListContext, e: FileInfo) => {
+  emits('clickItem', ctx, e)
   if (e.dir) {
     const newPath = StringUtils.appendPath(props.path, e.name)
     await loadList(newPath)
   } else {
-    SfcUtils.openFile(ctx, e)
+    if (props.autoOpenFile) {
+      SfcUtils.openFile(ctx, e)
+    }
+    emits('clickFile', ctx, e)
   }
 }
 
@@ -496,6 +521,7 @@ import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provi
 import { getContext, MenuGroup, MenuItem } from 'sfc-common/core/context'
 import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
+import file from 'sfc-common/api/file'
 
 export default defineComponent({
   name: 'FileBrowser'
