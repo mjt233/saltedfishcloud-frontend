@@ -25,18 +25,25 @@ export namespace StringFormatter {
     return Number(showSize).toFixed(2) + suffix
   }
   /**
-     * 将Unix时间戳格式化为方便阅读的格式
-     * @param {Number|String} inputDate Unix时间戳（毫秒）
-     * @returns {String}
-     */
-  export function toDate(inputDate: number | string | Date) {
+   * 将Unix时间戳格式化为方便阅读的格式
+   * @param {Number|String} inputDate Unix时间戳（毫秒）
+   * @param toSecond 是否格式化到秒
+   * @returns {String}
+   */
+  export function toDate(inputDate: number | string | Date, toSecond?: boolean) {
     if (inputDate == Number(inputDate)) {
       inputDate = Number(inputDate)
     }
     const date = new Date(inputDate)
     var month = date.getMonth() + 1
     var day = date.getDate()
-    return `${date.getFullYear()}-${fillLength(month, 2)}-${fillLength(day, 2)} ${fillLength(date.getHours(),2)}:${fillLength(date.getMinutes(), 2)}`
+    if (toSecond) {
+      const sec = date.getSeconds()
+      return `${date.getFullYear()}-${fillLength(month, 2)}-${fillLength(day, 2)} ${fillLength(date.getHours(),2)}:${fillLength(date.getMinutes(), 2)}:${fillLength(sec,2)}.${date.getMilliseconds()}`
+    } else {
+      return `${date.getFullYear()}-${fillLength(month, 2)}-${fillLength(day, 2)} ${fillLength(date.getHours(),2)}:${fillLength(date.getMinutes(), 2)}`
+    }
+    
   }
   /**
      * 将字符串填充至指定长度

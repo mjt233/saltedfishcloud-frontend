@@ -95,7 +95,7 @@ const download = () => {
 }
 
 const pluginTypeStr = computed(() => {
-  if( props.pluginInfo.name == 'sys') {
+  if (props.pluginInfo.name.startsWith('sys')) {
     return '核心内置'
   } else if (props.pluginInfo.isJar) {
     return 'Jar包'

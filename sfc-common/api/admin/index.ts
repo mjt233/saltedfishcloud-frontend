@@ -17,3 +17,4 @@ export {
   sys,
   cluster
 }
+export { default as logRecord } from './logRecord'
