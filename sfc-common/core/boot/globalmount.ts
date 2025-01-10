@@ -11,6 +11,7 @@ import * as components from 'sfc-common/components'
 import DOMUtils from 'sfc-common/utils/DOMUtils'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import * as monaco from 'monaco-editor'
 import qs from 'qs'
 // import * as SfcCommon from 'sfc-common'
 import * as echarts from 'echarts'
@@ -38,6 +39,7 @@ function mountGlobalAttr() {
   // window.SfcCommon = SfcCommon
   window.echarts = echarts
   window.qs = qs
+  window.monaco = monaco
 }
 
 export {
