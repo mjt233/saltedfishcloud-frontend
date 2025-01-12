@@ -1,14 +1,13 @@
 <template>
   <VCard>
     <VCardText>
-
-      <VSelect
+      <FormSelect
         v-model="selectedLevel"
-        style="width: 180px;display: inline-block;"
+        style="width: 210px;display: inline-block;margin-right: 12px;"
         placeholder="日志级别"
         multiple
-        color="primary"
-        variant="underlined"
+        multiple-show-num="1"
+        use-chip
         :items="[
           {title: 'ERROR', value: 'ERROR'},
           {title: 'WARN', value: 'WARN'},
@@ -17,14 +16,14 @@
           {title: 'TRACE', value: 'TRACE'}
         ]"
       />
-      <VSelect
+      <FormSelect
         v-model="selectedType"
-        style="width: 180px;display: inline-block;margin-left: 12px;"
+        style="width: 210px;display: inline-block;"
         placeholder="日志类型"
         multiple
-        color="primary"
-        variant="underlined"
+        use-chip
         :items="statisticItems"
+        :multiple-show-num="1"
       />
       <VDataTableServer
         :headers="headers"
@@ -61,7 +60,7 @@
           <span class="break-text">{{ scope.value }}</span>
         </template>
         <template #item.msgDetail="scope">
-          <component :is="logViewerMap[scope.item.type] || 'div'" :log-record="scope.item" :text="scope.item.msgDetail" />
+          <component :is="logViewerMap[scope.item.type] || 'commonLogRecordViewer'" :log-record="scope.item" :text="scope.item.msgDetail" />
         </template>
       </VDataTableServer>
     </VCardText>
@@ -75,7 +74,7 @@ const loading = lm.getLoadingRef()
 const recordList = ref<LogRecord[]>([])
 const headers = [
   { title: '时间', key: 'createAt', sortable: false, width: '210px'},
-  { title: '类型', key: 'type', sortable: false, width: '81px' },
+  { title: '类型', key: 'type', sortable: false, minWidth: '108px' },
   { title: '级别', key: 'level', sortable: false, width: '81px' },
   { title: '摘要', key: 'msgAbstract', sortable: false },
   { title: '明细', key: 'msgDetail', sortable: false, minWidth: '120px' }
@@ -123,7 +122,10 @@ onMounted(() => {
   actions.loadList()
   actions.loadStatistic()
 })
-watch(selectedLevel, () => {
+watch(selectedLevel, (n,o) => {
+  console.info({
+    n,o
+  })
   pageRequest.page = 0
   actions.loadList()
 })
@@ -145,8 +147,8 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
 import { LogRecordService } from 'sfc-common/core/serivce/LogRecordService'
 import { PageableRequest, SelectOption } from 'sfc-common/model'
-import { FormSelect } from '..'
-import { VCardText } from 'vuetify/lib/components/index.mjs'
+import { VCardText } from 'vuetify/components'
+import FormSelect from '../FormSelect.vue'
 
 export default defineComponent({
   name: 'LogRecordHistoryViewer'
