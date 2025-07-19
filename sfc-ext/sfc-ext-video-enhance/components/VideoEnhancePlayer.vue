@@ -225,7 +225,7 @@ function recordProgress(time: number) {
     }
     recordPromise = SfcUtils.request(VEAPI.recordWatchProgress(uid, identify, time)).then(() => recordPromise = null)
   }
-  localStorage.setItem(`watchRecord_${uid}`, String(time))
+  localStorage.setItem(`watchRecord_${uid}_${identify}`, String(time))
 }
 /**
  * 获取上次观看记录
@@ -236,7 +236,7 @@ async function getLastProgress() {
   if (uid) {
     return (await SfcUtils.request(VEAPI.getWatchProgress(uid, identify))).data.data
   }
-  const time = localStorage.getItem(`watchRecord_${uid}`)
+  const time = localStorage.getItem(`watchRecord_${uid}_${identify}`)
   if (time) {
     return Number(time)
   }
