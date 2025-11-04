@@ -3,6 +3,7 @@
     <v-tabs
       v-model="tab"
       fixed-tabs
+      color="primary"
     >
       <v-tab value="upload">
         上传中{{ uploadingExecutor.length > 0 ? '(' + uploadingExecutor.length + ')': '' }}

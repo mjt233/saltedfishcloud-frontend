@@ -23,7 +23,7 @@
       <v-progress-linear
         v-show="uploadInfo?.status == 'upload' || uploadInfo?.status == 'pause' || uploadInfo?.status == 'digest'"
         :model-value="progVal"
-        :indeterminate="uploadInfo?.status == 'digest'"
+        color="primary"
         style="width: 100%;margin-top: 8px;"
       />
     </div>

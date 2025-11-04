@@ -32,7 +32,7 @@ async function startCompute(task: FileMd5TaskMsgData) {
   }
   fileInfo = task
 
-  progInfo.loaded = fileInfo.size
+  progInfo.total = fileInfo.size
 
   try {
     // 开始读取
