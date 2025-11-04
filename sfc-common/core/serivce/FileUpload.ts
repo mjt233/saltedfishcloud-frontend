@@ -364,6 +364,7 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
    */
   protected handleErrorEvent(err: any) {
     this.uploadInfo.status = 'failed'
+    console.error('上传文件出错', err)
     SfcUtils.batchInvokeFunction(this.errorHandler, err)
   }
 
