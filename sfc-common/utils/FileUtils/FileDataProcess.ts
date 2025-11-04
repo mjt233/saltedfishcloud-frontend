@@ -21,20 +21,39 @@ export interface Md5ComputeOption {
   prog?: (prog: Prog) => void
 }
 
-type WorkerMessage = { type: 'progUpdate', data: { total: number, loaded: number } }
+export interface FileMd5TaskMsgData {
+  stream: ReadableStream<Uint8Array>
+  size: number
+}
+
+export type FileWorkerMessage = { type: 'progUpdate', data: Prog }
   | { type: 'finish', data: string }
   | { type: 'error', data: Error }
+  | { type: 'start', data: FileMd5TaskMsgData }
+  | { type: 'cancel' }
+
+export class CancelablePromise<T> extends Promise<T> {
+  private cancelAction: (() => void) | undefined
+  constructor(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void, cancelAction: () => void) {
+    super(executor)
+    this.cancelAction = cancelAction
+  }
+
+  cancel() {
+    this.cancelAction && this.cancelAction()
+  }
+}
 
 /**
  * 计算文件的md5
  * @param file     文件对象
  * @author xiaotao233 <mjt233@qq.com>
  */
-export function computeMd5(file: File, { success, error, prog }: Md5ComputeOption): Promise<string> {
+export function computeMd5(file: File, { success, error, prog }: Md5ComputeOption): CancelablePromise<string> {
   const worker = new Worker(new URL('./file.worker.ts', import.meta.url), { type: 'module' })
-  return new Promise((resolve, reject) => {
+  return new CancelablePromise((resolve, reject) => {
     worker.onmessage = e => {
-      const msg = e.data as WorkerMessage
+      const msg = e.data as FileWorkerMessage
       if (msg.type == 'finish') {
         worker.terminate()
         resolve(msg.data)
@@ -45,10 +64,21 @@ export function computeMd5(file: File, { success, error, prog }: Md5ComputeOptio
         error && error(msg.data)
       } else if (msg.type == 'progUpdate') {
         prog && prog(msg.data)
+      } else if (msg.type == 'cancel') {
+        reject('cancel')
       }
     }
     const stream = file.stream()
-    worker.postMessage({ stream: stream, size: file.size }, [stream])
+    const msg: FileWorkerMessage = {
+      type: 'start',
+      data: {
+        stream: stream,
+        size: file.size
+      }
+    }
+    worker.postMessage(msg, [stream])
+  }, () => {
+    worker.postMessage({ type: 'cancel' } as FileWorkerMessage)
   })
   
 }

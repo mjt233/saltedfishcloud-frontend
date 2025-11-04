@@ -1,11 +1,14 @@
 import md5 from 'js-md5'
+import { FileMd5TaskMsgData, FileWorkerMessage } from './FileDataProcess'
 
 const md5obj = md5.create()
+let reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>> | undefined
 const progInfo = {
   total: 0,
   loaded: 0
 }
 let lastUpdateProgTime = 0
+let isCancel = false
 
 function updateMd5(data: Uint8Array) {
   progInfo.loaded += data.byteLength
@@ -20,19 +23,20 @@ function updateMd5(data: Uint8Array) {
   }
 }
 
+let fileInfo: FileMd5TaskMsgData | undefined
 
-onmessage = async e => {
-  // 接收需要计算的原始参数
-  const fileInfo = e.data as {
-    stream: ReadableStream<Uint8Array>,
-    size: number
+async function startCompute(task: FileMd5TaskMsgData) {
+  if (fileInfo) {
+    console.error('不能重复开始计算')
+    return
   }
+  fileInfo = task
+
   progInfo.loaded = fileInfo.size
 
-  const begin = Date.now()
   try {
     // 开始读取
-    const reader = fileInfo.stream.getReader()
+    reader = fileInfo.stream.getReader()
     while(true) {
       const {done, value} = await reader.read()
 
@@ -45,16 +49,41 @@ onmessage = async e => {
         break
       }
     }
-    postMessage({
-      type: 'finish',
-      data: md5obj.hex()
-    })
-    // console.log(`读取完成，耗时:${(Date.now() - begin) / 1000}s`)
+    if (isCancel) {
+      postMessage({
+        type: 'cancel'
+      } as FileWorkerMessage)
+    } else {
+      postMessage({
+        type: 'finish',
+        data: md5obj.hex()
+      } as FileWorkerMessage)
+    }
   } catch (err) {
     console.error(err)
     postMessage({
       type: 'error',
       data: err
     })
+  }
+}
+
+function cancelCompute() {
+  if (!reader) {
+    console.error('未开始计算，无需取消')
+    return
+  }
+  reader.cancel('cancel')
+  isCancel = true
+}
+
+onmessage = async e => {
+  const msg = e.data as FileWorkerMessage
+  if (msg.type == 'start') {
+    startCompute(msg.data)
+  } else if (msg.type == 'cancel') {
+    cancelCompute()
+  } else {
+    console.error('不支持的操作类型', msg.type)
   }
 }
