@@ -67,10 +67,28 @@ const progRecord = reactive({
   },
   speed: 0
 })
+let lastRecordTime = new Date().getTime()
+let lastRecordLoaded = progRecord.prog.loaded
+
+// 检查uploadInfo的loaded值变更，动态计算上传速度
 watch(() => props.uploadInfo?.prog.loaded || 0, () => {
-  const size = props.uploadInfo?.prog.loaded || 0
-  const time = new Date().getTime() - progRecord.time
-  progRecord.speed = parseFloat((size / (time / 1000)).toFixed(2))
+  // 更新固定属性 - 已完成数和目标总数
+  const loaded = props.uploadInfo?.prog.loaded || 0
+  progRecord.prog.loaded = loaded
+  progRecord.prog.total = props.uploadInfo?.prog.total || 0
+
+  const nowTime = new Date().getTime()
+
+  // 计算本次更新与上次更新的时间间隔和大小变化
+  const changeTimeSec = (nowTime - lastRecordTime) / 1000
+  const changeSize = loaded - lastRecordLoaded
+
+  // 记录本次计算时间和已完成大小，用作下次计算速度时作为参照点
+  lastRecordTime = nowTime
+  lastRecordLoaded = loaded
+
+  // 计算速度
+  progRecord.speed = changeTimeSec == 0 ? 0 : Number((changeSize /changeTimeSec).toFixed(2))
 })
 
 const getStatusText = (status?: FileUploadStatus) => {
