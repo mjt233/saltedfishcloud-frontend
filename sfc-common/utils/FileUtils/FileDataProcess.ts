@@ -67,6 +67,7 @@ export function computeMd5(file: File, { success, error, prog }: Md5ComputeOptio
       } else if (msg.type == 'progUpdate') {
         prog && prog(msg.data)
       } else if (msg.type == 'cancel') {
+        worker.terminate()
         reject('cancel')
       }
     }
@@ -82,6 +83,7 @@ export function computeMd5(file: File, { success, error, prog }: Md5ComputeOptio
   }, () => {
     worker.postMessage({ type: 'cancel' } as FileWorkerMessage)
     rejectFunc && rejectFunc('cancel')
+    worker.terminate()
   })
   
 }
