@@ -14,13 +14,14 @@
     </div>
     <v-card
       v-else
-      :title="title"
       color="background"
       :class="{'dialog-card': !dense}"
     >
-      <template v-if="$slots.header" #title>
-        <slot name="header" />
-      </template>
+      <v-card-title v-if="title && title != ''">
+        <slot name="header">
+          {{ title }}
+        </slot>
+      </v-card-title>
       <v-card-text style="overflow: auto" :class="{'dense-content': dense}" :style="{'maxHeight': contentMaxHeight}">
         <!-- 对话框默认正文内容插槽 -->
         <slot />

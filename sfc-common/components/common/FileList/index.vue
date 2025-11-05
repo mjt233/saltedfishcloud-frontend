@@ -138,7 +138,6 @@
           </tr>
         </tbody>
       </v-table>
-      <empty-tip v-if="type == 'grid' && fileList.length == 0" />
       <!-- grid类型的文件显示 -->
       <grid-container
         v-if="type == 'grid'"
@@ -146,6 +145,7 @@
         :width="120"
         class="grid-container"
       >
+        <empty-tip v-if="fileList.length == 0" style="position: absolute;width: calc(100% - 16px);" />
         <file-list-grid-item
           v-for="(fileInfo) in fileList"
           :key="path + fileInfo.name + fileInfo.md5"

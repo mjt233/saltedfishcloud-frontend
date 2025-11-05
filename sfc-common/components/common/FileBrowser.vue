@@ -3,8 +3,8 @@
     <loading-mask :loading="loading" z-index="1000" />
     <!-- 顶部工具栏和按钮 -->
     <div class="tool-bar" compute-height>
-      <v-row class="justify-space-between">
-        <v-col class="top-btn-group align-center" justify="start" :style="{minWidth: topButtonMinWidth}">
+      <v-row class="justify-space-between no-m-p">
+        <v-col class="top-btn-group align-center no-m-p" justify="start" :style="{minWidth: topButtonMinWidth}">
           <div v-for="(group) in toolButtons" v-show="toolButtons.length && toolButtons.length" :key="group.id">
             <template v-if="group.renderOn ? group.renderOn(listContext) : true">
               <!-- 单个按钮 -->
@@ -60,7 +60,7 @@
             </template>
           </div>
         </v-col>
-        <v-col class="top-right-bar-col" style="margin: 0 12px;">
+        <v-col class="top-right-bar-col no-m-p" style="margin: 0 12px;">
           <div class="top-right-bar">
             <!-- TODO: 窄屏下收起 -->
             <div class="d-flex align-center justify-end">
@@ -86,7 +86,7 @@
       </v-row>
     </div>
     <!-- 面包屑路径 -->
-    <v-row justify="space-between" compute-height>
+    <v-row justify="space-between" compute-height class="no-m-p">
       <v-col>
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
@@ -521,7 +521,6 @@ import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provi
 import { getContext, MenuGroup, MenuItem } from 'sfc-common/core/context'
 import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import file from 'sfc-common/api/file'
 
 export default defineComponent({
   name: 'FileBrowser'
@@ -534,7 +533,7 @@ export default defineComponent({
   white-space: nowrap;
   padding: 6px 0;
   scroll-behavior:smooth;
-  margin: 0 12px;
+  margin: 0 4px;
 }
 .top-btn-group {
   margin-left: 12px;
@@ -548,7 +547,7 @@ export default defineComponent({
 }
 
 .top-right-bar {
-  padding-left: 16px;
+  padding-left: 8px;
   &.is-small-screen {
     display: none;
   }

@@ -1,4 +1,3 @@
-export { buildAsyncTaskQueue } from './AsyncTaskQueue'
 export { default as DOMUtils  } from './DOMUtils'
 export { LoadingManager } from './LoadingManager'
 export * from './MethodInterceptor'

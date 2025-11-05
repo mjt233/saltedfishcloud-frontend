@@ -1,10 +1,8 @@
 <template>
   <v-card
     style="overflow: hidden;"
-    :disabled="loading"
     color="background"
   >
-    <v-progress-linear v-if="loading" indeterminate color="primary" />
     <!-- 头部 -->
     <v-list-item :prepend-avatar="avatar">
 
@@ -19,7 +17,12 @@
 
     <!-- 表单 -->
     <v-card-text>
-      <base-form ref="form" :submit-action="actions.doLogin" :model-value="formData">
+      <base-form
+        ref="form"
+        :submit-action="doLogin"
+        :auto-loading="true"
+        :model-value="formData"
+      >
         <v-row>
           <v-col :xs="8">
             <v-text-field
@@ -142,24 +145,20 @@ const props = defineProps({
 
 const thirdPlatformList = ref([]) as Ref<ThirdPartyAuthPlatform[]>
 const availableThirdPlatformList = computed(() => thirdPlatformList.value.filter(e => e.isEnable && e.authUrl))
-const lm = new LoadingManager()
-const loading = lm.getLoadingRef()
 const emit = defineEmits(['submit', 'success', 'thirdLoginBegin', 'thirdLoginEnd'])
 
-const actions = MethodInterceptor.createAsyncActionProxy({
-  async doLogin() {
-    const session = getContext().session.value
-    // 登录
-    // 设置token
-    const loginRet = await SfcUtils.request(API.user.login(formData.username, formData.password))
-    session.setToken(loginRet.data.data)
+async function doLogin() {
+  const session = getContext().session.value
+  // 登录
+  // 设置token
+  const loginRet = await SfcUtils.request(API.user.login(formData.username, formData.password))
+  session.setToken(loginRet.data.data)
       
-    // 获取用户信息
-    const userInfoRet = await SfcUtils.request(API.user.getUserInfo())
-    session.setUserInfo(userInfoRet.data.data)
-    doLoginSuccess(userInfoRet.data.data, loginRet.data.data)
-  },
-}, true, lm)
+  // 获取用户信息
+  const userInfoRet = await SfcUtils.request(API.user.getUserInfo())
+  session.setUserInfo(userInfoRet.data.data)
+  doLoginSuccess(userInfoRet.data.data, loginRet.data.data)
+}
 
 async function loadThirdPlatformList() {
   try {
@@ -204,13 +203,12 @@ defineExpose(deconstructForm(form))
 <script lang="ts">
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
-import { getContext, ValidateResult } from 'sfc-common/core/context'
-import { computed, defineComponent, onMounted, onUnmounted, reactive, Ref, ref, toRefs } from 'vue'
+import { getContext } from 'sfc-common/core/context'
+import { computed, defineComponent, reactive, Ref, ref } from 'vue'
 import { LoadingManager, MethodInterceptor } from 'sfc-common/utils'
-import { RawUser, ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult, UserService } from 'sfc-common'
-import { CommonIcon, UserBindConfirm } from '../common'
+import { RawUser, ThirdPartyAuthPlatform, UserService } from 'sfc-common'
+import { CommonIcon } from '../common'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { DialogPromise, ComponentDialogInstance } from 'sfc-common/utils/SfcUtils/common/Dialog'
 
 export default defineComponent({
   name: 'LoginForm'

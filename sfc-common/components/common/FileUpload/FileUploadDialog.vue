@@ -3,6 +3,7 @@
     <v-tabs
       v-model="tab"
       fixed-tabs
+      color="primary"
     >
       <v-tab value="upload">
         上传中{{ uploadingExecutor.length > 0 ? '(' + uploadingExecutor.length + ')': '' }}
@@ -31,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-const session = getContext().session
 const tab = ref('upload')
 const props = defineProps({
   show: {
@@ -41,6 +41,13 @@ const props = defineProps({
   taskManager: {
     type: Object as PropType<FileUploadTaskManager>,
     default: undefined
+  },
+  /**
+   * 是否自动隐藏。当鼠标点击该对话框外的元素时触发自动隐藏。
+   */
+  autoHide: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['update:show'])
@@ -76,6 +83,15 @@ const removeListener = (manager: FileUploadTaskManager ) => {
   manager.removeEventListener('error', errorListener)
 }
 
+const windowClickListener = async(e: MouseEvent) => {
+  if (!props.show || !props.autoHide || e.target == null || !(e.target instanceof HTMLElement)) {
+    return
+  }
+  if(DOMUtils.getElParentByClass(e.target as HTMLElement, 'upload-list')) {
+  } else {
+    emits('update:show', false)
+  }
+}
 onMounted(() => {
   addListener(props.taskManager as FileUploadTaskManager)
 })
@@ -89,14 +105,22 @@ watch(() => props.taskManager, (newVal, oldVal) => {
   if (newVal) {
     addListener(newVal)
   }
-  
+})
+watch(() => props.show, async(newVal, oldVal) => {
+  await SfcUtils.sleep(100)
+  if (newVal) {
+    window.addEventListener('click', windowClickListener)
+  } else {
+    window.removeEventListener('click', windowClickListener)
+  }
 })
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, defineProps, defineEmits, computed, PropType, onMounted, onUnmounted, watch, reactive } from 'vue'
-import { getContext } from 'sfc-common/core/context'
+import { defineComponent, ref, defineProps, defineEmits, computed, PropType, onMounted, onUnmounted, watch, reactive, nextTick } from 'vue'
 import { FileUploadExecutor, FileUploadInfo, FileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
+import { DOMUtils } from 'sfc-common/utils'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 
 export default defineComponent({
   name: 'FileUploadDialog'

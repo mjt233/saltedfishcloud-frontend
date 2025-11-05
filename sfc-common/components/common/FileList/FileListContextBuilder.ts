@@ -5,6 +5,7 @@ import propsOptions from './props'
 import { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandler'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
+import { FileListModelHandler } from 'sfc-common/model/component/FileListModel'
 
 export interface FileListContextBuilderOptions {
   props: Readonly<ExtractPropTypes<typeof propsOptions>>,
@@ -69,7 +70,7 @@ const FileListContextBuilder = {
         async delete(name) {
           return await handler?.value.deleteFile(props.path, name) as number
         }
-      }
+      } as FileListModelHandler
     })
   }
 }
