@@ -218,6 +218,7 @@ export default defineComponent({
     &>.change-detail {
       margin: 0;
       width: 640px;
+      max-width: calc(100vw - 10px);
       max-height: 100%;
       overflow-y: auto;
       position: absolute;
