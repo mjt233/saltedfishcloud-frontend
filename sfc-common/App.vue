@@ -12,12 +12,13 @@
     </teleport>
     
     <router-view />
-    <file-upload-dialog v-model:show="visiableWindows.uploadList" :task-manager="taskManager" />
+    <file-upload-dialog v-model:show="visiableWindows.uploadList" :task-manager="taskManager" :auto-hide="true" />
 
   </v-app>
   
 </template>
 <script setup lang="ts">
+import FileUploadDialog from './components/common/FileUpload/FileUploadDialog.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 const theme = getContext().theme
 const visiableWindows = getContext().visiableWindows.value

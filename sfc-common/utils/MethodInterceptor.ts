@@ -46,6 +46,11 @@ export interface ThrottleOptions {
    * 因节流而导致方法体执行无效的返回值策略
    */
   invalidStrategy?: InvalidStrategy
+
+  /**
+   * 总是延迟触发函数执行。当该参数为true时，afterExecute参数将不起作用，固定按true处理。
+   */
+  alawayDelay?: boolean
 }
 
 export namespace MethodInterceptor {
@@ -147,6 +152,12 @@ export namespace MethodInterceptor {
       return Promise.resolve('invalid')
     }
   }
+
+  type FunctionType<R> = Function | (() => R)
+
+  export function createThrottleProxyFunc<R, T extends FunctionType<R>>(targetFunc: T, opt: ThrottleOptions = {}): T {
+    return createThrottleProxy({ action: targetFunc }, opt).action
+  }
   /**
    * 创建节流代理对象
    * @param target 被代理对象
@@ -157,10 +168,16 @@ export namespace MethodInterceptor {
       afterExecute = false,
       delay = 1000,
       mather = () => true,
-      invalidStrategy = 'undefined'
+      invalidStrategy = 'undefined',
+      alawayDelay = false
     } = opt
+    // key - 函数名称, value - 函数上次执行的时间
     const lastExecuteMap = new Map<string, number>()
-    const afterExecuteMap = new Map<string, NodeJS.Timeout>()
+
+    // key - 函数名称, value - 函数延迟执行的setTimeout定时器
+    const afterExecuteMap = new Map<string, number>()
+
+    // key - 函数名称, value - 函数上次被调用时传入的参数
     const lastArgsMap = new Map<string, any>()
     return MethodInterceptor.createProxy(target, (invoker, args, funcName) => {
 
@@ -169,27 +186,32 @@ export namespace MethodInterceptor {
         return invoker(args)
       }
       lastArgsMap.set(funcName, args)
-      const lastExecute = lastExecuteMap.get(funcName)
+      const lastExecuteTime = lastExecuteMap.get(funcName)
       const now = new Date().getTime()
 
       // 需要等待的时间：节流延迟间隔 - 距离上次执行的间隔
-      const needWait = delay - (now - (lastExecute || 0))
+      let needWaitTime = delay - (now - (lastExecuteTime || 0))
 
       // 可以执行
-      if (needWait <= 0) {
+      if (alawayDelay) {
+        if (needWaitTime <= 0) {
+          needWaitTime = delay
+        }
+      }
+      if (needWaitTime <= 0) {
         lastExecuteMap.set(funcName, now)
         return invoker(args)
       }
       
       // 不可执行
-      if (afterExecute && !afterExecuteMap.get(funcName)) {
+      if ((alawayDelay || afterExecute) && !afterExecuteMap.get(funcName)) {
 
         // 但存在延迟后置处理
         const timeout = setTimeout(() => {
-          lastExecuteMap.set(funcName, now + needWait)
+          lastExecuteMap.set(funcName, now + needWaitTime)
           invoker(lastArgsMap.get(funcName))
           afterExecuteMap.delete(funcName)
-        }, needWait)
+        }, needWaitTime) as any as number
         afterExecuteMap.set(funcName, timeout)
       }
       
