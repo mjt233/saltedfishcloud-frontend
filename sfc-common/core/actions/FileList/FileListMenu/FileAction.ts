@@ -5,9 +5,7 @@ import { h, ref } from 'vue'
 import { MenuGroup } from 'sfc-common/core/context'
 import { FileAttribute } from 'sfc-common/components'
 import { VBtn } from 'vuetify/components'
-import API from 'sfc-common/api'
 import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
-import MountPointSyncFileRecordForm from 'sfc-common/components/form/MountPointSyncFileRecordForm.vue'
 import { MountPointService } from 'sfc-common/core/serivce/MountPointService'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
