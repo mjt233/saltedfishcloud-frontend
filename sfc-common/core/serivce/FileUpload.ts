@@ -62,6 +62,16 @@ export interface FileUploadInfo {
    */
   otherAttr?: any
 
+  /**
+   * 错误原因
+   */
+  errorReason?: string
+
+  /**
+   * 错误消息对象
+   */
+  error?: any
+
 }
 
 export interface FileUploadExecutor {
@@ -374,6 +384,8 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
    */
   protected handleErrorEvent(err: any) {
     this.uploadInfo.status = 'failed'
+    this.uploadInfo.errorReason = String(err)
+    this.uploadInfo.error = err
     console.error('上传文件出错', err)
     SfcUtils.batchInvokeFunction(this.errorHandler, err)
   }

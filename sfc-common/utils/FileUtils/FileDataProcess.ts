@@ -51,7 +51,9 @@ export class CancelablePromise<T> extends Promise<T> {
  */
 export function computeMd5(file: File, { success, error, prog }: Md5ComputeOption): CancelablePromise<string> {
   const worker = new Worker(new URL('./file.worker.ts', import.meta.url), { type: 'module' })
+  let rejectFunc: Function
   return new CancelablePromise((resolve, reject) => {
+    rejectFunc = reject
     worker.onmessage = e => {
       const msg = e.data as FileWorkerMessage
       if (msg.type == 'finish') {
@@ -79,6 +81,7 @@ export function computeMd5(file: File, { success, error, prog }: Md5ComputeOptio
     worker.postMessage(msg, [stream])
   }, () => {
     worker.postMessage({ type: 'cancel' } as FileWorkerMessage)
+    rejectFunc && rejectFunc('cancel')
   })
   
 }

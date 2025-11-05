@@ -32,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-const session = getContext().session
 const tab = ref('upload')
 const props = defineProps({
   show: {

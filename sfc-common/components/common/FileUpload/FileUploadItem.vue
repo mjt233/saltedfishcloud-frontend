@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-center align-center upload-item">
+  <div class="d-flex justify-center align-center upload-item" @click="fileClick">
     <div style="margin-right: 8px">
       <file-icon
         width="32"
@@ -13,10 +13,12 @@
       <div class="file-name">
         {{ uploadInfo?.file.name }}
       </div>
-      <div class="file-size">
-        状态：{{ getStatusText(uploadInfo?.status) }} 大小：{{ StringFormatter.toSize(uploadInfo?.file.size || 0) }}
-        <span v-if="uploadInfo?.status == 'upload' || uploadInfo?.status == 'digest'">速度：{{ StringFormatter.toSize(progRecord.speed) }}/s</span>
-        <span v-if="uploadInfo?.status == 'success'">
+      <div class="file-size span-gap">
+        <span class="ml-1">状态：{{ getStatusText(uploadInfo?.status) }}</span>
+        <span v-if="uploadInfo?.status == 'failed'" class="ml-1">错误原因：{{ uploadInfo.errorReason }}</span>
+        <span class="ml-1">大小：{{ StringFormatter.toSize(uploadInfo?.file.size || 0) }}</span>
+        <span v-if="uploadInfo?.status == 'upload' || uploadInfo?.status == 'digest'" class="ml-1">速度：{{ StringFormatter.toSize(progRecord.speed) }}/s</span>
+        <span v-if="uploadInfo?.status == 'success'" class="ml-1">
           平均速度：{{ StringFormatter.toSize(uploadInfo.file.size / ((uploadInfo.endDate.getTime() - uploadInfo.beginDate.getTime()) / 1000) ) }}/s
         </span>
       </div>
@@ -111,11 +113,23 @@ const getStatusText = (status?: FileUploadStatus) => {
     return '未知'
   }
 }
+
+/**
+ * 文件项被点击处理函数
+ */
+function fileClick() {
+  if (props.uploadInfo?.status == 'failed') {
+    console.error(props.uploadInfo.error)
+    SfcUtils.alert(props.uploadInfo.errorReason as string)
+  }
+}
+
 </script>
 
 <script lang="ts">
 import { computed, defineComponent, defineProps, PropType, reactive, watch } from 'vue'
 import { FileUploadInfo, FileUploadStatus } from 'sfc-common/core/serivce/FileUpload'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 export default defineComponent({
   name: 'FileUploadListItem'
 })
@@ -142,4 +156,6 @@ export default defineComponent({
     padding: 16px;
   }
 }
+
+
 </style>
