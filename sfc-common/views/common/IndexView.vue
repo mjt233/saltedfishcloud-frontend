@@ -46,7 +46,7 @@
             <v-list-item
               v-if="item.renderOn == undefined ? true : item.renderOn(getContext())"
               :key="item.id"
-              :active="$route.path == item.route"
+              :active="(item.route == '/' && $route.path == '/') || ( item.route != '/' && $route.path.startsWith(item.route))"
               color="primary"
               :value="item.route"
               @click="menuClick(item, $event)"
@@ -105,7 +105,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 export default defineComponent({
   name: 'CommonIndex',
   methods: {
-    menuClick(menuItem: MenuItem<ToRefs<AppContext>>, event: MouseEvent) {
+    menuClick(menuItem: MenuItem<ToRefs<AppContext>>, event: MouseEvent | KeyboardEvent) {
       if (menuItem.action) {
         menuItem.action(getContext())
       }

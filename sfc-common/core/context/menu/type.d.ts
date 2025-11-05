@@ -140,7 +140,7 @@ export interface MenuItem<T> {
   /**
    * 菜单转跳路由
    */
-  route?: string,
+  route: string,
 
   /**
    * 子菜单
