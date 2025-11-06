@@ -1,7 +1,6 @@
-import { AppMenu } from './menu/type.d'
 import { AppContext, FileClipBoard, VisiableWindows } from './type'
 import { defaultFileListMenu, defaultMainMenu } from './menu'
-import { reactive, Ref, toRefs, ToRefs } from 'vue'
+import { reactive, toRefs, ToRefs } from 'vue'
 import { emptySession } from './session'
 import { DefaultEventBus } from './EventBus'
 import { SystemFeature } from 'sfc-common/model'
@@ -52,8 +51,8 @@ const context: ToRefs<AppContext> = toRefs(reactive({
 }))
 
 
-export {
-  context
+export function getContext() {
+  return context
 }
 
 export * from './menu/type'

@@ -12,7 +12,7 @@ import TextInputVue from 'sfc-common/components/common/TextInput.vue'
 import LoginFormVue from 'sfc-common/components/form/LoginForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { Session } from 'sfc-common/core/context/session'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { BaseForm, LoadingDialog } from 'sfc-common/components'
 
 export interface DialogOpt {
@@ -59,6 +59,15 @@ export interface ConfirmOpt {
    * 直接插入的HTML字符串
    */
   html?: string
+
+  /**
+   * 是否持久显示
+   */
+  persistent?: boolean
+
+  confirmBtnText?: string
+  cancelBtnText?: string
+  
 }
 export interface DialogHandler {
 
@@ -319,6 +328,10 @@ export interface OpenComponentDialogOption {
   header?: ChildrenType
   footer?: ChildrenType
   fullscreen?: boolean | 'auto'
+
+  /**
+   * 是否为持久弹框，无法通过ESC或点击外部关闭（默认为false）
+   */
   persistent?: boolean
 
   /** 在onConfirm和onCancel抛出异常时是否气泡显示错误 */
@@ -401,6 +414,12 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
 export interface LoadingDialogParam {
   /** 加载框提示语 */
   msg?: string
+  /** 用户可否主动关闭，默认false */
+  closeable?: boolean
+  /** 是否持久化对话框，点击空白处不会自动关闭 默认true */
+  persistent?: boolean
+  /** 取消回调 */
+  onCancel?: () => boolean | Promise<boolean>
 }
 
 /**
@@ -408,16 +427,22 @@ export interface LoadingDialogParam {
  * @param param 加载对话框参数
  */
 export function loadingDialog(param?: LoadingDialogParam) {
-  return SfcUtils.openComponentDialog(LoadingDialog, {
+  const closeable = param?.closeable == undefined ? false : true
+  const dialog = SfcUtils.openComponentDialog(LoadingDialog, {
     title: '',
     props: param,
     extraDialogOptions: {
-      hideBtn: true,
+      hideBtn: closeable ? false : true,
       width: '280px !important',
+      showConfirm: false,
+      showCancel: closeable
     },
     fullscreen: false,
-    persistent: true
+    persistent: param?.persistent === undefined ? true : param?.persistent,
+    onCancel: param?.onCancel
   })
+  dialog.closeLoading = dialog.close.bind(dialog)
+  return dialog
 }
 
 
@@ -497,7 +522,7 @@ export function alert(message: string, title: string = '提示') {
  * @param opt 其他选项
  */
 export function confirm(message: string, title: string, opt: ConfirmOpt = {}) :Promise<void> {
-  const { children = [], cancelToReject = false, html = '' } = opt
+  const { children = [], cancelToReject = false, html = '', confirmBtnText, cancelBtnText } = opt
   let isConfirm = false
   return new Promise((resolve, reject) => {
     dialog({
@@ -526,6 +551,7 @@ export function confirm(message: string, title: string, opt: ConfirmOpt = {}) :P
         return renderArr
       },
       title: title,
+      persistent: opt.persistent,
       onConfirm: () => {
         isConfirm = true
         resolve()
@@ -536,6 +562,10 @@ export function confirm(message: string, title: string, opt: ConfirmOpt = {}) :P
           reject('cancel')
         }
         return true
+      },
+      extraProps: {
+        confirmText: confirmBtnText,
+        cancelText: cancelBtnText
       }
     }).then(() => {
       if (!isConfirm && cancelToReject) {
@@ -565,12 +595,24 @@ export function openLoginDialog(): Promise<Session> {
         style: {
           'border': 'none',
           'box-shadow': 'none'
+        },
+        onSuccess() {
+          resolve(getContext().session.value)
+          inst.close()
+          SfcUtils.snackbar('登录成功')
+        },
+        onThirdLoginBegin() {
+          inst.beginLoading()
+        },
+        onThirdLoginEnd() {
+          inst.closeLoading()
         }
+        
       },
       async onConfirm() {
         const ret = await (inst.getComponentInstRef() as any as CommonForm).submit()
         if (ret.success) {
-          resolve(context.session.value)
+          resolve(getContext().session.value)
           return true
         } else {
           reject(ret.err)

@@ -222,7 +222,7 @@ const fullPath = computed(() => {
 
 defineExpose(formInst)
 
-formData.nickname = context.session.value.user.name
+formData.nickname = getContext().session.value.user.name
 onMounted(() => {
   if (props.initValue) {
     const obj = props.initValue
@@ -239,7 +239,7 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { defineForm } from 'sfc-common/utils/FormUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch, onMounted, computed } from 'vue'
 import API from 'sfc-common/api'

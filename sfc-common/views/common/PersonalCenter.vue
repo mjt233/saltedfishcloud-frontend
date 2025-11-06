@@ -74,6 +74,29 @@
             <dark-switch />
           </template>
         </v-list-item>
+        <v-divider />
+        <v-list-item v-ripple title="第三方平台关联" height="48">
+          <template #append>
+            <div v-if="thirdPartyAuthPlatformList.length">
+              <LoadingMask :loading="platformLoadingCnt > 0" :type="'circular'" />
+              <div v-for="item in thirdPartyAuthPlatformList" :key="item.type">
+                <div class="platform-item" @click="assocPlatform(item)">
+                  <CommonIcon :icon="item.icon" :title="item.name" :size="36" />
+                  <CommonIcon
+                    v-if="thirdPartyPlatformUserMap[item.type]"
+                    class="platform-item-check-icon"
+                    color="success"
+                    icon="mdi-check-circle"
+                    :size="14"
+                  />
+                </div>
+              </div>
+            </div>
+            <div v-else class="tip">
+              不可用
+            </div>
+          </template>
+        </v-list-item>
       </v-list>
       <base-dialog
         v-model="showEmailDialog"
@@ -116,17 +139,20 @@ import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
 import { EventNameConstants } from 'sfc-common/core/constans/EventName'
-import { UserAvatar } from 'sfc-common/components'
+import { EmptyTip, UserAvatar } from 'sfc-common/components'
 import ChangePassowrdForm from 'sfc-common/components/form/ChangePassowrdForm.vue'
 import BaseDialog from 'sfc-common/components/common/BaseDialog.vue'
 import BindEmailForm from 'sfc-common/components/form/BindEmailForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 const loading = ref()
 const showPasswordDialog = ref(false)
-const session = context.session
-const hasLogin = ConditionFunction.hasLogin(context)
+const session = getContext().session
+const hasLogin = ConditionFunction.hasLogin(getContext())
 const changePasswordRef = ref()
 const changePasswordLoading = ref(false)
+const thirdPartyAuthPlatformList = ref<ThirdPartyAuthPlatform[]>([])
+const thirdPartyPlatformUserMap = reactive({}) as {[type:string]: ThirdPartyPlatformUser}
+const platformLoadingCnt = ref(0)
 const emailRef = ref() as Ref<CommonForm>
 let quotaUsed = reactive({
   used: 0,
@@ -138,6 +164,9 @@ const showEmailDialog = ref(false)
 // 获取存储使用情况
 SfcUtils.request(API.user.getQuotaUsed()).then(e => {
   const info = e.data.data
+  if (!info) {
+    return
+  }
   quotaUsed.used = info.used
   quotaUsed.quota = info.quota
   const ratio = quotaUsed.used / quotaUsed.quota
@@ -159,7 +188,7 @@ const doUploadAvatar = async() => {
     try {
       loading.value.startLoading()
       await SfcUtils.axios(API.user.uploadAvatar(file))
-      context.eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, {
+      getContext().eventBus.value.emit(EventNameConstants.AVATAR_UPDATE, {
         uid: session.value.user.id,
         name: session.value.user.name
       })
@@ -176,7 +205,7 @@ const doChangePassword = async() => {
     changePasswordLoading.value = true
     const res = await changePasswordRef.value.submit()
     SfcUtils.snackbar('修改成功，请重新登录', 5000, { showClose: true })
-    context.routeInfo.value.router?.push('/login')
+    getContext().routeInfo.value.router?.push('/login')
   } catch(err) {
     console.error(err)
     SfcUtils.snackbar((err as any).toString())
@@ -192,22 +221,56 @@ const submitEamil = async() => {
     showEmailDialog.value = false
   }
 }
+
+async function loadThirdPlatformList() {
+  try {
+    Object.keys(thirdPartyPlatformUserMap).forEach(type => delete thirdPartyPlatformUserMap[type])
+    platformLoadingCnt.value++
+    thirdPartyAuthPlatformList.value = (await SfcUtils.request(API.oauth.listPlatform())).data.data.filter(e => e.authUrl)
+    if (thirdPartyAuthPlatformList.value.length > 0) {
+      (await SfcUtils.request(API.oauth.listAssocPlatformUser(session.value.user.id))).data.data.forEach(u => {
+        thirdPartyPlatformUserMap[u.platformType] = u
+      })
+    }
+  } finally {
+    platformLoadingCnt.value--
+  }
+}
+
+/**
+ * 关联第三方平台
+ * @param platform 要关联的第三方平台
+ */
+async function assocPlatform(platform: ThirdPartyAuthPlatform) {
+  if (thirdPartyPlatformUserMap[platform.type]) {
+    return
+  }
+  const res = await UserService.startThirdPlatformLogin(platform)
+  if (res.success) {
+    SfcUtils.snackbar('关联成功')
+    await loadThirdPlatformList()
+  }
+}
+
+loadThirdPlatformList()
 </script>
 
 <script lang="ts">
 import FileUtils from 'sfc-common/utils/FileUtils'
 import { defineComponent, reactive, Ref, ref } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { ConditionFunction } from 'sfc-common/core/helper/ConditionFunction'
 import API from 'sfc-common/api'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { ThirdPartyAuthPlatform, ThirdPartyPlatformUser } from 'sfc-common/model'
+import { UserService } from 'sfc-common/core'
 export default defineComponent({
   name: 'PersonalCenter'
 })
 </script>
 
 
-<style scoped>
+<style scoped lang="scss">
 .v-list-item {
   cursor: pointer;
   background-color: rgba(223, 223, 223, 0);
@@ -220,5 +283,15 @@ export default defineComponent({
 
 .v-divider {
   margin: 8px 0;
+}
+
+.platform-item {
+  position: relative;
+
+  .platform-item-check-icon {
+    position: absolute;
+    right: 3px;
+    bottom: -6px;
+  }
 }
 </style>

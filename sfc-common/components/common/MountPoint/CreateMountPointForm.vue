@@ -30,6 +30,35 @@
           浏览
         </v-btn>
       </form-col>
+      <form-col>
+        <div class="d-flex align-center">
+          <v-switch
+            v-model="formData.isProxyStoreRecord"
+            :readonly="readOnly"
+            color="primary"
+            label="委托存储记录"
+            hide-details
+          >
+            <template #label>
+              委托存储记录
+              <v-tooltip location="bottom">
+                <template #activator="{ props: vProps }">
+                  <v-icon
+                    style="margin-right: 12px"
+                    size="18"
+                    dark
+                    v-bind="vProps"
+                  >
+                    mdi-help-circle
+                  </v-icon>
+                </template>
+                <p>由系统自行维护该目录的文件信息并纳入默认搜索范围</p>
+                <p>获取文件信息时不直接访问挂载的目标文件系统，在一些网络文件系统上可减少请求次数</p>
+              </v-tooltip>
+            </template>
+          </v-switch>
+        </div>
+      </form-col>
     </form-row>
 
     <v-divider class="form-divider" />
@@ -69,6 +98,13 @@ const props = defineProps({
   initValue: {
     type: Object as PropType<MountPoint>,
     default: undefined
+  },
+  /**
+   * 默认路径
+   */
+  path: {
+    type: String,
+    default: undefined
   }
 })
 const mountForm = ref()
@@ -103,6 +139,10 @@ const parseParams = async(mp: MountPoint) => {
 }
 const formInst = defineForm({
   actions: {
+    async getNodeIdByPath(path: string) {
+      const res = await SfcUtils.request(API.resource.getNodeInfo(props.uid, path))
+      return (res.data.data.pop()?.id || props.uid).toString()
+    },
     selectPath() {
       SfcUtils.selectPath({
         uid: props.uid,
@@ -115,8 +155,7 @@ const formInst = defineForm({
         selectPath.value = path
         try {
           loadingRef.value = true
-          const res = await SfcUtils.request(API.resource.getNodeInfo(props.uid, path))
-          formData.nid = (res.data.data.pop()?.id || props.uid).toString()
+          formData.nid = await this.getNodeIdByPath(path)
         } catch(err) {
           SfcUtils.snackbar(err)
         } finally {
@@ -186,16 +225,19 @@ const formInst = defineForm({
   },
   formData: reactive({
     uid: props.uid,
-    path: '/',
     protocol: '',
     name: '挂载点1',
     params: '{}',
-    nid: props.uid
+    nid: props.uid,
+    isProxyStoreRecord: false
   }) as MountPoint,
   formRef: formRef,
   validators: {},
   throwError: true
 })
+/**
+ * 是否为编辑原有的挂载点
+ */
 const isEdit = ref<boolean>(false)
 const { formData, actions, validators, loadingRef, loadingManager  } = formInst
 
@@ -205,11 +247,17 @@ onMounted(async() => {
     if(await actions.loadSystem()) {
       if (props.initValue) {
         isEdit.value = !!props.initValue.id
-        parseParams(props.initValue)
+        await parseParams(props.initValue)
       } else if(await actions.loadById()) {
         emits('loaded', formData)
       }
     }
+    // 加载默认路径
+    if (props.path) {
+      formData.nid = await actions.getNodeIdByPath(props.path)
+      selectPath.value = props.path
+    }
+    
   } catch(err) {
     emits('error', err)
     console.error(err)

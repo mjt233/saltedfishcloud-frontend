@@ -39,7 +39,7 @@
           {{ files[0].md5 || '不可用' }}
         </form-col>
         <form-col label="是否处于挂载目录" top-label>
-          {{ files[0].mount ? '是' : '否' }}
+          {{ files[0].isMount ? '是' : '否' }}
         </form-col>
       </form-row>
     </form-grid>
@@ -97,7 +97,6 @@ const showMountInfo = ref(false)
 import { FileInfo, MountPoint } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-import { context } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'FileAttribute'

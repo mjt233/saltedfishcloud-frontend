@@ -1,7 +1,7 @@
 import { h } from 'vue'
 import { MenuGroup, BoxMenuContext } from './type'
 import FileCollectionView from 'sfc-common/components/common/FileCollection/FileCollectionView.vue'
-import { context } from '..'
+import { getContext } from '..'
 import FileShareView from 'sfc-common/components/common/FileShare/FileShareView.vue'
 import DesktopConfigList from 'sfc-common/components/common/Desktop/DesktopConfigList.vue'
 import { ConditionFunction } from 'sfc-common/core/helper'
@@ -22,12 +22,12 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         icon: 'mdi-package-down',
         action(ctx) {
           ctx.currentComponent = h(FileCollectionView, {
-            uid: context.session.value.user.id
+            uid: getContext().session.value.user.id
           })
           ctx.title = '文件收集'
         },
         renderOn(ctx) {
-          return !!context.session.value.token
+          return !!getContext().session.value.token
         }
       },
       {
@@ -36,12 +36,12 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         icon: 'mdi-share-variant',
         action(ctx) {
           ctx.currentComponent = h(FileShareView, {
-            uid: context.session.value.user.id
+            uid: getContext().session.value.user.id
           })
           ctx.title = '文件分享'
         },
         renderOn() {
-          return !!context.session.value.token
+          return !!getContext().session.value.token
         }
       }
     ]
@@ -56,12 +56,12 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         icon: 'mdi-home',
         action(ctx) {
           ctx.currentComponent = h(DesktopConfigList, {
-            uid: context.session.value.user.id
+            uid: getContext().session.value.user.id
           })
           ctx.title = '首页桌面配置'
         },
         renderOn(ctx) {
-          return !!context.session.value.token
+          return !!getContext().session.value.token
         },
       },
       {
@@ -73,7 +73,7 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
           ctx.title = '主题与样式'
         },
         renderOn(ctx) {
-          return !!context.session.value.token
+          return !!getContext().session.value.token
         },
       },
       {
@@ -81,11 +81,11 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         title: '代理节点',
         icon: 'mdi-web',
         renderOn(ctx) {
-          return ConditionFunction.hasLogin(context)
+          return ConditionFunction.hasLogin(getContext())
         },
         action(ctx) {
           ctx.title = '代理节点'
-          ctx.currentComponent = h(ProxyConfig, { uid: context.session.value.user.id })
+          ctx.currentComponent = h(ProxyConfig, { uid: getContext().session.value.user.id })
         }
       }
     ]

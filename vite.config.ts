@@ -2,8 +2,7 @@ import { defineConfig, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
 // import Components from 'unplugin-vue-components/vite'
-
-const path = require('path')
+import path from 'path' 
 
 const env = {} as any
 const commonConfig: UserConfigExport = {

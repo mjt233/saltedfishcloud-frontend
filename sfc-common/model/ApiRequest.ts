@@ -21,6 +21,8 @@ export interface CommonPageRequestParam {
   page: number
 }
 
+export type PageableRequest = CommonPageRequestParam
+
 /**
  * 数据分页查询结果信息
  */
@@ -75,3 +77,12 @@ export interface CommonPageInfo<T> {
  * 标准数据分页查询请求
  */
 export type PageRequest<T> = CommonRequest<CommonPageInfo<T>>
+
+/**
+ * 数据范围请求参数
+ */
+export interface RangeRequest<T> {
+  begin?: T
+
+  end?: T
+}

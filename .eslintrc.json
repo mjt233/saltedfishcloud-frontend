@@ -21,6 +21,9 @@
         "vue/multiline-html-element-content-newline": ["error", {
             "allowEmptyLines": true
         }],
+        "vue/valid-v-slot": ["error", {
+            "allowModifiers": true
+        }],
         "vue/max-attributes-per-line": ["error", {
             "singleline": {
               "max": 3

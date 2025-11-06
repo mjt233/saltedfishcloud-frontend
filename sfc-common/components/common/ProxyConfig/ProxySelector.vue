@@ -99,7 +99,7 @@ onMounted(() => {
 </script>
 
 <script lang="ts">
-import { API } from 'sfc-common/index'
+import API from 'sfc-common/api'
 import { IdType, ProxyInfo } from 'sfc-common/model'
 import { LoadingManager, MethodInterceptor } from 'sfc-common/utils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'

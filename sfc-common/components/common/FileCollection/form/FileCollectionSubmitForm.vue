@@ -166,7 +166,7 @@ const notFound = ref(false)
 const msg = ref('')
 const fieldLabelWidth = ref('120px')
 const fieldRules = ref([]) as Ref<ValidateRule[][]>
-const file = ref() as Ref<File[]>
+const file = ref() as Ref<File>
 
 // 提交上传信息
 const uploadStatus = reactive({
@@ -177,7 +177,7 @@ const uploadStatus = reactive({
 // 是否使用了字段约束
 const useField = ref(false)
 
-const session = context.session
+const session = getContext().session
 
 // 表单基本属性定义
 const formInst = defineForm({
@@ -190,7 +190,7 @@ const formInst = defineForm({
       }
       try {
         uploadStatus.uploading = true
-        const conf = API.collection.submit(props.cid, props.vid, formData, file.value[0])
+        const conf = API.collection.submit(props.cid, props.vid, formData, file.value)
         conf.onUploadProgress = (e: Prog) => {
           uploadStatus.total = e.total
           uploadStatus.loaded = e.loaded
@@ -336,10 +336,10 @@ const toLogin = async() => {
   
 }
 watch(file, () => {
-  if(file.value && file.value.length > 0) {
-    formData.fileParam.name = file.value[0].name
-    formData.fileParam.size = file.value[0].size
-    formData.fileParam.mtime = file.value[0].lastModified
+  if(file.value) {
+    formData.fileParam.name = file.value.name
+    formData.fileParam.size = file.value.size
+    formData.fileParam.mtime = file.value.lastModified
   } else {
     formData.filename = ''
   }
@@ -358,7 +358,7 @@ import { SelectOption } from 'sfc-common/model/Common'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { ValidateRule } from 'sfc-common/model/component/type'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { FormCol, FormRow } from 'sfc-common/components/layout'
 import { MarkdownView } from '../../Markdown'
 

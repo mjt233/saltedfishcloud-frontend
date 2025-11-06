@@ -62,7 +62,7 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
     this.uid = uid
   }
   getFileUrl(path: string, file: FileInfo) {
-    if (!file.mount) {
+    if (!file.isMount) {
       // 在主文件系统的非挂载目录中的文件浏览直接使用按md5获取
       return SfcUtils.getApiUrl(API.resource.downloadFileByMD5(file.md5, file.name))
     } else {
@@ -75,7 +75,7 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
     }
   }
   getCustomThumbnailUrl(path: string, file: FileInfo) {
-    if (!file.mount) {
+    if (!file.isMount) {
       // 在主文件系统的非挂载目录中的文件浏览直接使用缩略图组件内置的路径
       return undefined
     } else {

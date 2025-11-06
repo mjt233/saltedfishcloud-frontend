@@ -13,7 +13,7 @@
         >
           <template v-for="(item, index) in group.items.filter(e => canRender(e))" :key="item.id">
             <div
-              v-if="item.renderOn ? item.renderOn(context) : true"
+              v-if="item.renderOn ? item.renderOn(getContext()) : true"
               v-ripple
               class="grid-item"
               @click="itemClick(item, index)"
@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import GridContainer from 'sfc-common/components/layout/GridContainer.vue'
-import { MenuGroup, context, MenuItem } from 'sfc-common/core/context'
+import { MenuGroup, getContext, MenuItem } from 'sfc-common/core/context'
 import { ArgumentProvider } from 'sfc-common/model/component/GridMenuModel'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import EmptyTip from './EmptyTip.vue'
@@ -66,7 +66,7 @@ const availableItems = computed(() => {
   return props.items.filter((e, idx) => e.renderOn ? e.renderOn(props.argProvider.getArgument(idx, e.id)) : true)
 })
 const canRender = (item: MenuItem<any> | MenuGroup<any>) => {
-  return item.renderOn ? item.renderOn(context) : true
+  return item.renderOn ? item.renderOn(getContext()) : true
 }
 const canRenderCount = computed(() => {
   let count = 0

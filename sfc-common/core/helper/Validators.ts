@@ -5,11 +5,15 @@ import { StringUtils } from 'sfc-common/utils/StringUtils'
 export namespace Validators {
 
   export function requireFile(msg: string = '请选择文件') {
-    return (e: File[]) => {
-      if (e && e.length > 0) {
-        return true
+    return (e: File[] | File) => {
+      if (e instanceof Array) {
+        if (e && e.length > 0) {
+          return true
+        } else {
+          return msg
+        }
       } else {
-        return msg
+        return !!e
       }
     }
   }

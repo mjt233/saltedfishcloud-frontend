@@ -3,8 +3,8 @@
     <loading-mask :loading="loading" z-index="1000" />
     <!-- 顶部工具栏和按钮 -->
     <div class="tool-bar" compute-height>
-      <v-row class="justify-space-between">
-        <v-col class="top-btn-group align-center" justify="start" :style="{minWidth: topButtonMinWidth}">
+      <v-row class="justify-space-between no-m-p">
+        <v-col class="top-btn-group align-center no-m-p" justify="start" :style="{minWidth: topButtonMinWidth}">
           <div v-for="(group) in toolButtons" v-show="toolButtons.length && toolButtons.length" :key="group.id">
             <template v-if="group.renderOn ? group.renderOn(listContext) : true">
               <!-- 单个按钮 -->
@@ -60,7 +60,7 @@
             </template>
           </div>
         </v-col>
-        <v-col class="top-right-bar-col" style="margin: 0 12px;">
+        <v-col class="top-right-bar-col no-m-p" style="margin: 0 12px;">
           <div class="top-right-bar">
             <!-- TODO: 窄屏下收起 -->
             <div class="d-flex align-center justify-end">
@@ -86,7 +86,7 @@
       </v-row>
     </div>
     <!-- 面包屑路径 -->
-    <v-row justify="space-between" compute-height>
+    <v-row justify="space-between" compute-height class="no-m-p">
       <v-col>
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
@@ -110,7 +110,7 @@
     <!-- 文件列表 -->
     <file-list
       ref="listRef"
-      v-model:file-list="fileList"
+      v-model:fileList="fileList"
       :type="listType"
       :preview-readme="previewReadme"
       :loading-manager="loadingManager"
@@ -222,11 +222,26 @@ const props = defineProps({
   useSelect: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 是否自动打开用户点击的文件
+   */
+  autoOpenFile: {
+    type: Boolean,
+    default: true
   }
 })
 
 const emits = defineEmits<{
-  (event: 'update:path', path: string): void
+  (event: 'update:path', path: string): void,
+  /**
+   * 文件被点击的事件
+   */
+  (event: 'clickFile', ctx: FileListContext, file: FileInfo): void,
+  /**
+   * 文件或目录被点击的事件
+   */
+  (event: 'clickItem', ctx: FileListContext, file: FileInfo): void,
 }>()
 
 // data
@@ -247,7 +262,7 @@ const listHeight: Ref<undefined | number> = ref(undefined)
 const listRef = ref() as Ref<FileListModel>
 
 // 文件列表右键菜单
-const menu = context.menu
+const menu = getContext().menu
 const listMenu = computed(() => {
   const allMenu = menu.value.fileListMenu.concat(props.appendMenu)
   const enableSet = new Set(props.enableMenu)
@@ -302,6 +317,9 @@ const handler = computed(() => {
 
 provide('fileSystemHandler', handler)
 
+/**
+ * 文件上传成功后，文件列表自动刷新回调用
+ */
 const autoRefresher = MethodInterceptor.createThrottleProxy({
   loading: false,
   async refresh(info: FileUploadInfo) {
@@ -328,6 +346,9 @@ const autoRefresher = MethodInterceptor.createThrottleProxy({
   afterExecute: true,
   delay: 2500
 })
+/**
+ * 文件上传成功监听器
+ */
 const successListener = async(executor: FileUploadExecutor) => {
   autoRefresher.refresh(executor.getUploadInfo())
 }
@@ -392,11 +413,15 @@ const back = async() => {
  * @param e 点击的文件
  */
 const clickItem = async(ctx: FileListContext, e: FileInfo) => {
+  emits('clickItem', ctx, e)
   if (e.dir) {
     const newPath = StringUtils.appendPath(props.path, e.name)
     await loadList(newPath)
   } else {
-    SfcUtils.openFile(ctx, e)
+    if (props.autoOpenFile) {
+      SfcUtils.openFile(ctx, e)
+    }
+    emits('clickFile', ctx, e)
   }
 }
 
@@ -493,7 +518,7 @@ import { FileInfo, FileListContext } from 'sfc-common/model'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import {FileSystemHandler, FileSystemHandlerFactory} from 'sfc-common/core/serivce/FileSystemHandler'
 import { defineComponent, ref, Ref, onMounted, inject, PropType, computed, provide, nextTick, onUnmounted, watch, reactive, ComponentPublicInstance } from 'vue'
-import { context, MenuGroup, MenuItem } from 'sfc-common/core/context'
+import { getContext, MenuGroup, MenuItem } from 'sfc-common/core/context'
 import { FileUploadExecutor, FileUploadInfo, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 
@@ -508,7 +533,7 @@ export default defineComponent({
   white-space: nowrap;
   padding: 6px 0;
   scroll-behavior:smooth;
-  margin: 0 12px;
+  margin: 0 4px;
 }
 .top-btn-group {
   margin-left: 12px;
@@ -522,7 +547,7 @@ export default defineComponent({
 }
 
 .top-right-bar {
-  padding-left: 16px;
+  padding-left: 8px;
   &.is-small-screen {
     display: none;
   }

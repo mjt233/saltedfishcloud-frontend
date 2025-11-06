@@ -1,6 +1,6 @@
 import { SessionUser } from 'sfc-common/model/'
 import { reactive } from 'vue'
-import { context } from '.'
+import { getContext } from '.'
 
 
 
@@ -53,8 +53,8 @@ const emptySession: Session = {
     localStorage.clear()
     document.cookie = `token=; expires=${new Date().toUTCString()}; path=/`
 
-    if (!context.routeInfo.value.curr?.meta.allowNoLogin) {
-      await context.routeInfo.value.router?.push('/')
+    if (!getContext().routeInfo.value.curr?.meta.allowNoLogin) {
+      await getContext().routeInfo.value.router?.push('/')
     }
   }
 }

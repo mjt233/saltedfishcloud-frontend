@@ -329,7 +329,7 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { API } from 'sfc-common/index'
+import API from 'sfc-common/api'
 import { BaseUserInfo, IdType } from 'sfc-common/model'
 import { AsyncTaskRecord, AsyncTaskRecordStatusDict } from 'sfc-common/model/AsyncTaskRecord'
 import { LoadingManager, MethodInterceptor, StringFormatter } from 'sfc-common/utils'

@@ -39,7 +39,7 @@ const wrap = {
    */
   downloadWrap(wid: string, alias?: string) {
     return {
-      url: `${this.prefix}/${wid}${alias ? '/' + alias : ''}`
+      url: `${this.prefix}/${wid}${alias ? '/' + encodeURIComponent(alias) : ''}`
     }
   }
 }

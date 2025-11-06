@@ -92,7 +92,7 @@ const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const shareList = ref([]) as Ref<(ShareInfo & { isExpired: boolean })[]>
 const isSelf = computed(() => {
-  return props.uid == context.session.value.user.id
+  return props.uid == getContext().session.value.user.id
 })
 const curPage = ref(1)
 const curSize = ref(10)
@@ -153,7 +153,7 @@ import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, computed, watch } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 
 export default defineComponent({
   name: 'FileShareList'

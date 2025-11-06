@@ -5,6 +5,10 @@ import AdminAsyncTaskView from 'sfc-common/views/admin/AdminAsyncTaskView.vue'
 import { h } from 'vue'
 import { MenuGroup } from './type'
 import MonitorView from 'sfc-common/views/admin/MonitorView.vue'
+import ThirdPlatformLoginConfigView from 'sfc-common/views/admin/ThirdPlatformLoginConfigView.vue'
+import { ChildrenType } from 'sfc-common/utils/SfcUtils/common/DyncMount'
+
+const cache = {} as {[k:string]: ChildrenType}
 export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
   return [
     {
@@ -42,12 +46,31 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
       action(ctx) {
         ctx.component = h(AdminAsyncTaskView)
       }
+    },
+    {
+      id: 'third-platform-config',
+      name: '第三方平台',
+      icon: 'mdi-link-box',
+      items: [
+        {
+          id: 'third-platform-login',
+          title: '第三方登录',
+          action(ctx) {
+            if (!cache[this.id]) {
+              console.log('渲染组件')
+              cache[this.id] = h(ThirdPlatformLoginConfigView, { adminContext: ctx })
+            }
+            ctx.component = cache[this.id]
+          },
+        },
+        {
+          id: 'third-platform-income',
+          title: 'OAuth Apps',
+          action(ctx) {
+            ctx.component = h('div', null, '未开发')
+          },
+        }
+      ]
     }
-    // {
-    //   id: 'plugin-manager',
-    //   name: '插件管理',
-    //   icon: 'mdi-puzzle',
-    //   items: []
-    // }
   ]
 } 

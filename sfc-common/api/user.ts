@@ -254,13 +254,13 @@ const user = {
 
   /**
    *
-   * @param {Number} uid 用户ID
-   * @param {String} oldPasswd 旧密码
-   * @param {String} newPasswd 新密码
-   * @param {String} force     强制修改
+   * @param uid 用户ID
+   * @param oldPasswd 旧密码
+   * @param newPasswd 新密码
+   * @param force     强制修改
    * @returns
    */
-  modifyPasswd(uid: number, oldPasswd: string, newPasswd: string, force: boolean = false): CommonRequest {
+  modifyPasswd(uid: IdType, oldPasswd: string, newPasswd: string, force: boolean = false): CommonRequest {
     const res = {
       url: `${this.prefix}/${uid}/passwd`,
       method: 'post',

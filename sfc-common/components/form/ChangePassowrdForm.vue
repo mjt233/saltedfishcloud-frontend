@@ -45,7 +45,7 @@
 const formValid = ref(false)
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String] as PropType<IdType>,
     default: null
   },
   /**
@@ -63,7 +63,7 @@ const props = defineProps({
     default: false
   }
 })
-const userInfo = context.session.value.user
+const userInfo = getContext().session.value.user
 const originPassword = ref('')
 const newPassword = ref('')
 const replacePassword = ref('')
@@ -90,12 +90,13 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, defineExpose, defineEmits } from 'vue'
-import { context, ValidateResult } from 'sfc-common/core/context'
+import { defineComponent, ref, defineExpose, defineEmits, PropType } from 'vue'
+import { getContext, ValidateResult } from 'sfc-common/core/context'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { FormCol, FormGrid, FormRow } from '../layout'
 import { TextInput } from '../common'
+import { IdType } from 'sfc-common/index'
 
 export default defineComponent({
   name: 'ChangePasswordForm'

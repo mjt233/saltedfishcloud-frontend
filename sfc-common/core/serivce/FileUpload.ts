@@ -62,6 +62,16 @@ export interface FileUploadInfo {
    */
   otherAttr?: any
 
+  /**
+   * 错误原因
+   */
+  errorReason?: string
+
+  /**
+   * 错误消息对象
+   */
+  error?: any
+
 }
 
 export interface FileUploadExecutor {
@@ -218,6 +228,9 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
   protected uploadInfo: FileUploadInfo
   private uploadPromise: Promise<any>|undefined
   protected opt: ExecutorOption
+  protected cancelableTasks: {
+    [name: string]: Function
+  } = {}
 
   /**
    * 构造文件上传执行器
@@ -265,13 +278,20 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     if (!this.digestCache) {
       const originStatus = this.uploadInfo.status
       this.uploadInfo.status = 'digest'
-      this.digestCache = await FileUtils.computeMd5(this.file, {
+      const computePromise = FileUtils.computeMd5(this.file, {
         prog: e => {
           this.uploadInfo.prog.loaded = e.loaded
           this.uploadInfo.prog.total = e.total
         }
       })
-      this.uploadInfo.status = originStatus
+      const taskName = 'getDigest'
+      this.cancelableTasks[taskName] = () => computePromise.cancel()
+      try {
+        this.digestCache = await computePromise
+        this.uploadInfo.status = originStatus
+      } finally {
+        delete this.cancelableTasks[taskName]
+      }
     }
     return this.digestCache
   }
@@ -364,6 +384,9 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
    */
   protected handleErrorEvent(err: any) {
     this.uploadInfo.status = 'failed'
+    this.uploadInfo.errorReason = String(err)
+    this.uploadInfo.error = err
+    console.error('上传文件出错', err)
     SfcUtils.batchInvokeFunction(this.errorHandler, err)
   }
 
@@ -411,6 +434,10 @@ export class DirectFileUploadExecutor extends CommonFileUploadExecutor {
   interrupt(): void {
     this.cancelTokenSource.cancel('interrupt')
     this.handleInterruptEvent()
+    Object.keys(this.cancelableTasks).forEach(taskName => {
+      this.cancelableTasks[taskName]()
+    })
+    this.cancelableTasks = {}
   }
 
 }
@@ -720,6 +747,10 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
   
   interrupt(): void {
     this.cancelToken.cancel()
+    Object.keys(this.cancelableTasks).forEach(taskName => {
+      this.cancelableTasks[taskName]()
+    })
+    this.cancelableTasks = {}
     this.handleInterruptEvent()
   }
 }

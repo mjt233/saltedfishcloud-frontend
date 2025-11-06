@@ -138,7 +138,6 @@
           </tr>
         </tbody>
       </v-table>
-      <empty-tip v-if="type == 'grid' && fileList.length == 0" />
       <!-- grid类型的文件显示 -->
       <grid-container
         v-if="type == 'grid'"
@@ -146,6 +145,7 @@
         :width="120"
         class="grid-container"
       >
+        <empty-tip v-if="fileList.length == 0" style="position: absolute;width: calc(100% - 16px);" />
         <file-list-grid-item
           v-for="(fileInfo) in fileList"
           :key="path + fileInfo.name + fileInfo.md5"
@@ -195,6 +195,7 @@ import EmptyTip from '../EmptyTip.vue'
 import GridContainer from 'sfc-common/components/layout/GridContainer.vue'
 import FileListGridItem from './FileListGridItem.vue'
 import SelectArea from '../SelectArea.vue'
+import './style.scss'
 
 const props = defineProps(propsOptions)
 const handler = inject<Ref<FileSystemHandler>>('fileSystemHandler', null as any) as Ref<FileSystemHandler>
@@ -503,9 +504,6 @@ const containerHeight = computed(() => {
 const formatSize = (size: number) => {
   return StringFormatter.toSize(size)
 }
-watch(() => props.readOnly, () => {
-  fileListContext.readonly = props.readOnly
-})
 
 /**
  * 加载README.md预览
@@ -531,7 +529,11 @@ const loadReadme = async() => {
   }
 }
 
+watch(() => props.readOnly, () => {
+  fileListContext.readonly = props.readOnly
+})
 watch(() => props.fileList, () => {
+  fileListContext.fileList = props.fileList
   loadReadme()
   resetSelect()
 })
@@ -577,7 +579,6 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-@import './style.scss';
 .grid-container {
   height: v-bind(containerHeight);
   padding: 6px 8px;

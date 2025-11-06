@@ -259,9 +259,10 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounte
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'
-import { API, StringUtils } from 'sfc-common/index'
+import { StringUtils } from 'sfc-common'
 import Token from 'markdown-it/lib/token'
 import { ChapterTreeNode as ChapterTreeNode } from './type'
+import API from 'sfc-common/api'
 
 export default defineComponent({
   name: 'MarkdownView'

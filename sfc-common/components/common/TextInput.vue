@@ -111,7 +111,7 @@ defineExpose({
 
 <script lang="ts">
 import { defineComponent, defineProps, defineExpose, ref, toRefs, toRef, PropType, onMounted, watch } from 'vue'
-import { context, ValidateResult } from 'sfc-common/core/context'
+import { ValidateResult } from 'sfc-common/core/context'
 import { ValidateRule } from 'sfc-common/model/component/type'
 
 export default defineComponent({

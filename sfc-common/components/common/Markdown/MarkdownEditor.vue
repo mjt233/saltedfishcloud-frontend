@@ -232,7 +232,7 @@ const patseImage = async(file: File) => {
     params.path = StringUtils.appendPath(params.path, option.path.replace(/^\.\/+/, ''))
   } else {
     params.path = option.path
-    params.targetId = context.session.value.user.id
+    params.targetId = getContext().session.value.user.id
   }
   if (file.lastModified) {
     params.mtime = file.lastModified
@@ -257,7 +257,7 @@ const patseImage = async(file: File) => {
     if (option.location == '1') {
       imgUrl = StringUtils.appendPath(option.path, option.name)
     } else {
-      const res = await SfcUtils.request(API.file.getFileInfo(context.session.value.user.id, option.path, option.name))
+      const res = await SfcUtils.request(API.file.getFileInfo(getContext().session.value.user.id, option.path, option.name))
       const fileInfo = res.data.data
       if (!fileInfo) {
         SfcUtils.alert('上传的文件信息获取失败')
@@ -318,7 +318,8 @@ import MarkdownImagePatseConfirmForm from './MarkdownImagePatseConfirmForm.vue'
 import { ChapterTreeNode, ImagePatseOption } from './type'
 import { StringFormatter, StringUtils } from 'sfc-common/utils'
 import { CONFIG_KEY } from './constants'
-import { API, context, ResourceRequest } from 'sfc-common/index'
+import { getContext, ResourceRequest } from 'sfc-common/index'
+import API from 'sfc-common/api'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import MarkdownView from './MarkdownView.vue'
 import ChapterMenu from './ChapterMenu.vue'

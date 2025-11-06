@@ -5,7 +5,7 @@ import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 import { FileClipBoard, FileClipBoardType } from 'sfc-common/core/context/type'
 import { FileListContext, FileTransferParam } from 'sfc-common/model'
 import { defineComponent, h, reactive } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
@@ -16,7 +16,7 @@ import { AsyncTaskInfo } from 'sfc-common/components'
 const archiveTypeCache = new Map<string, boolean>()
 
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
-  context.fileClipBoard.value = reactive({
+  getContext().fileClipBoard.value = reactive({
     files: ctx.selectFileList,
     path: ctx.path,
     type: type,
@@ -74,7 +74,7 @@ const otherGroup: MenuGroup<FileListContext> =
 
         // 判断拓展名是否在支持的压缩类型范围内
         if (archiveTypeCache.size == 0) {
-          context.feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
+          getContext().feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
         }
         const extName = name.substring(idx + 1)
         return archiveTypeCache.get(extName) == true
@@ -140,7 +140,7 @@ const otherGroup: MenuGroup<FileListContext> =
             targetUid: ctx.uid,
             archiveParam: {
               type: 'zip',
-              encoding: context.feature.value.archiveEncoding
+              encoding: getContext().feature.value.archiveEncoding
             },
             waitExit: false
           }))).data.data
@@ -177,7 +177,7 @@ const otherGroup: MenuGroup<FileListContext> =
       title: '复制',
       icon: 'mdi-content-copy',
       renderOn(ctx) {
-        return ctx.selectFileList.length > 0 && !!context.session.value.token
+        return ctx.selectFileList.length > 0 && !!getContext().session.value.token
       },
       async action(ctx) {
         setToClipBoard(ctx, 'copy')
@@ -189,7 +189,7 @@ const otherGroup: MenuGroup<FileListContext> =
       title: '剪切',
       icon: 'mdi-content-cut',
       renderOn(ctx) {
-        return !ctx.readonly && ctx.selectFileList.length > 0 && !!context.session.value.token
+        return !ctx.readonly && ctx.selectFileList.length > 0 && !!getContext().session.value.token
       },
       async action(ctx) {
         setToClipBoard(ctx, 'cut')
@@ -207,7 +207,7 @@ const otherGroup: MenuGroup<FileListContext> =
         }
 
         // 剪切板没文件不显示
-        const clipBoard = context.fileClipBoard.value
+        const clipBoard = getContext().fileClipBoard.value
         if (!clipBoard) {
           return false
         }
@@ -221,7 +221,7 @@ const otherGroup: MenuGroup<FileListContext> =
         return true
       },
       async action(ctx) {
-        const clip = context.fileClipBoard.value
+        const clip = getContext().fileClipBoard.value
         if ((clip.otherAttr.uid === 0 || clip.otherAttr.uid) && ctx.path) {
           const param: FileTransferParam = {
             files: clip.files.map(e => { return {
@@ -236,7 +236,7 @@ const otherGroup: MenuGroup<FileListContext> =
             await SfcUtils.request(API.file.copy(param))
           } else if (clip.type == 'cut') {
             await SfcUtils.request(API.file.move(param))
-            context.fileClipBoard.value = reactive({} as FileClipBoard)
+            getContext().fileClipBoard.value = reactive({} as FileClipBoard)
           }
           await ctx.modelHandler.refresh()
         }

@@ -1,15 +1,15 @@
 <template>
   <loading-mask :loading="loadingManager.getLoadingRef().value" />
   <!-- 顶部栏 -->
-  <v-app-bar :color="context.theme.value == 'dark' ? 'surface': 'primary'">
+  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'primary'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
-    <v-toolbar-title>{{ context.appTitle.value }}</v-toolbar-title>
+    <v-toolbar-title>{{ getContext().appTitle.value }}</v-toolbar-title>
     <v-spacer />
     <v-btn
       v-ripple
       icon
       style="border-radius: 50%;"
-      @click="context.visiableWindows.value.uploadList = !context.visiableWindows.value.uploadList"
+      @click="getContext().visiableWindows.value.uploadList = !getContext().visiableWindows.value.uploadList"
     >
       <v-badge v-if="uploadingExecutor.length != 0" dot color="error">
         <v-icon size="24" icon="mdi-swap-vertical" />
@@ -74,8 +74,10 @@
 
   <!-- 功能视图路由 -->
   <v-main :class="{'bg-main-view': enabledBg}">
-    <div class="main-body" style="position: relative;">
-      <component :is="adminContext.component" v-if="adminContext.component" />
+    <div v-if="adminContext.component" class="main-body" style="position: relative;">
+      <keep-alive>
+        <component :is="adminContext.component" />
+      </keep-alive>
     </div>
   </v-main>
   <fixed-btn :hide="hideConfirm" @click="confirmChange" />
@@ -93,14 +95,75 @@ const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
 const router = useRouter()
-const session = context.session
+const session = getContext().session
 const hideConfirm = ref(true)
 let initPromise:Promise<any>
+
+const nodeMap = {} as {[key: string]: ConfigNodeModel}
+
+/**
+ * 其他自定义的节点map，不使用系统统一的配置参数保存和读取，而是通过事件机制通知相关的组件进行处理
+ */
+const extraNodeMap = reactive({}) as {[source: string]: {[key: string]: ConfigNodeModel}}
+
+interface EventListener {
+  source: string
+}
+const listeners = {
+  beforeSaveListener: [] as {source: string, handler: () => Promise<any>}[],
+  saveListener: [] as {source: string, handler: () => Promise<any>}[],
+  configChangeListener: [] as {source: string, handler: (event: AdminContextConfigChangeEvent) => void}[]
+}
 
 const adminContext: AdminContext = reactive({
   component: undefined,
   group: 'general',
-  item: 'overview'
+  item: 'overview',
+  addBeforeSaveListener(source, handler) {
+    listeners.beforeSaveListener.push({
+      source,
+      handler
+    })
+  },
+  addSaveListener(source, saveHandler) {
+    listeners.saveListener.push({
+      source,
+      handler: saveHandler
+    })
+  },
+  addConfigChangeListener(source, listener) {
+    listeners.configChangeListener.push({
+      source,
+      handler: listener
+    })
+  },
+  removeAllListener(source) {
+    const listenerMap = listeners as unknown as {[name: string]: EventListener[]}
+    Object.keys(listenerMap).forEach(k => {
+      listenerMap[k] = listenerMap[k].filter(e => e.source != source)
+    })
+  },
+  changeConfig(source, node) {
+    let sourceNodeMap = extraNodeMap[source]
+    if (!sourceNodeMap) {
+      sourceNodeMap = reactive({})
+      extraNodeMap[source] = sourceNodeMap
+    }
+    sourceNodeMap[node.name] = node
+    listeners.configChangeListener.forEach(listener => {
+      listener.handler({
+        node, source
+      })
+    })
+    updateHideConfirm()
+  },
+  getExtraNodeMap() {
+    return extraNodeMap
+  },
+  resetExtraNodeMap(source) {
+    delete extraNodeMap[source]
+    updateHideConfirm()
+  },
 })
 
 /**
@@ -123,10 +186,6 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     return pluginConfigs
   }
 }, false, loadingManager)
-
-
-
-const nodeMap = {} as {[key: string]: ConfigNodeModel}
 
 
 /**
@@ -183,30 +242,71 @@ const initMenu = async() => {
 }
 
 const updateHideConfirm = () => {
-  const changeObj = Object.keys(nodeMap).find(nodeName => nodeMap[nodeName].originValue + '' != nodeMap[nodeName].value + '')
+  const changeObj = 
+    Object.keys(nodeMap).find(nodeName => nodeMap[nodeName].originValue + '' != nodeMap[nodeName].value + '')
+    ||
+    Object.keys(extraNodeMap).flatMap(source => Object.keys(extraNodeMap[source]).map(name => extraNodeMap[source][name]))
+      .find(c => c.originValue + '' != c.value + '')
   hideConfirm.value = changeObj == undefined
 }
 
-const confirmChange = () => {
+const confirmChange = async() => {
+  // 取出发生变更的数据
   const changeList = Object.keys(nodeMap)
     .filter(nodeName => nodeMap[nodeName].originValue + '' != nodeMap[nodeName].value + '')
     .map(nodeName => nodeMap[nodeName])
+    .concat(
+    )
 
+  const extraChangeList = Object.keys(extraNodeMap)
+    .flatMap(source => Object.keys(extraNodeMap[source]).map(nodeName => extraNodeMap[source][nodeName]))
+    .filter(node => node.originValue + '' != node.value + '')
+  
+  // 保存前校验是否可以提交
+  const beforeListenerResult = await Promise.allSettled(listeners.beforeSaveListener.map(handler => handler.handler()))
+  const errMsg = beforeListenerResult.filter(e => e.status == 'rejected').map(e => e.reason).join('; ')
+  if (errMsg) {
+    SfcUtils.snackbar(errMsg)
+    return
+  }
+  
+  // 用户确认
   const dialogInst = SfcUtils.openComponentDialog(ConfigNodeChangeListVue, {
     props: {
-      nodes: changeList
+      nodes: changeList.concat(extraChangeList)
     },
     title: '配置修改确认',
     async onConfirm() {
       dialogInst.beginLoading()
       try {
-        await SfcUtils.request(API.admin.sys.batchSetConfig(changeList))
+        // 全局通用配置保存
+        if (changeList.length != 0) {
+          await SfcUtils.request(API.admin.sys.batchSetConfig(changeList))
+        }
+        
+
+        // 额外的数据保存
+        const extraSaveResult = await Promise.allSettled(listeners.saveListener.map(listener => {
+          return listener.handler()
+            .catch(err => {
+              console.error(err)
+              return Promise.reject({
+                source: listener.source,
+                reason: err
+              })
+            })
+        }))
+        const extraErrorMsg = extraSaveResult.filter(e => e.status == 'rejected').map(e => e.reason).join('; ')
+        if (extraErrorMsg) {
+          SfcUtils.alert(extraErrorMsg)
+        }
+
         await initMenu()
         await loadView(adminContext.group as string, adminContext.item as string)
         updateHideConfirm()
         dialogInst.closeLoading()
         SfcUtils.snackbar('修改成功')
-        context.eventBus.value.emit(EventNameConstants.SYS_CONFIG_CHANGE, changeList)
+        getContext().eventBus.value.emit(EventNameConstants.SYS_CONFIG_CHANGE, changeList)
         return true
       } catch(err) {
         const msg = err ? err.toString && err.toString() : '未知错误'
@@ -251,7 +351,6 @@ const loadView = (groupId: string, itemId: string) => {
     openGroup.value = [groupId]
     adminContext.item = ''
     adminContext.group = groupObj.id
-    adminContext.component = undefined
     if (groupObj.action) {
       groupObj.action(adminContext)
     } else {
@@ -264,7 +363,6 @@ const loadView = (groupId: string, itemId: string) => {
   } else if (groupObj && itemObj) {
     adminContext.group = groupObj.id
     adminContext.item = itemObj.id
-    adminContext.component = undefined
     itemObj.action && itemObj.action(adminContext)
     return true
   } else {
@@ -275,7 +373,7 @@ const loadView = (groupId: string, itemId: string) => {
 
 const loadViewFromRoute = async() => {
   await initPromise
-  const nodes = context.routeInfo.value.curr?.params.configNode as string[]
+  const nodes = getContext().routeInfo.value.curr?.params.configNode as string[]
   let res
   if (!nodes || nodes.length == 0) {
     // 未从路由中获取到一级和二级菜单id，则默认加载总览e'e页面
@@ -310,7 +408,7 @@ watch(
 
 <script lang="ts">
 import { ref, defineComponent, reactive, onMounted, h, watch, Ref } from 'vue'
-import { AdminContext, context, MenuGroup, MenuItem } from 'sfc-common/core/context/'
+import { AdminContext, AdminContextConfigChangeEvent, getContext, MenuGroup, MenuItem } from 'sfc-common/core/context/'
 import { getDefaultAdminMenu } from 'sfc-common/core/context/menu/AdminMenu'
 import NotFoundTipVue from 'sfc-common/components/common/NotFoundTip.vue'
 import { useRouter } from 'vue-router'

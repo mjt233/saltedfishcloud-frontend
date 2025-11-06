@@ -178,7 +178,7 @@ onMounted(async() => {
     },
     lineNumbers: props.hideLineNumber ? 'off' : 'on',
     automaticLayout: true,
-    theme: context.theme.value == 'dark' ? 'vs-dark' : 'vs',
+    theme: getContext().theme.value == 'dark' ? 'vs-dark' : 'vs',
     readOnly: props.readOnly,
     wordWrap: props.wordWrap ? 'on' : 'off'
   })
@@ -229,7 +229,7 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import typescriptWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { CodeEditorExpose } from 'sfc-common/model/component/CodeEditorModel'
 

@@ -1,7 +1,7 @@
 import router from 'sfc-common/plugins/router'
 import vuetify from 'sfc-common/plugins/vuetify'
 import { App, Component, createApp } from 'vue'
-import component from 'sfc-common/components'
+// import component from 'sfc-common/components'
 
 // 记录所有后面额外再次注册的组件
 const globalRegisteredComponent = {} as {[name: string]: Component}
@@ -15,7 +15,19 @@ const buildApp = (rootComponent: Component ) => {
 const initApp = (app: App<Element>) => {
   app.use(router)
     .use(vuetify)
-    .use(component)
+    .use(async app => {
+      const allComponent = import.meta.glob('../../components/**/*.vue', { eager: true })
+      const registerSet: Set<string> = new Set()
+      Object.keys(allComponent).forEach(async fileName => {
+        const componentName = (allComponent[fileName] as any).default.name
+        const component = (allComponent[fileName] as any).default
+        if (registerSet.has(componentName)) {
+          return
+        }
+        registerSet.add(componentName)
+        app.component(componentName, component)
+      })
+    })
   const originComponentMethod = app.component
 
   // 把之前额外注册过的组件，全部再在新的app实例中注册一次

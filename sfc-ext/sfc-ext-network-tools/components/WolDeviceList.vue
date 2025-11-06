@@ -149,7 +149,7 @@ onUnmounted(() => {
 </script>
 
 <script lang="ts">
-import { IdType, LoadingManager, MethodInterceptor, Components } from 'sfc-common'
+import { IdType, LoadingManager, MethodInterceptor } from 'sfc-common'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 import { NwtApi } from '../api'
 import { WolDevice } from '../model'
@@ -158,12 +158,13 @@ import WolDeviceForm from './WolDeviceForm.vue'
 import { reactive } from 'vue'
 import { onUnmounted } from 'vue'
 import { DesktopComponentConfig } from 'sfc-common/model/Desktop'
+import { LoadingMask } from 'sfc-common/components'
 
 export default defineComponent({
   name: 'WolDeviceList',
   components: {
     WolDeviceCard,
-    LoadingMask: Components.LoadingMask
+    LoadingMask: LoadingMask
   }
 })
 </script>

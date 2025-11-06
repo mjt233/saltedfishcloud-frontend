@@ -78,8 +78,8 @@ const getComponentProps = (item: DesktopComponentConfig) => {
   return baseObj
 }
 
-const hasLogin = computed(() => ConditionFunction.hasLogin(context))
-const isAdmin = computed(() => ConditionFunction.isAdmin(context))
+const hasLogin = computed(() => ConditionFunction.hasLogin(getContext()))
+const isAdmin = computed(() => ConditionFunction.isAdmin(getContext()))
 
 const gotoConfigure = (isQuick?: boolean) => {
   if (isQuick) {
@@ -108,7 +108,7 @@ const gotoConfigure = (isQuick?: boolean) => {
     } else {
       path = '/box/desktop'
     }
-    context.routeInfo.value.router?.push({
+    getContext().routeInfo.value.router?.push({
       path
     })
   }
@@ -129,7 +129,7 @@ onMounted(actions.loadComponentConfig)
 
 <script lang="ts">
 import API from 'sfc-common/api'
-import { ConditionFunction, context } from 'sfc-common/core'
+import { ConditionFunction, getContext } from 'sfc-common/core'
 import { DesktopComponentConfig } from 'sfc-common/model/Desktop'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'

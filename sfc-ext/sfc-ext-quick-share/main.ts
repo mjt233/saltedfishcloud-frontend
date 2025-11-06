@@ -1,4 +1,4 @@
-import { BoxMenuContext, context, MenuItem } from 'sfc-common'
+import { BoxMenuContext, getContext, MenuItem } from 'sfc-common'
 import quickShareView from './components/quick-share-view.vue'
 import QuickShareApi from './api'
 
@@ -9,8 +9,8 @@ window.bootContext.addProcessor({
     if ( !SfcUtils.getSystemFeature(QuickShareApi.featurePrefix, QuickShareApi.feature.isEnabled) ) {
       return
     }
-    app.component(quickShareView.name, quickShareView)
-    const menu = context.menu.value.boxMenu.find(e => e.id == 'shareAndCollection')
+    app.component(quickShareView.name as string, quickShareView)
+    const menu = getContext().menu.value.boxMenu.find(e => e.id == 'shareAndCollection')
     const menuItem: MenuItem<BoxMenuContext> = {
       id: 'quick-share',
       icon: 'mdi-flash',
@@ -24,7 +24,7 @@ window.bootContext.addProcessor({
     if (menu) {
       menu.items.push(menuItem)
     } else {
-      context.menu.value.boxMenu.push({
+      getContext().menu.value.boxMenu.push({
         id: 'shareAndCollection',
         name: '文件交流',
         items: [menuItem]

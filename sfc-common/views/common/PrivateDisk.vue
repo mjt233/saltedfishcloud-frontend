@@ -10,19 +10,19 @@
 
 <script setup lang="ts">
 import UserFileBrowser from 'sfc-common/components/common/UserFileBrowser.vue'
-const session = context.session
+const session = getContext().session
 
 const path = ref('/')
 
 // 根据路由设定初始路径
-const pathParams = context.routeInfo.value.curr?.params.path as string[] | undefined
+const pathParams = getContext().routeInfo.value.curr?.params.path as string[] | undefined
 if (pathParams) {
   const initPath = '/' + pathParams.join('/')
   path.value = initPath
 }
 
 const updateUrl = () => {
-  context.routeInfo.value.router?.replace(StringUtils.appendPath('/private', path.value.substring(1)))
+  getContext().routeInfo.value.router?.replace(StringUtils.appendPath('/private', path.value.substring(1)))
 }
 watch(path, () => {
   updateUrl()
@@ -30,7 +30,7 @@ watch(path, () => {
 </script>
 
 <script lang="ts">
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { computed, defineComponent, onMounted, Ref, ref, watch } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 export default defineComponent({

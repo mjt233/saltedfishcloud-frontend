@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 /* VS Code代码片段生成 prefix: vform */
-import { CommonForm, FormFieldType, IdType, Validators, context, defineForm } from 'sfc-common'
+import { CommonForm, FormFieldType, IdType, Validators, defineForm } from 'sfc-common'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   initObject: {

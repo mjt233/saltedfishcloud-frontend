@@ -22,13 +22,13 @@ provide('hrefReplacer', (href: string) => {
 path.value = '/' + (paths || []).join('/')
 
 watch(path, () => {
-  context.routeInfo.value.router?.replace(StringUtils.appendPath(`/s/${sid}/${vid}/`, path.value.substring(1)))
+  getContext().routeInfo.value.router?.replace(StringUtils.appendPath(`/s/${sid}/${vid}/`, path.value.substring(1)))
 })
 </script>
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch, provide } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { getContext } from 'sfc-common/core/context'
 import { StringUtils } from 'sfc-common/utils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 

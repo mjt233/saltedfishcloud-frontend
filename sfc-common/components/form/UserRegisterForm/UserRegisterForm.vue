@@ -12,19 +12,20 @@
       </div>
     </v-list-item>
     <v-tabs
+      v-if="isEnableRegister"
       v-model="regType"
       background-color="background"
       color="primary"
       grow
     >
-      <v-tab v-if="context.feature.value.enableRegCode" value="regCode">
+      <v-tab v-if="getContext().feature.value.enableRegCode" value="regCode">
         邀请码
       </v-tab>
-      <v-tab v-if="context.feature.value.enableEmailReg" value="email" optional>
+      <v-tab v-if="getContext().feature.value.enableEmailReg" value="email" optional>
         邮箱注册
       </v-tab>
     </v-tabs>
-    <v-card-text>
+    <v-card-text v-if="isEnableRegister">
       <base-register-form ref="baseForm" />
       <base-form
         ref="extraForm"
@@ -75,6 +76,11 @@
         立即注册
       </v-btn>
     </v-card-text>
+    <v-card-text v-else>
+      <p class="tip">
+        系统未开放注册
+      </p>
+    </v-card-text>
     
   </v-card>
 </template>
@@ -89,10 +95,10 @@ import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 import TimeoutBtn from 'sfc-common/components/common/btn/TimeoutBtn.vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-const avatar = context.defaultAvatar.value
+const avatar = getContext().defaultAvatar.value
 const baseForm = ref()
 const extraForm = ref()
-const regType = ref('regCode')
+const regType = ref('') as Ref<'regCode' | 'email' | ''>
 const loading = ref(false)
 const emailInput = ref()
 const extraFormData = reactive({
@@ -120,6 +126,9 @@ const extraRules = computed(() => {
       emailCode: [Validators.notNull()]
     }
   }
+})
+const isEnableRegister = computed(() => {
+  return getContext().feature.value.enableEmailReg || getContext().feature.value.enableRegCode
 })
 const sonForms = [ baseForm ]
 const submitAction = async() => {
@@ -170,11 +179,15 @@ const sendEmailCode = async(e: any) => {
   
 }
 defineExpose(deconstructForm(extraForm))
+onMounted(() => {
+  const feature = getContext().feature.value
+  regType.value = (feature.enableRegCode && 'regCode') || (feature.enableEmailReg && 'email') || ''
+})
 </script>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref, toRefs, watch } from 'vue'
-import { context } from 'sfc-common/core/context'
+import { computed, defineComponent, onMounted, reactive, Ref, ref, toRefs, watch } from 'vue'
+import { getContext } from 'sfc-common/core/context'
 import { Validators } from 'sfc-common/core/helper/Validators'
 
 export default defineComponent({

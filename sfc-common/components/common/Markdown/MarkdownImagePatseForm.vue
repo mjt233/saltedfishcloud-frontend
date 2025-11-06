@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { CommonForm, context, defineForm, FormFieldType, Validators } from 'sfc-common'
+import { CommonForm, defineForm, FormFieldType, getContext, Validators } from 'sfc-common'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 const formRef = ref() as Ref<CommonForm>
 const emits = defineEmits(['submit'])
@@ -89,7 +89,7 @@ const initConfig = async() => {
 const selectDirPath = async() => {
   try {
     const path = await SfcUtils.selectPath({
-      uid: context.session.value.user.id,
+      uid: getContext().session.value.user.id,
       path: formData.path,
       readOnly: false
     })

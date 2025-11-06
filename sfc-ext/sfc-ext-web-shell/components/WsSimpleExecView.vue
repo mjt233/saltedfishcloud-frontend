@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { Components, LoadingManager, MethodInterceptor, NameValueType, SelectOption } from 'sfc-common'
+import { LoadingManager, MethodInterceptor, NameValueType, SelectOption } from 'sfc-common'
 
 const charsetOptions: SelectOption[] = [ {
   title: 'UTF-8',
@@ -190,13 +190,12 @@ import { defineComponent, Ref, ref } from 'vue'
 import { WebShellApi } from '../api'
 import { reactive } from 'vue'
 import { ShellExecuteParameter } from '../model'
-import { ComponentPublicInstance } from 'vue'
-import { nextTick } from 'vue'
+import { FormSelect, ClusterSelector } from 'sfc-common/components'
 export default defineComponent({
   name: 'WsSimpleExecView',
   components: {
-    FormSelect: Components.FormSelect,
-    ClusterSelector: Components.ClusterSelector,
+    FormSelect: FormSelect,
+    ClusterSelector: ClusterSelector,
     WsSimpleTextConsole
   }
 })

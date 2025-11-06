@@ -27,7 +27,7 @@ export namespace ShareService {
    * 取消分享
    * @param sid 待取消的分享id
    */
-  export async function deleteShare(sid: number) {
+  export async function deleteShare(sid: IdType) {
     return await SfcUtils.request(API.share.deleteShare(sid))
   }
   
