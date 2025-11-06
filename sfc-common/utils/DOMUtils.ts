@@ -34,14 +34,22 @@ const DOMUtils = {
     return res
   },
   /**
-     * 根据类名取某个元素的父节点，成功返回DOM，失败返回null
-     * @param {HTMLElement} elem
-     * @param {String} className
-     * @return {HTMLElement}
-     */
+   * 根据类名取某个元素的父节点，成功返回DOM，失败返回null
+   * @param {HTMLElement} elem
+   * @param {String} className
+   * @return {HTMLElement}
+   */
   getElParentByClass(elem: HTMLElement, className: string) {
+    return this.getElParent(elem, el => el.classList.contains(className))
+  },
+  /**
+   * 按自定义逻辑查找匹配的父级元素，成功返回DOM，失败返回null
+   * @param elem 开始向上寻找DOM节点的起始元素
+   * @param mather 查找匹配规则
+   */
+  getElParent(elem: HTMLElement, mather: (el: HTMLElement) => boolean) {
     let t: ParentNode & HTMLElement = elem
-    while (t != null && (t.nodeName === '#text' || (!t.classList.contains(className) && t.tagName !== 'HTML'))) {
+    while (t != null && (t.nodeName === '#text' || (!mather(t) && t.tagName !== 'HTML'))) {
       t = t.parentNode as ParentNode & HTMLElement
     }
     if (t == null || t.tagName === 'HTML') {

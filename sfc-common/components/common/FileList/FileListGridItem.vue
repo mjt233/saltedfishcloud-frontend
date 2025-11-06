@@ -166,13 +166,14 @@ export default defineComponent({
     }
   }
 
-  &:hover {
+  &:hover,&:focus-visible {
     background-color:  rgba(0, 0, 0, 0.08);
+    outline: none;
   }
   &.active {
     background-color:  rgba($color: var(--v-theme-primary), $alpha: .125)
   }
-  &:hover,&.active {
+  &:hover,&.active,&:focus-visible {
     .item-name {
       color: var(--v-theme-primary)
     }
