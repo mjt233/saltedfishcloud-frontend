@@ -149,12 +149,12 @@
       >
         <empty-tip v-if="fileList.length == 0" style="position: absolute;width: calc(100% - 16px);" />
         <file-list-grid-item
-          v-for="(fileInfo, fileInfoIdx) in fileList"
+          v-for="fileInfo in fileList"
           :id="fileInfo.name + fileInfo.md5"
           :key="path + fileInfo.name + fileInfo.md5"
           ref="gridItemRef"
           v-ripple
-          :tabindex="fileInfoIdx"
+          tabindex="1"
           :file-name="fileInfo.name"
           :file-info="fileInfo"
           :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
@@ -163,6 +163,7 @@
           :use-select="useSelect"
           @click="fileLClick($event, fileInfo)"
           @keypress.enter="fileLClick($event, fileInfo)"
+          @keypress.space="fileLClick($event, fileInfo)"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
           @check-change="toggleSelectFile(fileInfo)"
         />
