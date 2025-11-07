@@ -8,7 +8,7 @@ import { defaultFileOpenHandlers } from './fileOpenHandler'
 import { defaultFileBrowserTopBtns } from 'sfc-common/core/actions/FileList/FileListBtn'
 import defaultBoxMenu from './menu/BoxMenu'
 
-const defaultFeature: SystemFeature = {
+const defaultFeature: SystemFeature = reactive({
   enableEmailReg: false,
   enableRegCode: false,
   extractArchiveType: ['zip'],
@@ -18,7 +18,7 @@ const defaultFeature: SystemFeature = {
   thumbType: ['jpg', 'bmp', 'gif', 'png', 'jpeg', 'webp'],
   breakpointUrl: '/api/breakpoint',
   darkTheme: false
-}
+})
 
 const context: ToRefs<AppContext> = toRefs(reactive({
   appTitle: '咸鱼云网盘',
