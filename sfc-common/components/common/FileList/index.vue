@@ -1,5 +1,6 @@
 <template>
-  <resize-container 
+  <resize-container
+    class="file-list"
     :style="readmeViewStyle"
     :hide-right="!(readme && readme.length)"
   >
@@ -90,6 +91,7 @@
             v-for="(fileInfo, index) in fileList"
             :key="path + fileInfo.name"
             v-ripple
+            :file-name="fileInfo.name"
             file-item
             :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
             @contextmenu.prevent="fileRClick($event, fileInfo)"
@@ -147,16 +149,21 @@
       >
         <empty-tip v-if="fileList.length == 0" style="position: absolute;width: calc(100% - 16px);" />
         <file-list-grid-item
-          v-for="(fileInfo) in fileList"
+          v-for="fileInfo in fileList"
+          :id="fileInfo.name + fileInfo.md5"
           :key="path + fileInfo.name + fileInfo.md5"
           ref="gridItemRef"
           v-ripple
+          tabindex="1"
+          :file-name="fileInfo.name"
           :file-info="fileInfo"
           :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
           :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
           :path="path"
           :use-select="useSelect"
           @click="fileLClick($event, fileInfo)"
+          @keypress.enter="fileLClick($event, fileInfo)"
+          @keypress.space="fileLClick($event, fileInfo)"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
           @check-change="toggleSelectFile(fileInfo)"
         />
@@ -205,7 +212,12 @@ const readme = ref('')
 const readmeViewMaxHeight = ref('0')
 
 let lastClickFile: FileInfo | null | boolean = null
-const selectedFile = reactive({}) as {[key:string]: FileInfo}
+
+/**
+ * 当前已选文件，key - 文件名+md5，value - fileList的元素
+ */
+const selectedFile = reactive({}) as { [key:string]: FileInfo }
+
 const renameNewName = ref('')
 const renameIndex = ref(-1)
 let renamePromiseResolve: ((value: string | PromiseLike<string>) => void) | null= null
@@ -218,7 +230,6 @@ const menuRef = ref() as Ref<ComponentPublicInstance>
 const rootRef = ref() as Ref<HTMLElement>
 const tableRef = ref() as Ref<ComponentPublicInstance>
 const gridRef = ref() as Ref<ComponentPublicInstance>
-const spacerRef = ref() as Ref<HTMLElement>
 const gridItemRef = ref()
 
 // 是否处于文件框选状态
@@ -243,6 +254,45 @@ const chapterClick = (node: ChapterTreeNode) => {
   
 }
 
+// 启用按键实时搜索
+useTypeToSearch({
+  focusRoot() {
+    return rootRef.value as HTMLElement
+  },
+  isCanTrigger() {
+    if (document.activeElement instanceof HTMLInputElement && (document.activeElement.type == '' || document.activeElement.type == 'text')) {
+      return false
+    }
+    return true
+  },
+  searchCallback(key, replaceKey) {
+    const useFirstCharMatch = replaceKey !== undefined
+    // 一直重复输入一个key时，采用按单个首字母检索模式，每重复一次就自动切换到下一个文件选中
+    const actualSearchKey = useFirstCharMatch ? replaceKey : key
+    // 下面两个变量只在首字母检索模式下赋值，确保文件可以一直从当前已选的文件开始往后选中而不会倒回去前面
+    let startSearchIdx = -1
+    let curSelectedFile: FileInfo | undefined
+    if (useFirstCharMatch && Object.keys(selectedFile).length == 1) {
+      curSelectedFile = Object.values(selectedFile)[0]
+      startSearchIdx = props.fileList.findIndex(f => f == curSelectedFile)
+    }
+
+    const matchFile = props.fileList.find((e, idx) => idx > startSearchIdx && e != curSelectedFile && e.name.toLowerCase().startsWith(actualSearchKey.toLowerCase()))
+    if (!matchFile) {
+      return
+    }
+    // 搜索匹配上了就自动选择这个文件
+    resetSelect()
+    selectedFile[matchFile.name + matchFile.md5] = matchFile
+
+    // 选择后滚动到对应位置
+    const el = rootRef.value.querySelector(`[file-name="${matchFile.name}"]`) as HTMLElement
+    if (!el) {
+      return
+    }
+    (scrollAnchor.value as HTMLElement).scrollTo({ top: el.offsetTop })
+  }
+})
 
 // README.md预览视图的style，设定最大高度和动态宽度
 const readmeViewStyle = computed(() => {
@@ -570,6 +620,9 @@ import { loadMDToHtml } from './MarkdownLoader'
 import ChapterMenu from '../Markdown/ChapterMenu.vue'
 import MarkdownView from '../Markdown/MarkdownView.vue'
 import { ChapterTreeNode } from '../Markdown/type'
+import { useTypeToSearch } from './typeToSearch'
+import file from 'sfc-common/api/file'
+import { selectFile } from 'sfc-common/utils/SfcUtils/file/fileSelector'
 
 export default defineComponent({
   name: 'FileList',

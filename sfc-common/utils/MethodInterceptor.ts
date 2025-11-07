@@ -198,14 +198,13 @@ export namespace MethodInterceptor {
           needWaitTime = delay
         }
       }
-      if (needWaitTime <= 0) {
+      if (needWaitTime <= 0 && !afterExecuteMap.has(funcName)) {
         lastExecuteMap.set(funcName, now)
         return invoker(args)
       }
       
       // 不可执行
-      if ((alawayDelay || afterExecute) && !afterExecuteMap.get(funcName)) {
-
+      if ((alawayDelay || afterExecute) && !afterExecuteMap.has(funcName)) {
         // 但存在延迟后置处理
         const timeout = setTimeout(() => {
           lastExecuteMap.set(funcName, now + needWaitTime)

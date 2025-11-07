@@ -24,12 +24,15 @@ const props = defineProps({
     default: 6
   },
   /**
-   * 待选则的元素
+   * 待选择的元素
    */
   selectElementsGetter: {
     type: Function as PropType<() => (HTMLElement[] | NodeList)>,
     default: () => () => []
   },
+  /**
+   * 用于触发点击事件的DOM元素，在该元素下点击可触发文件选择
+   */
   clickTrigger: {
     type: Object,
     default: () => window
