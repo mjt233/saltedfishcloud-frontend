@@ -15,7 +15,7 @@ bootContext
     taskName: '获取服务器信息',
     async execute() {
       const data = (await SfcUtils.request(API.sys.getFeature())).data
-      getContext().feature.value = reactive(data)
+      Object.assign(getContext().feature.value, data)
       if (data.bgMain) {
         getContext().bg.value.main = data.bgMain
       }
