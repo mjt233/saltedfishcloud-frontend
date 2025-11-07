@@ -22,11 +22,7 @@
               </v-btn>
 
               <!-- 按钮组 -->
-              <v-menu
-                v-else
-                open-on-focus
-                open-on-click
-              >
+              <v-menu v-else>
                 <!-- 触发按钮/标题 -->
                 <template #activator="{ props: a }">
                   <v-btn :color="group.color || 'primary'" v-bind="a">
