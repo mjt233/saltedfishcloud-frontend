@@ -55,6 +55,11 @@ export interface SystemFeature {
   darkTheme: boolean
 
   /**
+   * 网盘文件上传是否使用通用资源请求接口/api/file/upload
+   */
+  isUseCommonUpload: boolean
+
+  /**
    * 其他的拓展类型
    */
   [otherKey: string]: any

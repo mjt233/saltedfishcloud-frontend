@@ -1,10 +1,25 @@
-import { AxiosRequestConfig } from 'axios'
+import qs from 'qs'
 import { CommonRequest, IdType, NodeInfo, ResourceRequest } from 'sfc-common/model'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
-import qs from 'qs'
 
 const resource = {
   prefix: 'resource',
+  /**
+   * 统一的资源和文件上传接口
+   * @param param 待上传的资源请求参数
+   * @param file 待上传文件
+   */
+  upload(param: ResourceRequest, file: File | undefined | null): CommonRequest {
+    const fd = new FormData()
+    if (file) {
+      fd.set('file', file)
+    }
+    return {
+      url: 'file/upload?' + (qs.stringify({ p: JSON.stringify(param) })),
+      data: fd,
+      method: 'post'
+    }
+  },
   /**
    * 通用资源请求接口
    * @param param 请求参数

@@ -52,6 +52,9 @@ export interface ResourceRequest {
 
   /** 其他自定义附加参数 */
   [key:string]:any
+
+  /** 其他自定义附加参数 */
+  params?: { [key:string]:any }
 }
 
 

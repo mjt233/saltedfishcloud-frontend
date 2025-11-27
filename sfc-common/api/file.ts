@@ -1,7 +1,8 @@
-import { FileTransferInfo, SearchFileInfo } from 'sfc-common'
+import { FileTransferInfo, getContext, SearchFileInfo } from 'sfc-common'
 import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import resource from './resource'
 
 /**
  * 创建文件在线压缩的异步任务
@@ -205,23 +206,35 @@ const file = {
    * @param {String} path 资源路径
    * @param {File} file 文件
    * @param {String} md5 文件MD5
-   * @returns 新文件- 1，覆盖旧文件 - 0
    */
-  upload(uid: IdType, path: string, file: File | undefined | null, md5?: string): CommonRequest<number> {
-    path = path.split('/').map(e => encodeURIComponent(e)).join('/')
-    const fd = new FormData()
-    if (md5) {
-      fd.set('md5', md5)
-    }
-    
-    if (file) {
-      fd.set('file', file)
-      fd.set('mtime', file.lastModified.toString())
-    }
-    return {
-      url: StringUtils.appendPath(`/${this.prefix}/${uid}/file`, path),
-      method: 'put',
-      data: fd
+  upload(uid: IdType, path: string, file: File | undefined | null, md5?: string): CommonRequest {
+    if(getContext().feature.value.isUseCommonUpload) {
+      return resource.upload({
+        mtime: file?.lastModified,
+        protocol: 'main',
+        path: path,
+        targetId: uid,
+        name: file?.name as string,
+        params: {
+          md5
+        }
+      }, file)
+    } else {
+      path = path.split('/').map(e => encodeURIComponent(e)).join('/')
+      const fd = new FormData()
+      if (md5) {
+        fd.set('md5', md5)
+      }
+      
+      if (file) {
+        fd.set('file', file)
+        fd.set('mtime', file.lastModified.toString())
+      }
+      return {
+        url: StringUtils.appendPath(`/${this.prefix}/${uid}/file`, path),
+        method: 'put',
+        data: fd
+      }
     }
   },
   /**
