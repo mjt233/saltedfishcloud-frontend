@@ -17,7 +17,8 @@ const defaultFeature: SystemFeature = reactive({
   version: 'unknown',
   thumbType: ['jpg', 'bmp', 'gif', 'png', 'jpeg', 'webp'],
   breakpointUrl: '/api/breakpoint',
-  darkTheme: false
+  darkTheme: false,
+  isUseCommonUpload: false
 })
 
 const context: ToRefs<AppContext> = toRefs(reactive({

@@ -7,7 +7,8 @@ import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { reactive } from 'vue'
 import FileUtils from 'sfc-common/utils/FileUtils'
-import { BreakPointTaskMetaData, IdType } from 'sfc-common'
+import { BreakPointTaskMetaData, IdType, ResourceRequest } from 'sfc-common'
+import qs from 'qs'
 
 export type FileUploadStatus = 'wait' | 'digest' | 'upload' | 'success' | 'failed' | 'pause' | 'interrupt'
 export type UploadType = 'public' | 'private'
@@ -448,9 +449,28 @@ const DiskFileUploadService: FileUploadService = {
     const queickUploadHandler: DigestHandler = async(md5, config) => {
       const result = await SfcUtils.request(API.file.quickSave(uid, path, file.name, md5))
       if (result.data.data) {
+        // 文件秒传成功，上传任务直接完成即可，无需后续步骤
         return 'finish'
       } else {
-        (config.data as FormData).set('md5', md5)
+        // 文件不能秒传，走普通上传流程
+        if (config.method == 'post' && config.url?.startsWith('file/upload?p=')) {
+          // 如果走的是通用的统一资源上传接口，则将md5附加到p的params参数中
+          var allQsObj = qs.parse(config.url.substring('file/upload?'.length))
+          const resourceRequestParam = allQsObj['p'] as string
+          try {
+            const rr = JSON.parse(resourceRequestParam) as ResourceRequest
+            if(!rr.params) {
+              rr.params = {}
+            }
+            rr.params.md5 = md5
+            allQsObj['p'] = JSON.stringify(rr)
+            config.url = `file/upload?${qs.stringify(allQsObj)}`
+          } catch (err) {
+            console.warn('自动更新文件上传参数md5失败', err)
+          }
+        } else if (config.data instanceof FormData) {
+          config.data.set('md5', md5)
+        }
         return 'continue'
       }
     }
