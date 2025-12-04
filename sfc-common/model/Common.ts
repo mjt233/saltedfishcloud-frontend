@@ -50,6 +50,9 @@ export interface ResourceRequest {
   /** 浏览器是否需要缓存 */
   isCache?: boolean
 
+  /** 文件的md5 */
+  md5?: string
+
   /** 其他自定义附加参数 */
   [key:string]:any
 

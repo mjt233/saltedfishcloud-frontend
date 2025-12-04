@@ -1,6 +1,7 @@
-import { CommonPageInfo, CommonRequest, JpaPageInfo } from 'sfc-common'
-import { ApiRequest, PageInfo } from 'sfc-common/model'
+import { CommonPageInfo, CommonRequest, getContext } from 'sfc-common'
+import { ApiRequest } from 'sfc-common/model'
 import { CollectionInfo, CollectionParam, CollectionRecord, CollectionSubmitInfo } from 'sfc-common/model/FileCollection'
+import resource from './resource'
 
 const collection = {
   prefix: '/collection',
@@ -13,13 +14,29 @@ const collection = {
    * @returns {import("axios").AxiosRequestConfig}
    */
   submit(cid: number | string, vid: string, submitInfo: CollectionSubmitInfo, file: File): CommonRequest {
-    const fd = new FormData()
-    fd.append('submitInfo', new Blob([window.JSON.stringify(submitInfo)], { type: 'application/json' }))
-    fd.append('file', file)
-    return {
-      url: `${this.prefix}/${cid}/${vid}`,
-      method: 'post',
-      data: fd
+    if (getContext().feature.value.isUseCommonUpload) {
+      return resource.upload({
+        mtime: file.lastModified,
+        name: file.name,
+        protocol: 'collection',
+        targetId: cid,
+        path: vid,
+        params: {
+          cid,
+          verification: vid,
+          submitFile: submitInfo,
+          type: 'SUBMIT'
+        }
+      }, file)
+    } else {
+      const fd = new FormData()
+      fd.append('submitInfo', new Blob([window.JSON.stringify(submitInfo)], { type: 'application/json' }))
+      fd.append('file', file)
+      return {
+        url: `${this.prefix}/${cid}/${vid}`,
+        method: 'post',
+        data: fd
+      }
     }
   },
   /**

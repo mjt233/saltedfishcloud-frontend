@@ -459,10 +459,7 @@ const DiskFileUploadService: FileUploadService = {
           const resourceRequestParam = allQsObj['p'] as string
           try {
             const rr = JSON.parse(resourceRequestParam) as ResourceRequest
-            if(!rr.params) {
-              rr.params = {}
-            }
-            rr.params.md5 = md5
+            rr.md5 = md5
             allQsObj['p'] = JSON.stringify(rr)
             config.url = `file/upload?${qs.stringify(allQsObj)}`
           } catch (err) {

@@ -215,9 +215,7 @@ const file = {
         path: path,
         targetId: uid,
         name: file?.name as string,
-        params: {
-          md5
-        }
+        md5
       }, file)
     } else {
       path = path.split('/').map(e => encodeURIComponent(e)).join('/')
