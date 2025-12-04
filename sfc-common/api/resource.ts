@@ -11,11 +11,12 @@ const resource = {
    */
   upload(param: ResourceRequest, file: File | undefined | null): CommonRequest {
     const fd = new FormData()
+    fd.set('param', JSON.stringify(param))
     if (file) {
       fd.set('file', file)
     }
     return {
-      url: 'file/upload?' + (qs.stringify({ p: JSON.stringify(param) })),
+      url: 'file/upload',
       data: fd,
       method: 'post'
     }

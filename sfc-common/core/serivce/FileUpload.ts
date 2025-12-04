@@ -453,15 +453,14 @@ const DiskFileUploadService: FileUploadService = {
         return 'finish'
       } else {
         // 文件不能秒传，走普通上传流程
-        if (config.method == 'post' && config.url?.startsWith('file/upload?p=')) {
+        if (config.method == 'post' && config.url?.startsWith('file/upload')) {
           // 如果走的是通用的统一资源上传接口，则将md5附加到p的params参数中
-          var allQsObj = qs.parse(config.url.substring('file/upload?'.length))
-          const resourceRequestParam = allQsObj['p'] as string
+          var formData = config.data as FormData
           try {
-            const rr = JSON.parse(resourceRequestParam) as ResourceRequest
+            const rr = JSON.parse(formData.get('param') as string) as ResourceRequest
             rr.md5 = md5
-            allQsObj['p'] = JSON.stringify(rr)
-            config.url = `file/upload?${qs.stringify(allQsObj)}`
+            formData.set('param', JSON.stringify(rr))
+            config.data = formData
           } catch (err) {
             console.warn('自动更新文件上传参数md5失败', err)
           }
