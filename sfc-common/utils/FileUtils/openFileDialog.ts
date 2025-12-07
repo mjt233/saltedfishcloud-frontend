@@ -1,7 +1,4 @@
-const inputElement = document.createElement('input')
-inputElement.style.display = 'none'
-inputElement.type = 'file'
-document.documentElement.appendChild(inputElement)
+
 
 /**
  * 打开文件选择框
@@ -13,11 +10,11 @@ document.documentElement.appendChild(inputElement)
  *
  */
 export function openFileDialog( multiple = false, accept?: string): Promise<FileList> {
-  const el = inputElement
+  const el = document.createElement('input')
+  el.style.display = 'none'
+  el.type = 'file'
   if (multiple) {
     el.setAttribute('multiple', 'multiple') //  多文件模式 即<input multiple="multiple" type="file">
-  } else {
-    el.removeAttribute('multiple')
   }
   if (accept) {
     el.accept = accept
@@ -27,10 +24,28 @@ export function openFileDialog( multiple = false, accept?: string): Promise<File
   return new Promise(res => {
     el.onchange = e => {
       res(el.files as FileList)
-      
-      // 重置已选择的文件，保证下次选择相同文件时也能触发change回调
-      el.type = ''
-      el.type = 'file'
+    }
+    el.click()
+  })
+}
+
+
+
+/**
+ * 打开目录选择框
+ * @param multiple 是否允许多选文件
+ */
+export function openDirDialog(multiple = false): Promise<FileList> {
+  const el = document.createElement('input')
+  el.style.display = 'none'
+  el.type = 'file'
+  el.setAttribute('webkitdirectory', '')
+  if (multiple) {
+    el.setAttribute('multiple', 'multiple') //  多文件模式 即<input multiple="multiple" type="file">
+  }
+  return new Promise(res => {
+    el.onchange = e => {
+      res(el.files as FileList)
     }
     el.click()
   })

@@ -1,4 +1,4 @@
-import FileUtils from 'sfc-common/utils/FileUtils'
+import * as FileUtils from 'sfc-common/utils/FileUtils'
 import { ExtractPropTypes, reactive, Ref } from 'vue'
 import { FileListContext, FileInfo, ProtocolParams } from 'sfc-common/model'
 import propsOptions from './props'
@@ -6,6 +6,7 @@ import { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandler'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
 import { FileListModelHandler } from 'sfc-common/model/component/FileListModel'
+import { StringUtils } from 'sfc-common/utils'
 
 export interface FileListContextBuilderOptions {
   props: Readonly<ExtractPropTypes<typeof propsOptions>>,
@@ -57,6 +58,14 @@ const FileListContextBuilder = {
             const file = selectFile[i]
             handler?.value.uploadDirect(props.path, file)
           }
+        },
+    
+        async uploadDir() {
+          Array.from(await FileUtils.openDirDialog()).forEach(f => {
+            const path = StringUtils.appendPath(props.path, f.webkitRelativePath.substring(0, f.webkitRelativePath.length - f.name.length))
+            handler?.value.uploadDirect(path, f)
+          })
+          
         },
     
         async refresh() {

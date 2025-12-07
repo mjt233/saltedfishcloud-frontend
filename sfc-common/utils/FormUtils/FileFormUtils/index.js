@@ -21,7 +21,7 @@
 
 import API from 'sfc-common/api'
 import axios from 'sfc-common/axios.config'
-import FileUtils from 'sfc-common/utils/FileUtils'
+import * as FileUtils from 'sfc-common/utils/FileUtils'
 import { FileSliceUploader } from 'sfc-common/service/FileUpload/FileUploader/FileSliceUploader'
 const defsultChunkSize = 1024 * 1024 * 2
 

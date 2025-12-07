@@ -194,7 +194,7 @@ onMounted(actions.loadList)
 <script lang="ts">
 import API from 'sfc-common/api'
 import { PluginInfo } from 'sfc-common/model'
-import FileUtils from 'sfc-common/utils/FileUtils'
+import * as FileUtils from 'sfc-common/utils/FileUtils'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
