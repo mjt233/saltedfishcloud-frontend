@@ -6,7 +6,7 @@ import axios from 'axios'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { reactive } from 'vue'
-import FileUtils from 'sfc-common/utils/FileUtils'
+import * as FileUtils from 'sfc-common/utils/FileUtils'
 import { BreakPointTaskMetaData, IdType, ResourceRequest } from 'sfc-common'
 import qs from 'qs'
 
@@ -329,7 +329,11 @@ export abstract class CommonFileUploadExecutor implements FileUploadExecutor {
     if (handler instanceof Function) {
       const md5 = await this.getDigest()
       this.uploadInfo.md5 = md5
-      return await handler(md5, this.config)
+      const originStatus = this.uploadInfo.status
+      this.uploadInfo.status = 'digest'
+      const res = await handler(md5, this.config)
+      this.uploadInfo.status = originStatus
+      return res
     } else {
       this.uploadInfo.status = 'upload'
       return 'continue'

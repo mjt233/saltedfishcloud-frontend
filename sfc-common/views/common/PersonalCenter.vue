@@ -256,7 +256,7 @@ loadThirdPlatformList()
 </script>
 
 <script lang="ts">
-import FileUtils from 'sfc-common/utils/FileUtils'
+import * as FileUtils from 'sfc-common/utils/FileUtils'
 import { defineComponent, reactive, Ref, ref } from 'vue'
 import { getContext } from 'sfc-common/core/context'
 import { ConditionFunction } from 'sfc-common/core/helper/ConditionFunction'

@@ -44,6 +44,111 @@ export class CancelablePromise<T> extends Promise<T> {
   }
 }
 
+interface DirScanItem {
+  /**
+   * 是否为文件
+   */
+  isFile: boolean
+
+  /**
+   * 是否为目录
+   */
+  isDir: boolean
+
+  /**
+   * 相对于开始搜索的目录下的所在路径（不包含自己的文件名）
+   */
+  relativePath: string
+
+  /**
+   * 文件名
+   */
+  name: string
+
+  /**
+   * 当isFile为true时的File对象
+   */
+  file: File | null
+}
+
+/**
+ * 遍历文件夹
+ * @param item 待扫描项
+ * @param callback 扫描出子文件的回调
+ * @returns 扫描完成后resolve的Promise
+ */
+export async function scanDir(item: DataTransferItem, callback: (item: DirScanItem) => any | Promise<any>) {
+  if (!(await testIsDir(item)) ) {
+    return
+  }
+  
+  function doScan(entry: FileSystemDirectoryEntry, relationPath: string) {
+    const reader = entry.createReader()
+    return new Promise((resolve, reject) => {
+      const subPromises = [] as Promise<any>[]
+      reader.readEntries(e => {
+        function invokeCallback(i: DirScanItem) {
+          const r = callback(i)
+          if (r instanceof Promise) {
+            subPromises.push(r)
+          }
+        }
+
+        e.forEach(ent => {
+          if (ent.isDirectory) {
+            subPromises.push(doScan(ent as FileSystemDirectoryEntry, relationPath + '/' + ent.name))
+            invokeCallback({
+              isDir: ent.isDirectory,
+              isFile: ent.isFile,
+              relativePath: relationPath,
+              file: null,
+              name: ent.name
+            })
+          } else {
+            subPromises.push(new Promise((res, rej) => {
+              (ent as FileSystemFileEntry).file(f => {
+                invokeCallback({
+                  isDir: ent.isDirectory,
+                  isFile: ent.isFile,
+                  relativePath: relationPath,
+                  file: f,
+                  name: ent.name
+                })
+                res(f)
+              }, reject)
+            }))
+          }
+        })
+        Promise.all(subPromises).then(e => {
+          resolve(relationPath)
+        })
+      })
+    })
+  }
+  return await doScan(item.webkitGetAsEntry() as FileSystemDirectoryEntry, item.getAsFile()?.name || '')
+}
+
+export function testIsDir(item: DataTransferItem) {
+  const entry = item.webkitGetAsEntry && item.webkitGetAsEntry()
+  if (entry) {
+    return entry.isDirectory
+  }
+  const file = item.getAsFile()
+  if (!file) {
+    return false
+  } else {
+    return undefined
+  }
+
+  // const reader = new FileReader()
+  // reader.readAsDataURL(file)
+  // return new Promise((resolve, reject) => {
+  //   reader.onerror = e => resolve(false)
+  //   reader.onprogress = e => resolve(true)
+  //   reader.onload = e => resolve(true)
+  // })
+}
+
 /**
  * 计算文件的md5
  * @param file     文件对象

@@ -12,6 +12,11 @@ export interface FileListModelHandler {
    */
   upload: () => Promise<any>
 
+  /**
+   * 通知列表触发选择整个文件夹上传
+   */
+  uploadDir: () => Promise<any>
+
   /** 
    * 通知列表执行加载
    * @returns 若加载成功，则返回文件列表

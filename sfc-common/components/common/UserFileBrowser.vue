@@ -147,18 +147,46 @@ const dragOver = (e: DragEvent) => {
     inDragging.value = true
   }
 }
-const dropFinish = (e: DragEvent) => {
+const dropFinish = async(e: DragEvent) => {
   inDragging.value = false
-  if (!props.useDropUpload || readOnly.value || !e.dataTransfer?.files.length) {
+  if (!props.useDropUpload || readOnly.value || !e.dataTransfer) {
     return
   }
-  const fileCount = e.dataTransfer.files.length
-  for (let i = 0; i < fileCount; i++) {
-    const file = e.dataTransfer.files[i]
-    const executor = DiskFileUploadService.uploadToDisk(props.uid, props.path, file)
-    fileUploadTaskManager.addExecutor(executor)
+  let fileCount = 0
+  // if (e.dataTransfer.files.length > 0) {
+  //   console.log('有文件')
+  //   for(const file of Array.from(e.dataTransfer.files)) {
+  //     fileCount++
+  //     console.log({
+  //       path: props.path,
+  //       file
+  //     })
+  //     // handler.value.uploadDirect(props.path, file)
+  //   }
+  // }
+  const tasks = []
+  if (e.dataTransfer.items.length > 0) {
+    for(const item of Array.from(e.dataTransfer.items)) {
+      if(testIsDir(item)) {
+        tasks.push(scanDir(item, i => {
+          if (i.isDir) {
+            return
+          }
+          fileCount++
+          handler.value.uploadDirect(StringUtils.appendPath(props.path, i.relativePath), i.file as File)
+        }))
+      } else {
+        fileCount++
+        handler.value.uploadDirect(props.path, item.getAsFile() as File)
+      }
+    }
   }
-  SfcUtils.snackbar(`已添加${fileCount}个文件到上传队列`)
+  await Promise.all(tasks)
+  if (fileCount == 0) {
+    SfcUtils.alert('未检测到文件')
+  } else {
+    SfcUtils.snackbar(`已添加${fileCount}个文件到上传队列`)
+  }
 }
 const clickSearchItem = async(item: SearchFileInfo) => {
   try {
@@ -186,6 +214,7 @@ import { SearchFileInfo } from 'sfc-common/model'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { FileSearchListModel } from 'sfc-common/model/component/FileListModel'
 import { DiskFileUploadService, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
+import { scanDir, StringUtils, testIsDir } from 'sfc-common/utils'
 export default defineComponent({
   name: 'UserFileBrowser'
 })

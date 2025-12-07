@@ -74,6 +74,17 @@ export default {
       }
     },
     {
+      id: 'upload-dir',
+      title: '上传文件夹',
+      action(e) {
+        e.modelHandler.uploadDir()
+      },
+      renderOn(ctx) {
+        return !ctx.readonly
+      },
+      icon: 'mdi-folder-arrow-up-outline'
+    },
+    {
       id: 'empty-file',
       title: '创建空文件',
       icon: 'mdi-file-plus',
