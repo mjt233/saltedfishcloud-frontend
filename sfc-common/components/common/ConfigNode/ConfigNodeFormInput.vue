@@ -10,7 +10,7 @@
             v-for="field in item.nodes"
             :key="field.name"
             style="max-width: 280px;"
-            :label="field.title"
+            :label="field.title || field.describe"
             top-label
           >
             <div v-if="!isBooleanType(field)" class="break-text">

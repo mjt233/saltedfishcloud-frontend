@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-for="(group, idx) in items" :key="idx" class="node-group">
+  <div class="config-node-group">
+    <div v-for="(group, idx) in items" :key="idx" class="config-node-group-item">
       <slot name="title" :group="group">
         <template v-if="group.title || group.name">
           <span class="node-title">{{ group.title || group.name }}</span>
@@ -64,12 +64,12 @@ export default defineComponent({
   font-weight: 600;
 }
 
-/* .node-group>*:hover,.node-title:hover {
+/* .config-node-group-item>*:hover,.node-title:hover {
   background-color: rgba(var(--v-theme-primary), .05);
 } */
 
 /* Vue模板组件类型的不悬浮高亮了 */
-.node-group>.template-node:hover {
+.config-node-group-item>.template-node:hover {
   background-color: transparent;
 }
 </style>
