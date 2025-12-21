@@ -1,4 +1,5 @@
-import { NetworkInterfaceInfo, WolDevice } from './model'
+import { Upnp } from './model'
+import { NetworkInterfaceInfo, WolDevice } from './model/common'
 import { CommonRequest, IdType } from 'sfc-common'
 export namespace NwtApi {
   export namespace Wol {
@@ -42,6 +43,29 @@ export namespace NwtApi {
   export function getAllInterface(): CommonRequest<NetworkInterfaceInfo[]> {
     return {
       url: '/nwt/getAllInterface'
+    }
+  }
+
+
+  export namespace UPnP {
+    /**
+     * 获取系统已发现的UPnP设备列表
+     */
+    export function listUPnP(): CommonRequest<Upnp.UpnpDevice[]> {
+      return {
+        url: '/nwt/listUPnP'
+      }
+    }
+
+    /**
+     * 获取UPnP设备图标
+     * @param usn UPnP设备USN
+     * @param index 图标索引
+     */
+    export function getUPnPIcon(usn: string, index: number) {
+      return {
+        url: `/nwt/getUPnPIcon?usn=${usn}&index=${index}`
+      }
     }
   }
 }

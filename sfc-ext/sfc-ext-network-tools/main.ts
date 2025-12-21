@@ -1,4 +1,5 @@
 import NetworkInterfaceList from './components/NetworkInterfaceList.vue'
+import UpnpInfoCard from './components/UpnpInfoCard.vue'
 import WolDeviceList from './components/WolDeviceList.vue'
 
 
@@ -7,5 +8,6 @@ window.bootContext.addProcessor({
   execute(app, handler) {
     app.component('WolDeviceList', WolDeviceList)
     app.component('NetworkInterfaceList', NetworkInterfaceList)
+    app.component('UpnpInfoCard', UpnpInfoCard)
   },
 })
