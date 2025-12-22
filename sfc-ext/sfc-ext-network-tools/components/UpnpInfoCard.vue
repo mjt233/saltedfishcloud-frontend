@@ -44,6 +44,7 @@
               color="primary"
               :title="service.serviceType"
               class="mr-2"
+              @click="serviceClick(dev, service)"
             >
               {{ service.serviceType.split(':')[3] }}
             </VChip>
@@ -93,6 +94,25 @@ function getServiceList(rootDevice: Upnp.UpnpDevice) {
   return services
 }
 
+function serviceClick(dev: Upnp.UpnpDevice, service: Upnp.Service) {
+  const inst = SfcUtils.openComponentDialog(UpnpServiceActionInvoke, {
+    props: {
+      device: dev,
+      service
+    },
+    title: 'UPnP服务调用',
+    extraDialogOptions: {
+      persistent: true,
+      width: '800px',
+      confirmText: '执行',
+      cancelText: '关闭'
+    },
+    onConfirm() {
+      (inst.getComponentInstRef() as any).invokeUpnpService()
+      return false
+    },
+  })
+}
 
 onMounted(() => {
   loadingActions.loadUPnpList()
@@ -105,6 +125,7 @@ import { NwtApi } from '../api'
 import { Upnp } from '../model/'
 import { LoadingManager, MethodInterceptor } from 'sfc-common'
 import UpnpIcon from './UpnpIcon.vue'
+import UpnpServiceActionInvoke from './UpnpServiceActionInvoke.vue'
 
 export default defineComponent({
   name: 'UpnpInfoCard'

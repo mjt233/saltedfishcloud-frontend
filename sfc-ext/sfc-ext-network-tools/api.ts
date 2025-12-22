@@ -1,6 +1,6 @@
 import { Upnp } from './model'
 import { NetworkInterfaceInfo, WolDevice } from './model/common'
-import { CommonRequest, IdType } from 'sfc-common'
+import { CommonRequest, IdType, useJsonBody } from 'sfc-common'
 export namespace NwtApi {
   export namespace Wol {
     export function findByUid(uid: IdType, checkOnline?: boolean): CommonRequest<WolDevice[]> {
@@ -66,6 +66,34 @@ export namespace NwtApi {
       return {
         url: `/nwt/getUPnPIcon?usn=${usn}&index=${index}`
       }
+    }
+
+    /**
+     * 获取UPnP设备服务描述
+     * @param usn UPnP设备UDN/USN
+     * @param serviceType 服务类型，如: urn:schemas-upnp-org:service:AVTransport:1
+     */
+    export function getUpnpServiceScpd(usn: string, serviceType: string): CommonRequest<Upnp.Scpd> {
+      return {
+        url: '/nwt/getUpnpServiceScpd',
+        params: {
+          usn,
+          serviceType
+        }
+      }
+    }
+
+    /**
+     * 发起 UPnP 服务方法调用
+     * @param param UPnP调用参数
+     */
+    export function invokeUpnpService(param: Upnp.ServiceActionInvokeParam): CommonRequest<Upnp.SimpleHttpResponse> {
+      return useJsonBody({
+        url: '/nwt/invokeUpnpService',
+        method: 'post',
+        data: param
+      })
+
     }
   }
 }

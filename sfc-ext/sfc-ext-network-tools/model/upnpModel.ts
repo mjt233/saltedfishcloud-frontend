@@ -277,4 +277,165 @@ export namespace Upnp {
      */
     eventSubURL?: string;
   }
+
+  /**
+   * SCPD (Service Control Protocol Definition) 实体类
+   * 用于反序列化UPnP服务描述XML
+   * 对应SCPD XML文档的根元素
+   */
+  export interface Scpd {
+    /**
+     * 协议版本信息
+     */
+    specVersion?: SpecVersion
+
+    /**
+     * 动作列表，包含该服务支持的所有操作
+     */
+    actionList: Action[]
+
+    /**
+     * 服务状态表，包含该服务的所有状态变量定义
+     */
+    serviceStateTable: StateVariable[]
+  }
+
+  /**
+   * 允许值范围类
+   * 定义数值类型状态变量的取值范围
+   */
+  export interface AllowedValueRange {
+    /**
+     * 最小值
+     */
+    minimum?: number
+
+    /**
+     * 最大值
+     */
+    maximum?: number
+
+    /**
+     * 步长
+     */
+    step?: number
+  }
+
+  export interface Action {
+    /**
+     * 动作名称
+     */
+    name: string
+
+    /**
+     * 参数列表，包含该动作的所有输入输出参数
+     */
+    argumentList: Argument[]
+  }
+
+  export interface Argument {
+    /**
+     * 参数名称
+     */
+    name: string
+
+    /**
+     * 参数方向：in(输入) 或 out(输出)
+     */
+    direction: 'in' | 'out'
+
+    /**
+     * 相关的状态变量名称
+     */
+    relatedStateVariable: string
+
+    /**
+     * 相关的状态变量具体定义对象信息
+     */
+    variableRef?: StateVariable
+  }
+
+  export interface StateVariable {
+    /**
+     * 事件发送标志：yes(发送事件) 或 no(不发送事件)
+     */
+    sendEvents?: string
+
+    /**
+     * 状态变量名称
+     */
+    name: string
+
+    /**
+     * 数据类型
+     * 如：string, ui4, i4 等
+     */
+    dataType: 'string' | 'ui4' | 'i4' | 'boolean'
+
+    /**
+     * 允许值列表
+     * 定义该状态变量允许的枚举值
+     */
+    allowedValueList?: string[]
+
+    /**
+     * 允许值范围
+     * 定义数值类型状态变量的取值范围
+     */
+    allowedValueRange?: AllowedValueRange
+
+    /**
+     * 默认值
+     */
+    defaultValue?: string
+  }
+
+
+  /**
+   * UPnP服务调用参数
+   */
+  export interface ServiceActionInvokeParam {
+    /**
+     * 根设备的 UDN/USN
+     */
+    rootDeviceUSN: string
+
+    /**
+     * 服务类型
+     */
+    serviceType: string
+
+    /**
+     * 要调用的动作 action
+     */
+    action: string
+
+    /**
+     * 调用请求参数
+     */
+    actionParams: {
+      key: string
+      value: string
+    }[]
+  }
+
+  export interface SimpleHttpResponse {
+    /**
+     * 响应码
+     */
+    statusCode: number
+
+    /**
+     * 响应头
+     */
+    headers: {
+      key: string
+      value: string
+    }[]
+
+    /**
+     * 响应体
+     */
+    responseBody: string
+  }
 }
