@@ -103,7 +103,6 @@ function serviceClick(dev: Upnp.UpnpDevice, service: Upnp.Service) {
     title: 'UPnP服务调用',
     extraDialogOptions: {
       persistent: true,
-      width: '800px',
       confirmText: '执行',
       cancelText: '关闭'
     },
