@@ -155,8 +155,10 @@ watch(currentSelect, (oldVal, newVal) => {
       options.forEach(e => e.action && e.action())
     } else {
       const option = currentSelect.value as any as SelectOption
-      emits('update:modelValue', option.value)
-      option.action && option.action()
+      emits('update:modelValue', option?.value)
+      if (option) {
+        option.action && option.action()
+      }
     }
     
   }
