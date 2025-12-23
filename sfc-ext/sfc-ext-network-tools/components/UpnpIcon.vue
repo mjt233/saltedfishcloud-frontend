@@ -31,7 +31,6 @@ const deviceIconUrl = ref(undefined) as Ref<string | undefined>
 const useDeviceIcon = ref(false)
 
 function imgLoaded() {
-  console.log('UPnP图标加载完成')
   useDeviceIcon.value = true
 }
 

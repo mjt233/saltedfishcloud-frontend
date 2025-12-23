@@ -138,7 +138,6 @@ const methods = MethodInterceptor.createAsyncActionProxy({
 
   async invokeUpnpService() {
     const validRes = (await formRef.value.validate()) as ValidateResult
-    console.log(validRes)
     if (!validRes.valid) {
       const msg = validRes.errors.map(e => e.errorMessages).join('. ')
       return Promise.reject(msg)
