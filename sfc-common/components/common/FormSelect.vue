@@ -15,6 +15,7 @@
       :multiple="multiple"
       :label="label || placeholder"
       :disabled="disabled"
+      :clearable="clearable"
     >
       <template #selection="{ item, index }">
         <component :is="useChip ? 'v-chip' : 'span'" v-if="!multiple || multipleShowNum == -1 || index < Number(multipleShowNum)">
@@ -42,6 +43,10 @@ const otherCount = computed(() => {
   }
 })
 const props = defineProps({
+  clearable: {
+    type: Boolean,
+    default: false
+  },
   dense: {
     type: Boolean,
     default: false
