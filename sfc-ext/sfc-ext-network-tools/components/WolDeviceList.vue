@@ -152,7 +152,7 @@ onUnmounted(() => {
 import { IdType, LoadingManager, MethodInterceptor } from 'sfc-common'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 import { NwtApi } from '../api'
-import { WolDevice } from '../model'
+import { WolDevice } from '../model/'
 import WolDeviceCard from './WolDeviceCard.vue'
 import WolDeviceForm from './WolDeviceForm.vue'
 import { reactive } from 'vue'
