@@ -1,6 +1,11 @@
 <template>
   <template v-if="device">
-    <CommonIcon v-if="!useDeviceIcon" :icon="getDeviceIcon(device)" :color="color" />
+    <CommonIcon
+      v-if="!useDeviceIcon"
+      size="30"
+      :icon="getDeviceIcon(device)"
+      :color="color"
+    />
     <img
       v-if="deviceIconUrl"
       v-show="useDeviceIcon"

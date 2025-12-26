@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VBtn color="primary" @click="loadingActions.loadUPnpList">
+    <VBtn color="primary" @click="loadingActions.loadUPnpList(true)">
       <CommonIcon icon="mdi-refresh" />
       刷新
     </VBtn>
@@ -9,6 +9,7 @@
       <VCard
         v-for="dev in devices"
         :key="dev.describe.device.udn"
+        style="animation: up-in .2s"
         class="mb-2"
       >
         <VCardTitle color="primary" :title="dev.describe.device.friendlyName" class="d-flex">
@@ -60,8 +61,8 @@ const SfcUtils = window.SfcUtils
 const props = defineProps({})
 let devices = ref([]) as Ref<Upnp.UpnpDevice[]>
 const actions = {
-  async loadUPnpList() {
-    const devList = (await SfcUtils.request(NwtApi.UPnP.listUPnP())).data.data
+  async loadUPnpList(isForceCheckAlive?: boolean) {
+    const devList = (await SfcUtils.request(NwtApi.UPnP.listUPnP(isForceCheckAlive))).data.data
     devices.value = devList
     return devList
   }

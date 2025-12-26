@@ -50,10 +50,12 @@ export namespace NwtApi {
   export namespace UPnP {
     /**
      * 获取系统已发现的UPnP设备列表
+     * @param isForceCheckAlive 是否强制检查设备在线情况
      */
-    export function listUPnP(): CommonRequest<Upnp.UpnpDevice[]> {
+    export function listUPnP(isForceCheckAlive?: boolean): CommonRequest<Upnp.UpnpDevice[]> {
       return {
-        url: '/nwt/listUPnP'
+        url: '/nwt/listUPnP',
+        params: { forceCheckAlive: isForceCheckAlive || false }
       }
     }
 
@@ -93,7 +95,21 @@ export namespace NwtApi {
         method: 'post',
         data: param
       })
+    }
 
+    /**
+     * 将多媒体内容（图片、音频、视频）投屏到指定设备
+     * @param usn UPnP设备UDN/USN
+     * @param serviceType 服务类型，如: urn:schemas-upnp-org:service:AVTransport:1
+     */
+    export function castMedia(usn: string, uri: string): CommonRequest<void> {
+      return {
+        url: '/nwt/castMedia',
+        params: {
+          usn, uri
+        },
+        method: 'post'
+      }
     }
   }
 }
