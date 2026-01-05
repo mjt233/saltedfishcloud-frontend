@@ -260,6 +260,9 @@ useTypeToSearch({
     return rootRef.value as HTMLElement
   },
   isCanTrigger() {
+    if (renameIndex.value != -1) {
+      return false
+    }
     if (document.activeElement instanceof HTMLInputElement && (document.activeElement.type == '' || document.activeElement.type == 'text')) {
       return false
     }
