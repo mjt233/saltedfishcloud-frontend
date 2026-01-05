@@ -134,6 +134,44 @@ export interface FFMpegInfo {
 }
 
 /**
+ * 视频转码表单属性
+ */
+export interface EncodeConvertFormData {
+  /** 各流的转换规则。key - 输入流index */
+  convertRules: { [index:string]: EncodeConvertRule}
+
+  /** 用作输入的流。key - 输入流index */
+  mapStreams: { [index:string]: boolean }
+
+  /** 实际使用的流的转换规则 */
+  enabledConvertRules: EncodeConvertRule[],
+
+  /** 质量因子 */
+  crf: string
+
+  /** 封装格式 */
+  format: string
+
+  /** 输出文件名 */
+  fileName: string
+
+  /** 输出文件所在目录 */
+  savePath: string
+
+  /** 视频编码的质量与速度预设 */
+  preset?: EncodePreset
+  
+  /** 视频编码优化调优参数。针对特定类型的视频内容进行编码优化(H.264/H.265)，以获得更好的压缩效率或视觉质量。 */
+  tune?: EncodeTune
+
+  /** 新文件存在同名时，是否覆盖 */
+  isOverwrite?: boolean
+}
+
+export type EncodeTune = 'animation' | 'film' | 'grain' | 'stillimage' | 'zerolatency' | 'fastdecode'
+export type EncodePreset = 'ultrafast' | 'superfast' | 'veryfast' | 'faster' | 'fast' | 'medium' | 'slow' | 'slower' | 'veryslow' | 'placebo'
+
+/**
  * 编码转换规则
  */
 export interface EncodeConvertRule {
@@ -147,6 +185,12 @@ export interface EncodeConvertRule {
   type: 'video' | 'audio' | 'subtitle'
   /** 比特率 */
   bitRate?: string
+  /** 质量因子，通常18~23，该值越大画质越差，文件越小。 */
+  crf?: string
+  /** 视频编码的质量与速度预设 */
+  preset?: EncodePreset
+  /** 视频编码优化调优参数。针对特定类型的视频内容进行编码优化(H.264/H.265)，以获得更好的压缩效率或视觉质量。 */
+  tune?: EncodeTune
 }
 
 /**
@@ -185,6 +229,9 @@ export interface EncodeConvertTaskParam {
   target: ResourceRequest
   rules: EncodeConvertRule[]
   format?: string
+  
+  /** 新文件存在同名时，是否覆盖 */
+  isOverwrite?: boolean
 }
 
 export interface EncodeConvertTask {

@@ -1,6 +1,6 @@
 import { FileOpenHandler, MenuGroup, MenuItem,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
-import { EncodeConvertRule, Format, Subtitle, VideoInfo } from './model'
+import { EncodeConvertFormData, EncodeConvertRule, Format, Subtitle, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
 import VideoConvertForm from './components/VideoConvertForm.vue'
@@ -70,7 +70,7 @@ async function getVideoInfo(ctx: FileListContext, file: FileInfo, path: string):
   return res.data as VideoInfo
 }
 
-const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe', 'ts'])
+const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe', 'ts', 'mov', 'wmv'])
 /**
  * 判断是否为视频文件名
  * @param filename 文件名
@@ -187,26 +187,35 @@ const videoMenu: MenuGroup<FileListContext> = {
       id: 'video-convert',
       icon: 'mdi-cached',
       renderOn(ctx) {
-        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name) && !ctx.readonly
+        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].isMount && isVideo(ctx.selectFileList[0].name) && !ctx.readonly
       },
       async action(ctx) {
         const file = ctx.selectFileList[0]
         const info = await getVideoInfo(ctx, file, file.path as string)
         const handler = window.SfcUtils.openComponentDialog(VideoConvertForm, {
           props: {
-            videoInfo: info
+            videoInfo: info,
+            fileInfo: file
           },
           title: `视频转码：${ctx.selectFileList[0].name}`,
+          persistent: true,
           async onConfirm() {
             const dialog = window.SfcUtils.loadingDialog({ msg: '任务创建中' })
             try {
-              const result = await handler.getInstAsForm().submit()
+              const form = handler.getInstAsForm()
+              const result = await form.submit()
               if (result.success) {
-                const rules = handler.getInstAsForm().getFormData().enabledConvertRules as EncodeConvertRule[]
+                const formData = form.getFormData() as EncodeConvertFormData
+                const rules = formData.enabledConvertRules
                 const source = await getVideoResourceParams(ctx, file, file.path as string)
-                const target = await getVideoResourceParams(ctx, file, file.path as string)
-                target.name = 'convert_' + target.name
-                await window.SfcUtils.request(VEAPI.encodeConvert({rules, source, target}))
+                const target = await getVideoResourceParams(ctx, file, formData.savePath as string)
+                target.name = formData.fileName
+                rules.filter(r => r.type == 'video').forEach(r => {
+                  r.crf = formData.crf
+                  r.preset = formData.preset
+                  r.tune = formData.tune
+                })
+                await window.SfcUtils.request(VEAPI.encodeConvert({rules, source, target, format: formData.format, isOverwrite: formData.isOverwrite}))
                 window.SfcUtils.snackbar('任务创建成功')
                 return true
               } else {
@@ -226,7 +235,7 @@ const videoMenu: MenuGroup<FileListContext> = {
       title: '视频信息',
       id: 'video-info',
       renderOn(ctx) {
-        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].mount && isVideo(ctx.selectFileList[0].name)
+        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].isMount && isVideo(ctx.selectFileList[0].name)
       },
       icon: 'mdi-information-variant',
       async action(ctx) {
