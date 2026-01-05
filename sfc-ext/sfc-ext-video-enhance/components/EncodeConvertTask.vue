@@ -1,51 +1,54 @@
 <template>
-  <div>
-    <v-tabs
-      v-model="tab"
-      color="primary"
-      fixed-tabs
-    >
-      <v-tab value="1">
-        进行中<span>({{ runningCount }})</span>
-      </v-tab>
-      <v-tab value="2">
-        已完成<span v-if="finishCount">({{ finishCount }})</span>
-      </v-tab>
-      <v-tab value="3">
-        执行失败<span v-if="failedCount">({{ failedCount }})</span>
-      </v-tab>
-    </v-tabs>
-    <v-window v-model="tab">
-      <v-window-item value="1">
-        <EncodeConvertTaskInfo
-          v-for="item in runningTasks"
-          :key="item.id"
-          :task="item"
-          show-cancel
-        />
-        <EmptyTip v-if="!runningTasks.length" />
-      </v-window-item>
+  <VCard>
+    <VCardTitle>视频转码任务</VCardTitle>
+    <VCardText>
+      <v-tabs
+        v-model="tab"
+        color="primary"
+        fixed-tabs
+      >
+        <v-tab value="1">
+          进行中<span>({{ runningCount }})</span>
+        </v-tab>
+        <v-tab value="2">
+          已完成<span v-if="finishCount">({{ finishCount }})</span>
+        </v-tab>
+        <v-tab value="3">
+          执行失败<span v-if="failedCount">({{ failedCount }})</span>
+        </v-tab>
+      </v-tabs>
+      <v-window v-model="tab">
+        <v-window-item value="1">
+          <EncodeConvertTaskInfo
+            v-for="item in runningTasks"
+            :key="item.id"
+            :task="item"
+            show-cancel
+          />
+          <EmptyTip v-if="!runningTasks.length" />
+        </v-window-item>
 
-      <v-window-item value="2">
-        <EncodeConvertTaskInfo
-          v-for="item in finishTasks"
-          :key="item.id"
-          :task="item"
-          :have-log="true"
-        />
-        <EmptyTip v-if="!finishTasks.length" />
-      </v-window-item>
-      <v-window-item value="3">
-        <EncodeConvertTaskInfo
-          v-for="item in failedTasks"
-          :key="item.id"
-          :task="item"
-          :have-log="true"
-        />
-        <EmptyTip v-if="!failedTasks.length" />
-      </v-window-item>
-    </v-window>
-  </div>
+        <v-window-item value="2">
+          <EncodeConvertTaskInfo
+            v-for="item in finishTasks"
+            :key="item.id"
+            :task="item"
+            :have-log="true"
+          />
+          <EmptyTip v-if="!finishTasks.length" />
+        </v-window-item>
+        <v-window-item value="3">
+          <EncodeConvertTaskInfo
+            v-for="item in failedTasks"
+            :key="item.id"
+            :task="item"
+            :have-log="true"
+          />
+          <EmptyTip v-if="!failedTasks.length" />
+        </v-window-item>
+      </v-window>
+    </VCardText>
+  </VCard>
 </template>
 
 <script setup lang="ts">

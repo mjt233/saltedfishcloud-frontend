@@ -6,6 +6,65 @@
   >
     <LoadingMask :loading="loadingRef" />
     <div class="text-h6">
+      基本参数
+    </div>
+    <FormRow class="mt-1">
+      <FormCol>
+        <TextInput v-model="formData.fileName" label="新文件名" :rules="validators.fileName" />
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol>
+        <VSelect
+          v-model="formData.format"
+          :rules="validators.format"
+          label="目标封装格式"
+          color="primary"
+          variant="underlined"
+          :items="formatOptions"
+        />
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol label="文件保存位置">
+        <span class="tip mr-1 link">{{ formData.savePath }}</span>
+        <VBtn flat @click="selectPath">
+          浏览
+        </VBtn>
+      </FormCol>
+    </FormRow>
+    <FormRow>
+      <FormCol>
+        <span class="text">杂项</span>
+        <div class="d-flex align-center">
+          <VCheckbox
+            v-model="formData.isOverwrite"
+            label="存在同名文件时，覆盖保存"
+            color="primary"
+            hide-details
+          />
+          <VTooltip text="若不勾选该选项，存在同名文件时自动给新文件加上任务id数字前缀">
+            <template #activator="{ props: p }">
+              <CommonIcon
+                icon="mdi-help-circle"
+                v-bind="p"
+                size="16"
+                class="mb-2 ml-2"
+              />
+            </template>
+          </VTooltip>
+        </div>
+        
+        <VCheckbox
+          v-model="showCommonEncoders"
+          label="只显示常用编码器"
+          color="primary"
+          hide-details
+        />
+      </FormCol>
+    </FormRow>
+    <VDivider class="mt-1 mb-1" />
+    <div class="text-h6">
       视频
     </div>
     <VTable>
@@ -32,13 +91,13 @@
           </td>
           <td>{{ stream.codecName }}</td>
           <td>{{ stream.language || '-' }}</td>
-          <td>
+          <td width="260px">
             <FormSelect
               v-if="encoderOptions.video.length"
               v-model="formData.convertRules[stream.index].encoder"
               :disabled="!formData.mapStreams[stream.index]"
-              style="width: 160px"
               :items="encoderOptions.video"
+              style="transform: translateY(-5px);"
               @change="updateEnabledRules"
             />
           </td>
@@ -72,34 +131,158 @@
           </td>
           <td>{{ stream.codecName }}</td>
           <td>{{ stream.language || '-' }}</td>
-          <td>
+          <td width="260px">
             <FormSelect
               v-if="encoderOptions.audio.length"
               v-model="formData.convertRules[stream.index].encoder"
               :disabled="!formData.mapStreams[stream.index]"
-              style="width: 160px"
               :items="encoderOptions.audio"
+              style="transform: translateY(-5px);"
               @change="updateEnabledRules"
             />
           </td>
         </tr>
       </tbody>
     </VTable>
+    <!-- <div class="text-h6">
+      字幕
+    </div>
+    <span class="link" @click="showSubtitleOption = !showSubtitleOption">{{ showSubtitleOption ? '收起字幕选项' : '展开字幕选项' }}</span>
+    
+    <VDivider /> -->
+    
+    <div class="text-h6 mb-6">
+      高级参数
+    </div>
+    <FormRow>
+      <FormCol>
+        <VTooltip text="crf画质质量因子，通常为18~23，该值越大画质越差，文件越小。" location="top">
+          <template #activator="{ props: p }">
+            <TextInput
+              v-bind="p"
+              v-model="formData.crf"
+              :rules="validators.crf"
+              label="crf"
+            />
+          </template>
+        </VTooltip>
+      </FormCol>
+      <FormCol>
+        <div class="d-flex align-end">
+          <FormSelect
+            v-model="formData.preset"
+            label="编码质量预设(preset)"
+            :items="[
+              { title: 'ultrafast', value: 'ultrafast'},
+              { title: 'superfast', value: 'superfast'},
+              { title: 'veryfast', value: 'veryfast'},
+              { title: 'faster', value: 'faster'},
+              { title: 'fast', value: 'fast'},
+              { title: 'medium', value: 'medium'},
+              { title: 'slow', value: 'slow'},
+              { title: 'slower', value: 'slower'},
+              { title: 'veryslow', value: 'veryslow'},
+              { title: 'placebo', value: 'placebo'}
+            ]"
+          />
+          <VTooltip location="bottom" interactive>
+            视频编码的质量与速度预设，在编码速度和质量上做取舍，越慢的预设同画质下文件越小。可选值从快到慢依次为：
+            <ul class="ml-6">
+              <li><b>ultrafast</b> - 极速编码，压缩效率最低，输出文件最大，适用于实时流或测试</li>
+              <li><b>superfast</b> - 超快速编码，适合需要快速转换的场景</li>
+              <li><b>veryfast</b> - 非常快速，速度与质量的较好平衡，适合屏幕录制</li>
+              <li><b>faster</b> - 较快编码，比veryfast稍慢但质量更好</li>
+              <li><b>fast</b> - 快速编码，默认预设值，适合一般用途</li>
+              <li><b>medium</b> - 中等速度，速度与质量的最佳平衡，<b>推荐作为通用选择</b></li>
+              <li><b>slow</b> - 慢速编码，较高压缩效率，文件比medium小5-10%，适合高质量存储</li>
+              <li><b>slower</b> - 更慢编码，压缩效率更高，编码时间显著增加</li>
+              <li><b>veryslow</b> - 非常慢编码，最高压缩效率，输出文件最小，适合长期存档</li>
+              <li><b>placebo</b> - 安慰剂模式，极慢编码，相比veryslow只有微小提升，通常不建议使用</li>
+            </ul>
+
+            <p>
+              <b>预设选择原则：</b>预设值越慢，在相同视频质量下输出的文件越小，但编码所需时间越长。
+              对于H.264/H.265编码器，veryslow相比ultrafast通常可节省30-50%的文件大小。
+            </p>
+            <p>
+              <b>注意：</b>此参数仅适用于软件编码器（如libx264、libx265），
+              硬件编码器可能有不同的预设选项。
+            </p>
+            <template #activator="{ props: p }">
+              <CommonIcon
+                icon="mdi-help-circle"
+                v-bind="p"
+                size="16"
+                class="mb-2 ml-2"
+              />
+            </template>
+          </VTooltip>
+        </div>
+      </FormCol>
+      <FormCol>
+        <div class="d-flex align-end">
+          <VTooltip text="视频编码优化调优参数。针对特定类型的视频内容进行编码优化，以获得更好的压缩效率或视觉质量。" location="bottom">
+            <template #activator="{props: p}">
+              <VCombobox
+                v-bind="p"
+                v-model="formData.tune"
+                :return-object="false"
+                color="primary"
+                variant="underlined"
+                clearable
+                hide-details
+                label="特定优化参数(tune)"
+                :items="[
+                  { title: '日本动画/卡通', value: 'animation'},
+                  { title: '真人电影/电视剧', value: 'film'},
+                  { title: '老电影（有颗粒感）', value: 'grain'},
+                  { title: 'PPT演示/', value: 'stillimage'},
+                  { title: '视频会议/直播', value: 'zerolatency'},
+                  { title: '低性能设备播放', value: 'fastdecode'}
+                ]"
+              />
+            </template>
+          </VTooltip>
+        </div>
+      </FormCol>
+      <FormCol />
+    </FormRow>
   </base-form>
 </template>
 
 <script setup lang="ts">
-import { SelectOption } from 'sfc-common/model'
+import { FileInfo, SelectOption } from 'sfc-common/model'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
   videoInfo: {
     type: Object as PropType<VideoInfo>,
     default: () => { return {} }
+  },
+  fileInfo: {
+    type: Object as PropType<FileInfo>,
+    default: undefined
   }
 })
 const ffmpegInfo = ref<FFMpegInfo>()
 const emits = defineEmits(['submit'])
+// 目标格式选项列表
+const formatOptions = [
+  { title: 'mp4', value: VEUtils.getExtNameMuxer('mp4') },
+  { title: 'mkv', value: VEUtils.getExtNameMuxer('mkv') },
+  { title: 'mov', value: VEUtils.getExtNameMuxer('mov') },
+  { title: 'flv', value: VEUtils.getExtNameMuxer('flv') },
+  { title: 'wmv', value: VEUtils.getExtNameMuxer('wmv') },
+  { title: 'avi', value: VEUtils.getExtNameMuxer('avi') }
+]
+const showSubtitleOption = ref(false)
+// 筛选显示常用编码器
+const showCommonEncoders = ref(true)
+const commonEncodersKeyWord = {
+  video: [ '264', '265', 'hevc' ],
+  audio: [ 'aac' ]
+}
+watch(showCommonEncoders, () => formInst.actions.loadFFMpegInfo() )
 
 const copyEncoder: SelectOption = {
   title: '复制',
@@ -132,21 +315,36 @@ const formInst = window.FormUtils.defineForm({
     async loadFFMpegInfo() {
       loadingManager.beginLoading()
       try {
-        const res = (await window.SfcUtils.request(VEAPI.getFFMpegInfo())).data.data
-        ffmpegInfo.value = res
-        encoderOptions.video = [copyEncoder].concat(res.videoEncoders.filter(e => e.name.includes('264') || e.name.includes('265') || e.name.includes('hevc')).map(e => {
+        if (ffmpegInfo.value == null) {
+          const res = (await window.SfcUtils.request(VEAPI.getFFMpegInfo())).data.data
+          ffmpegInfo.value = res
+        }
+        const info = ffmpegInfo.value
+        encoderOptions.video = [copyEncoder].concat(info.videoEncoders.filter(e => {
+          if (showCommonEncoders.value) {
+            return commonEncodersKeyWord.video.some(keyword => e.name.includes(keyword))
+          } else {
+            return true
+          }
+        }).map(e => {
           return {
             title: e.name,
             value: e.name
           }
         }))
-        encoderOptions.audio = [copyEncoder].concat(res.audioEncoders.filter(e => e.name.includes('aac')).map(e => {
+        encoderOptions.audio = [copyEncoder].concat(info.audioEncoders.filter(e => {
+          if (showCommonEncoders.value) {
+            return commonEncodersKeyWord.audio.some(keyword => e.name.includes(keyword))
+          } else {
+            return true
+          }
+        }).map(e => {
           return {
             title: e.name,
             value: e.name
           }
         }))
-        encoderOptions.subtitle = [copyEncoder].concat(res.subtitleEncoders.map(e => {
+        encoderOptions.subtitle = [copyEncoder].concat(info.subtitleEncoders.map(e => {
           return {
             title: e.name,
             value: e.name
@@ -160,15 +358,38 @@ const formInst = window.FormUtils.defineForm({
     }
   },
   formData: {
-    convertRules: {} as { [index:string]: EncodeConvertRule},
-    mapStreams: {} as { [index:string]: boolean },
-    enabledConvertRules: [] as EncodeConvertRule[]
-  },
+    convertRules: {},
+    mapStreams: {},
+    enabledConvertRules: [],
+    crf: '18',
+    format: '',
+    fileName: '',
+    savePath: '/',
+    preset: 'medium',
+    isOverwrite: false
+  } as EncodeConvertFormData,
   formRef: formRef,
-  validators: {},
+  validators: {
+    fileName: [Validators.notNull('请输入文件名')],
+    crf: [
+      Validators.notNull('请输入crf'),
+      Validators.isNum('crf必须是数字'),
+      Validators.isNonNegativeNum('crf不能是负数'),
+      Validators.minNum(1)
+    ],
+    format: [Validators.notNull('请输入封装格式')],
+  },
   throwError: true
 })
 const { formData, actions, validators, loadingRef, loadingManager  } = formInst
+
+watch(() => formData.format, () => {
+  const opt = formatOptions.find(e => e.value == formData.format)
+  if (opt) {
+    const newName = formData.fileName.replace(/\.\w+$/, `.${opt.title}`)
+    formData.fileName = newName
+  }
+})
 
 const updateEnabledRules = () => {
   formData.enabledConvertRules = props.videoInfo.streams
@@ -183,6 +404,20 @@ const updateEnabledRules = () => {
   })
 }
 
+async function selectPath() {
+  try {
+    formData.savePath = await window.SfcUtils.selectPath({
+      filter: file => file.dir,
+      path: formData.savePath,
+      uid: props.fileInfo?.uid || 0
+    })
+  } catch (e) {
+    if (e != 'cancel') {
+      window.SfcUtils.snackbar(e)
+    }
+  }
+}
+
 // 初始化默认规则
 props.videoInfo.streams.forEach(e => {
   formData.convertRules[e.index] = {
@@ -195,8 +430,18 @@ props.videoInfo.streams.forEach(e => {
 })
 updateEnabledRules()
 onMounted(async() => {
+  initFormData()
   await actions.loadFFMpegInfo()
 })
+
+
+
+function initFormData() {
+  const formatNames = props.videoInfo.format.formatName.split(',')
+  formData.fileName = props.fileInfo?.name || ''
+  formData.format = formatNames[0]
+  formData.savePath = props.fileInfo?.path || '/'
+}
 
 const videoStreams = computed(() => {
   return props.videoInfo.streams.filter(e => e.codecType == 'video')
@@ -217,9 +462,11 @@ defineExpose(formInst)
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, onMounted, provide, reactive } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, onMounted, provide, reactive, watch } from 'vue'
 import { VEAPI } from '../api'
-import { EncodeConvertRule, FFMpegInfo, VideoInfo } from '../model'
+import { EncodeConvertFormData, EncodeConvertRule, FFMpegInfo, VideoInfo } from '../model'
+import { StringUtils, Validators } from 'sfc-common'
+import { VEUtils } from '../utils/VEUtils'
 
 export default defineComponent({
   name: 'VideoConvertForm'
