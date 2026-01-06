@@ -1,12 +1,13 @@
-import { FileOpenHandler, MenuGroup, MenuItem,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
+import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
-import { EncodeConvertFormData, EncodeConvertRule, Format, Subtitle, VideoInfo } from './model'
+import { EncodeConvertFormData, Format, StreamInfo, Subtitle, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
 import VideoConvertForm from './components/VideoConvertForm.vue'
 import { VEAPI } from './api'
 import { h } from 'vue'
 import EncodeConvertTask from './components/EncodeConvertTask.vue'
+import { VEUtils } from './utils/VEUtils'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -16,9 +17,9 @@ const SfcUtils = window.SfcUtils
  * @param ctx 文件列表上下文
  * @param file 要获取字幕的文件信息
  * @param path 文件所在路径
- * @param streamIndex 字幕流索引
+ * @param stream 字幕流信息
  */
-function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, streamIndex: string) {
+function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, stream: StreamInfo) {
   if (!file.name.endsWith('.mkv')) {
     return null
   }
@@ -27,8 +28,8 @@ function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, stre
     path: path,
     protocol: 'subtitle',
     targetId: ctx.uid,
-    stream: streamIndex
-  } as any
+    stream: stream.index
+  } as ResourceRequest
   if(ctx.protocol == 'main') {
     return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
   }
@@ -123,14 +124,17 @@ const videoOpenHandler: FileOpenHandler = {
       if (dotIdx != -1) {
         const noExtName = file.name.substring(0, dotIdx)
         const subtitleExtName = ['ass', 'vtt'].map(e => `${noExtName}.${e}`)
-        const extraSubtitleFile = ctx.fileList.filter(f => subtitleExtName.find(e => e == f.name))
+        ctx.fileList.filter(f => subtitleExtName.find(e => e == f.name))
           .forEach(subtitleFile => {
             const url = ctx.getFileUrl(subtitleFile)
             if (url) {
+              const ext = subtitleFile.name.split('.').pop()?.toLowerCase()
+              const type = ext === 'vtt' ? 'webvtt' : ext === 'ass' ? 'ass' : 'sup'
               subtitleList.push({
                 title: `[外挂字幕] ${subtitleFile.name}`,
                 url: url,
-                type: subtitleFile.name.endsWith('.ass') ? 'ass' : 'webvtt'
+                type: type,
+                isDefault: true
               })
             }
           })
@@ -139,9 +143,10 @@ const videoOpenHandler: FileOpenHandler = {
       // 尝试从视频数据流中获取内嵌字幕信息
       videoInfo.streams.filter(s => s.codecType == 'subtitle').forEach(s => {
         subtitleList.push({
-          title: `${s.language}${s.title ? '(' + s.title + ')' : ''}`,
-          url: getSubtitleUrl(ctx, file, path as string, s.index),
-          type: 'webvtt'
+          title: `${s.language}${s.title ? '(' + s.title + ')' : ''}${VEUtils.isSupportSubtitleType(s.codecName) ? '' : '  [不支持的类型 - ' + s.codecName + ']'}`,
+          url: getSubtitleUrl(ctx, file, path as string, s),
+          type: VEUtils.getSubtitleServerType(s.codecName),
+          isDefault: s.disposition.default == '1'
         } as Subtitle)
       })
 

@@ -1,5 +1,6 @@
 import { AsyncTaskRecord  } from 'sfc-common/model/AsyncTaskRecord'
 import { ResourceRequest,IdType, CommonProgress } from 'sfc-common'
+import { VEUtils } from './utils/VEUtils'
 export interface Encoder {
   name: string
   describe: string
@@ -38,7 +39,9 @@ export interface Subtitle {
 
   url: string
 
-  type: 'ass' | 'webvtt'
+  type: VEUtils.ServerSubtitleType
+
+  isDefault?: boolean
 }
 
 export interface StreamInfo {

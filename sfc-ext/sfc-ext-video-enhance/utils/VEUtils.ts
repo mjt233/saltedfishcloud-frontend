@@ -28,6 +28,8 @@ const extNameFormatMapping: {[k:string]: string} = {
   'rmvb': 'rm'
 }
 
+const supportSubtitleTypes = new Set(['ass', 'webvtt', 'srt'])
+
 export namespace VEUtils {
   export function formatBitRate(rawInput: string | number) {
     const input = Number(rawInput)
@@ -66,5 +68,33 @@ export namespace VEUtils {
    */
   export function getExtNameMuxer(extName: string) {
     return extNameFormatMapping[extName] || extName
+  }
+
+  /**
+   * 检查是否为系统当前支持播放的字幕类型
+   * @param codecName 字幕编码类型
+   */
+  export function isSupportSubtitleType(codecName: string) {
+    return supportSubtitleTypes.has(codecName)
+  }
+
+  /**
+   * 服务器支持的统一转换后的字幕类型
+   */
+  export type ServerSubtitleType = 'ass' | 'webvtt' | 'sup'
+
+  /**
+   * 根据ffmpeg的字幕编码类型获取对应的服务器处理类型
+   * @param codecName ffmpeg的字幕编码器类型
+   * @returns 针对codecName服务器转换返回的类型。简单文本字幕webvtt，复杂字幕ass，图片字幕sup
+   */
+  export function getSubtitleServerType(codecName: string): ServerSubtitleType {
+    if (codecName === 'ass' || codecName === 'ssa') {
+      return 'ass'
+    } else if (codecName === 'webvtt' || codecName === 'srt') {
+      return 'webvtt'
+    } else {
+      return 'sup'
+    }
   }
 }

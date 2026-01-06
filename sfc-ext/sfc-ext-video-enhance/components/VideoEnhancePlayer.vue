@@ -108,6 +108,25 @@ function playerAssSubtitle(text: string) {
   }, 500)
 }
 
+async function initPlayerOptSubtitle(opt: DPlayerOptions, subtitle: Subtitle) {
+  if (subtitle.type == 'webvtt') {
+    opt.subtitle = {
+      url: subtitle.url,
+      fontSize: '21px'
+    };
+    (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
+    cancelFontSizeResizer()
+  } else if (subtitle.type == 'ass') {
+    opt.subtitle = undefined;
+    (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
+    const assText = (await SfcUtils.request({url: subtitle.url})).data as string
+    playerAssSubtitle(assText)
+  } else {
+    opt.subtitle = undefined
+    window.SfcUtils.alert(`不支持的字幕类型:${subtitle.type}`)
+  }
+}
+
 const initPlayer = () => {
   if (!props.url) {
     return
@@ -122,7 +141,6 @@ const initPlayer = () => {
   const subtitle = ref() as Ref<Subtitle>
   if (props.videoInfo) {
     if (props.subtitleList.length) {
-      window.SfcUtils.snackbar(`检测到${props.subtitleList.length}个字幕`)
       opt.contextmenu = [{
         text: '选择字幕',
         click() {
@@ -137,26 +155,21 @@ const initPlayer = () => {
             title: '选择字幕',
             contentMaxHeight: '360px',
             async onConfirm() {
-              if (subtitle.value.type == 'webvtt') {
-                opt.subtitle = {
-                  url: subtitle.value.url,
-                  fontSize: '21px'
-                };
-                (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.value.title
-                reloadPlayer(opt)
-                cancelFontSizeResizer()
-              } else {
-                opt.subtitle = undefined;
-                (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.value.title
-                reloadPlayer(opt)
-                const assText = (await SfcUtils.request({url: subtitle.value.url})).data as string
-                playerAssSubtitle(assText)
-              }
+              initPlayerOptSubtitle(opt, subtitle.value)
+              reloadPlayer(opt)
               return true
             }
           })
         }
       }]
+      const defaultSubtitle = props.subtitleList.find(e => e.isDefault && VEUtils.isSupportSubtitleType(e.type))
+      if (defaultSubtitle) {
+        initPlayerOptSubtitle(opt, defaultSubtitle)
+        subtitle.value = defaultSubtitle
+        window.SfcUtils.snackbar(`自动加载默认字幕${defaultSubtitle.title}`)
+      } else {
+        window.SfcUtils.snackbar(`检测到${props.subtitleList.length}个字幕`)
+      }
     }
 
     if (props.videoInfo.chapters.length) {
@@ -263,7 +276,7 @@ import { StreamInfo, Subtitle, VideoInfo } from '../model'
 import SubtitleSelector from './SubtitleSelector.vue'
 import { FileInfo, getContext, MethodInterceptor } from 'sfc-common'
 import { VEAPI } from '../api'
-import { number } from 'echarts'
+import { VEUtils } from '../utils/VEUtils'
 
 export default defineComponent({
   name: 'VideoEnhancePlayer'
