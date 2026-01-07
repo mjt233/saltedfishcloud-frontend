@@ -28,7 +28,7 @@ const extNameFormatMapping: {[k:string]: string} = {
   'rmvb': 'rm'
 }
 
-const supportSubtitleTypes = new Set(['ssa','ass', 'webvtt', 'vtt', 'srt', 'sup','hdmv_pgs_subtitle'])
+const supportSubtitleTypes = new Set(['ssa','ass', 'webvtt', 'vtt', 'subrip', 'srt', 'sup','hdmv_pgs_subtitle'])
 
 export namespace VEUtils {
   export function formatBitRate(rawInput: string | number) {
@@ -91,7 +91,7 @@ export namespace VEUtils {
   export function getSubtitleServerType(codecName: string): ServerSubtitleType {
     if (codecName === 'ass' || codecName === 'ssa') {
       return 'ass'
-    } else if (codecName === 'webvtt' || codecName === 'srt') {
+    } else if (codecName === 'webvtt' || codecName === 'srt' || codecName === 'subrip') {
       return 'webvtt'
     } else {
       return 'sup'

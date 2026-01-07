@@ -17,18 +17,15 @@ const SfcUtils = window.SfcUtils
  * @param ctx 文件列表上下文
  * @param file 要获取字幕的文件信息
  * @param path 文件所在路径
- * @param stream 字幕流信息
+ * @param streamIndex 字幕流索引
  */
-function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, stream: StreamInfo) {
-  if (!file.name.endsWith('.mkv')) {
-    return null
-  }
+function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, streamIndex: string | number) {
   const apiParams = {
     name: file.name,
     path: path,
     protocol: 'subtitle',
     targetId: ctx.uid,
-    stream: stream.index
+    stream: streamIndex
   } as ResourceRequest
   if(ctx.protocol == 'main') {
     return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
@@ -128,10 +125,12 @@ const videoOpenHandler: FileOpenHandler = {
             return f.name.startsWith(noExtName + '.') && VEUtils.isSupportSubtitleType(f.name.split('.').pop() || f.name)
           })
           .forEach(subtitleFile => {
-            const url = ctx.getFileUrl(subtitleFile)
+            // console.log(subtitleFile)
+            const url = getSubtitleUrl(ctx, subtitleFile, path, '0')
             if (url) {
               const ext = subtitleFile.name.split('.').pop()?.toLowerCase()
-              const type = ext === 'vtt' ? 'webvtt' : ext === 'ass' ? 'ass' : 'sup'
+              const type = (ext === 'vtt' || ext === 'srt') ? 'webvtt' : ext === 'ass' ? 'ass' : 'sup'
+              
               subtitleList.push({
                 title: `[外挂字幕] ${subtitleFile.name}`,
                 url: url,
@@ -146,7 +145,7 @@ const videoOpenHandler: FileOpenHandler = {
       videoInfo.streams.filter(s => s.codecType == 'subtitle').forEach(s => {
         subtitleList.push({
           title: `${s.language}${s.title ? '(' + s.title + ')' : ''}${VEUtils.isSupportSubtitleType(s.codecName) ? '' : '  [不支持的类型 - ' + s.codecName + ']'}`,
-          url: getSubtitleUrl(ctx, file, path as string, s),
+          url: getSubtitleUrl(ctx, file, path as string, s.index),
           type: VEUtils.getSubtitleServerType(s.codecName),
           isDefault: s.disposition.default == '1'
         } as Subtitle)
