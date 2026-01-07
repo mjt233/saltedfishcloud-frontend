@@ -1,5 +1,5 @@
 import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
-import VideoEnhancePlayerVue from './components/VideoEnhancePlayer.vue'
+import VideoEnhancePlayerVue from './components/player/VideoEnhancePlayer.vue'
 import { EncodeConvertFormData, Format, StreamInfo, Subtitle, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
@@ -130,9 +130,8 @@ const videoOpenHandler: FileOpenHandler = {
             if (url) {
               const ext = subtitleFile.name.split('.').pop()?.toLowerCase()
               const type = (ext === 'vtt' || ext === 'srt') ? 'webvtt' : ext === 'ass' ? 'ass' : 'sup'
-              
               subtitleList.push({
-                title: `[外挂字幕] ${subtitleFile.name}`,
+                title: `[外挂字幕].${ext}`,
                 url: url,
                 type: type,
                 isDefault: true

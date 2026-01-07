@@ -29,6 +29,17 @@ const props = defineProps({
 })
 const rootRef = ref() as Ref<HTMLElement>
 const playerRef = ref() as Ref<HTMLElement>
+const curSubtitle = ref() as Ref<Subtitle | null | undefined>
+const dplayerOptions:DPlayerOptions = {
+  container: playerRef.value
+}
+const playerSettingProps = reactive({
+  subtitleList: props.subtitleList,
+  curSubtitle: curSubtitle.value,
+  onSubtitleChange(subtitle: Subtitle | null) {
+    changeSubtitle(subtitle)
+  }
+})
 
 let dp:DPlayer
 // ass字幕实例
@@ -43,6 +54,7 @@ const reloadPlayer = async(playerOpt: DPlayerOptions) => {
   dp.play()
   dp.seek(cur)
   tryInitExternalSubtitleRender()
+  addPlayerControllerSetting()
 }
 
 /**
@@ -66,16 +78,18 @@ async function tryInitExternalSubtitleRender() {
     return
   }
   const container = await subtitleRender.init(dp.video)
+  container.classList.add('video-subtitle-container')
   playerRef.value.appendChild(container)
-  container.classList.add('video-ass-subtitle')
 }
 
 /**
- * 初始化播放器字幕选项
+ * 初始化播放器字幕选项，当需要使用外部字幕渲染器时会创建渲染器并记录在变量subtitleRender中。
+ * 如果不需要外部字幕渲染器则会将变量subtitleRender置空。
  * @param opt DPlayer的配置选项
  * @param subtitle 需要显示的字幕
+ * @returns 是否切换成功，不成功则说明不支持该字幕类型
  */
-async function initPlayerOptSubtitle(opt: DPlayerOptions, subtitle: Subtitle) {
+async function initPlayerOptSubtitle(subtitle?: Subtitle | null): Promise<boolean> {
   if (subtitleRender) {
     const existSubtitleContainer = subtitleRender.getContainer()
     if (existSubtitleContainer) {
@@ -84,22 +98,57 @@ async function initPlayerOptSubtitle(opt: DPlayerOptions, subtitle: Subtitle) {
     subtitleRender.destroy()
     subtitleRender = null
   }
+  if (!subtitle) {
+    curSubtitle.value = undefined
+    dplayerOptions.subtitle = undefined
+    playerSettingProps.curSubtitle = curSubtitle.value
+    return true
+  }
+
   if (subtitle.type == 'webvtt') {
     // DPlayer内置支持webvtt
-    opt.subtitle = {
+    dplayerOptions.subtitle = {
       url: subtitle.url,
       fontSize: '21px'
-    };
-    (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
+    }
+    curSubtitle.value = subtitle
+    playerSettingProps.curSubtitle = curSubtitle.value
+    return true
   } else {
     // DPlayer内置不支持的字幕类型，需要外部渲染
-    opt.subtitle = undefined
+    dplayerOptions.subtitle = undefined
     createExternalSubtitleRender(subtitle)
     if (!subtitleRender) {
-      window.SfcUtils.alert(`不支持的字幕类型:${subtitle.type}`)
+      return false
     } else {
-      (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
+      curSubtitle.value = subtitle
+      playerSettingProps.curSubtitle = curSubtitle.value
+      return true
     }
+  }
+}
+
+/**
+ * 切换字幕
+ * @param subtitle 目标字幕。关闭字幕时传入null或undefined即可。
+ */
+async function changeSubtitle(subtitle?: Subtitle | null) {
+  const originSubtitle = curSubtitle.value
+  // 初始化新字幕的播放配置 或 创建外部字幕渲染器
+  if(!initPlayerOptSubtitle(subtitle)) {
+    dp.notice('不支持该字幕格式的播放 ' + subtitle?.type || '', 4000, 0.8)
+    return
+  }
+
+  // 原本是webvtt字幕时，需要重新加载播放器来移除字幕
+  if (originSubtitle && originSubtitle.type == 'webvtt' || subtitle?.type == 'webvtt') {
+    reloadPlayer(dplayerOptions)
+    return
+  }
+
+  // 存在外部字幕渲染器时，直接重新初始化字幕渲染器即可，无需重载播放器
+  if (subtitleRender) {
+    await tryInitExternalSubtitleRender()
   }
 }
 
@@ -107,54 +156,24 @@ function initPlayer() {
   if (!props.url) {
     return
   }
-  const opt:DPlayerOptions = {
-    container: playerRef.value,
-    video: {
-      url: props.url
-    }
+  dplayerOptions.container = playerRef.value
+  dplayerOptions.video = {
+    url: props.url
   }
-  
-  const subtitle = ref() as Ref<Subtitle>
+  const initMsgs = [] as string[]
   if (props.videoInfo) {
     if (props.subtitleList.length) {
-      opt.contextmenu = [{
-        text: '选择字幕',
-        click() {
-          window.SfcUtils.openComponentDialog(SubtitleSelector, {
-            props: reactive({
-              subtitleList: props.subtitleList,
-              'onUpdate:modelValue'(val: Subtitle) {
-                subtitle.value = val
-              },
-              modelValue: subtitle
-            }),
-            title: '选择字幕',
-            contentMaxHeight: '360px',
-            async onConfirm() {
-              initPlayerOptSubtitle(opt, subtitle.value)
-              // 存在外部字幕渲染器时，直接重新初始化字幕渲染器即可，无需重载播放器
-              if (subtitleRender) {
-                await tryInitExternalSubtitleRender()
-              } else {
-                reloadPlayer(opt)
-              }
-              return true
-            }
-          })
-        }
-      }]
       const defaultSubtitle = props.subtitleList.find(e => e.isDefault && VEUtils.isSupportSubtitleType(e.type))
       if (defaultSubtitle) {
-        initPlayerOptSubtitle(opt, defaultSubtitle)
-        subtitle.value = defaultSubtitle
-        window.SfcUtils.snackbar(`自动加载默认字幕${defaultSubtitle.title}`)
+        initPlayerOptSubtitle(defaultSubtitle)
+        initMsgs.push(`检测到${props.subtitleList.length}个字幕 并自动加载: ${defaultSubtitle.title}`)
       } else {
-        window.SfcUtils.snackbar(`检测到${props.subtitleList.length}个字幕`)
+        initMsgs.push(`检测到${props.subtitleList.length}个字幕`)
       }
     }
 
     if (props.videoInfo.chapters.length) {
-      opt.highlight = props.videoInfo.chapters.map(c => {
+      dplayerOptions.highlight = props.videoInfo.chapters.map(c => {
         return {
           text: c.title,
           time: Number(c.startTime)
@@ -162,28 +181,51 @@ function initPlayer() {
       })
     }
   }
-  dp = new window.DPlayer(opt)
+  dp = new window.DPlayer(dplayerOptions)
   initPlayerListener(dp)
   dp.play()
   dp.video.addEventListener('loadeddata', async() => {
     const lastProgress = await getLastProgress()
     if (lastProgress) {
-      SfcUtils.snackbar(`已自动定位到${getTimeProgressStr(lastProgress)}`)
+      dp.notice(`自动跳转到上次观看记录 ${getTimeProgressStr(lastProgress)}`, 5000, 0.8)
       dp.seek(lastProgress)
     }
   })
+  initMsgs.forEach(m => dp.notice(m, 5000, 0.8))
   tryInitExternalSubtitleRender()
+  addPlayerControllerSetting()
+}
+
+/**
+ * 给DPlayer播放器添加额外的可交互的设置参数
+ */
+function addPlayerControllerSetting() {
+  if (!dp) {
+    return
+  }
+  const rightSettings = playerRef.value.querySelector('.dplayer-icons-right') as HTMLElement
+  if (!rightSettings) {
+    return
+  }
+  rightSettings.style.display = 'flex'
+  rightSettings.style.alignItems = 'center'
+  window.SfcUtils.dyncmount(PlayerSetting, {
+    tempDOMHandler(dom) {
+      dom.style = 'display: inline-block;color: #cfd5d0;font-size: 14px'
+      // 将rightSettings插入到dom的最前面
+      rightSettings?.insertBefore(dom, rightSettings.firstChild)
+    },
+    wrapVApp: false,
+    props: playerSettingProps
+  })
 }
 
 function initPlayerListener(dp: DPlayer) {
   dp.video.addEventListener(
     'timeupdate',
-    MethodInterceptor.createThrottleProxy(
-      MethodInterceptor.wrapFun(() => recordProgress(dp.video.currentTime)),
-      {
-        delay: 5000
-      }
-    ).invoke
+    MethodInterceptor.createThrottleProxyFunc(() => recordProgress(dp.video.currentTime), {
+      delay: 5000
+    })
   )
   dp.video.addEventListener('seeked', () => recordProgress(dp.video.currentTime))
 }
@@ -222,6 +264,7 @@ function recordProgress(time: number) {
   }
   localStorage.setItem(`watchRecord_${uid}_${identify}`, String(time))
 }
+
 /**
  * 获取上次观看记录
  */
@@ -256,19 +299,20 @@ watch(() => props.url, initPlayer)
 import type DPlayer from 'dplayer'
 import { DPlayerContextMenuItem, DPlayerEvents, DPlayerOptions } from 'dplayer'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick, watch, reactive, onUnmounted } from 'vue'
-import { StreamInfo, Subtitle, VideoInfo } from '../model'
+import { StreamInfo, Subtitle, VideoInfo } from '../../model'
 import SubtitleSelector from './SubtitleSelector.vue'
 import { FileInfo, getContext, MethodInterceptor } from 'sfc-common'
-import { VEAPI } from '../api'
-import { VEUtils } from '../utils/VEUtils'
-import { createSubtitleRender, SubtitleRender } from '../subtitle/subtitleRender'
+import { VEAPI } from '../../api'
+import { VEUtils } from '../../utils/VEUtils'
+import { createSubtitleRender, SubtitleRender } from '../../subtitle/subtitleRender'
+import PlayerSetting from './PlayerSetting.vue'
 
 export default defineComponent({
   name: 'VideoEnhancePlayer'
 })
 </script>
 <style>
-.video-ass-subtitle {
+.video-subtitle-container {
   width: 100% !important;
   height: 100% !important;
   position: absolute !important;
