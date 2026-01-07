@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import ASS from 'assjs'
 const SfcUtils = window.SfcUtils
 const props = defineProps({
   url: {
@@ -33,8 +32,7 @@ const playerRef = ref() as Ref<HTMLElement>
 
 let dp:DPlayer
 // ass字幕实例
-let assInst: any
-let fontSizeResizer: any
+let subtitleRender: SubtitleRender | null
 
 
 const reloadPlayer = async(playerOpt: DPlayerOptions) => {
@@ -44,90 +42,68 @@ const reloadPlayer = async(playerOpt: DPlayerOptions) => {
   initPlayerListener(dp)
   dp.play()
   dp.seek(cur)
-}
-
-const assHandler = MethodInterceptor.createThrottleProxy({
-  autoResizeAss() {
-    if (assInst) {
-      assInst.resize()
-    }
-  }
-}, {
-  afterExecute: true,
-  delay: 500
-})
-
-
-function cancelFontSizeResizer() {
-  if (fontSizeResizer) {
-    clearInterval(fontSizeResizer)
-    fontSizeResizer = null
-  }
+  tryInitExternalSubtitleRender()
 }
 
 /**
- * 播放ass字幕
- * @param text ass字幕文本
+ * 创建外部字幕渲染器
+ * @param subtitle 需要渲染的字幕
  */
-function playerAssSubtitle(text: string) {
-  if (assInst) {
-    assInst.destroy()
-    assInst = null
-  }
-  const assDiv = document.createElement('div')
-  assDiv.classList.add('subtitle')
-  const cssScopeFlag = playerRef.value.getAttributeNames().find(e => e.startsWith('data-v-')) as string
-  assDiv.setAttribute(cssScopeFlag, '')
-  playerRef.value.appendChild(assDiv)
-  assInst = new ASS(text, dp.video, {
-    container: assDiv,
-    resampling: 'video_width'
-  })
-  cancelFontSizeResizer()
-
-  const forceFontSize = '21px'
-  const stage = playerRef.value.querySelector('.ASS-stage')
-  if (stage) {
-    if(stage.getAttribute('has-hock-append-child') != '1') {
-      stage.setAttribute('has-hock-append-child', '1')
-      // 对每个新添加的字幕强制重置字体大小
-      const originAppendChild = stage.appendChild.bind(stage)
-      stage.appendChild = dom => {
-        if (dom instanceof HTMLElement) {
-          const textDom = dom.querySelector('span')
-          if (textDom) {
-            textDom.style.fontSize = forceFontSize
-          }
-        }
-        return originAppendChild(dom)
-      }
+function createExternalSubtitleRender(subtitle: Subtitle) {
+  if (subtitleRender) {
+    const container = subtitleRender.getContainer()
+    if (container) {
+      playerRef.value.removeChild(container)
     }
+    subtitleRender.destroy()
   }
-  fontSizeResizer = setInterval(() => {
-    playerRef.value.querySelectorAll('.ASS-stage span').forEach(textDom => (textDom as HTMLSpanElement).style.fontSize = forceFontSize)
-  }, 500)
+  subtitleRender = createSubtitleRender(subtitle)
+  return subtitleRender
 }
 
+async function tryInitExternalSubtitleRender() {
+  if (!subtitleRender || !dp) {
+    return
+  }
+  const container = await subtitleRender.init(dp.video)
+  playerRef.value.appendChild(container)
+  container.classList.add('video-ass-subtitle')
+}
+
+/**
+ * 初始化播放器字幕选项
+ * @param opt DPlayer的配置选项
+ * @param subtitle 需要显示的字幕
+ */
 async function initPlayerOptSubtitle(opt: DPlayerOptions, subtitle: Subtitle) {
+  if (subtitleRender) {
+    const existSubtitleContainer = subtitleRender.getContainer()
+    if (existSubtitleContainer) {
+      playerRef.value.removeChild(existSubtitleContainer)
+    }
+    subtitleRender.destroy()
+    subtitleRender = null
+  }
   if (subtitle.type == 'webvtt') {
+    // DPlayer内置支持webvtt
     opt.subtitle = {
       url: subtitle.url,
       fontSize: '21px'
     };
     (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
-    cancelFontSizeResizer()
-  } else if (subtitle.type == 'ass') {
-    opt.subtitle = undefined;
-    (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
-    const assText = (await SfcUtils.request({url: subtitle.url})).data as string
-    playerAssSubtitle(assText)
   } else {
+    // DPlayer内置不支持的字幕类型，需要外部渲染
     opt.subtitle = undefined
-    window.SfcUtils.alert(`不支持的字幕类型:${subtitle.type}`)
+    createExternalSubtitleRender(subtitle)
+    if (!subtitleRender) {
+      window.SfcUtils.alert(`不支持的字幕类型:${subtitle.type}`)
+    } else {
+      (opt.contextmenu as DPlayerContextMenuItem[])[0].text = '字幕：' + subtitle.title
+    }
   }
 }
 
-const initPlayer = () => {
+function initPlayer() {
   if (!props.url) {
     return
   }
@@ -156,7 +132,12 @@ const initPlayer = () => {
             contentMaxHeight: '360px',
             async onConfirm() {
               initPlayerOptSubtitle(opt, subtitle.value)
-              reloadPlayer(opt)
+              // 存在外部字幕渲染器时，直接重新初始化字幕渲染器即可，无需重载播放器
+              if (subtitleRender) {
+                await tryInitExternalSubtitleRender()
+              } else {
+                reloadPlayer(opt)
+              }
               return true
             }
           })
@@ -191,6 +172,7 @@ const initPlayer = () => {
       dp.seek(lastProgress)
     }
   })
+  tryInitExternalSubtitleRender()
 }
 
 function initPlayerListener(dp: DPlayer) {
@@ -258,13 +240,15 @@ async function getLastProgress() {
 onMounted(async() => {
   await nextTick()
   initPlayer()
-  window.addEventListener('resize', assHandler.autoResizeAss)
 })
 onUnmounted(() => {
-  window.removeEventListener('resize', assHandler.autoResizeAss)
-  cancelFontSizeResizer()
+  if (dp) {
+    dp.destroy()
+  }
+  if (subtitleRender) {
+    subtitleRender.destroy()
+  }
 })
-
 watch(() => props.url, initPlayer)
 </script>
 
@@ -277,23 +261,26 @@ import SubtitleSelector from './SubtitleSelector.vue'
 import { FileInfo, getContext, MethodInterceptor } from 'sfc-common'
 import { VEAPI } from '../api'
 import { VEUtils } from '../utils/VEUtils'
+import { createSubtitleRender, SubtitleRender } from '../subtitle/subtitleRender'
 
 export default defineComponent({
   name: 'VideoEnhancePlayer'
 })
 </script>
+<style>
+.video-ass-subtitle {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+</style>
 
 <style scoped lang="scss">
 .player-root {
   position: relative;
-  .subtitle {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 1000;
-  }
 }
 </style>

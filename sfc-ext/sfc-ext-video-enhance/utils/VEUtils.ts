@@ -28,7 +28,7 @@ const extNameFormatMapping: {[k:string]: string} = {
   'rmvb': 'rm'
 }
 
-const supportSubtitleTypes = new Set(['ass', 'webvtt', 'srt'])
+const supportSubtitleTypes = new Set(['ssa','ass', 'webvtt', 'vtt', 'srt', 'sup','hdmv_pgs_subtitle'])
 
 export namespace VEUtils {
   export function formatBitRate(rawInput: string | number) {
@@ -75,7 +75,7 @@ export namespace VEUtils {
    * @param codecName 字幕编码类型
    */
   export function isSupportSubtitleType(codecName: string) {
-    return supportSubtitleTypes.has(codecName)
+    return supportSubtitleTypes.has(codecName.toLocaleLowerCase())
   }
 
   /**

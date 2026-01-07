@@ -8,6 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "assjs": "^0.0.11"
+    "assjs": "^0.0.11",
+    "libpgs": "^0.8.1"
   }
 }

@@ -123,8 +123,10 @@ const videoOpenHandler: FileOpenHandler = {
       const dotIdx = file.name.lastIndexOf('.')
       if (dotIdx != -1) {
         const noExtName = file.name.substring(0, dotIdx)
-        const subtitleExtName = ['ass', 'vtt'].map(e => `${noExtName}.${e}`)
-        ctx.fileList.filter(f => subtitleExtName.find(e => e == f.name))
+        ctx.fileList
+          .filter(f => {
+            return f.name.startsWith(noExtName + '.') && VEUtils.isSupportSubtitleType(f.name.split('.').pop() || f.name)
+          })
           .forEach(subtitleFile => {
             const url = ctx.getFileUrl(subtitleFile)
             if (url) {
