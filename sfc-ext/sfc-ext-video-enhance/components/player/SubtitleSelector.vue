@@ -21,7 +21,7 @@ const props = defineProps({
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
-import { Subtitle } from '../model'
+import { Subtitle } from '../../model'
 
 export default defineComponent({
   name: 'SubtitleSelector'

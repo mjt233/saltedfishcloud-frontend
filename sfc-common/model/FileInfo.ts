@@ -21,7 +21,7 @@ export interface FileInfo extends AuditModel {
   /* 是否来自挂载的文件系统 */
   isMount: boolean
 
-  /* 所处路径 */
+  /* 所处路径(不包含本身文件名) */
   path?: string
 }
 

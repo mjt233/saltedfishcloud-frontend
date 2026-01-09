@@ -36,7 +36,13 @@ export interface FileListModelHandler {
    * @param name 被删除的文件名列表集合
    * @returns 删除的文件数量
    */
-  delete: (name: string[]) => Promise<number> 
+  delete: (name: string[]) => Promise<number>
+
+  /**
+   * 获取该列表指定目录的文件
+   * @param path 要获取文件列表的路径
+   */
+  list(path: string): Promise<FileInfo[]>
 }
 export interface FileListModel extends ComponentPublicInstance {
   context: FileListContext

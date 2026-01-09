@@ -78,7 +78,11 @@ const FileListContextBuilder = {
     
         async delete(name) {
           return await handler?.value.deleteFile(props.path, name) as number
-        }
+        },
+        
+        async list(path) {
+          return await handler?.value.loadList(path)
+        },
       } as FileListModelHandler
     })
   }

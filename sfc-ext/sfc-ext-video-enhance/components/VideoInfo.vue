@@ -87,7 +87,7 @@
             {{ stream.codecName }}
           </td>
           <td>{{ (stream.sampleRate as any as number)/1000 }}kHz</td>
-          <td>{{ stream.bitRate/1000 }}K</td>
+          <td>{{ stream.bitRate && stream.bitRate/1000 }}K</td>
           <td>{{ stream.channels }}</td>
           <td>{{ stream.language || '-' }}</td>
         </tr>
@@ -121,7 +121,7 @@ const audioStreams = computed(() => {
 import { FileInfo } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, compile, computed } from 'vue'
 import { VideoInfo } from '../model'
-import { VEUtils } from '../utils/VEUtils'
+import { VEUtils } from '../core/VEUtils'
 
 export default defineComponent({
   name: 'VideoInfo'
