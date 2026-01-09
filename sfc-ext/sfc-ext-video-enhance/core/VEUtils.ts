@@ -31,6 +31,60 @@ const extNameFormatMapping: {[k:string]: string} = {
 const supportSubtitleTypes = new Set(['ssa','ass', 'webvtt', 'vtt', 'subrip', 'srt', 'sup','hdmv_pgs_subtitle'])
 
 export namespace VEUtils {
+/**
+ * 解析相对路径，支持..定位到上级路径。超出根路径时返回'/'
+ * 案例:
+ * - path: /a/b/c pattern: './../666' => /a/b/666
+ * - path: /a/b/c pattern: '../../../..' => /
+ */
+export function resolveRelativePath(path: string, pattern: string) {
+  // 确保路径以/开头
+  if (!path.startsWith('/')) {
+    path = '/' + path
+  }
+  
+  // 将路径和模式都分割成部分
+  const pathParts = path.split('/').filter(part => part !== '')
+  const patternParts = pattern.split('/').filter(part => part !== '')
+  
+  // 处理模式中的相对路径部分
+  const resultParts: string[] = []
+  
+  // 先复制基础路径（除了根目录）
+  for (const part of pathParts) {
+    resultParts.push(part)
+  }
+  
+  // 处理模式中的每一部分
+  for (const part of patternParts) {
+    if (part === '..') {
+      // 如果是..，则返回上级目录（移除最后一个部分）
+      if (resultParts.length > 0) {
+        resultParts.pop()
+      }
+      // 如果已经没有更多部分了，说明超出了根路径，保持为空数组
+    } else if (part !== '.' && part !== '') {
+      // 如果不是.或空字符串，则添加到结果中
+      resultParts.push(part)
+    }
+  }
+  
+  // 组合成最终路径
+  let resultPath = '/' + resultParts.join('/')
+  
+  // 如果结果是/或为空，确保返回/
+  if (resultPath === '/') {
+    return '/'
+  }
+  
+  // 如果原始路径以/结尾且结果不是根路径，保持结尾的/
+  const hasTrailingSlash = path.endsWith('/') && resultParts.length > 0
+  if (hasTrailingSlash && !resultPath.endsWith('/')) {
+    resultPath += '/'
+  }
+  
+  return resultPath
+}
   export function formatBitRate(rawInput: string | number) {
     const input = Number(rawInput)
     if (input < 1000) {
@@ -58,7 +112,7 @@ export namespace VEUtils {
    * @returns 对应的文件名拓展名
    */
   export function getFormatExtName(format: string) {
-    return formatExtNameMapping[format]
+    return formatExtNameMapping[format] || format
   }
 
   /**

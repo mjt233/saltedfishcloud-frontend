@@ -9,7 +9,7 @@ import FileShareExtractor from 'sfc-common/components/common/FileShare/extract/F
 import BaseView from 'sfc-common/components/common/BaseView.vue'
 
 const path = ref('/')
-const {sid = '', vid = '', paths = []} = context.routeInfo.value.curr?.params as any
+const {sid = '', vid = '', paths = []} = getContext().routeInfo.value.curr?.params as any
 
 provide('hrefReplacer', (href: string) => {
   if (href.startsWith('.')) {

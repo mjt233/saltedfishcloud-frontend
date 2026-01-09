@@ -303,8 +303,8 @@ import { StreamInfo, Subtitle, VideoInfo } from '../../model'
 import SubtitleSelector from './SubtitleSelector.vue'
 import { FileInfo, getContext, MethodInterceptor } from 'sfc-common'
 import { VEAPI } from '../../api'
-import { VEUtils } from '../../utils/VEUtils'
-import { createSubtitleRender, SubtitleRender } from '../../subtitle/subtitleRender'
+import { VEUtils } from '../../core/VEUtils'
+import { createSubtitleRender, SubtitleRender } from '../../core/subtitleRender'
 import PlayerSetting from './PlayerSetting.vue'
 
 export default defineComponent({

@@ -17,16 +17,18 @@
             <span>{{ taskRecord.executor }}</span>
           </FormCol>
           <FormCol cols="3" top-label label="任务状态">
-            <span :class="`status-text-${taskRecord.status}`">{{ AsyncTaskRecordStatusDict[taskRecord.status] }}</span>
-            <div
-              v-if="[0,1,5].includes(taskRecord.status)"
-              v-ripple
-              title="中断任务"
-              class="d-flex justify-center align-center bg-error"
-              style="width: 24px;height: 24px;cursor: pointer;border-radius: 50%;margin-left: 6px;"
-              @click="interruptTask"
-            >
-              <CommonIcon style="font-size: 12px" icon="mdi-stop" />
+            <div class="d-flex">
+              <span :class="`status-text-${taskRecord.status}`">{{ AsyncTaskRecordStatusDict[taskRecord.status] }}</span>
+              <div
+                v-if="[0,1,5].includes(taskRecord.status)"
+                v-ripple
+                title="中断任务"
+                class="d-flex justify-center align-center bg-error"
+                style="width: 24px;height: 24px;cursor: pointer;border-radius: 50%;margin-left: 6px;"
+                @click="interruptTask"
+              >
+                <CommonIcon style="font-size: 12px" icon="mdi-stop" />
+              </div>
             </div>
           </FormCol>
         </FormRow>
@@ -99,6 +101,13 @@ const props = defineProps({
   taskId: {
     type: [Number, String] as PropType<IdType>,
     default: 0
+  },
+  /**
+   * 是否默认自动加载日志
+   */
+  autoOpenLog: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['task-exit'])
@@ -154,7 +163,7 @@ const formatJsonText = (json: string) => {
 
 const taskLogLoader = {
   ws: undefined as WebSocket | undefined,
-  ajaxTimer: undefined as NodeJS.Timer | undefined,
+  ajaxTimer: undefined as any,
   ajaxLoading: false as boolean,
   /**
    * 清除各种事件和定时
@@ -309,6 +318,9 @@ const stopAutoRefresh = () => {
 
 onMounted(async() => {
   await actions.asyncLoadData()
+  if (props.autoOpenLog) {
+    taskLogLoader.startLoadLogData()
+  }
   // 若任务为等待中或离线，则间隔更新状态
   if ([0,5].includes(taskRecord.value?.status || 3)) {
     await SfcUtils.sleep(1000)

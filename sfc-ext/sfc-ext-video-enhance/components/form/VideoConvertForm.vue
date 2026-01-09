@@ -5,10 +5,10 @@
     :submit-action="actions.submit"
   >
     <LoadingMask :loading="loadingRef" />
-    <div class="text-h6">
+    <!-- <div v-if="!isMultipleFiles" class="text-h6 mb-4">
       基本参数
-    </div>
-    <FormRow class="mt-1">
+    </div> -->
+    <FormRow v-if="!isMultipleFiles">
       <FormCol>
         <TextInput v-model="formData.fileName" label="新文件名" :rules="validators.fileName" />
       </FormCol>
@@ -25,12 +25,47 @@
         />
       </FormCol>
     </FormRow>
-    <FormRow>
+    <FormRow v-if="!isMultipleFiles">
       <FormCol label="文件保存位置">
         <span class="tip mr-1 link">{{ formData.savePath }}</span>
         <VBtn flat @click="selectPath">
           浏览
         </VBtn>
+      </FormCol>
+    </FormRow>
+    <FormRow v-if="isMultipleFiles">
+      <FormCol>
+        <VSelect
+          :model-value="formData.pathStrategy"
+          label="文件输出路径策略"
+          color="primary"
+          variant="underlined"
+          :items="[
+            { title: '输出到原目录', value: 'same'},
+            { title: '输出到相对原目录', value: 'relative'},
+            { title: '输出到固定目录', value: 'fixed'}
+          ]"
+          @update:model-value="formData.pathStrategy = $event; formData.savePath = {'same': '', 'fixed': '/', 'relative': '转码'}[$event]"
+        />
+      </FormCol>
+      <FormCol v-if="formData.pathStrategy != 'same'" :label="formData.pathStrategy == 'fixed' ? '保存路径' : ''">
+        <VTooltip v-if="formData.pathStrategy == 'relative'" location="bottom">
+          <template #activator="{ props: p }">
+            <TextInput v-bind="p" v-model="formData.savePath" label="相对原目录的路径" />
+          </template>
+          效果预览：
+          <ul class="pl-4">
+            <li>原文件: /我的视频/电影/流浪地球.mkv</li>
+            <li>输出位置: {{ VEUtils.resolveRelativePath('/我的视频/电影', `${formData.savePath}/流浪地球.${VEUtils.getFormatExtName(formData.format)}`) }}</li>
+          </ul>
+        </VTooltip>
+        
+        <template v-else>
+          <span class="tip mr-1 link">{{ formData.savePath }}</span>
+          <VBtn flat @click="selectPath">
+            浏览
+          </VBtn>
+        </template>
       </FormCol>
     </FormRow>
     <FormRow>
@@ -65,7 +100,7 @@
     </FormRow>
     <VDivider class="mt-1 mb-1" />
     <div class="text-h6">
-      视频
+      视频流
     </div>
     <VTable>
       <thead>
@@ -105,7 +140,7 @@
       </tbody>
     </VTable>
     <div class="text-h6">
-      音频
+      音频流
     </div>
     <VTable>
       <thead>
@@ -255,26 +290,37 @@ import { FileInfo, SelectOption } from 'sfc-common/model'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
+  /**
+   * 单文件模式下，当前视频文件的详细信息
+   */
   videoInfo: {
-    type: Object as PropType<VideoInfo>,
-    default: () => { return {} }
-  },
-  fileInfo: {
-    type: Object as PropType<FileInfo>,
+    type: Object as PropType<VideoInfo | undefined>,
     default: undefined
+  },
+  /**
+   * 当前选中的视频文件信息，当选择多个文件时，则表示批量转码
+   */
+  fileInfo: {
+    type: Object as PropType<FileInfo | FileInfo[]>,
+    required: true
+  },
+  uid: {
+    type: [String, Number],
+    required: true
   }
 })
 const ffmpegInfo = ref<FFMpegInfo>()
 const emits = defineEmits(['submit'])
 // 目标格式选项列表
-const formatOptions = [
+const formatOptions = reactive([
   { title: 'mp4', value: VEUtils.getExtNameMuxer('mp4') },
   { title: 'mkv', value: VEUtils.getExtNameMuxer('mkv') },
   { title: 'mov', value: VEUtils.getExtNameMuxer('mov') },
   { title: 'flv', value: VEUtils.getExtNameMuxer('flv') },
   { title: 'wmv', value: VEUtils.getExtNameMuxer('wmv') },
   { title: 'avi', value: VEUtils.getExtNameMuxer('avi') }
-]
+])
+
 const showSubtitleOption = ref(false)
 // 筛选显示常用编码器
 const showCommonEncoders = ref(true)
@@ -282,6 +328,46 @@ const commonEncodersKeyWord = {
   video: [ '264', '265', 'hevc' ],
   audio: [ 'aac' ]
 }
+// 是否为多文件模式（fileInfo包含文件夹 或 存在多个文件）
+const isMultipleFiles = computed(() => {
+  if (Array.isArray(props.fileInfo)) {
+    return props.fileInfo.length > 1 || props.fileInfo.some(f => f.dir)
+  } else if (props.fileInfo) {
+    return props.fileInfo.dir
+  } else {
+    return false
+  }
+})
+const videoInfoReference: VideoInfo = props.videoInfo || {
+  chapters: [],
+  format: {
+    bitRate: '0',
+    duration: 0,
+    formatLongName: '',
+    formatName: 'mkv',
+    nbPrograms: '0',
+    nbStreams: '0',
+    size: '0',
+    tags: {}
+  },
+  streams: [
+    {
+      index: '0',
+      codecLongName: '',
+      codecName: '-',
+      codecType: 'video',
+      duration: 0
+    },
+    {
+      index: '1',
+      codecLongName: '',
+      codecName: '-',
+      codecType: 'audio',
+      duration: 0
+    },
+  ]
+}
+
 watch(showCommonEncoders, () => formInst.actions.loadFFMpegInfo() )
 
 const copyEncoder: SelectOption = {
@@ -291,21 +377,23 @@ const copyEncoder: SelectOption = {
 const formInst = window.FormUtils.defineForm({
   actions: {
     async submit() {
-      const rule = props.videoInfo.streams.find(e => (e.codecType == 'audio' || e.codecType == 'video') && formData.mapStreams[e.index])
-      if (!rule) {
-        throw new Error('至少选择一个音频或视频流')
-      }
+      if (!isMultipleFiles.value && props.videoInfo) {
+        const rule = props.videoInfo.streams.find(e => (e.codecType == 'audio' || e.codecType == 'video') && formData.mapStreams[e.index])
+        if (!rule) {
+          throw new Error('至少选择一个音频或视频流')
+        }
       
-      if(!props.videoInfo.streams.find(e => e.codecType == 'video' && formData.mapStreams[e.index])) {
-        await window.SfcUtils.confirm('没有选择视频流，确定？', '提示', {
-          cancelToReject: true
-        })
-      }
+        if(!props.videoInfo.streams.find(e => e.codecType == 'video' && formData.mapStreams[e.index])) {
+          await window.SfcUtils.confirm('没有选择视频流，确定？', '提示', {
+            cancelToReject: true
+          })
+        }
 
-      if(!props.videoInfo.streams.find(e => e.codecType == 'audio' && formData.mapStreams[e.index])) {
-        await window.SfcUtils.confirm('没有选择音频流，确定？', '提示', {
-          cancelToReject: true
-        })
+        if(!props.videoInfo.streams.find(e => e.codecType == 'audio' && formData.mapStreams[e.index])) {
+          await window.SfcUtils.confirm('没有选择音频流，确定？', '提示', {
+            cancelToReject: true
+          })
+        }
       }
       updateEnabledRules()
     },
@@ -366,7 +454,8 @@ const formInst = window.FormUtils.defineForm({
     fileName: '',
     savePath: '/',
     preset: 'medium',
-    isOverwrite: false
+    isOverwrite: false,
+    pathStrategy: 'same'
   } as EncodeConvertFormData,
   formRef: formRef,
   validators: {
@@ -392,7 +481,7 @@ watch(() => formData.format, () => {
 })
 
 const updateEnabledRules = () => {
-  formData.enabledConvertRules = props.videoInfo.streams
+  formData.enabledConvertRules = videoInfoReference.streams
     .filter(e => formData.mapStreams[e.index])
     .map(e => formData.convertRules[e.index])
   formData.enabledConvertRules.forEach(e => {
@@ -409,7 +498,7 @@ async function selectPath() {
     formData.savePath = await window.SfcUtils.selectPath({
       filter: file => file.dir,
       path: formData.savePath,
-      uid: props.fileInfo?.uid || 0
+      uid: props.uid
     })
   } catch (e) {
     if (e != 'cancel') {
@@ -418,39 +507,72 @@ async function selectPath() {
   }
 }
 
-// 初始化默认规则
-props.videoInfo.streams.forEach(e => {
-  formData.convertRules[e.index] = {
-    index: e.index,
-    encoder: 'copy',
-    method: 'copy',
-    type: e.codecType
-  }
-  formData.mapStreams[e.index] = true
-})
-updateEnabledRules()
 onMounted(async() => {
+  updateEnabledRules()
   initFormData()
   await actions.loadFFMpegInfo()
 })
 
 
 
+// 初始化默认规则
 function initFormData() {
-  const formatNames = props.videoInfo.format.formatName.split(',')
-  formData.fileName = props.fileInfo?.name || ''
-  formData.format = formatNames[0]
-  formData.savePath = props.fileInfo?.path || '/'
+  if (!isMultipleFiles.value && props.videoInfo) {
+    props.videoInfo.streams.forEach(e => {
+      formData.convertRules[e.index] = {
+        index: e.index,
+        encoder: 'copy',
+        method: 'copy',
+        type: e.codecType
+      }
+      formData.mapStreams[e.index] = true
+    })
+    const fileInfo = Array.isArray(props.fileInfo) ? props.fileInfo[0] : props.fileInfo as FileInfo
+    const formatNames = props.videoInfo.format.formatName.split(',')
+    formData.fileName = fileInfo.name || ''
+    formData.format = formatNames[0]
+    formData.savePath = fileInfo.path || '/'
+  } else {
+    formData.convertRules = {
+      '0': {
+        type: 'video',
+        encoder: 'copy',
+        index: '0',
+        method: 'copy'
+      },
+      '1': {
+        type: 'audio',
+        encoder: 'copy',
+        index: '1',
+        method: 'copy'
+      }
+    }
+    formData.mapStreams = {
+      '0': true,
+      '1': true
+    }
+    // formData.format = VEUtils.getExtNameMuxer('mkv')
+  }
+
+  
+
+  if (isMultipleFiles.value) {
+    formatOptions.unshift({
+      title: '保留原格式',
+      value: 'keep'
+    })
+    formData.format = 'keep'
+  }
 }
 
 const videoStreams = computed(() => {
-  return props.videoInfo.streams.filter(e => e.codecType == 'video')
+  return videoInfoReference.streams.filter(e => e.codecType == 'video')
 })
 const audioStreams = computed(() => {
-  return props.videoInfo.streams.filter(e => e.codecType == 'audio')
+  return videoInfoReference.streams.filter(e => e.codecType == 'audio')
 })
 const subtitleStreams = computed(() => {
-  return props.videoInfo.streams.filter(e => e.codecType == 'subtitle')
+  return videoInfoReference.streams.filter(e => e.codecType == 'subtitle')
 })
 
 const encoderOptions = reactive({
@@ -463,10 +585,10 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, onMounted, provide, reactive, watch } from 'vue'
-import { VEAPI } from '../api'
-import { EncodeConvertFormData, EncodeConvertRule, FFMpegInfo, VideoInfo } from '../model'
+import { VEAPI } from '../../api'
+import { EncodeConvertFormData, EncodeConvertRule, FFMpegInfo, StreamInfo, VideoInfo } from '../../model'
 import { StringUtils, Validators } from 'sfc-common'
-import { VEUtils } from '../utils/VEUtils'
+import { VEUtils } from '../../core/VEUtils'
 
 export default defineComponent({
   name: 'VideoConvertForm'

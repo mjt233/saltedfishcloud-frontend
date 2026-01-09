@@ -1,82 +1,18 @@
-import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest } from 'sfc-common'
+import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest, getContext } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/player/VideoEnhancePlayer.vue'
 import { EncodeConvertFormData, Format, StreamInfo, Subtitle, VideoInfo } from './model'
 import './boot'
 import VideoInfoVue from './components/VideoInfo.vue'
-import VideoConvertForm from './components/VideoConvertForm.vue'
-import { VEAPI } from './api'
-import { h } from 'vue'
+import VideoConvertForm from './components/form/VideoConvertForm.vue'
+import { h, reactive } from 'vue'
 import EncodeConvertTask from './components/EncodeConvertTask.vue'
-import { VEUtils } from './utils/VEUtils'
+import { VEUtils } from './core/VEUtils'
+import * as actions from './core/actions'
+import { ConvertTaskCreator } from './core/convertTaskCreator'
+import { LoadingDialogParam } from 'sfc-common/utils/SfcUtils/common/Dialog'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
-
-/**
- * 获取字幕URL
- * @param ctx 文件列表上下文
- * @param file 要获取字幕的文件信息
- * @param path 文件所在路径
- * @param streamIndex 字幕流索引
- */
-function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, streamIndex: string | number) {
-  const apiParams = {
-    name: file.name,
-    path: path,
-    protocol: 'subtitle',
-    targetId: ctx.uid,
-    stream: streamIndex
-  } as ResourceRequest
-  if(ctx.protocol == 'main') {
-    return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
-  }
-  const protocolParams = ctx.getProtocolParams()
-  apiParams.sourceProtocol = ctx.protocol
-  apiParams.sourceId = protocolParams.id
-  Object.keys(protocolParams).filter(k => k != 'id').forEach(k => {
-    apiParams[k] = protocolParams[k]
-  })
-  return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
-}
-
-/**
- * 获取视频资源的统一资源获取参数 
- */
-async function getVideoResourceParams(ctx: FileListContext, file: FileInfo, path: string): Promise<ResourceRequest> {
-  const apiParams = {
-    name: file.name,
-    path: path,
-    targetId: ctx.uid,
-    sourceProtocol: ctx.protocol || 'main',
-    protocol: ctx.protocol || 'main'
-  } as any
-  const protocolParams = ctx.getProtocolParams()
-  apiParams.sourceId = protocolParams.id
-  Object.keys(protocolParams).filter(k => k != 'id').forEach(k => {
-    apiParams[k] = protocolParams[k]
-  })
-  return apiParams
-}
-
-/**
- * 获取视频信息 
- */
-async function getVideoInfo(ctx: FileListContext, file: FileInfo, path: string): Promise<VideoInfo> {
-  const params = await getVideoResourceParams(ctx, file, path)
-  params.protocol = 'videoInfo'
-  const res = await (await SfcUtils.request(window.API.resource.getCommonResource(params)))
-  return res.data as VideoInfo
-}
-
-const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg', 'mpeg', 'mpe', 'ts', 'mov', 'wmv'])
-/**
- * 判断是否为视频文件名
- * @param filename 文件名
- */
-function isVideo(filename: string) {
-  const extName = filename.split('.').pop()
-  return !!extName && videoType.has(extName)
-}
 
 // 获取原版内置的播放器组件
 const originPlayerIndex = context.fileOpenHandler.value.findIndex(e => e.id == 'play-video')
@@ -89,7 +25,7 @@ const videoOpenHandler: FileOpenHandler = {
   id: 'player',
   icon: 'mdi-play-circle',
   matcher(ctx, file) {
-    return isVideo(file.name)
+    return actions.isVideo(file.name)
   },
   title: '播放视频',
   async action(ctx, file) {
@@ -104,7 +40,7 @@ const videoOpenHandler: FileOpenHandler = {
       await window.SfcUtils.sleep(100)
       let videoInfo:VideoInfo
       try {
-        videoInfo = await getVideoInfo(ctx, file, path)
+        videoInfo = await actions.getVideoInfo(ctx, file, path)
       } catch (err) {
         console.error(err)
         videoInfo = {
@@ -125,8 +61,7 @@ const videoOpenHandler: FileOpenHandler = {
             return f.name.startsWith(noExtName + '.') && VEUtils.isSupportSubtitleType(f.name.split('.').pop() || f.name)
           })
           .forEach(subtitleFile => {
-            // console.log(subtitleFile)
-            const url = getSubtitleUrl(ctx, subtitleFile, path, '0')
+            const url = actions.getSubtitleUrl(ctx, subtitleFile, path, '0')
             if (url) {
               const ext = subtitleFile.name.split('.').pop()?.toLowerCase()
               const type = (ext === 'vtt' || ext === 'srt') ? 'webvtt' : ext === 'ass' ? 'ass' : 'sup'
@@ -144,9 +79,9 @@ const videoOpenHandler: FileOpenHandler = {
       videoInfo.streams.filter(s => s.codecType == 'subtitle').forEach(s => {
         subtitleList.push({
           title: `${s.language}${s.title ? '(' + s.title + ')' : ''}${VEUtils.isSupportSubtitleType(s.codecName) ? '' : '  [不支持的类型 - ' + s.codecName + ']'}`,
-          url: getSubtitleUrl(ctx, file, path as string, s.index),
+          url: actions.getSubtitleUrl(ctx, file, path as string, s.index),
           type: VEUtils.getSubtitleServerType(s.codecName),
-          isDefault: s.disposition.default == '1'
+          isDefault: s.disposition?.default == '1'
         } as Subtitle)
       })
 
@@ -192,36 +127,50 @@ const videoMenu: MenuGroup<FileListContext> = {
       id: 'video-convert',
       icon: 'mdi-cached',
       renderOn(ctx) {
-        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].isMount && isVideo(ctx.selectFileList[0].name) && !ctx.readonly
+        return ctx && !ctx.readonly && ctx.selectFileList.length >= 1 && ctx.selectFileList.some(f => f.dir || actions.isVideo(f.name))
       },
       async action(ctx) {
-        const file = ctx.selectFileList[0]
-        const info = await getVideoInfo(ctx, file, file.path as string)
+        const aFile = ctx.selectFileList[0]
+        const isMultiple = ctx.selectFileList.length > 1 || ctx.selectFileList.some(f => f.dir)
+        const info = isMultiple ? undefined : await actions.getVideoInfo(ctx, aFile, aFile.path as string)
         const handler = window.SfcUtils.openComponentDialog(VideoConvertForm, {
           props: {
             videoInfo: info,
-            fileInfo: file
+            fileInfo: ctx.selectFileList,
+            uid: ctx.uid
           },
-          title: `视频转码：${ctx.selectFileList[0].name}`,
+          title: isMultiple ? '批量转码' : '视频转码',
           persistent: true,
           async onConfirm() {
-            const dialog = window.SfcUtils.loadingDialog({ msg: '任务创建中' })
             try {
               const form = handler.getInstAsForm()
               const result = await form.submit()
               if (result.success) {
-                const formData = form.getFormData() as EncodeConvertFormData
-                const rules = formData.enabledConvertRules
-                const source = await getVideoResourceParams(ctx, file, file.path as string)
-                const target = await getVideoResourceParams(ctx, file, formData.savePath as string)
-                target.name = formData.fileName
-                rules.filter(r => r.type == 'video').forEach(r => {
-                  r.crf = formData.crf
-                  r.preset = formData.preset
-                  r.tune = formData.tune
+
+                const creator = new ConvertTaskCreator(ctx, form.getFormData())
+                const baseMsg = '正在创建任务..'
+                const dialogProps: LoadingDialogParam = reactive({
+                  msg: baseMsg
                 })
-                await window.SfcUtils.request(VEAPI.encodeConvert({rules, source, target, format: formData.format, isOverwrite: formData.isOverwrite}))
-                window.SfcUtils.snackbar('任务创建成功')
+                const loading = window.SfcUtils.loadingDialog(dialogProps)
+                let error: any
+                creator.addEventListener('error', err => error = err)
+                creator.addEventListener('ended', async isSuccess => {
+                  loading.close()
+                  if (isSuccess) {
+                    SfcUtils.snackbar('转码任务创建成功')
+                    SfcUtils.openComponentDialog(EncodeConvertTask, {
+                      props: {
+                        uid: ctx.uid,
+                        useCard: false
+                      },
+                      title: '转码任务列表'
+                    })
+                  } else {
+                    SfcUtils.alert('转码任务创建失败: ' + error)
+                  }
+                })
+                await creator.startCreate()
                 return true
               } else {
                 return false
@@ -229,8 +178,6 @@ const videoMenu: MenuGroup<FileListContext> = {
             } catch (err) {
               SfcUtils.snackbar(err)
               return false
-            } finally {
-              dialog.close()
             }
           }
         })
@@ -240,11 +187,11 @@ const videoMenu: MenuGroup<FileListContext> = {
       title: '视频信息',
       id: 'video-info',
       renderOn(ctx) {
-        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].isMount && isVideo(ctx.selectFileList[0].name)
+        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].isMount && actions.isVideo(ctx.selectFileList[0].name)
       },
       icon: 'mdi-information-variant',
       async action(ctx) {
-        const info = await getVideoInfo(ctx, ctx.selectFileList[0], ctx.selectFileList[0].path as string)
+        const info = await actions.getVideoInfo(ctx, ctx.selectFileList[0], ctx.selectFileList[0].path as string)
         window.SfcUtils.openComponentDialog(VideoInfoVue, {
           props: {
             videoInfo: info
