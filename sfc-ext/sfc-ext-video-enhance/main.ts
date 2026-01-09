@@ -161,7 +161,8 @@ const videoMenu: MenuGroup<FileListContext> = {
                     SfcUtils.snackbar('转码任务创建成功')
                     SfcUtils.openComponentDialog(EncodeConvertTask, {
                       props: {
-                        uid: ctx.uid,
+                        // 查看当前用户创建的转码任务
+                        uid: context.session.value.user.id,
                         useCard: false
                       },
                       title: '转码任务列表'
