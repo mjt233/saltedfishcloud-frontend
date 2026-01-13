@@ -304,6 +304,9 @@ const props = defineProps({
     type: Object as PropType<FileInfo | FileInfo[]>,
     required: true
   },
+  /**
+   * 选中路径时，指定用户的资源路径
+   */
   uid: {
     type: [String, Number],
     required: true

@@ -1,6 +1,7 @@
-import { MethodInterceptor } from 'sfc-common'
 import { Subtitle } from '../model'
 import libpgsWorkerUrl from 'libpgs/dist/libpgs.worker?url'
+import libassWorkerUrl from 'libass-wasm/dist/js/subtitles-octopus-worker?url'
+import libassLegacyWorkerUrl from 'libass-wasm/dist/js/subtitles-octopus-worker-legacy?url'
 import type { PgsRenderer } from 'libpgs'
 
 export interface SubtitleRender {
@@ -9,7 +10,7 @@ export interface SubtitleRender {
    * @param video 要附靠的video元素
    * @returns 字幕容器元素
    */
-  init(video: HTMLVideoElement): Promise<HTMLElement>
+  init(video: HTMLVideoElement): Promise<HTMLElement | null>
 
   /**
    * 销毁字幕渲染器实例
@@ -73,83 +74,46 @@ export class SupSubtitleRender implements SubtitleRender {
  */
 export class AssSubtitleRender implements SubtitleRender {
   private subtitle: Subtitle
-  private container: HTMLElement
   /**
    * ASS实例
    */
   private assInst: any
-  private fontSizeResizer: any
-  private resizeFunc = MethodInterceptor.createThrottleProxyFunc(() => {
-    if (this.assInst) {
-      this.assInst.resize()
-    }
-  }, { delay: 200, afterExecute: true })
   
   constructor(subtitle: Subtitle) {
     this.subtitle = subtitle
-    this.container = document.createElement('div')
   }
 
-  async init(video: HTMLVideoElement): Promise<HTMLElement> {
+  async init(video: HTMLVideoElement): Promise<HTMLElement | null> {
     // 销毁旧实例
     this.destroy()
 
-    // 动态导入assjs模块(虽然打出来的umd js文件已经包含了ass了，方便后续改成了esm)
-    const ASS = (await import('assjs')).default
-
-    // 获取ASS字幕内容
-    const assContent = (await window.SfcUtils.request({ url: this.subtitle.url})).data
+    // 动态导入 libass-wasm 模块(虽然打出来的umd js文件已经包含了 libass-wasm 了，方便后续改成了esm)
+    const SubtitlesOctopus = (await import('libass-wasm')).default
 
     // 初始化ASS实例
-    this.container = document.createElement('div')
-    this.assInst = new ASS(assContent, video, {
-      container: this.container,
-      resampling: 'video_width'
+    const assContent = (await window.SfcUtils.request({ url: this.subtitle.url})).data
+    this.assInst = new SubtitlesOctopus({
+      subContent: assContent,
+      video: video,
+      workerUrl: libassWorkerUrl,
+      legacyWorkerUrl: libassLegacyWorkerUrl,
+      fallbackFont: window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', 'SourceHanSansSC-Regular-2.otf'))
     })
-    const forceFontSize = '21px'
-
-    // 强制设置字幕字体大小
-    const stage = this.container.querySelector('.ASS-stage')
-    if (stage) {
-      if(stage.getAttribute('has-hock-append-child') != '1') {
-        stage.setAttribute('has-hock-append-child', '1')
-        // 拦截dom的append操作，对每个新添加的字幕强制重置字体大小
-        const originAppendChild = stage.appendChild.bind(stage)
-        stage.appendChild = dom => {
-          if (dom instanceof HTMLElement) {
-            const textDom = dom.querySelector('span')
-            if (textDom) {
-              textDom.style.fontSize = forceFontSize
-            }
-          }
-          return originAppendChild(dom)
-        }
-      }
-    }
-    this.fontSizeResizer = setInterval(() => {
-      stage?.querySelectorAll('.ASS-stage span').forEach(textDom => (textDom as HTMLSpanElement).style.fontSize = forceFontSize)
-    }, 500)
-    window.addEventListener('resize', this.resizeFunc)
-    return this.container
+    return null
   }
 
   destroy(): void {
-    if (this.fontSizeResizer) {
-      clearInterval(this.fontSizeResizer)
-      this.fontSizeResizer = null
-    }
     if (this.assInst) {
-      this.assInst.destroy()
+      this.assInst.dispose()
     }
-    window.removeEventListener('resize', this.resizeFunc)
   }
 
   getSubtitle(): Subtitle {
     return this.subtitle
   }
   
-  getContainer(): HTMLElement {
-    return this.container
+  getContainer(): HTMLElement | null {
+    return null
   }
 }
 

@@ -3,7 +3,6 @@
     <div ref="playerRef" class="player">
       <h1>播放加载失败了QAQ</h1>
     </div>
-    
   </div>
 </template>
 
@@ -78,6 +77,9 @@ async function tryInitExternalSubtitleRender() {
     return
   }
   const container = await subtitleRender.init(dp.video)
+  if (!container) {
+    return
+  }
   container.classList.add('video-subtitle-container')
   playerRef.value.appendChild(container)
 }

@@ -1,4 +1,5 @@
 import { ApiRequest, CommonRequest, IdType, PluginInfo, PluginInfoVo } from 'sfc-common/model'
+import { StringUtils } from 'sfc-common/utils'
 
 const plugin = {
   prefix: '/plugin',
@@ -55,7 +56,17 @@ const plugin = {
       method: 'post',
       params: { tempId, fileName }
     }
-  }
+  },
+  /**
+   * 获取插件内的静态资源
+   * @param name 插件名称（唯一标识）
+   * @param path 资源路径
+   */
+  getPluginResource(name: string, path: string): ApiRequest<any> {
+    return {
+      url: StringUtils.appendPath(`${this.prefix}/${name}/resource`, path)
+    }
+  },
 }
 
 export default plugin
