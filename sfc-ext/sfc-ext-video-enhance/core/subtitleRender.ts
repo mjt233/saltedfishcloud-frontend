@@ -141,8 +141,14 @@ export class AssSubtitleRender implements SubtitleRender {
       workerUrl: libassWorkerUrl,
       legacyWorkerUrl: libassLegacyWorkerUrl,
       fallbackFont: window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', 'SourceHanSansSC-Regular-2.otf')),
-      renderMode: 'js-blend'
+      targetFps: 60
     })
+    if (video.readyState >= 3 && video.paused === false) {
+      // 不知道libass-wasm是不是有bug，如果给播放中的视频加载字幕，字幕的帧率会很低，目测只有1FPS的样子，需要暂停一下再播放 或 转跳一下 才能恢复
+      video.pause()
+      await window.SfcUtils.sleep(10)
+      video.play()
+    }
     return null
   }
 
