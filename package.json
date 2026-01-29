@@ -16,7 +16,8 @@
     "build-ext-network-tools": "vite build --config build/extension/network-tools.ts",
     "build-ext-web-shell": "vite build --config build/extension/web-shell.ts",
     "build-ext-static-publish": "vite build --config build/extension/static-publish.ts",
-    "build-ext-only-office": "vite build --config build/extension/only-office.ts"
+    "build-ext-only-office": "vite build --config build/extension/only-office.ts",
+    "build-ext-rtc": "vite build --config build/extension/rtc.ts"
   },
   "dependencies": {
     "axios": "^0.27.2",

@@ -1,8 +1,52 @@
 import { Subtitle } from '../model'
 import libpgsWorkerUrl from 'libpgs/dist/libpgs.worker?url'
-import libassWorkerUrl from 'libass-wasm/dist/js/subtitles-octopus-worker?url'
-import libassLegacyWorkerUrl from 'libass-wasm/dist/js/subtitles-octopus-worker-legacy?url'
 import type { PgsRenderer } from 'libpgs'
+
+
+/**
+ * 动态加载的外部库定义
+ */
+const extraLibDefine = {
+  'libass-wasm': {
+    url: getResourceUrl('/libass-wasm/subtitles-octopus.js')
+  }
+}
+
+/**
+ * 获取视频插件的资源URL
+ * @param path 资源路径
+ */
+function getResourceUrl(path: string) {
+  return window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', path))
+}
+
+
+const libassWorkerUrl = getResourceUrl('/libass-wasm/subtitles-octopus-worker.js')
+const libassLegacyWorkerUrl = getResourceUrl('/libass-wasm/subtitles-octopus-worker-legacy.js')
+/**
+ * 记录外部库加载的Promise
+ */
+const libLoadPromiseMap = {} as {[key: string]: Promise<any>}
+
+/**
+ * 加载外部库
+ * @param url 库的URL
+ */
+function loadLib(url: string) {
+  if (!libLoadPromiseMap[url]) {
+    libLoadPromiseMap[url] = new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.onload = () => resolve(true)
+      script.onerror = () => {
+        reject(new Error(`Failed to load library: ${url}`)) 
+        document.head.removeChild(script)
+      }
+      document.head.appendChild(script)
+    })
+  }
+  return libLoadPromiseMap[url]
+}
 
 export interface SubtitleRender {
   /**
@@ -84,11 +128,10 @@ export class AssSubtitleRender implements SubtitleRender {
   }
 
   async init(video: HTMLVideoElement): Promise<HTMLElement | null> {
+    await loadLib(extraLibDefine['libass-wasm'].url)
     // 销毁旧实例
     this.destroy()
-
-    // 动态导入 libass-wasm 模块(虽然打出来的umd js文件已经包含了 libass-wasm 了，方便后续改成了esm)
-    const SubtitlesOctopus = (await import('libass-wasm')).default
+    const SubtitlesOctopus = (window as any).SubtitlesOctopus
 
     // 初始化ASS实例
     const assContent = (await window.SfcUtils.request({ url: this.subtitle.url})).data
@@ -97,8 +140,15 @@ export class AssSubtitleRender implements SubtitleRender {
       video: video,
       workerUrl: libassWorkerUrl,
       legacyWorkerUrl: libassLegacyWorkerUrl,
-      fallbackFont: window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', 'SourceHanSansSC-Regular-2.otf'))
+      fallbackFont: window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', 'SourceHanSansSC-Regular-2.otf')),
+      targetFps: 60
     })
+    if (video.readyState >= 3 && video.paused === false) {
+      // 不知道libass-wasm是不是有bug，如果给播放中的视频加载字幕，字幕的帧率会很低，目测只有1FPS的样子，需要暂停一下再播放 或 转跳一下 才能恢复
+      video.pause()
+      await window.SfcUtils.sleep(10)
+      video.play()
+    }
     return null
   }
 
