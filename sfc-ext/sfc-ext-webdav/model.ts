@@ -10,7 +10,7 @@ export interface WebDavServerConfig {
   isEnable?: boolean,
 
   /**
-   * 服务端口，默认8086
+   * 服务地址
    */
-  serverPort?: number
+  displayUrl: string
 }
