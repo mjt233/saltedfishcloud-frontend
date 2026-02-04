@@ -1,6 +1,5 @@
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { reactive } from 'vue'
 import { EventNameConstants } from '../constans/EventName'
 import { getContext } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'

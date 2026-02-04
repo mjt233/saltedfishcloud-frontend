@@ -89,6 +89,12 @@ const defaultBoxMenu: MenuGroup<BoxMenuContext>[] = [
         }
       }
     ]
+  },
+  {
+    // 预留分类，系统初始化完成后固定会移动到末尾，方便一些轻量的插件添加一两个功能，而无需单独创建一个分类
+    id: 'more',
+    name: '更多',
+    items: []
   }
 ]
 export default defaultBoxMenu
