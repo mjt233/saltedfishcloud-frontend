@@ -1,4 +1,4 @@
-import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest, getContext } from 'sfc-common'
+import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest, getContext, MenuHelper } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/player/VideoEnhancePlayer.vue'
 import { EncodeConvertFormData, Format, StreamInfo, Subtitle, VideoInfo } from './model'
 import './boot'
@@ -203,30 +203,23 @@ const videoMenu: MenuGroup<FileListContext> = {
     }
   ]
 }
-
-context.menu.value.boxMenu.push({
-  name: '视频服务',
-  id: 'video',
-  items: [
-    {
-      id: 'encoder-convert',
-      title: '视频转码',
-      icon: 'mdi-cached',
-      renderOn() {
-        return !!context.session.value.token
+MenuHelper.addMoreBoxMenu({
+  id: 'encoder-convert',
+  title: '视频转码',
+  icon: 'mdi-cached',
+  renderOn() {
+    return !!context.session.value.token
+  },
+  action(ctx) {
+    ctx.title = '视频转码'
+    ctx.currentComponent = h(EncodeConvertTask, {
+      style: {
+        maxWidth: '640px',
+        margin: 'auto'
       },
-      action(ctx) {
-        ctx.title = '视频转码'
-        ctx.currentComponent = h(EncodeConvertTask, {
-          style: {
-            maxWidth: '640px',
-            margin: 'auto'
-          },
-          uid: context.session.value.user.id
-        })
-      }
-    }
-  ]
+      uid: context.session.value.user.id
+    })
+  }
 })
 
 if (originPlayerIndex != -1) {
