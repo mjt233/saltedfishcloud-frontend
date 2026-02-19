@@ -37,7 +37,7 @@ const defaultMainMenu: MenuType.AppMenu = {
       items: [
         {
           id: 'box',
-          title: '百宝箱',
+          title: '工具箱',
           route: '/box',
           icon: 'mdi-view-grid'
         }

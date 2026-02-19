@@ -1,7 +1,7 @@
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { EventNameConstants } from '../constans/EventName'
-import { getContext } from '../context'
+import { BgOption, getContext } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
 import { ConfigNodeModel } from 'sfc-common/model'
 import { buildExtensionManager } from '../serivce/Extension'
@@ -26,7 +26,7 @@ bootContext
       getContext().eventBus.value.on(EventNameConstants.SYS_CONFIG_CHANGE, (changeList: ConfigNodeModel[]) => {
         const config = changeList.find(e => e.name == 'sys.bg.main')
         if (config) {
-          const newOption = JSON.parse(config.value)
+          const newOption: BgOption = JSON.parse(config.value)
           getContext().bg.value.main = newOption
           getContext().feature.value.bgMain = newOption
         }

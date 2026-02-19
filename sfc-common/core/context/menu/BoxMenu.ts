@@ -5,7 +5,6 @@ import { getContext } from '..'
 import FileShareView from 'sfc-common/components/common/FileShare/FileShareView.vue'
 import DesktopConfigList from 'sfc-common/components/common/Desktop/DesktopConfigList.vue'
 import { ConditionFunction } from 'sfc-common/core/helper'
-import ProxyConfigForm from 'sfc-common/components/common/ProxyConfig/ProxyConfigForm.vue'
 import { ProxyConfig } from 'sfc-common/components'
 
 /**

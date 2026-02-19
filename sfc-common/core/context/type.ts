@@ -124,6 +124,11 @@ export interface BgOption {
    * 尺寸
    */
   size?: 'auto' | 'contain' | 'cover'
+
+  /**
+   * 是否启用毛玻璃组件效果
+   */
+  enabledGlass?: boolean
 }
 
 /**

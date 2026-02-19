@@ -41,7 +41,7 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" :class="{'bg-drawer': enabledBg}">
+  <v-navigation-drawer v-model="showDrawer" :class="{'bg-drawer': enabledBg, 'enabled-glass': enabledGlass}">
     <template #prepend>
 
       <!-- 抽屉菜单顶部图 -->
@@ -60,7 +60,7 @@
             <v-list-item
               v-if="item.renderOn == undefined ? true : item.renderOn(getContext())"
               :key="item.id"
-              :active="(item.route == '/' && $route.path == '/') || ( item.route != '/' && $route.path.startsWith(item.route))"
+              :active="(item.route == '/' && $route.path == '/') || ( item.route != null && item.route != '/' && $route.path.startsWith(item.route))"
               color="primary"
               :value="item.route"
               @click="menuClick(item, $event)"
@@ -80,7 +80,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main :class="{'bg-main-view': enabledBg}">
+  <v-main :class="{'bg-main-view': enabledBg, 'enabled-glass': enabledGlass}">
     <div class="main-body">
       <router-view />
     </div>
@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { FileUploadExecutor, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
-import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize } from 'sfc-common/core/context/mainBgAttr'
+import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
 const menuObj = getContext().menu.value.mainMenu
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
@@ -188,6 +188,11 @@ a {
 
 .bg-drawer {
   background: rgba(var(--v-theme-background), v-bind(menuOperacity))
+}
+
+.enabled-glass.bg-drawer {
+  backdrop-filter: blur(12px) !important;
+  background: rgba(var(--v-theme-background), 0.4) !important;
 }
 @media (max-width: 1279px) {
   .bg-drawer {
