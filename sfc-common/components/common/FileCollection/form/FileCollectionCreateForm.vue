@@ -178,7 +178,7 @@ const formInst = defineForm({
       if (aloneDir.value) {
         await SfcUtils.request(API.file.mkdir(props.uid, savePath.value, formData.title))
         const nodes = (await SfcUtils.request(API.resource.getNodeInfo(props.uid, StringUtils.appendPath(savePath.value, formData.title)))).data.data
-        allFormData.saveNode = nodes[nodes.length - 1].id
+        allFormData.saveNode = nodes[nodes.length - 1].md5
       }
       
       const conf = API.collection.create(allFormData)
@@ -199,7 +199,7 @@ const selectPath = async() => {
       path: savePath.value,
     })
     const info = (await SfcUtils.request(API.resource.getNodeInfo(props.uid, path))).data.data
-    const nid = info.pop()?.id
+    const nid = info.pop()?.md5
 
     if (!nid) {
       return Promise.reject('无效的路径：' + path)

@@ -1,5 +1,5 @@
 import qs from 'qs'
-import { CommonRequest, IdType, NodeInfo, ResourceRequest } from 'sfc-common/model'
+import { CommonRequest, FileInfo, IdType, ResourceRequest } from 'sfc-common/model'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 
 const resource = {
@@ -61,7 +61,7 @@ const resource = {
    * @param uid 用户ID
    * @param path 路径
    */
-  getNodeInfo(uid: IdType, path: string): CommonRequest<NodeInfo[]> {
+  getNodeInfo(uid: IdType, path: string): CommonRequest<FileInfo[]> {
     path = path.replace(/\/+/g, '/')
     if (path.startsWith('/')) {
       path = path.substring(1)
