@@ -21,7 +21,7 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" :class="{'bg-admin-drawer': enabledBg}">
+  <v-navigation-drawer v-model="showDrawer" :class="{'bg-admin-drawer': enabledBg, 'enabled-glass': enabledGlass}">
     <!-- 抽屉菜单列表本体 -->
     <v-list v-model:opened="openGroup" class="main-menu-list">
       <template v-for="(group) in menuObj" :key="group.id">
@@ -73,7 +73,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main :class="{'bg-main-view': enabledBg}">
+  <v-main :class="{'bg-main-view': enabledBg, 'enabled-glass': enabledGlass}">
     <div v-if="adminContext.component" class="main-body" style="position: relative;">
       <keep-alive>
         <component :is="adminContext.component" />
@@ -89,7 +89,7 @@ import { UserCard } from 'sfc-common/components'
 import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
-import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize } from 'sfc-common/core/context/mainBgAttr'
+import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
 const loadingManager = new LoadingManager()
 const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
@@ -440,6 +440,11 @@ a {
 
 .bg-admin-drawer {
   background: rgba(var(--v-theme-background), v-bind(menuOperacity))
+}
+
+.enabled-glass.bg-admin-drawer {
+  backdrop-filter: blur(12px) !important;
+  background: rgba(var(--v-theme-background), 0.4) !important;
 }
 @media (max-width: 1279px) {
   .bg-admin-drawer {

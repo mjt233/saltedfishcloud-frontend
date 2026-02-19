@@ -1,15 +1,16 @@
 <template>
   <FormGrid :style="{'max-width': maxWidth}">
-    <FormRow>
-      <FormCol class="mw-50">
+    <VRow>
+      <VCol cols="12" md="6">
         <VSwitch
           v-model="valueObj.enabled"
           color="primary"
           label="启用背景图"
           hide-details
         />
-      </FormCol>
-      <FormCol class="mw-50" label="不透明度">
+      </VCol>
+      <VCol cols="12" md="6">
+        <span style="position: absolute; transform: translateY(-8px) translateX(6px); font-size: 14px;" class="tip">不透明度</span>
         <v-slider
           style="margin-top: 12px"
           :model-value="(valueObj.operacity || 0.9)*100"
@@ -24,29 +25,45 @@
             {{ v + '%' }}
           </template>
         </v-slider>
-      </FormCol>
-      <FormCol class="mw-50">
+      </VCol>
+      <VCol cols="12" md="6">
         <FormSelect v-model="valueObj.size" placeholder="尺寸" :items="sizeOptions" />
-      </FormCol>
-      <FormCol class="mw-50">
+      </VCol>
+      <VCol cols="12" md="6">
         <div class="d-flex align-center">
           <TextInput v-model="valueObj.url" label="图片url" hide-details />
           <VBtn size="small" class="ml-3" @click="selectImgFile">
             浏览
           </VBtn>
         </div>
-      </FormCol>
-      <FormRow>
-        <FormCol>
-          <VSwitch
-            v-model="usePreview"
-            class="ml-3"
-            color="primary"
-            label="实时预览"
-          />
-        </FormCol>
-      </FormRow>
-    </FormRow>
+      </VCol>
+      <VCol cols="12" md="6">
+        <VSwitch
+          v-model="valueObj.enabledGlass"
+          color="primary"
+          label="启用毛玻璃背景效果"
+        />
+      </VCol>
+    </VRow>
+    <VRow>
+      <VCol>
+        <VCard title="毛玻璃卡片样式参考">
+          <VCardText>
+            <div>参考效果 - 卡片内容</div>
+            <div>当前是否开启毛玻璃：{{ valueObj.enabledGlass }}</div>
+          </VCardText>
+        </VCard>
+      </VCol>
+    </VRow>
+    <VRow>
+      <VCol cols="12" md="6">
+        <VSwitch
+          v-model="usePreview"
+          color="primary"
+          label="预览当前效果"
+        />
+      </VCol>
+    </VRow>
   </FormGrid>
 </template>
 
@@ -65,7 +82,7 @@ const props = defineProps({
   },
   maxWidth: {
     type: String,
-    default: '640px'
+    default: '810px'
   }
 })
 const emits = defineEmits(['update:modelValue'])

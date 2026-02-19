@@ -66,6 +66,25 @@
       </VRow>
       
       <VRow class="mb-6">
+        
+        <VCol md="4" sm="6" cols="12">
+          <VCard 
+            variant="elevated"
+            class="pa-4 d-flex flex-column align-center justify-center elevation-2"
+            height="120"
+          >
+            <div class="d-flex align-center mb-2">
+              <VAvatar color="indigo" size="40" class="mr-3">
+                <VIcon icon="mdi-network" size="24" />
+              </VAvatar>
+              <span class="text-body-1 font-weight-medium">服务地址</span>
+            </div>
+            <VChip>
+              {{ serverUrl }}
+            </VChip>
+          </VCard>
+        </VCol>
+
         <VCol md="4" sm="6" cols="12">
           <VCard 
             variant="elevated"
@@ -84,24 +103,6 @@
               variant="elevated"
             >
               {{ serverConfig.isEnable ? '启用' : '停用' }}
-            </VChip>
-          </VCard>
-        </VCol>
-        
-        <VCol md="4" sm="6" cols="12">
-          <VCard 
-            variant="elevated"
-            class="pa-4 d-flex flex-column align-center justify-center elevation-2"
-            height="120"
-          >
-            <div class="d-flex align-center mb-2">
-              <VAvatar color="indigo" size="40" class="mr-3">
-                <VIcon icon="mdi-network" size="24" />
-              </VAvatar>
-              <span class="text-body-1 font-weight-medium">服务端口</span>
-            </div>
-            <VChip color="info" variant="elevated">
-              {{ serverConfig.serverPort || 8086 }}
             </VChip>
           </VCard>
         </VCol>
@@ -133,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { WebDavApi } from '../webDavApi'
 import { getContext, IdType, LoadingManager, MethodInterceptor } from 'sfc-common'
 import WebDavAuthConfigForm from './WebDavAuthConfigForm.vue'
@@ -142,6 +143,7 @@ import { WebDavServerConfig } from '../model'
 const props = defineProps<{
   uid: IdType
 }>()
+const serverUrl = computed(() => serverConfig.value.displayUrl.replace('{hostname}', location.hostname).replace('{protocol}', location.protocol))
 
 const lm = new LoadingManager()
 const loading = lm.getLoadingRef()

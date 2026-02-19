@@ -141,7 +141,7 @@ const formInst = defineForm({
   actions: {
     async getNodeIdByPath(path: string) {
       const res = await SfcUtils.request(API.resource.getNodeInfo(props.uid, path))
-      return (res.data.data.pop()?.id || props.uid).toString()
+      return (res.data.data.pop()?.md5 || props.uid).toString()
     },
     selectPath() {
       SfcUtils.selectPath({

@@ -114,7 +114,9 @@ const props = defineProps({
   }
 })
 const nodeValue = ref('') as Ref<any>
-const emits = defineEmits(['change'])
+const emits = defineEmits<{
+  (e: 'change', val: any): void
+}>()
 
 const selectOptions = computed(() => {
   if (props.node.inputType == 'select') {
@@ -152,7 +154,7 @@ const getCustomParamsObj = (node: ConfigNodeModel) => {
  */
 const hasChange = ref(false)
 
-const updateValue = (val: string) => {
+const updateValue = (val: any) => {
   if (val != props.node.value) {
     emits('change', val)
   }

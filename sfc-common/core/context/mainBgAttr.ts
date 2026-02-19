@@ -6,7 +6,8 @@ const enabledBg = computed(() => getContext().bg.value.main?.enabled)
 const bgUrl = computed(() => `url("${getContext().bg.value.main?.url || defaultBgUrl}")`)
 const bgOperacity = computed(() => `${getContext().bg.value.main?.operacity || 0.9}`)
 const menuOperacity = computed(() => `${Number(bgOperacity.value) + 0.04}` )
-const bgSize = computed(() => `${getContext().bg.value.main?.size || 'cover'}` )
+const bgSize = computed(() => `${getContext().bg.value.main?.size || 'cover'}`)
+const enabledGlass = computed(() => getContext().bg.value.main?.enabledGlass || false)
 
 export {
   enabledBg,
@@ -14,5 +15,6 @@ export {
   bgUrl,
   bgOperacity,
   menuOperacity,
-  bgSize
+  bgSize,
+  enabledGlass
 }
