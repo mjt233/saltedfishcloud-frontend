@@ -108,6 +108,15 @@ npm run build
         root dist文件夹;
         index index.html;
 
+        # gzip配置 - 针对大于32k的js和css文件启用gzip
+        gzip on;
+        gzip_min_length 32k;
+        # gzip配置 - 压缩等级，越小CPU开销越低，文件越大。标准推荐4-6。
+        gzip_comp_level 3;
+        gzip_types application/javascript text/css;
+        gzip_vary on;
+        gzip_disable "MSIE [1-6]\.";
+
         # 使用反向代理后端时可选配置
         location ~ (^/api|^/download) {
             # 后端API地址
