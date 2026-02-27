@@ -1,39 +1,80 @@
 <template>
   <VCard>
     <VCardText>
-      <FormSelect
-        v-model="selectedLevel"
-        style="width: 210px;display: inline-block;margin-right: 12px;"
-        placeholder="日志级别"
-        multiple
-        multiple-show-num="1"
-        use-chip
-        :items="[
-          {title: 'ERROR', value: 'ERROR'},
-          {title: 'WARN', value: 'WARN'},
-          {title: 'INFO', value: 'INFO'},
-          {title: 'DEBUG', value: 'DEBUG'},
-          {title: 'TRACE', value: 'TRACE'}
-        ]"
-      />
-      <FormSelect
-        v-model="selectedType"
-        style="width: 210px;display: inline-block;"
-        placeholder="日志类型"
-        multiple
-        use-chip
-        :items="statisticItems"
-        :multiple-show-num="1"
-      />
+      <VRow>
+        <VCol
+          lg="3"
+          md="6"
+          sm="12"
+        >
+          <VTextField
+            v-model="dateRange.begin"
+            label="起始日期"
+            type="date"
+            color="primary"
+            variant="underlined"
+          />
+        </VCol>
+        <VCol
+          lg="3"
+          md="6"
+          sm="12"
+        >
+          <VTextField
+            v-model="dateRange.end"
+            label="截止日期"
+            type="date"
+            color="primary"
+            variant="underlined"
+          />
+        </VCol>
+        <VCol
+          lg="3"
+          md="6"
+          sm="12"
+        >
+          <VSelect
+            v-model="selectedLevel"
+            label="日志级别"
+            multiple
+            color="primary"
+            variant="underlined"
+            multiple-show-num="1"
+            use-chip
+            :items="[
+              {title: 'ERROR', value: 'ERROR'},
+              {title: 'WARN', value: 'WARN'},
+              {title: 'INFO', value: 'INFO'},
+              {title: 'DEBUG', value: 'DEBUG'},
+              {title: 'TRACE', value: 'TRACE'}
+            ]"
+          />
+        </VCol>
+        <VCol
+          lg="3"
+          md="6"
+          sm="12"
+        >
+          <VSelect
+            v-model="selectedType"
+            label="日志类型"
+            multiple
+            color="primary"
+            variant="underlined"
+            use-chip
+            :items="statisticItems"
+            :multiple-show-num="1"
+          />
+        </VCol>
+      </VRow>
       <VDataTableServer
         :headers="headers"
         :items="recordList"
         :loading="loading"
         density="compact"
         item-key="id"
-        :fixed-header="true"
-        :fixed-footer="true"
         :items-per-page="20"
+        disable-sort
         hover
         color="primary"
         :mobile="null"
@@ -73,27 +114,43 @@ const lm = new LoadingManager()
 const loading = lm.getLoadingRef()
 const recordList = ref<LogRecord[]>([])
 const headers = [
-  { title: '时间', key: 'createAt', sortable: false, width: '210px'},
-  { title: '类型', key: 'type', sortable: false, minWidth: '108px' },
-  { title: '级别', key: 'level', sortable: false, width: '81px' },
-  { title: '摘要', key: 'msgAbstract', sortable: false },
-  { title: '明细', key: 'msgDetail', sortable: false, minWidth: '120px' }
+  { title: '时间', key: 'createAt', width: '210px'},
+  { title: '类型', key: 'type', minWidth: '108px'},
+  { title: '级别', key: 'level', width: '81px' },
+  { title: '摘要', key: 'msgAbstract'},
+  { title: '明细', key: 'msgDetail',  minWidth: '120px'}
 ]
 const pageRequest = reactive({ page: 0, size: 20 } as PageableRequest)
 const totalLen = ref(0)
 const logViewerMap = LogRecordService.getLogViewerMap()
+const tableOptions = ref(reactive({
+  page: 1,
+  itemsPerPage: 20,
+  sortBy: []
+}))
+const dateRange = reactive({
+  begin: StringFormatter.formatDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), 'yyyy-MM-dd'),
+  end: StringFormatter.formatDate(new Date(), 'yyyy-MM-dd')
+})
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
     const res = (await SfcUtils.request(API.admin.logRecord.queryLog({
       level: selectedLevel.value,
       type: selectedType.value,
-      pageableRequest: pageRequest
+      pageableRequest: pageRequest,
+      dateRange: {
+        begin: new Date(dateRange.begin),
+        end: new Date(dateRange.end)
+      }
     }))).data.data
     recordList.value = res.content
     totalLen.value = res.totalCount
   },
   async loadStatistic() {
-    statisticItems.value = (await SfcUtils.request(API.admin.logRecord.queryLogStatistic())).data.data.map(e => {
+    statisticItems.value = (await SfcUtils.request(API.admin.logRecord.queryLogStatistic({
+      begin: new Date(dateRange.begin),
+      end: new Date(dateRange.end)
+    }))).data.data.map(e => {
       return {
         title: `${e.type}(${e.count})`,
         value: e.type
@@ -105,7 +162,17 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 const selectedLevel = ref([] as LogLevel[])
 const statisticItems = ref([] as SelectOption[])
 const selectedType = ref([])
-async function loadItem(param: {page: number, itemsPerPage: number}) {
+
+// 重置分页到第一页
+function resetPagination() {
+  tableOptions.value = {
+    page: 1,
+    itemsPerPage: 20,
+    sortBy: []
+  }
+}
+
+async function loadItem(param: {page: number, itemsPerPage: number, sortBy?: []}) {
   pageRequest.size = param.itemsPerPage
   pageRequest.page = param.page - 1
   await actions.loadList()
@@ -123,14 +190,21 @@ onMounted(() => {
   actions.loadStatistic()
 })
 watch(selectedLevel, (n,o) => {
-  console.info({
-    n,o
-  })
-  pageRequest.page = 0
+  resetPagination()
   actions.loadList()
 })
 watch(selectedType, () => {
-  pageRequest.page = 0
+  resetPagination()
+  actions.loadList()
+})
+watch(() => dateRange.begin, () => {
+  resetPagination()
+  actions.loadStatistic()
+  actions.loadList()
+})
+watch(() => dateRange.end, () => {
+  resetPagination()
+  actions.loadStatistic()
   actions.loadList()
 })
 function formatDate(date: Date) {
@@ -139,16 +213,13 @@ function formatDate(date: Date) {
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch } from 'vue'
-import LoadingMask from '../LoadingMask.vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, nextTick } from 'vue'
 import { LoadingManager, MethodInterceptor, StringFormatter } from 'sfc-common/utils'
 import { LogLevel, LogRecord, LogRecordStatisticVO } from 'sfc-common/model/LogRecord'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
 import { LogRecordService } from 'sfc-common/core/serivce/LogRecordService'
 import { PageableRequest, SelectOption } from 'sfc-common/model'
-import { VCardText } from 'vuetify/components'
-import FormSelect from '../FormSelect.vue'
 
 export default defineComponent({
   name: 'LogRecordHistoryViewer'
