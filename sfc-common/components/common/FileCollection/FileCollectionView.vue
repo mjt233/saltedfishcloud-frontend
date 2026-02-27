@@ -30,7 +30,7 @@ import FileCollectionItem from './FileCollectionItem.vue'
 import StickyContainer from '../StickyContainer.vue'
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   /**
