@@ -83,7 +83,8 @@ export namespace UserService {
               props: {
                 bindUser: res.user,
                 platformName: res.platformUser.userName,
-                platformIcon: platform.icon
+                platformIcon: platform.icon,
+                platformUser: res.platformUser
               },
               async onConfirm() {
                 const bindDialog = SfcUtils.loadingDialog({msg: '绑定中...'})

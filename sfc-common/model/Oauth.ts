@@ -33,6 +33,11 @@ export interface ThirdPartyPlatformUser extends AuditModel {
    * 第三方平台账号的唯一标识
    */
   thirdPartyUserId: string
+
+  /**
+   * 第三方平台用户头像url
+   */
+  avatarUrl?: string
 }
 
 export interface ThirdPartyAuthPlatform extends AuditModel {

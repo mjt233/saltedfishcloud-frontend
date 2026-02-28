@@ -1,5 +1,5 @@
 <template>
-  <span class="common-icon" :class="{ 'use-hover-color': hoverColor }">
+  <span class="common-icon" :class="{ 'use-hover-color': hoverColor, 'img-common-icon': isUrl }">
     <template v-if="icon">
       <v-icon
         v-if="icon.startsWith('mdi-')"

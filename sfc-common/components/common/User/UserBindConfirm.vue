@@ -5,7 +5,10 @@
     </div>
     <div class="d-flex">
       <div class="align-center d-flex flex-column justify-center">
-        <CommonIcon :icon="platformIcon" :size="32" />
+        <template v-if="platformUser?.avatarUrl">
+          <img :src="platformUser.avatarUrl" style="width: 32px;height: 32px;border-radius: 50%;">
+        </template>
+        <CommonIcon v-else :icon="platformIcon" :size="32" />
         <span class="tip">{{ platformName }}</span>
       </div>
       <div class="d-flex align-center" style="margin: 0 12px">
@@ -23,14 +26,32 @@
 
 <script setup lang="ts">
 const props = defineProps({
+  /**
+   * 待绑定的咸鱼云网盘用户
+   */
   bindUser: {
     type: Object as PropType<RawUser>,
     default: undefined
   },
+  /**
+   * 将要绑定的第三方平台用户信息
+   */
+  platformUser: {
+    type: Object as PropType<ThirdPartyPlatformUser>,
+    default: undefined
+  },
+
+  /**
+   * 第三方平台用户名称
+   */
   platformName: {
     type: String,
     default: undefined
   },
+
+  /**
+   * 第三方平台图标
+   */
   platformIcon: {
     type: String,
     default: undefined
@@ -39,7 +60,7 @@ const props = defineProps({
 </script>
 
 <script lang="ts">
-import { IdType, RawUser } from 'sfc-common/model'
+import { IdType, RawUser, ThirdPartyPlatformUser } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, Prop } from 'vue'
 import { CommonIcon, UserAvatar } from 'sfc-common/components'
 

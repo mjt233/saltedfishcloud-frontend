@@ -168,7 +168,12 @@ onMounted(() => {
     if (!platformChangeList || platformChangeList.length == 0) {
       return
     }
-    const errorMsg = (await Promise.allSettled(platformChangeList.map(c => formMap[c.type].validate())))
+    const validResultList = await Promise.allSettled(platformChangeList.map(c => formMap[c.type].validate()))
+    if (!validResultList.some(res => res.status == 'rejected')) {
+      return
+    }
+    
+    const errorMsg = validResultList
       .map(res => {
         if (res.status == 'rejected') {
           return res.reason
