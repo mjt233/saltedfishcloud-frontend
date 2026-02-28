@@ -41,7 +41,7 @@
         <VSwitch
           v-model="valueObj.enabledGlass"
           color="primary"
-          label="启用毛玻璃背景效果"
+          label="卡片组件启用毛玻璃背景效果"
         />
       </VCol>
     </VRow>

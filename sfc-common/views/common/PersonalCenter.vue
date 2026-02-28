@@ -9,6 +9,8 @@
           <v-list-item v-ripple title="头像">
             <template #append>
               <user-avatar
+                style="cursor: pointer;"
+                title="点击更换"
                 :uid="session.user.id"
                 :name="session.user.name"
                 :size="48"
@@ -279,7 +281,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .v-list-item {
-  cursor: pointer;
+  // cursor: pointer;
   background-color: rgba(223, 223, 223, 0);
   transition: all .4s;
 }
