@@ -284,7 +284,7 @@ export default defineComponent({
   transition: all .4s;
 }
 .list-content {
-  color: grey;
+  color: rgb(var(--v-theme-on-surface), .7);
   font-size: 14px;
 }
 
