@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    style="overflow: hidden;"
-    color="background"
-  >
+  <v-card style="overflow: hidden;">
     <!-- 头部 -->
     <v-list-item :prepend-avatar="avatar">
 
@@ -92,6 +89,8 @@
       >
         登录
       </v-btn>
+
+      <!-- 第三方平台登录 -->
       <template v-if="availableThirdPlatformList.length">
 
         <VDivider v-if="showLogin" class="mt-3 pb-2" />
@@ -102,7 +101,12 @@
             style="cursor: pointer;"
             @click="doThirdPlatformLogin(item)"
           >
-            <CommonIcon :icon="item.icon" :size="32" :title="item.name" />
+            <CommonIcon
+              :icon="item.icon"
+              :size="32"
+              :title="item.name"
+              hover-color="rgb(var(--v-theme-primary))"
+            />
           </div>
         </div>
       </template>

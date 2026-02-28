@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="common-icon" :class="{ 'use-hover-color': hoverColor }">
     <template v-if="icon">
       <v-icon
         v-if="icon.startsWith('mdi-')"
@@ -26,6 +26,14 @@ const props = defineProps({
   size: {
     type: [Number, String],
     default: undefined
+  },
+
+  /**
+   * 鼠标悬停时激活的颜色
+   */
+  hoverColor: {
+    type: String,
+    default: undefined
   }
 })
 const isUrl = computed(() => {
@@ -43,3 +51,13 @@ export default defineComponent({
   name: 'CommonIcon'
 })
 </script>
+
+<style scoped>
+.common-icon.use-hover-color {
+  transition: all .1s;
+}
+
+.common-icon.use-hover-color:hover {
+  color: v-bind(hoverColor)
+}
+</style>

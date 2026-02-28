@@ -1,36 +1,38 @@
 <template>
-  <div style="padding: 0 12px;">
-    <LoadingMask :loading="loading" />
-    <template v-if="configList?.length">
-      <VTabs v-model="tab">
-        <VTab
-          v-for="item in configList"
-          :key="item.platform.type"
-          color="primary"
-          :value="item.platform.type"
-        >
-          <CommonIcon :icon="item.platform.icon" /> {{ item.platform.type }}
-        </VTab>
-      </VTabs>
-      <VWindow v-model="tab">
-        <VWindowItem
-          v-for="item in configList"
-          :key="item.platform.type"
-          :value="item.platform.type"
-        >
-          <ConfigurableForm
-            :key="loadCount"
-            :ref="(form) => setForm(item.platform.type, form)"
-            style="max-width: 640px;"
-            :show-change="true"
-            :nodes="item.configNodeList"
-            @change="configChange(item, $event)"
-          />
-        </VWindowItem>
-      </VWindow>
-    </template>
-    <EmptyTip v-else-if="!loading" />
-  </div>
+  <VCard class="ml-3 mr-3 mt-3" style="padding-top: 0; max-width: 1200px;">
+    <VCardText>
+      <LoadingMask :loading="loading" />
+      <template v-if="configList?.length">
+        <VTabs v-model="tab">
+          <VTab
+            v-for="item in configList"
+            :key="item.platform.type"
+            color="primary"
+            :value="item.platform.type"
+          >
+            <CommonIcon :icon="item.platform.icon" /> {{ item.platform.type }}
+          </VTab>
+        </VTabs>
+        <VWindow v-model="tab">
+          <VWindowItem
+            v-for="item in configList"
+            :key="item.platform.type"
+            :value="item.platform.type"
+          >
+            <ConfigurableForm
+              :key="loadCount"
+              :ref="(form) => setForm(item.platform.type, form)"
+              style="max-width: 640px;"
+              :show-change="true"
+              :nodes="item.configNodeList"
+              @change="configChange(item, $event)"
+            />
+          </VWindowItem>
+        </VWindow>
+      </template>
+      <EmptyTip v-else-if="!loading" />
+    </VCardText>
+  </VCard>
 </template>
 
 <script setup lang="ts">

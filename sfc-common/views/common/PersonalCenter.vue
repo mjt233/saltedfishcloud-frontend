@@ -1,132 +1,139 @@
 <template>
   <div v-if="hasLogin">
     <v-card max-width="640px" style="margin: 0 auto;">
-      <loading-mask ref="loading" type="linear" />
-      <!-- <v-progress-linear v-if="loading" indeterminate /> -->
-      <v-list style="padding: 12px 0;">
-        <v-list-subheader>个人信息</v-list-subheader>
-        <v-list-item v-ripple title="头像">
-          <template #append>
-            <user-avatar
-              :uid="session.user.id"
-              :name="session.user.name"
-              :size="48"
-              class="elevation-1"
-              @click="doUploadAvatar"
-            />
-          </template>
-        </v-list-item>
-        <v-divider />
-        <v-list-item v-ripple min-height="48" title="用户ID">
-          <template #append>
-            <span class="list-content">{{ session.user.id }}</span>
-          </template>
-        </v-list-item>
-        <v-list-item v-ripple min-height="48" title="用户名">
-          <template #append>
-            <span class="list-content">{{ session.user.name }}</span>
-          </template>
-        </v-list-item>
-        <v-list-item
-          v-ripple
-          min-height="48"
-          title="邮箱"
-        >
-          <template #append>
-            <template v-if="session.user.email">
-              <span class="list-content">{{ session.user.email }}<v-icon style="margin-left: 6px" color="primary" @click="showEmailDialog = true">mdi-pencil</v-icon></span>
-            </template>
-            <template v-else>
-              <span class="list-content"><a class="text-decoration-none text-primary" @click="showEmailDialog = true">立即绑定</a></span>
-            </template>
-          </template>
-        </v-list-item>
-        <v-list-item v-ripple min-height="48" title="身份">
-          <template #append>
-            <span class="list-content">{{ session.user.role }}</span>
-          </template>
-          
-        </v-list-item>
-        <v-divider />
-        <v-list-item v-ripple min-height="48" @click="showPasswordDialog = true">
-          修改密码
-        </v-list-item>
-        <v-divider />
-        <v-list-item v-ripple min-height="48" title="存储使用情况">
-          <template #append>
-            <div style="width: 180px">
-              <div class="list-content" style="text-align: right; margin-bottom: 6px">
-                {{ StringFormatter.toSize(quotaUsed.used) }} / {{ StringFormatter.toSize(quotaUsed.quota) }}
-              </div>
-              <v-progress-linear
-                :color="quotaColor"
-                rounded
-                height="5"
-                :model-value="quotaUsed.used"
-                :max="quotaUsed.quota"
+      <v-card-text>
+        <loading-mask ref="loading" type="linear" />
+        <!-- <v-progress-linear v-if="loading" indeterminate /> -->
+        <v-list style="background-color: transparent; overflow: hidden;">
+          <v-list-subheader>个人信息</v-list-subheader>
+          <v-list-item v-ripple title="头像">
+            <template #append>
+              <user-avatar
+                :uid="session.user.id"
+                :name="session.user.name"
+                :size="48"
+                class="elevation-1"
+                @click="doUploadAvatar"
               />
-            </div>
-          </template>
-        </v-list-item>
-        <v-divider />
-        <v-list-item title="黑暗模式" height="48">
-          <template #append>
-            <dark-switch />
-          </template>
-        </v-list-item>
-        <v-divider />
-        <v-list-item v-ripple title="第三方平台关联" height="48">
-          <template #append>
-            <div v-if="thirdPartyAuthPlatformList.length">
-              <LoadingMask :loading="platformLoadingCnt > 0" :type="'circular'" />
-              <div v-for="item in thirdPartyAuthPlatformList" :key="item.type">
-                <div class="platform-item" @click="assocPlatform(item)">
-                  <CommonIcon :icon="item.icon" :title="item.name" :size="36" />
-                  <CommonIcon
-                    v-if="thirdPartyPlatformUserMap[item.type]"
-                    class="platform-item-check-icon"
-                    color="success"
-                    icon="mdi-check-circle"
-                    :size="14"
-                  />
+            </template>
+          </v-list-item>
+          <v-divider />
+          <v-list-item v-ripple min-height="48" title="用户ID">
+            <template #append>
+              <span class="list-content">{{ session.user.id }}</span>
+            </template>
+          </v-list-item>
+          <v-list-item v-ripple min-height="48" title="用户名">
+            <template #append>
+              <span class="list-content">{{ session.user.name }}</span>
+            </template>
+          </v-list-item>
+          <v-list-item
+            v-ripple
+            min-height="48"
+            title="邮箱"
+          >
+            <template #append>
+              <template v-if="session.user.email">
+                <span class="list-content">{{ session.user.email }}<v-icon style="margin-left: 6px" color="primary" @click="showEmailDialog = true">mdi-pencil</v-icon></span>
+              </template>
+              <template v-else>
+                <span class="list-content link"><a class="text-decoration-none text-primary" @click="showEmailDialog = true">立即绑定</a></span>
+              </template>
+            </template>
+          </v-list-item>
+          <v-list-item v-ripple min-height="48" title="身份">
+            <template #append>
+              <span class="list-content">{{ session.user.role }}</span>
+            </template>
+          
+          </v-list-item>
+          <v-divider />
+          <v-list-item v-ripple min-height="48" @click="showPasswordDialog = true">
+            修改密码
+          </v-list-item>
+          <v-divider />
+          <v-list-item v-ripple min-height="48" title="存储使用情况">
+            <template #append>
+              <div style="width: 180px">
+                <div class="list-content" style="text-align: right; margin-bottom: 6px">
+                  {{ StringFormatter.toSize(quotaUsed.used) }} / {{ StringFormatter.toSize(quotaUsed.quota) }}
                 </div>
+                <v-progress-linear
+                  :color="quotaColor"
+                  rounded
+                  height="5"
+                  :model-value="quotaUsed.used"
+                  :max="quotaUsed.quota"
+                />
               </div>
-            </div>
-            <div v-else class="tip">
-              不可用
-            </div>
+            </template>
+          </v-list-item>
+          <v-divider />
+          <v-list-item title="黑暗模式" height="48">
+            <template #append>
+              <dark-switch />
+            </template>
+          </v-list-item>
+          <v-divider />
+          <v-list-subheader>第三方平台关联</v-list-subheader>
+          <v-list-item v-if="platformLoadingCnt > 0">
+            <template #title>
+              <VProgressCircular indeterminate color="primary" /> 加载中
+            </template>
+          </v-list-item>
+          <template v-else>
+            <template v-if="thirdPartyAuthPlatformList.length">
+              <v-list-item v-for="item in thirdPartyAuthPlatformList" :key="item.type" style="animation: up-in .2s;">
+                <template #title>
+                  <CommonIcon :icon="item.icon" :title="item.name" :size="36" /> {{ item.name }}
+                </template>
+                <template #append>
+                  <span v-if="thirdPartyPlatformUserMap[item.type]" class="text-success">
+                    已绑定
+                    <CommonIcon
+                      color="success"
+                      icon="mdi-check-circle"
+                      :size="14"
+                    />
+                  </span>
+                  <span v-else class="link" @click="assocPlatform(item)">去绑定</span>
+                </template>
+              </v-list-item>
+            </template>
+            <v-list-item v-else title="第三方平台不可用" />
           </template>
-        </v-list-item>
-      </v-list>
-      <base-dialog
-        v-model="showEmailDialog"
-        title="绑定邮箱"
-        :hide-btn="true"
-        persistent
-      >
-        <bind-email-form ref="emailRef" />
-        <template #actions>
-          <v-btn color="primary" @click="submitEamil">
-            绑定
-          </v-btn>
-          <v-btn color="primary" @click="showEmailDialog = false">
-            取消
-          </v-btn>
-        </template>
-      </base-dialog>
-      <base-dialog
-        v-model="showPasswordDialog"
-        :loading="changePasswordLoading"
-        title="修改密码"
-        @cancel="showPasswordDialog = false"
-        @confirm="doChangePassword"
-      >
-        <change-passowrd-form
-          ref="changePasswordRef"
-          :uid="session.user.id"
-          @submit="doChangePassword"
-        />
-      </base-dialog>
+        </v-list>
+        <base-dialog
+          v-model="showEmailDialog"
+          title="绑定邮箱"
+          :hide-btn="true"
+          persistent
+        >
+          <bind-email-form ref="emailRef" />
+          <template #actions>
+            <v-btn color="primary" @click="submitEamil">
+              绑定
+            </v-btn>
+            <v-btn color="primary" @click="showEmailDialog = false">
+              取消
+            </v-btn>
+          </template>
+        </base-dialog>
+        <base-dialog
+          v-model="showPasswordDialog"
+          :loading="changePasswordLoading"
+          title="修改密码"
+          @cancel="showPasswordDialog = false"
+          @confirm="doChangePassword"
+        >
+          <change-passowrd-form
+            ref="changePasswordRef"
+            :uid="session.user.id"
+            @submit="doChangePassword"
+          />
+        </base-dialog>
+      </v-card-text>
     </v-card>
   </div>
   <div v-else>
