@@ -28,7 +28,14 @@
       </thead>
       <tbody>
         <tr v-for="item in proxyList" :key="item.name">
-          <td>{{ item.name }}</td>
+          <td>
+            {{ item.name }}<CommonIcon
+              v-if="item.isProtect"
+              class="ml-1"
+              title="该代理不公开使用"
+              icon="mdi-key"
+            />
+          </td>
           <td>{{ item.type }}</td>
           <td>{{ item.address }}</td>
           <td>{{ item.port }}</td>
