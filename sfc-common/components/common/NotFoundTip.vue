@@ -1,5 +1,5 @@
 <template>
-  <div class="not-found-tip">
+  <div class="not-found-tip tip">
     `(*>﹏&lt;*)′{{ text }}
   </div>
 </template>
@@ -26,6 +26,5 @@ export default defineComponent({
 .not-found-tip {
   text-align: center;
   margin: 16px 0;
-  color: grey;
 }
 </style>

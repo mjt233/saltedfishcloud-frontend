@@ -46,6 +46,36 @@ export namespace StringFormatter {
     
   }
   /**
+   * 根据指定格式化字符串格式化日期
+   * @param {Number|String|Date} inputDate 待格式化的日期
+   * @param {String} format 格式字符串，默认为 'yyyy-MM-dd hh:mm'
+   *                        支持的格式: yyyy(年), MM(月), dd(日), hh(小时), mm(分钟), ss(秒), SSS(毫秒)
+   * @returns {String} 格式化后的日期字符串
+   */
+  export function formatDate(inputDate: number | string | Date, format: string = 'yyyy-MM-dd hh:mm'): string {
+    if (inputDate == Number(inputDate)) {
+      inputDate = Number(inputDate)
+    }
+    const date = new Date(inputDate)
+    
+    const formatMap: Record<string, string> = {
+      'yyyy': String(date.getFullYear()),
+      'MM': String(fillLength(date.getMonth() + 1, 2)),
+      'dd': String(fillLength(date.getDate(), 2)),
+      'hh': String(fillLength(date.getHours(), 2)),
+      'mm': String(fillLength(date.getMinutes(), 2)),
+      'ss': String(fillLength(date.getSeconds(), 2)),
+      'SSS': String(date.getMilliseconds()).padStart(3, '0')
+    }
+    
+    let result = format
+    for (const [key, value] of Object.entries(formatMap)) {
+      result = result.replace(key, value)
+    }
+    
+    return result
+  }
+  /**
      * 将字符串填充至指定长度
      * @param {String|Number} str 待处理的字符串
      * @param {Number} len 目标长度

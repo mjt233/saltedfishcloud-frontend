@@ -11,10 +11,10 @@
       <div>
         剩余可接受文件数：{{ item?.available == -1 ? '无限制' : item?.available }}
       </div>
-      <div class="date text-blue-grey">
+      <div class="date tip">
         创建日期：{{ formateDate(item?.createdAt || '') }}
       </div>
-      <div class="date text-blue-grey">
+      <div class="date tip">
         过期日期：{{ formateDate(item?.expiredAt || '') }}
       </div>
     </v-card-text>
@@ -119,7 +119,7 @@ export default defineComponent({
 .collection-item {
   transition: all .3s;
   &:hover {
-    box-shadow: 0px 3px 3px 0px darkgray;
+    box-shadow: 0px 3px 3px 0px gray;
   }
   
 }

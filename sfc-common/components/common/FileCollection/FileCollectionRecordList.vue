@@ -12,7 +12,7 @@ import FileCollectionRecord from './FileCollectionRecord.vue'
 import LoadingMask from '../LoadingMask.vue'
 const props = defineProps({
   cid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   }
 })

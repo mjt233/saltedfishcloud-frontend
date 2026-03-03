@@ -1,8 +1,5 @@
 <template>
-  <v-card
-    style="overflow: hidden;"
-    color="background"
-  >
+  <v-card style="overflow: hidden;">
     <!-- 头部 -->
     <v-list-item :prepend-avatar="avatar">
 
@@ -92,19 +89,36 @@
       >
         登录
       </v-btn>
+
+      <!-- 第三方平台登录 -->
       <template v-if="availableThirdPlatformList.length">
 
         <VDivider v-if="showLogin" class="mt-3 pb-2" />
-        <div class="d-flex justify-center">
-          <div
+        <VRow>
+          <VCol
             v-for="item in availableThirdPlatformList"
             :key="item.type"
-            style="cursor: pointer;"
-            @click="doThirdPlatformLogin(item)"
+            cols="12"
+            sm="6"
           >
-            <CommonIcon :icon="item.icon" :size="32" :title="item.name" />
-          </div>
-        </div>
+            <VListItem
+              class="third-platform"
+              @click="doThirdPlatformLogin(item)"
+            >
+              <div class="d-flex align-center">
+                <CommonIcon
+                  style="height: 32px;"
+                  :icon="item.icon"
+                  :size="32"
+                  :title="item.name"
+                  hover-color="rgb(var(--v-theme-primary))"
+                  class="mr-1"
+                />
+                使用 {{ item.name }} 账号登录
+              </div>
+            </VListItem>
+          </VCol>
+        </VRow>
       </template>
     </v-card-text>
   </v-card>
@@ -214,3 +228,9 @@ export default defineComponent({
   name: 'LoginForm'
 })
 </script>
+
+<style scoped>
+.third-platform:hover {
+  color: rgb(var(--v-theme-primary));
+}
+</style>

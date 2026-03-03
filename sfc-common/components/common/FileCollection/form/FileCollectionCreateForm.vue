@@ -131,7 +131,7 @@ const sonFormRef = ref()
 const sonForms = [sonFormRef]
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   },
   initValue: {

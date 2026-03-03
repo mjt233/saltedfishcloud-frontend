@@ -221,6 +221,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
     async onCancel() {
       if (await onCancel(vueInst.value.getComponentInst())) {
         attrs.modelValue = false
+        close()
         setTimeout(vueInst.value.unmount, 120)
       }
     },
@@ -394,8 +395,9 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
 
   const dialogInst = dialogPromise.handler.value.getComponentInst()
 
-  return {
-    ...dialogPromise,
+  
+
+  return Object.assign(dialogPromise, {
     getComponentInstRef() {
       return (dialogPromise.handler.value.getRoot().$refs.component) as ComponentPublicInstance
     },
@@ -407,7 +409,7 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     close: dialogPromise.close.bind(dialogPromise),
     beginLoading: dialogInst.beginLoading,
     closeLoading: dialogInst.closeLoading
-  }
+  })
 }
 
 

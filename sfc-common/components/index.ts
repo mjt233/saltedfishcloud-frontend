@@ -1,5 +1,3 @@
-import { App } from 'vue'
-
 // const allComponent = import.meta.glob('./**/*.vue', { eager: true })
 
 // export default async(app: App) => {

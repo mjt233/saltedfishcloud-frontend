@@ -28,6 +28,19 @@
         <text-input v-model="formData.testUrl" label="连通测试URL" :rules="validators.testUrl" />
       </form-col>
     </form-row>
+    <form-row>
+      <form-col v-if="uid == 0">
+        <v-checkbox
+          v-model="formData.isProtect"
+          label="不公开使用"
+          hide-details
+          color="primary"
+        />
+        <div class="text-caption">
+          不公开使用，表示仅用于系统内部引用或管理员使用，将不会显示在非管理员的代理列表中
+        </div>
+      </form-col>
+    </form-row>
   </base-form>
 </template>
 

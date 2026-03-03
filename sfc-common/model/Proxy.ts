@@ -21,4 +21,7 @@ export interface ProxyInfo extends ProxyBaseInfo {
 
   /** 连通性测试用url */
   testUrl: string
+
+  /** 是否不公开使用 */
+  isProtect?: boolean
 }

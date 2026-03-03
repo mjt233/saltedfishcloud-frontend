@@ -3,6 +3,7 @@ import { LoginForm, UserBindConfirm } from 'sfc-common/components'
 import { RawUser, ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { DialogPromise, ComponentDialogInstance } from 'sfc-common/utils/SfcUtils/common/Dialog'
+import { getContext } from '..'
 
 export namespace UserService {
   export async function createByThirdParty(actionId: string) {
@@ -58,7 +59,7 @@ export namespace UserService {
         } catch (err) {
           if (err != 'cancel') {
             console.error(err)
-            SfcUtils.snackbar(err)
+            SfcUtils.alert(err?.toString() as string, '错误')
           }
         } finally {
           loginContext.loadingDialog?.close()
@@ -72,6 +73,8 @@ export namespace UserService {
     async function thirdSuccessCallback(res: ThirdPartyPlatformCallbackResult, newToken: string) {
       loginContext.result = res
       loginContext.token = newToken
+
+      // 判断是否为首次登录的第三方账号
       if(res.isNewUser) {
         // 新的第三方账号，但存在部分信息与已有的账号相关联，需要确认关联
         if (res.user) {
@@ -80,7 +83,8 @@ export namespace UserService {
               props: {
                 bindUser: res.user,
                 platformName: res.platformUser.userName,
-                platformIcon: platform.icon
+                platformIcon: platform.icon,
+                platformUser: res.platformUser
               },
               async onConfirm() {
                 const bindDialog = SfcUtils.loadingDialog({msg: '绑定中...'})
@@ -177,6 +181,11 @@ export namespace UserService {
             }
           })
       } else {
+        // 不是第一次登录的第三方账号，且已关联了系统账号，需要判断是否与当前已登录账号一致，不一致的需要拒绝操作
+        const curUser = getContext().session.value.user
+        if (curUser.id != 0 && curUser.id != res.user.id) {
+          return Promise.reject(`第三方平台 ${platform.name} 的用户 ${res.platformUser.userName} 已关联了账号 ${res.user.user}，请勿重复关联`)
+        }
         doLoginSuccess(res.user, newToken)
       }
     }

@@ -164,7 +164,7 @@ const adminContext: AdminContext = reactive({
     delete extraNodeMap[source]
     updateHideConfirm()
   },
-})
+} as AdminContext)
 
 /**
  * 当前展开的菜单组

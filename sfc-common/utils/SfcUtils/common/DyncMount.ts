@@ -79,8 +79,11 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
 
   return {
     unmount() {
-      document.body.removeChild(tempDOM)
-      tempApp.unmount()
+      try {
+        document.body.removeChild(tempDOM)
+      } catch(_) { } finally {
+        tempApp.unmount()
+      }
     },
     getComponentInst() {
       return (inst.$refs[ROOT_REF_NAME] as ComponentPublicInstance & T)

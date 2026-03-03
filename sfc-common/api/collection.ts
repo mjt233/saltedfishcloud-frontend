@@ -1,5 +1,5 @@
 import { CommonPageInfo, CommonRequest, getContext } from 'sfc-common'
-import { ApiRequest } from 'sfc-common/model'
+import { ApiRequest, IdType } from 'sfc-common/model'
 import { CollectionInfo, CollectionParam, CollectionRecord, CollectionSubmitInfo } from 'sfc-common/model/FileCollection'
 import resource from './resource'
 
@@ -83,7 +83,7 @@ const collection = {
    * @param page 页数
    * @param size 每页大小
    */
-  getRecords(cid: number, page: number, size: number): CommonRequest<CommonPageInfo<CollectionRecord>> {
+  getRecords(cid: IdType, page: number, size: number): CommonRequest<CommonPageInfo<CollectionRecord>> {
     return {
       url: `${this.prefix}/record/${cid}`,
       params: {
