@@ -13,6 +13,7 @@
       label="选择代理节点"
       variant="underlined"
       no-data-text="无可用代理"
+      :clearable="clearable"
     >
       <template #item="{ props: itemProps, item }">
         <v-list-item v-bind="itemProps">
@@ -47,6 +48,16 @@
             <CommonIcon icon="mdi-open-in-app" class="mr-1" />
           </template>
         </v-list-item>
+        <v-list-item
+          v-if="refreshable"
+          title="刷新"
+          :disabled="loading"
+          @click="actions.loadList"
+        >
+          <template #prepend>
+            <CommonIcon icon="mdi-refresh" class="mr-1" />
+          </template>
+        </v-list-item>
       </template>
     </v-select>
     <!-- <span class="link ml-2" @click="toManager">管理代理节点</span> -->
@@ -63,16 +74,47 @@ const props = defineProps({
     type: [Number, String] as PropType<IdType>,
     default: undefined
   },
+
   /**
    * 是否可转跳编辑
    */
   editable: {
     type: Boolean,
     default: false
+  },
+
+  /**
+   * 是否可清空选择
+   */
+  clearable: {
+    type: Boolean,
+    default: false
+  },
+
+  /**
+   * 是否可手动刷新
+   */
+  refreshable: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits<{
-  (e: 'update:modelValue', v: IdType): void
+  /**
+   * 节点选择变更事件
+   */
+  (e: 'update:modelValue', v: IdType): void,
+
+  
+  /**
+   * 节点选择变更事件，不过事件对象参数用的是整个选择的代理对象
+   */
+  (e: 'proxySelect', v?: ProxyInfo): void
+
+  /**
+   * 代理列表加载完成事件
+   */
+  (e: 'listLoaded', v: ProxyInfo[]): void
 }>()
 const isAdmin = getContext().session.value.user.role == 'admin'
 
@@ -84,6 +126,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
     if (items.value.length) {
       tester.testAllProxy(items.value, true)
     }
+    emits('listLoaded', items.value)
     return
   }
 }, true, lm)
@@ -108,10 +151,6 @@ function toManager() {
       dense: true,
       cancelText: '关闭',
       maxWidth: '860px'
-    },
-    onCancel() {
-      actions.loadList()
-      return true
     }
   })
     .finally(actions.loadList)  
@@ -120,6 +159,7 @@ function toManager() {
 watch(curSelect, () => {
   if (props.modelValue != curSelect.value) {
     emits('update:modelValue', curSelect.value)
+    emits('proxySelect', items.value.find(proxy => proxy.id == curSelect.value))
   }
 })
 
@@ -129,8 +169,9 @@ watch(() => props.modelValue, () => {
   }
 })
 
-onMounted(() => {
-  actions.loadList()
+onMounted(async() => {
+  await actions.loadList()
+  curSelect.value = props.modelValue
 })
 </script>
 

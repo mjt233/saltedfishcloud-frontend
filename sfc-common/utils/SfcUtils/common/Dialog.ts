@@ -221,6 +221,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
     async onCancel() {
       if (await onCancel(vueInst.value.getComponentInst())) {
         attrs.modelValue = false
+        close()
         setTimeout(vueInst.value.unmount, 120)
       }
     },

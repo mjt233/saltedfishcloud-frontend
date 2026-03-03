@@ -5,63 +5,67 @@
       <v-icon>mdi-plus</v-icon>
       新增节点
     </v-btn>
-    <v-table>
-      <thead>
-        <tr>
-          <th style="min-width:120px;">
-            名称
-          </th>
-          <th style="width: 64px">
-            协议
-          </th>
-          <th>地址</th>
-          <th style="width: 64px">
-            端口
-          </th>
-          <th>
-            操作
-          </th>
-          <th>
-            连通性
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in proxyList" :key="item.name">
-          <td>
-            {{ item.name }}<CommonIcon
-              v-if="item.isProtect"
-              class="ml-1"
-              title="该代理不公开使用"
-              icon="mdi-key"
-            />
-          </td>
-          <td>{{ item.type }}</td>
-          <td>{{ item.address }}</td>
-          <td>{{ item.port }}</td>
-          <td>
-            <div class="d-flex">
-              <CommonIcon
-                icon="mdi-pencil"
-                color="primary"
-                class="link"
-                @click="openProxyForm(item)"
-              />
-              <CommonIcon
-                icon="mdi-delete-forever"
-                style="--main-color: var(--v-theme-error)"
-                class="link"
-                @click="deleteProxy(item)"
-              />
-            </div>
-          </td>
-          <td>
-            <ProxyTestStatus :status="testResult[item.id]" />
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
-    <empty-tip v-if="proxyList.length == 0" />
+    <VCard>
+      <VCardText style="padding: 0;">
+        <v-table>
+          <thead>
+            <tr>
+              <th style="min-width:120px;">
+                名称
+              </th>
+              <th style="width: 64px">
+                协议
+              </th>
+              <th>地址</th>
+              <th style="width: 64px">
+                端口
+              </th>
+              <th>
+                操作
+              </th>
+              <th>
+                连通性
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in proxyList" :key="item.name">
+              <td>
+                {{ item.name }}<CommonIcon
+                  v-if="item.isProtect"
+                  class="ml-1"
+                  title="该代理不公开使用"
+                  icon="mdi-key"
+                />
+              </td>
+              <td>{{ item.type }}</td>
+              <td>{{ item.address }}</td>
+              <td>{{ item.port }}</td>
+              <td>
+                <div class="d-flex">
+                  <CommonIcon
+                    icon="mdi-pencil"
+                    color="primary"
+                    class="link"
+                    @click="openProxyForm(item)"
+                  />
+                  <CommonIcon
+                    icon="mdi-delete-forever"
+                    style="--main-color: var(--v-theme-error)"
+                    class="link"
+                    @click="deleteProxy(item)"
+                  />
+                </div>
+              </td>
+              <td>
+                <ProxyTestStatus :status="testResult[item.id]" />
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+        <empty-tip v-if="proxyList.length == 0" />
+      </VCardText>
+    </VCard>
   </div>
 </template>
 

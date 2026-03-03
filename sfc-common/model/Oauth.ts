@@ -1,4 +1,4 @@
-import { AuditModel, BaseUserInfo, RawUser } from 'sfc-common'
+import { AuditModel, BaseUserInfo, IdType, RawUser } from 'sfc-common'
 
 export interface ThirdPartyPlatformUser extends AuditModel {
   /**
@@ -70,6 +70,11 @@ export interface ThirdPartyAuthPlatform extends AuditModel {
    * 是否允许注册新用户
    */
   isAllowRegister: true
+
+  /**
+   * 服务器后台向第三方平台请求接口调用时，使用的代理id
+   */
+  proxyId?: IdType
 
   /**
    * 第三方认证授权地址

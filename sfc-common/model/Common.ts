@@ -129,7 +129,10 @@ export interface ConfigNodeModel {
   params?: {[key: string]: any}
 
   /* 是否独占一行 */
-  isRow?: boolean;
+  isRow?: boolean
+
+  /** 值名称映射，将节点值映射为对应的属性名，用于在配置值变更明细中显示名称而不是原始值 */
+  valueNameMapping?: {[key: string]: string}
 }
 
 /**
