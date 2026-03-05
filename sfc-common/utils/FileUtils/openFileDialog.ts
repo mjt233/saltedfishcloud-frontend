@@ -21,8 +21,21 @@ export function openFileDialog( multiple = false, accept?: string): Promise<File
   } else {
     el.accept = ''
   }
-  return new Promise(res => {
+  return new Promise((res, reject) => {
+    const cb = () => {
+      removeCb()
+      reject('cancel')
+    }
+    const removeCb = () => {
+      window.removeEventListener('mousemove', cb)
+      window.removeEventListener('keydown', cb)
+      window.removeEventListener('mousedown', cb)
+    }
+    window.addEventListener('mousemove', cb)
+    window.addEventListener('keydown', cb)
+    window.addEventListener('mousedown', cb)
     el.onchange = e => {
+      removeCb()
       res(el.files as FileList)
     }
     el.click()

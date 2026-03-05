@@ -142,3 +142,83 @@ export interface BindUserParam {
   password?: string
 }
 
+/**
+ * 第三方OAuth应用信息
+ */
+export interface ThirdPartyApp extends AuditModel {
+  /**
+   * 应用名称
+   */
+  name: string
+
+  /**
+   * 用户确认授权后的回调URL
+   */
+  callbackUrl: string
+
+  /**
+   * 应用介绍
+   */
+  describeContent?: string
+
+  /**
+   * 联系邮箱
+   */
+  email?: string
+
+  /**
+   * 应用图标(URL 支持base64)
+   */
+  icon?: string
+
+  /**
+   * 是否已启用
+   */
+  isEnabled: boolean
+}
+
+/**
+ * 第三方OAuth应用密钥凭证
+ */
+export interface ThirdPartyAppKeyVo {
+  
+  /**
+   * 应用id
+   */
+  appId: IdType
+
+  /**
+   * 客户端密钥
+   */
+  clientSecret: string
+
+  /**
+   * 凭证名称标签
+   */
+  name: string
+
+  /**
+   * 备注
+   */
+  remark: string
+
+  /**
+   * id
+   */
+  id: IdType
+
+  /**
+   * 创建时间
+   */
+  createAt: string
+
+  /**
+   * 更新时间
+   */
+  updateAt: string
+
+  /**
+   * 创建者id
+   */
+  uid: string
+}

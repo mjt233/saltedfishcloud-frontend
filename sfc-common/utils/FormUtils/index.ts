@@ -126,8 +126,8 @@ export function deconstructForm(form: Ref<any>): CommonForm {
     getFormData() {
       return form.value.getFormData()
     },
-    async submit() {
-      return await form.value.submit()
+    async submit(opt?: SubmitOpt) {
+      return await form.value.submit(opt)
     },
     async validate() {
       return await form.value.validate()
