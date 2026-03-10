@@ -70,14 +70,14 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .loading-mask {
   position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
-  background-color: rgba($color: var(--v-theme-background), $alpha: .4);
+  background-color: rgba(var(--v-theme-background), .4);
   opacity: 0;
   overflow: hidden;
   pointer-events: none;

@@ -222,3 +222,41 @@ export interface ThirdPartyAppKeyVo {
    */
   uid: string
 }
+
+export interface ThirdPartyAppAuthorization extends AuditModel {
+  /**
+   * 授权应用id
+   */
+  appId: IdType
+
+  /**
+   * 已授权范围，多个权限使用空格分割
+   */
+  scope: string
+}
+
+/**
+ * 用户对第三方OAuth应用的授权信息明细
+ */
+export interface ThirdPartyAppUserAuthorizationVo {
+  /**
+   * 授权应用信息
+   */
+  thirdPartyApp: ThirdPartyApp
+
+  /**
+   * 授权信息。如果没有过任何授权，该值为null
+   */
+  authorization?: ThirdPartyAppAuthorization
+}
+
+/**
+ * 用户授权结果
+ */
+export interface UserAuthorizeResult {
+  /** 授权码 */
+  code: string
+
+  /** 第三方OAuth应用重定向URL */
+  redirectUrl: string
+}

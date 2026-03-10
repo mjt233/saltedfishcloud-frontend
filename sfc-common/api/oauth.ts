@@ -1,8 +1,8 @@
 import { PageableRequest } from './../model/ApiRequest'
-import { BindUserParam, ThirdPartyApp, ThirdPartyAppKeyVo, ThirdPartyPlatformUser } from './../model/Oauth'
+import { BindUserParam, ThirdPartyApp, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
 import { CommonPageInfo, CommonRequest, ConfigNodeModel, IdType, JsonResult, RawUser } from 'sfc-common/model'
 import { ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model/Oauth'
-import { useJsonBody } from 'sfc-common/utils'
+import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 
 export default {
   prefix: 'oauth',
@@ -149,11 +149,36 @@ export default {
    * 修改第三方OAuth应用密钥信息，只能修改名称和描述
    * @param keyVo 待修改密钥信息
    */
-  changeOAuthAppKey(keyVo: ThirdPartyAppKeyVo): CommonRequest {    
+  changeOAuthAppKey(keyVo: ThirdPartyAppKeyVo): CommonRequest {
     return useJsonBody({
       url: `${this.prefix}/changeOAuthAppKey`,
       method: 'post',
       data: keyVo
     })
+  },
+  /**
+   * 获取当前用户在第三方OAuth应用的授权信息
+   * @param appId 第三方OAuth应用id
+   */
+  getUserAuthorization(appId: IdType): CommonRequest<ThirdPartyAppUserAuthorizationVo> {
+    return {
+      url: `${this.prefix}/getUserAuthorization`,
+      params: {
+        appId
+      }
+    }
+  },
+  /**
+   * 当前用户确认授权第三方应用
+   * @param appId 第三方OAuth应用id
+   * @param scope 授权范围（增量授权，多个权限使用空格分割）
+   */
+  authorize(appId: IdType, scope: IdType): CommonRequest<UserAuthorizeResult> {
+    return {
+      url: `${this.prefix}/authorize`,
+      params: {
+        appId, scope
+      }
+    }
   }
 }

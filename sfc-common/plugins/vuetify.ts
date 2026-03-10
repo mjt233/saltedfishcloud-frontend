@@ -26,7 +26,21 @@ const defaultTheme = {
   }
 }
 
+export function getVuetifyBaseConfig() {
+  return {
+    theme: {
+      defaultTheme: 'default',
+      themes: {
+        default: defaultTheme
+      }
+    },
+  }
+}
+
 export default createVuetify({
+  ...getVuetifyBaseConfig(),
+  components,
+  directives,
   icons: {
     defaultSet: 'mdi',
     aliases,
@@ -34,12 +48,4 @@ export default createVuetify({
       mdi
     }
   },
-  theme: {
-    defaultTheme: 'default',
-    themes: {
-      default: defaultTheme
-    }
-  },
-  components,
-  directives
 })

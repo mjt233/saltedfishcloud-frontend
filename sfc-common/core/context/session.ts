@@ -1,6 +1,8 @@
 import { SessionUser } from 'sfc-common/model/'
 import { reactive } from 'vue'
 import { getContext } from '.'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
+import API from 'sfc-common/api'
 
 
 
@@ -48,6 +50,7 @@ const emptySession: Session = {
     this.user = reactive(userInfo)
   },
   async logout() {
+    SfcUtils.request(API.user.logout())
     this.token = ''
     this.user = reactive(getPublicUser())
     localStorage.clear()

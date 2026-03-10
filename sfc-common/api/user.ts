@@ -68,6 +68,15 @@ const user = {
     }
   },
   /**
+   * 退出登录
+   */
+  logout(): CommonRequest {
+    return {
+      url: `${this.prefix}/logout`,
+      method: 'post'
+    }
+  },
+  /**
    * 绑定新邮箱
    * @param {String} newEmail 新邮箱
    * @param {String} originCode 旧邮箱验证码，若先前未绑定邮箱则不需要
@@ -197,15 +206,17 @@ const user = {
    * 用户登录
    * @param {String} user 用户
    * @param {String} passwd 密码
+   * @param getCookie 响应中是否携带值为token的HttpOnly Cookie
    * @returns token
    */
-  login(user: string, passwd: string): CommonRequest<string> {
+  login(user: string, passwd: string, getCookie?: boolean): CommonRequest<string> {
     return {
       url: this.prefix + '/token',
       method: 'post',
       params: {
         user: user,
-        passwd: passwd
+        passwd: passwd,
+        getCookie: getCookie ? '1' : undefined
       }
     }
   },
