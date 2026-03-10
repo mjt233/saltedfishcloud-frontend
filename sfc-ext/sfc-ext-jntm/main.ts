@@ -52,6 +52,9 @@ let isActiveJntm = false
 let firstPlay: number = 0
 window.addEventListener('keydown', e => {
   // 连按5次j触发鸡你太美模式
+  if (e.key === undefined) {
+    return
+  }
   if (e.key.toLowerCase() == 'j') {
     jiCount++
     if (jiCount == 5 && !isActiveJntm) {

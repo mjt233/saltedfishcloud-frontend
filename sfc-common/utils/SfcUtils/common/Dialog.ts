@@ -475,7 +475,12 @@ export function prompt(opt: PromptOpt): Promise<string> {
           }
         },
       }),
-      onConfirm() {
+      async onConfirm() {
+        const result = await (inst.getComponentInstRef() as TextInputModel).validate()
+        if (!result.valid) {
+          SfcUtils.snackbar(result.errors.map(e => e.errorMessages).join(','))
+          return false
+        }
         resolve(val.value)
         return true
       },

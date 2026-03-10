@@ -6,6 +6,12 @@ import { DialogPromise, ComponentDialogInstance } from 'sfc-common/utils/SfcUtil
 import { getContext } from '..'
 
 export namespace UserService {
+
+  /**
+   * 通过第三方登录创建新的用户
+   * @param actionId 第三方登录动作id
+   * @returns 创建结果
+   */
   export async function createByThirdParty(actionId: string) {
     const res = await SfcUtils.request(API.oauth.createUser(actionId))
     return {
@@ -13,6 +19,12 @@ export namespace UserService {
       token: res.data.data.newToken
     }
   }
+
+  /**
+   * 开始第三方登录流程
+   * @param platform 第三方平台对象
+   * @returns 登录结果
+   */
   export async function startThirdPlatformLogin(platform: ThirdPartyAuthPlatform) {
     let loginContext = {} as {
       loadingDialog?: DialogPromise & ComponentDialogInstance

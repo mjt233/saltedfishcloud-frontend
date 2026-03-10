@@ -18,6 +18,7 @@
   
 </template>
 <script setup lang="ts">
+import 'sfc-common/styles/common.scss'
 import FileUploadDialog from './components/common/FileUpload/FileUploadDialog.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 const theme = getContext().theme

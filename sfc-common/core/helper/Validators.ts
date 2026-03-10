@@ -57,6 +57,15 @@ export namespace Validators {
     return (e: FormFieldType) => !!e || msg
   }
 
+  export function isUrl(msg: string = '请填写有效的URL') {
+    return (e: FormFieldType) => {
+      if (typeof e !== 'string') {
+        return msg
+      }
+      return /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(e) || msg
+    }
+  }
+
   export function minLen(msg: string | undefined | null, len: number) {
     return (e: FormFieldType) => ('' + e).length >= len || msg || '长度不能小于' + len + '个字符'
   }

@@ -17,7 +17,7 @@ defineProps({
 import { defineComponent, defineProps } from 'vue'
 
 export default defineComponent({
-  name: 'EmptyTip'
+  name: 'NotFoundTip'
 })
 </script>
 

@@ -1,7 +1,8 @@
-import { BindUserParam, ThirdPartyPlatformUser } from './../model/Oauth'
-import { CommonRequest, ConfigNodeModel, IdType, JsonResult, RawUser } from 'sfc-common/model'
+import { PageableRequest } from './../model/ApiRequest'
+import { BindUserParam, ThirdPartyApp, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
+import { CommonPageInfo, CommonRequest, ConfigNodeModel, IdType, JsonResult, RawUser } from 'sfc-common/model'
 import { ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model/Oauth'
-import { useJsonBody } from 'sfc-common/utils'
+import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 
 export default {
   prefix: 'oauth',
@@ -64,6 +65,120 @@ export default {
     return {
       url: `${this.prefix}/listAssocPlatformUser`,
       params: {uid}
+    }
+  },
+  /**
+   * 新增/保存第三方OAuth应用信息
+   * @param thirdPartyApp 第三方OAuth应用信息
+   * @returns 
+   */
+  saveThirdPartyApp(thirdPartyApp: ThirdPartyApp): CommonRequest<ThirdPartyApp> {
+    return useJsonBody({
+      url: `${this.prefix}/saveThirdPartyApp`,
+      method: 'post',
+      data: thirdPartyApp
+    })
+  },
+  /**
+   * 列出第三方OAuth应用信息
+   * @param pageableRequest 分页参数
+   * @returns 
+   */
+  listThirdPartyApp(pageableRequest: PageableRequest): CommonRequest<CommonPageInfo<ThirdPartyApp>> {
+    return {
+      url: `${this.prefix}/listThirdPartyApp`,
+      params: pageableRequest
+    }
+  },
+  /**
+   * 批量删除第三方OAuth应用信息
+   * @param ids 待删除的OAuth应用id
+   * @returns 
+   */
+  deleteThirdPartyApp(ids: IdType[]): CommonRequest {
+    return useJsonBody({
+      url: `${this.prefix}/deleteThirdPartyApp`,
+      method: 'post',
+      data: ids
+    })
+  },
+  /**
+   * 为第三方OAuth应用生成新的密钥
+   * @param appId 待生成密钥的OAuth应用id
+   * @param name 密钥名称
+   * @returns 新的密钥信息，密钥原文有且仅有一次机会在该接口中查看
+   */
+  generateNewOauthAppKey(appId: IdType, name?: string): CommonRequest<ThirdPartyAppKeyVo> {
+    const params = {
+      appId
+    } as any
+    if (name) {
+      params.name = name
+    }
+    return {
+      url: `${this.prefix}/generateNewOauthAppKey`,
+      params: params
+    }
+  },
+  /**
+   * 列出第三方OAuth应用密钥
+   * @param appId 待列出密钥的OAuth应用id
+   * @returns 密钥列表
+   */
+  listOAuthAppKey(appId: IdType): CommonRequest<ThirdPartyAppKeyVo[]> {
+    return {
+      url: `${this.prefix}/listOAuthAppKey`,
+      params: {
+        appId
+      }
+    }
+  },
+  /**
+   * 删除第三方OAuth应用密钥
+   * @param keyIds 待删除密钥的id
+   * @returns 
+   */
+  deleteOAuthAppKey(keyIds: IdType[]): CommonRequest {
+    return useJsonBody({
+      url: `${this.prefix}/deleteOAuthAppKey`,
+      data: keyIds,
+      method: 'post'
+    })
+  },
+  /**
+   * 修改第三方OAuth应用密钥信息，只能修改名称和描述
+   * @param keyVo 待修改密钥信息
+   */
+  changeOAuthAppKey(keyVo: ThirdPartyAppKeyVo): CommonRequest {
+    return useJsonBody({
+      url: `${this.prefix}/changeOAuthAppKey`,
+      method: 'post',
+      data: keyVo
+    })
+  },
+  /**
+   * 获取当前用户在第三方OAuth应用的授权信息
+   * @param appId 第三方OAuth应用id
+   */
+  getUserAuthorization(appId: IdType): CommonRequest<ThirdPartyAppUserAuthorizationVo> {
+    return {
+      url: `${this.prefix}/getUserAuthorization`,
+      params: {
+        appId
+      }
+    }
+  },
+  /**
+   * 当前用户确认授权第三方应用
+   * @param appId 第三方OAuth应用id
+   * @param scope 授权范围（增量授权，多个权限使用空格分割）
+   */
+  authorize(appId: IdType, scope: IdType): CommonRequest<UserAuthorizeResult> {
+    return {
+      url: `${this.prefix}/authorize`,
+      params: {
+        appId, scope
+      }
     }
   }
 }

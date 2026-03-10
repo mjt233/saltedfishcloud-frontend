@@ -17,14 +17,15 @@ const initApp = (app: App<Element>) => {
     .use(vuetify)
     .use(async app => {
       const allComponent = import.meta.glob('../../components/**/*.vue', { eager: true })
-      const registerSet: Set<string> = new Set()
+      const registerRecord: Record<string, string> = {}
       Object.keys(allComponent).forEach(async fileName => {
         const componentName = (allComponent[fileName] as any).default.name
         const component = (allComponent[fileName] as any).default
-        if (registerSet.has(componentName)) {
+        if (registerRecord[componentName]) {
+          console.warn(`组件${componentName}重复注册: ${registerRecord[componentName]} 与 ${fileName}`)
           return
         }
-        registerSet.add(componentName)
+        registerRecord[componentName] = fileName
         app.component(componentName, component)
       })
     })

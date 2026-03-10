@@ -142,3 +142,121 @@ export interface BindUserParam {
   password?: string
 }
 
+/**
+ * 第三方OAuth应用信息
+ */
+export interface ThirdPartyApp extends AuditModel {
+  /**
+   * 应用名称
+   */
+  name: string
+
+  /**
+   * 用户确认授权后的回调URL
+   */
+  callbackUrl: string
+
+  /**
+   * 应用介绍
+   */
+  describeContent?: string
+
+  /**
+   * 联系邮箱
+   */
+  email?: string
+
+  /**
+   * 应用图标(URL 支持base64)
+   */
+  icon?: string
+
+  /**
+   * 是否已启用
+   */
+  isEnabled: boolean
+}
+
+/**
+ * 第三方OAuth应用密钥凭证
+ */
+export interface ThirdPartyAppKeyVo {
+  
+  /**
+   * 应用id
+   */
+  appId: IdType
+
+  /**
+   * 客户端密钥
+   */
+  clientSecret: string
+
+  /**
+   * 凭证名称标签
+   */
+  name: string
+
+  /**
+   * 备注
+   */
+  remark: string
+
+  /**
+   * id
+   */
+  id: IdType
+
+  /**
+   * 创建时间
+   */
+  createAt: string
+
+  /**
+   * 更新时间
+   */
+  updateAt: string
+
+  /**
+   * 创建者id
+   */
+  uid: string
+}
+
+export interface ThirdPartyAppAuthorization extends AuditModel {
+  /**
+   * 授权应用id
+   */
+  appId: IdType
+
+  /**
+   * 已授权范围，多个权限使用空格分割
+   */
+  scope: string
+}
+
+/**
+ * 用户对第三方OAuth应用的授权信息明细
+ */
+export interface ThirdPartyAppUserAuthorizationVo {
+  /**
+   * 授权应用信息
+   */
+  thirdPartyApp: ThirdPartyApp
+
+  /**
+   * 授权信息。如果没有过任何授权，该值为null
+   */
+  authorization?: ThirdPartyAppAuthorization
+}
+
+/**
+ * 用户授权结果
+ */
+export interface UserAuthorizeResult {
+  /** 授权码 */
+  code: string
+
+  /** 第三方OAuth应用重定向URL */
+  redirectUrl: string
+}
