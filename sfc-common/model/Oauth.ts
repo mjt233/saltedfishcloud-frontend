@@ -233,6 +233,11 @@ export interface ThirdPartyAppAuthorization extends AuditModel {
    * 已授权范围，多个权限使用空格分割
    */
   scope: string
+
+  /**
+   * 关联的第三方应用
+   */
+  thirdPartyApp?: ThirdPartyApp
 }
 
 /**

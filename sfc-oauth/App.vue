@@ -108,39 +108,12 @@
               <!-- 展示请求的权限列表 -->
               <VSheet elevation="2">
                 <VList v-if="requireAuthorityList.length" class="mt-6 mb-6">
-                  <VListItem
+                  <AuthorityListItem
                     v-for="item in requireAuthorityList"
                     :key="item.code"
                     class="authority-list-item"
-                    :subtitle="item.describe"
-                  >
-                    <template #prepend>
-                      <CommonIcon
-                        :icon="item.icon"
-                        :color="item.isDanger ? 'warning' : 'primary'"
-                        size="32"
-                        class="mr-3"
-                      />
-                    </template>
-                    <template #title>
-                      <span :class="{'text-warning': item.isDanger}">{{ item.name }}</span>
-                    </template>
-
-                    <template v-if="item.isDanger" #append>
-                      <VTooltip location="bottom">
-                        敏感权限，请注意数据安全
-                        <template #activator="{ props: p }">
-                          <CommonIcon
-                            icon="mdi-alert"
-                            color="warning"
-                            size="26"
-                            v-bind="p"
-                          />
-                        </template>
-                      </VTooltip>
-                      
-                    </template>
-                  </VListItem>
+                    :item="item"
+                  />
                 </VList>
               </VSheet>
 
@@ -319,7 +292,7 @@ import UserAvatar from './components/UserAvatar.vue'
 import { AxiosError } from 'axios'
 import oauth from 'sfc-common/api/oauth'
 import { AuthorityItem } from './model'
-import CommonIcon from 'sfc-common/components/common/CommonIcon.vue'
+import AuthorityListItem from './components/AuthorityListItem.vue'
 
 export default defineComponent({
   name: 'App',
@@ -357,12 +330,5 @@ export default defineComponent({
     height: 100%;
     pointer-events: none;
   }
-}
-</style>
-
-<style>
-.authority-list-item .v-list-item-subtitle {
-  -webkit-line-clamp: unset !important;
-  line-clamp: unset !important;
 }
 </style>
