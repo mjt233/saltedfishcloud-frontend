@@ -101,7 +101,7 @@ const extraForm = ref()
 const regType = ref('') as Ref<'regCode' | 'email' | ''>
 const loading = ref(false)
 const emailInput = ref()
-const extraFormData = reactive({
+let extraFormData = reactive({
   regCode: '',
   email: '',
   emailCode: ''

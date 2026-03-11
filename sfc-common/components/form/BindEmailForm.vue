@@ -63,7 +63,7 @@ import LoadingMask from '../common/LoadingMask.vue'
 const loading = ref(false)
 const newMailInput = ref()
 const session = getContext().session
-const formData = reactive({
+let formData = reactive({
   email: '',
   newCode: '',
   originCode: ''

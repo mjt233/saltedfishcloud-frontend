@@ -21,7 +21,7 @@ import TextInput from 'sfc-common/components/common/TextInput.vue'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 
 const codeForm = ref()
-const formData = reactive({
+let formData = reactive({
   username: '',
   password: '',
   repeatPassword: ''
