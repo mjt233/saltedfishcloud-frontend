@@ -1,5 +1,5 @@
 import { PageableRequest } from './../model/ApiRequest'
-import { BindUserParam, ThirdPartyApp, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
+import { BindUserParam, ThirdPartyApp, ThirdPartyAppAuthorization, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
 import { CommonPageInfo, CommonRequest, ConfigNodeModel, IdType, JsonResult, RawUser } from 'sfc-common/model'
 import { ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model/Oauth'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
@@ -179,6 +179,32 @@ export default {
       params: {
         appId, scope
       }
+    }
+  },
+  /**
+   * 获取用户已关联的第三方平台
+   * @param uid 用户id
+   */
+  listUserAuthentication(uid: IdType): CommonRequest<ThirdPartyAppAuthorization[]> {
+    return {
+      url: `${this.prefix}/listUserAuthentication`,
+      params: {
+        uid
+      }
+    }
+  },
+  /**
+   * 撤销用户对第三方OAuth应用的授权
+   * @param appId 第三方OAuth应用id
+   * @param uid 用户id
+   */
+  revoke(appId: IdType, uid: IdType): CommonRequest {
+    return {
+      url: `${this.prefix}/revoke`,
+      params: {
+        appId, uid
+      },
+      method: 'post'
     }
   }
 }

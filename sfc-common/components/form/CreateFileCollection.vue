@@ -15,7 +15,7 @@ import BaseForm from '../common/BaseForm.vue'
 import LoadingMask from '../common/LoadingMask.vue'
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
-const formData = reactive({
+let formData = reactive({
   data: ''
 })
 const form = ref() as Ref<CommonForm>

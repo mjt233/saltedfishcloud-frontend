@@ -57,7 +57,7 @@ const props = defineProps({
   }
 })
 
-const valObj = reactive({}) as any
+let valObj = reactive({}) as any
 const maxLabelWidth = 120
 
 const labelWidth = computed(() => {

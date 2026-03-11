@@ -53,7 +53,7 @@ const props = defineProps({
 const urlRef = ref() as Ref<ComponentPublicInstance>
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
-const formData = reactive({
+let formData = reactive({
   url: '',
   proxy: '',
   useProxy: false,

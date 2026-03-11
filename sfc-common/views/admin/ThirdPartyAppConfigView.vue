@@ -13,9 +13,15 @@
           @click="loadApps"
         >
           <template #prepend>
-            <CommonIcon icon="mdi-refresh" />
+            <CommonIcon icon="mdi-refresh" class="mb-1" />
           </template>
           刷新
+        </VBtn>
+        <VBtn class="ml-2" @click="SfcUtils.openUrl('https://mjt233.github.io/saltedfishcloud-backend/oauth/')">
+          <template #prepend>
+            <CommonIcon icon="mdi-open-in-new" class="mb-1" />
+          </template>
+          开放平台文档
         </VBtn>
         
         <!-- OAuth应用列表表格 -->
