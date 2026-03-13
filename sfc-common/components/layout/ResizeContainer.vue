@@ -3,15 +3,16 @@
     <div class="left-slot" :class="{'hide-right': hideRight, 'auto-hide-right': autoHideRight}">
       <slot />
     </div>
-    
+
     <div
       v-if="!hideRight"
       v-ripple
       class="show-right-btn"
+      :class="{ 'active': showRight }"
       flat
       @click="showRight = !showRight"
     >
-      <CommonIcon :icon="showRight ? 'mdi-chevron-right' : 'mdi-chevron-left'" />
+      <v-icon :icon="showRight ? 'mdi-chevron-right' : 'mdi-bookmark-minus-outline'" />
     </div>
     <div v-if="!hideRight" class="right-slot" :class="{'auto-hide-right': autoHideRight, 'active': showRight}">
       <div
@@ -47,6 +48,13 @@ const props = defineProps({
   autoHideRight: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 当autoHideRight为true，且右侧容器在满足隐藏条件且激活显示时，展示右侧时的y轴偏移位置
+   */
+  rightActiveOffsetY: {
+    type: String,
+    default: '0px'
   }
 })
 const resizing = ref(false)
@@ -125,6 +133,7 @@ watch(() => props.hideRight, addScrollListener)
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, StyleValue, onMounted, watch } from 'vue'
+import { FixedBtn } from '../common'
 
 export default defineComponent({
   name: 'ResizeContainer'
@@ -151,9 +160,9 @@ export default defineComponent({
 .show-right-btn {
   position: absolute;
   display: none;
-  right: 0;
-  width: 32px;
-  height: 32px;
+  right: 12px;
+  width: 42px;
+  height: 42px;
   color: rgb(var(--v-theme-background));
   background-color: rgb(var(--v-theme-primary));
   z-index: 2;
@@ -162,11 +171,20 @@ export default defineComponent({
   border-radius: 50%;
   margin: 6px;
   cursor: pointer;
+  transition: all .1s;
   @media (max-width: 720px) {
     & {
       display: inline-flex;
+      align-items: center;
       justify-content: center;
       position: absolute;
+    }
+    &.active {
+      right: 0px;
+      width: 32px;
+      height: 28px;
+      margin-bottom: 16px;
+      border-radius: 32px 0 0 32px;
     }
   }
 }
@@ -181,18 +199,17 @@ export default defineComponent({
     &.auto-hide-right {
       position: absolute;
       width: 100%;
-      height: 100%;
-      // padding-top: 20px;
-      // left: 10%;
+      height: calc(100% - var(v-bind(rightActiveOffsetY)));
+      left: 0;
+      bottom: 0;
       opacity: 0;
       pointer-events: none;
       background-color: rgb(var(--v-theme-background));
-      transform: scale(.8);
+      transform: scale(.1);
       transition: all .15s;
       &.active {
         transform: scale(1);
-        top: 0;
-        left: 0;
+        top: v-bind(rightActiveOffsetY);
         opacity: 1;
         pointer-events: all;
       }

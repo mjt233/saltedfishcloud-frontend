@@ -1,5 +1,6 @@
 <template>
   <resize-container
+    right-active-offset-y="60px"
     class="file-list"
     :style="readmeViewStyle"
     :hide-right="!(readme && readme.length)"
@@ -627,6 +628,7 @@ import { ChapterTreeNode } from '../Markdown/type'
 import { useTypeToSearch } from './typeToSearch'
 import file from 'sfc-common/api/file'
 import { selectFile } from 'sfc-common/utils/SfcUtils/file/fileSelector'
+import ResizeContainer from 'sfc-common/components/layout/ResizeContainer.vue'
 
 export default defineComponent({
   name: 'FileList',
