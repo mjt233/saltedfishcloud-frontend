@@ -168,6 +168,7 @@
           @check-change="toggleSelectFile(fileInfo)"
         />
       </grid-container>
+      <slot name="append" />
     </div>
     <template #resizeable>
       <chapter-menu
