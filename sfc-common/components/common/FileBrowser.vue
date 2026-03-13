@@ -2,7 +2,7 @@
   <div ref="rootWrapRef">
     <loading-mask :loading="loading" z-index="1000" />
     <!-- 顶部工具栏和按钮 -->
-    <div class="tool-bar" compute-height>
+    <div class="tool-bar">
       <v-row class="justify-space-between no-m-p">
         <v-col class="top-btn-group align-center no-m-p" justify="start" :style="{minWidth: topButtonMinWidth}">
           <div v-for="(group) in toolButtons" v-show="toolButtons.length && toolButtons.length" :key="group.id">
@@ -82,7 +82,7 @@
       </v-row>
     </div>
     <!-- 面包屑路径 -->
-    <v-row justify="space-between" compute-height class="no-m-p">
+    <v-row justify="space-between" class="no-m-p">
       <v-col>
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">
@@ -439,10 +439,6 @@ const updateListHeight = async() => {
   if (props.autoComputeHeight) {
     await SfcUtils.sleep(100)
     const documentHeight = window.innerHeight
-    let otherHeight = 0
-    rootWrapRef.value.querySelectorAll('[compute-height=""]').forEach(e => {
-      otherHeight += e.clientHeight
-    })
     const positionTop = (listRef.value.$el as HTMLElement).getBoundingClientRect().top
     // 列表的高度 = 文档高度 - 列表在文档中的top - 其他组件的高度 + 高度补偿参数
     listHeight.value = documentHeight - positionTop + props.compensateHeight
