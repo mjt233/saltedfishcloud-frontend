@@ -77,8 +77,8 @@
               />  
             </td>
             <td colspan="100" class="file-col" @click="emits('back')">
-              <div class="file-icon-group">
-                <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
+              <div class="file-icon-group d-inline-flex align-center">
+                <v-icon class="mr-1" icon="mdi-keyboard-backspace" size="18" />
                 <span>返回上一级</span>
               </div>
             </td>

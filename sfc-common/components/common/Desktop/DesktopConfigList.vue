@@ -119,16 +119,16 @@ const preview = () => {
  * @param config 组件配置
  * @param newVal 更改后的值
  */
-const enabledChange = async(config: DesktopComponentConfig, newVal: number) => {
+const enabledChange = async(config: DesktopComponentConfig, newVal: number | null) => {
   if(enableSwitchLoading[config.id]) {
     return
   }
   enableSwitchLoading[config.id] = true
   try {
     const saveObj:DesktopComponentConfig = {...config}
-    saveObj.enabled = newVal
+    saveObj.enabled = newVal || 0
     await SfcUtils.request(API.desktop.saveComponentConfig(saveObj))
-    config.enabled = newVal
+    config.enabled = newVal || 0
   } catch (err) {
     SfcUtils.snackbar(err)
   } finally {
