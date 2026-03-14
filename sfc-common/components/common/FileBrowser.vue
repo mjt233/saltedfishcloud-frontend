@@ -27,10 +27,11 @@
                 <template #activator="{ props: a }">
                   <v-btn :color="group.color || 'primary'" v-bind="a">
                 
-                    <v-icon
+                    <common-icon
                       v-if="group.icon"
                       :size="18"
                       :icon="group.icon"
+                      class="mb-1 mr-1"
                     />
                     {{ group.name }}
                   </v-btn>
@@ -43,7 +44,7 @@
                     :key="item.id"
                   >
                     <v-list-item v-if="item.renderOn ? item.renderOn(listContext) : true" :value="item.title" @click="topBtnClick(item)">
-                      <v-icon
+                      <common-icon
                         v-if="item.icon"
                         :size="18"
                         :icon="item.icon"
@@ -82,7 +83,7 @@
       </v-row>
     </div>
     <!-- 面包屑路径 -->
-    <v-row justify="space-between" class="no-m-p">
+    <v-row justify="space-between" class="ml-3">
       <v-col>
         <v-breadcrumbs ref="breadcrumbs" class="overflow-auto path-breadcrumbs">
           <v-breadcrumbs-item :disabled="pathItems.length == 1">

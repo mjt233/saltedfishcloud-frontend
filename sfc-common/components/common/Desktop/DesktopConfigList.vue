@@ -9,50 +9,68 @@
       <v-icon>mdi-eye</v-icon>
       预览
     </VBtn>
-    <div>
-      <template v-if="configItems && configItems.length">
-        <div
-          v-for="item in configItems"
-          :key="item.id"
+    <VRow v-if="configItems && configItems.length" gap="1rem" class="mt-3">
+      <VCol 
+        v-for="item in configItems"
+        :key="item.id"
+        cols="3"
+        sm="12"
+        md="6"
+        lg="3"
+      >
+        <VCard
           v-ripple
-          class="d-inline-flex align-center component-item"
+          class="d-inline-flex desktop-component-card"
           :class="{'disabled': !item.enabled}"
           @click="addOrEditConfig(allComponent[item.name], item)"
         >
-          <div class="d-flex justify-center align-center flex-column">
-            <CommonIcon :color="item.enabled ? 'primary' : undefined" style="font-size: 18px;padding: 3px" :icon="allComponent[item.name]?.icon || 'mdi-help-circle-outline'" />
-            <div @click.stop>
-              <VSwitch
-                :model-value="item.enabled"
-                :loading="enableSwitchLoading[item.id]"
-                :density="null"
-                hide-details
-                :color="!enableSwitchLoading[item.id] ? 'primary' : undefined"
-                :true-value="1"
-                :false-value="0"
-                class="enabled-switcher"
-                @update:model-value="enabledChange(item, $event)"
+          <VCardText class="d-flex align-center justify-space-between" style="padding: 6px;">
+            <div class="d-flex">
+              <!-- 图标与开关 -->
+              <div class="d-flex justify-center align-center flex-column">
+                <CommonIcon :color="item.enabled ? 'primary' : undefined" style="font-size: 18px;padding: 3px" :icon="allComponent[item.name]?.icon || 'mdi-help-circle-outline'" />
+                <div @click.stop>
+                  <VSwitch
+                    :model-value="item.enabled"
+                    :loading="enableSwitchLoading[item.id]"
+                    :density="null"
+                    hide-details
+                    :color="!enableSwitchLoading[item.id] ? 'primary' : undefined"
+                    :true-value="1"
+                    :false-value="0"
+                    class="enabled-switcher"
+                    @update:model-value="enabledChange(item, $event)"
+                  />
+                </div>
+              </div>
+
+              <!-- 组件名称、介绍与备注 -->
+              <div>
+                <div>
+                  <span>{{ allComponent[item.name]?.title || '未知组件' }}</span>
+                  <span v-if="item?.title?.length">({{ item.title }})</span>
+                </div>
+                <div class="tip">
+                  {{ allComponent[item.name]?.describe }}<br>
+                  备注：{{ item.remark || '无' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 删除按钮 -->
+            <div style="width: 32px">
+              <CommonIcon
+                class="delete-btn"
+                icon="mdi-close"
+                color="error"
+                @click.stop="confirmDelete(item.id)"
               />
             </div>
-          </div>
-          <div>
-            <div>
-              <span>{{ allComponent[item.name]?.title || '未知组件' }}</span>
-              <span v-if="item?.title?.length">({{ item.title }})</span>
-            </div>
-            <div class="tip">
-              {{ allComponent[item.name]?.describe }}<br>
-              备注：{{ item.remark || '无' }}
-            </div>
-          </div>
-          <VSpacer />
-          <div style="width: 32px">
-            <CommonIcon class="delete-btn" icon="mdi-close" @click.stop="confirmDelete(item.id)" />
-          </div>
-        </div>
-      </template>
-      <EmptyTip v-else />
-    </div>
+          </VCardText>
+        </VCard>
+      </VCol>
+    </VRow>
+    <EmptyTip v-else />
   </div>
 </template>
 
@@ -186,25 +204,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.component-item {
-  display: inline-block;
-  width: 360px;
-  max-width: 100%;
-  padding: 6px;
-  margin: 12px 12px 0 0;
-  transition: all .2s;
-  border-radius: 5px;
-  cursor: pointer;
-  border: 1px solid rgba(var(--v-theme-primary), .2);
-  background-color: rgba(var(--v-theme-background), .9);
-  &:hover {
-    box-shadow: 0 0 5px 0 rgba(var(--v-theme-primary), .5);
-  }
-
-  &.disabled {
-    background-color: rgba(var(--v-theme-info), .05);
-    border-color: rgba(var(--v-theme-info), .05);
-  }
+.desktop-component-card {
+  width: 100%;
+  // max-width: 360px;
+  // @media screen and (max-width: 810px) { 
+  //   max-width: unset;
+  // }
 }
 
 .enabled-switcher {

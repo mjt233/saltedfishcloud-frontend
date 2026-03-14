@@ -27,6 +27,8 @@ const defaultTheme = {
 }
 
 export function getVuetifyBaseConfig() {
+  const defaultDensity = 'compact'
+  const formDefaultVariant = 'underlined'
   return {
     theme: {
       defaultTheme: 'default',
@@ -34,6 +36,15 @@ export function getVuetifyBaseConfig() {
         default: defaultTheme
       }
     },
+    defaults: {
+      VApp: { density: defaultDensity },
+      VAppBar: { density: 'comfortable' },
+      VListItem: { density: defaultDensity },
+      VTextField: { variant: formDefaultVariant },
+      VSelect: { variant: formDefaultVariant },
+      VTextarea: { variant: formDefaultVariant },
+      VRow: { gap: '8px' }
+    }
   }
 }
 
@@ -47,5 +58,5 @@ export default createVuetify({
     sets: {
       mdi
     }
-  },
+  }
 })

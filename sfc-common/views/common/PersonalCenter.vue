@@ -1,5 +1,5 @@
 <template>
-  <VCard style="max-width: 640px;margin: 0 auto;" class="mt-2">
+  <VCard style="max-width: 640px;" class="mt-2 ma-auto">
     <VCardTitle v-if="tabHistory.length > 0 || curTabTitle" class="d-inline-flex align-center">
       <VBtn
         v-if="tabHistory.length"

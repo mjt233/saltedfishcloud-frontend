@@ -184,6 +184,20 @@ html {
   }
 }
 
+button.v-btn {
+  &.bg-primary {
+    color: rgb(var(--v-theme-on-primary));
+  }
+  &.text-primary {
+    color: rgb(var(--v-theme-primary));
+  }
+  &.v-btn--size-default {
+    font-size: var(--v-btn-size);
+  }
+  &.text-error {
+    color: rgb(var(--v-theme-error));
+  }
+}
 
 .v-overlay__scrim {
   transition: all .15s;

@@ -1,9 +1,11 @@
 <template>
   <div class="main-container" :style="resizeableStyle">
+    <!-- 左侧插槽 -->
     <div class="left-slot" :class="{'hide-right': hideRight, 'auto-hide-right': autoHideRight}">
       <slot />
     </div>
 
+    <!-- 右侧插槽显示/隐藏切换按钮 -->
     <div
       v-if="!hideRight"
       v-ripple
@@ -14,7 +16,11 @@
     >
       <v-icon :icon="showRight ? 'mdi-chevron-right' : 'mdi-bookmark-minus-outline'" />
     </div>
+
+    <!-- 右侧部分 -->
     <div v-if="!hideRight" class="right-slot" :class="{'auto-hide-right': autoHideRight, 'active': showRight}">
+
+      <!-- 左右插槽分割线 -->
       <div
         class="spacer-line d-flex align-center justify-center"
         :class="{active: resizing}"
@@ -25,6 +31,8 @@
           .<br>.<br>.<br>
         </div>
       </div>
+
+      <!-- 右侧插槽 -->
       <div ref="resizeableRef" style="position: relative;width: 100%;overflow: auto;scroll-behavior:smooth">
         <slot name="resizeable" />
       </div>
@@ -133,7 +141,6 @@ watch(() => props.hideRight, addScrollListener)
 
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, StyleValue, onMounted, watch } from 'vue'
-import { FixedBtn } from '../common'
 
 export default defineComponent({
   name: 'ResizeContainer'
@@ -219,18 +226,18 @@ export default defineComponent({
 
 // 切割线
 .spacer-line {
-  display: inline-block;
   width: 10px;
   max-width: 10px;
   min-width: 10px;
   height: 100%;
   margin: 0 3px;
   border-width: 0 1px;
-  border-color: rgba($color: var(--v-theme-primary), $alpha: .08);
+  border-color: rgba($color: var(--v-theme-primary), $alpha: .4);
   border-style: solid;
   cursor: col-resize;
   transition: all .1s;
   &:hover,&:active,&.active {
+    border-color: rgba($color: var(--v-theme-primary), $alpha: .6);
     background-color: rgba($color: var(--v-theme-primary), $alpha: .08);
   }
   @media (max-width: 720px) {
