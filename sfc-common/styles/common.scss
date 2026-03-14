@@ -226,17 +226,3 @@ button.v-btn {
     opacity: 1;
   }
 }
-
-.enabled-glass {
-  .v-card--variant-elevated {
-    backdrop-filter: blur(24px);
-    background: rgba(var(--v-theme-surface), .3);
-
-    .v-table {
-      background: transparent;
-      thead>tr>th {
-        
-      }
-    }
-  }
-}

@@ -40,9 +40,12 @@ export function getVuetifyBaseConfig() {
       VApp: { density: defaultDensity },
       VAppBar: { density: 'comfortable' },
       VListItem: { density: defaultDensity },
-      VTextField: { variant: formDefaultVariant },
-      VSelect: { variant: formDefaultVariant },
-      VTextarea: { variant: formDefaultVariant },
+      VTextField: { variant: formDefaultVariant, color: 'primary' },
+      VSelect: { variant: formDefaultVariant, color: 'primary' },
+      VTextarea: { variant: formDefaultVariant, color: 'primary' },
+      VSwitch: { hideDetails: true, color: 'primary' },
+      VCheckbox: { hideDetails: true, color: 'primary' },
+      VSlider: { color: 'primary' },
       VRow: { gap: '8px' }
     }
   }

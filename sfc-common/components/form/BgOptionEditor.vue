@@ -1,70 +1,154 @@
 <template>
-  <FormGrid :style="{'max-width': maxWidth}">
-    <VRow>
-      <VCol cols="12" md="6">
-        <VSwitch
-          v-model="valueObj.enabled"
-          color="primary"
-          label="启用背景图"
-          hide-details
-        />
-      </VCol>
-      <VCol cols="12" md="6">
-        <span style="position: absolute; transform: translateY(-8px) translateX(6px); font-size: 14px;" class="tip">不透明度</span>
-        <v-slider
-          style="margin-top: 12px"
-          :model-value="(valueObj.operacity || 0.9)*100"
-          :min="1"
-          :max="100"
-          :step="1"
-          thumb-label
-          color="primary"
-          @update:model-value="valueObj.operacity = $event / 100"
-        >
-          <template #thumb-label="{ modelValue: v }">
-            {{ v + '%' }}
-          </template>
-        </v-slider>
-      </VCol>
-      <VCol cols="12" md="6">
-        <FormSelect v-model="valueObj.size" placeholder="尺寸" :items="sizeOptions" />
-      </VCol>
-      <VCol cols="12" md="6">
-        <div class="d-flex align-center">
-          <TextInput v-model="valueObj.url" label="图片url" hide-details />
-          <VBtn size="small" class="ml-3" @click="selectImgFile">
-            浏览
-          </VBtn>
-        </div>
-      </VCol>
-      <VCol cols="12" md="6">
-        <VSwitch
-          v-model="valueObj.enabledGlass"
-          color="primary"
-          label="卡片组件启用毛玻璃背景效果"
-        />
-      </VCol>
-    </VRow>
-    <VRow>
-      <VCol>
-        <VCard title="毛玻璃卡片样式参考">
-          <VCardText>
-            <div>参考效果 - 卡片内容</div>
-            <div>当前是否开启毛玻璃：{{ valueObj.enabledGlass }}</div>
-          </VCardText>
-        </VCard>
-      </VCol>
-    </VRow>
-    <VRow>
-      <VCol cols="12" md="6">
-        <VSwitch
-          v-model="usePreview"
-          color="primary"
-          label="预览当前效果"
-        />
-      </VCol>
-    </VRow>
-  </FormGrid>
+  <div>
+    <!-- 主图设定 -->
+    <VCard max-width="810px" class="mt-4">
+      <VCardTitle class="pt-0">
+        <VTabs v-model="curTab" color="primary">
+          <VTab value="img">
+            背景图片
+          </VTab>
+          <VTab value="effect">
+            效果微调
+          </VTab>
+        </VTabs>
+      </VCardTitle>
+      <VCardText>
+        <VWindow v-model="curTab" disabled class="pt-2 pl-2 pr-2">
+          <VWindowItem value="img">
+            <VSwitch
+              v-model="valueObj.enabled"
+              color="primary"
+              label="启用背景图"
+            />
+            <div class="d-flex align-center">
+              <VTextField v-model="valueObj.url" label="图片url" />
+              <VBtn size="small" class="ml-3" @click="selectImgFile">
+                浏览
+              </VBtn>
+            </div>
+            <VSelect v-model="valueObj.size" :items="['cover', 'contain', 'auto']" label="尺寸" />
+          </VWindowItem>
+          <VWindowItem value="effect">
+            <!-- 预览选项 -->
+            <VListItemSubtitle>效果预览</VListItemSubtitle>
+            <VDivider class="mt-2" />
+            <VSwitch
+              v-model="usePreview"
+              color="primary"
+              label="预览当前效果"
+            />
+            <VListItemSubtitle class="mt-4">
+              主图效果
+            </VListItemSubtitle>
+            <VDivider class="mt-2 mb-2" />
+        
+            <VSlider
+              v-model="valueObj.globalGassValue"
+              step="0.1"
+              min="0"
+              max="200"
+              thumb-label
+            >
+              <template #prepend>
+                <span class="slider-label">全局模糊</span>
+              </template>
+            </VSlider>
+            <VSlider
+              :model-value="(valueObj.operacity || 0.9)*100"
+              :min="1"
+              :max="100"
+              step="1"
+              thumb-label
+              color="primary"
+              @update:model-value="valueObj.operacity = $event / 100"
+            >
+              <template #prepend>
+                <span class="slider-label">不透明度</span>
+              </template>
+              <template #thumb-label="{ modelValue: v }">
+                {{ v + '%' }}
+              </template>
+            </VSlider>
+
+            
+            <VListItemSubtitle class="mt-4">
+              局部效果
+            </VListItemSubtitle>
+            <VDivider class="mt-2" />
+            <VSwitch
+              v-model="valueObj.enabledCardEffect"
+              color="primary"
+              label="调整卡片效果"
+            />
+            <VSlider
+              v-if="valueObj.enabledCardEffect"
+              v-model="valueObj.cardGassValue"
+              thumb-label
+              min="0"
+              max="200"
+            >
+              <template #prepend>
+                <span class="slider-label">卡片模糊度</span>
+              </template>
+            </VSlider>
+            <VSlider
+              v-if="valueObj.enabledCardEffect"
+              :model-value="(valueObj.cardOpacity || 0)*100"
+              :min="0"
+              :max="100"
+              step="1"
+              thumb-label
+              color="primary"
+              @update:model-value="valueObj.cardOpacity = $event / 100"
+            >
+              <template #prepend>
+                <span class="slider-label">卡片不透明度</span>
+              </template>
+              <template #thumb-label="{ modelValue: v }">
+                {{ v + '%' }}
+              </template>
+            </VSlider>
+
+            
+            <VSwitch
+              v-model="valueObj.enabledDrawerEffect"
+              color="primary"
+              label="调整抽屉菜单烂效果"
+            />
+            <VSlider
+              v-if="valueObj.enabledDrawerEffect"
+              v-model="valueObj.drawerGassValue"
+              thumb-label
+              min="0"
+              max="200"
+            >
+              <template #prepend>
+                <span class="slider-label">抽屉模糊度</span>
+              </template>
+            </VSlider>
+            <VSlider
+              v-if="valueObj.enabledDrawerEffect"
+              :model-value="(valueObj.drawerOpacity || 0)*100"
+              :min="0"
+              :max="100"
+              step="1"
+              thumb-label
+              color="primary"
+              @update:model-value="valueObj.drawerOpacity = $event / 100"
+            >
+              <template #prepend>
+                <span class="slider-label">抽屉不透明度</span>
+              </template>
+              <template #thumb-label="{ modelValue: v }">
+                {{ v + '%' }}
+              </template>
+            </VSlider>
+          </VWindowItem>
+        </VWindow>
+
+      </VCardText>
+    </VCard>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -86,6 +170,7 @@ const props = defineProps({
   }
 })
 const emits = defineEmits(['update:modelValue'])
+const curTab = ref('img')
 
 const sizeOptions: SelectOption[] = [
   {
@@ -205,5 +290,9 @@ export default defineComponent({
 <style scoped>
 .dense-form .v-col {
   min-width: 280px;
+}
+.slider-label {
+  display: inline-block;
+  width: 100px;
 }
 </style>

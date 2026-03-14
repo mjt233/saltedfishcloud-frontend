@@ -21,7 +21,7 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" :class="{'bg-admin-drawer': enabledBg, 'enabled-glass': enabledGlass}">
+  <v-navigation-drawer v-model="showDrawer" class="bg-drawer">
     <!-- 抽屉菜单列表本体 -->
     <v-list v-model:opened="openGroup" class="main-menu-list">
       <template v-for="(group) in menuObj" :key="group.id">
@@ -73,7 +73,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main :class="{'bg-main-view': enabledBg, 'enabled-glass': enabledGlass}">
+  <v-main>
     <div v-if="adminContext.component" class="main-body" style="position: relative;">
       <keep-alive>
         <component :is="adminContext.component" />
@@ -89,7 +89,7 @@ import { UserCard } from 'sfc-common/components'
 import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
-import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
+import { enabledBg, menuOperacity, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
 const loadingManager = new LoadingManager()
 const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
@@ -438,42 +438,7 @@ a {
   bottom: 0px;
 }
 
-.bg-admin-drawer {
-  background: rgba(var(--v-theme-background), v-bind(menuOperacity))
-}
-
-.enabled-glass.bg-admin-drawer {
-  backdrop-filter: blur(12px) !important;
-  background: rgba(var(--v-theme-background), 0.4) !important;
-}
-@media (max-width: 1279px) {
-  .bg-admin-drawer {
-    background: rgba(var(--v-theme-background), 1)
-  }
-}
-
 .main-menu-list {
   background: none;
-}
-</style>
-
-<style scoped lang="scss">
-.bg-main-view {
-  position: relative;
-  background-image: v-bind(bgUrl);
-  background-size: v-bind(bgSize);
-  background-attachment: fixed;
-
-  &::before {
-    content: '';
-    position: fixed;
-    background: rgba(var(--v-theme-background), v-bind(bgOperacity));
-    z-index: 0;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
 }
 </style>

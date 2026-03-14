@@ -41,7 +41,7 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" :class="{'bg-drawer': enabledBg, 'enabled-glass': enabledGlass}">
+  <v-navigation-drawer v-model="showDrawer" class="bg-drawer">
     <template #prepend>
 
       <!-- 抽屉菜单顶部图 -->
@@ -80,7 +80,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main :class="{'bg-main-view': enabledBg, 'enabled-glass': enabledGlass}">
+  <v-main>
     <div class="main-body">
       <router-view />
     </div>
@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { FileUploadExecutor, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
-import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
+import { enabledBg, menuOperacity, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
 const menuObj = getContext().menu.value.mainMenu
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
@@ -186,20 +186,6 @@ a {
   bottom: 0px;
 }
 
-.bg-drawer {
-  background: rgba(var(--v-theme-background), v-bind(menuOperacity))
-}
-
-.enabled-glass.bg-drawer {
-  backdrop-filter: blur(12px) !important;
-  background: rgba(var(--v-theme-background), 0.4) !important;
-}
-@media (max-width: 1279px) {
-  .bg-drawer {
-    background: rgba(var(--v-theme-background), 1)
-  }
-}
-
 .main-menu-list {
   background: none;
 }
@@ -214,24 +200,5 @@ a {
   height: 100%;
   padding-left: 6px;
   padding-right: 6px;
-}
-
-.bg-main-view {
-  position: relative;
-  background-image: v-bind(bgUrl);
-  background-size: v-bind(bgSize);
-  background-attachment: fixed;
-
-  &::before {
-    content: '';
-    position: fixed;
-    background: rgba(var(--v-theme-background), v-bind(bgOperacity));
-    z-index: 0;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
 }
 </style>
