@@ -48,7 +48,7 @@
       <!-- <img :src="menuObj.backgroundImg" style="width: 100%"> -->
     </template>
     <!-- 抽屉菜单列表本体 -->
-    <v-list class="main-menu-list">
+    <v-list nav density="compact">
       <template v-for="(group) in menuObj.group" :key="group.id">
         <template v-if="!group.renderOn || group.renderOn(getContext())">
 
@@ -63,15 +63,13 @@
               :active="(item.route == '/' && $route.path == '/') || ( item.route != null && item.route != '/' && $route.path.startsWith(item.route))"
               color="primary"
               :value="item.route"
+              :title="item.title"
               @click="menuClick(item, $event)"
             >
               <template #prepend>
                 <!-- 菜单图标 -->
                 <v-icon v-if="item.icon" :icon="item.icon" color="primary" />
               </template>
-
-              <!-- 菜单文本 -->
-              {{ item.title }}
             </v-list-item>
           </template>
         </template>
@@ -184,10 +182,6 @@ a {
 .top-bar-welcome {
   position: absolute;
   bottom: 0px;
-}
-
-.main-menu-list {
-  background: none;
 }
 </style>
 

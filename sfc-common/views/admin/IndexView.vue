@@ -23,7 +23,12 @@
   <!-- 侧边抽屉 -->
   <v-navigation-drawer v-model="showDrawer" class="bg-drawer">
     <!-- 抽屉菜单列表本体 -->
-    <v-list v-model:opened="openGroup" class="main-menu-list">
+    <v-list
+      v-model:opened="openGroup"
+      class="main-menu-list"
+      nav
+      density="compact"
+    >
       <template v-for="(group) in menuObj" :key="group.id">
         <template v-if="!group.renderOn || group.renderOn(adminContext)">
 

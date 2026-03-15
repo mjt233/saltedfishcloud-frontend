@@ -10,30 +10,32 @@
               <!-- 单个按钮 -->
               <v-btn
                 v-if="group.items.length == 0"
+                :text="group.name"
                 :color="group.color || 'primary'"
                 @click="topBtnClick(group)"
               >
-                <v-icon
-                  v-if="group.icon"
-                  :size="18"
-                  :icon="group.icon"
-                />
-                {{ group.name }}
+                <template #prepend>
+                  <common-icon
+                    v-if="group.icon"
+                    :size="18"
+                    :icon="group.icon"
+                  />
+                </template>
               </v-btn>
 
               <!-- 按钮组 -->
               <v-menu v-else>
                 <!-- 触发按钮/标题 -->
                 <template #activator="{ props: a }">
-                  <v-btn :color="group.color || 'primary'" v-bind="a">
-                
-                    <common-icon
-                      v-if="group.icon"
-                      :size="18"
-                      :icon="group.icon"
-                      class="mb-1 mr-1"
-                    />
-                    {{ group.name }}
+                  <v-btn :color="group.color || 'primary'" v-bind="a" :text="group.name">
+                    <template #prepend>
+                      <common-icon
+                        v-if="group.icon"
+                        :size="18"
+                        :icon="group.icon"
+                        class="mb-1"
+                      />
+                    </template>
                   </v-btn>
                 </template>
 
