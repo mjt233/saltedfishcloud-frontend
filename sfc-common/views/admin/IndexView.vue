@@ -36,12 +36,14 @@
           <template v-if="group.items.length == 0 || group.items.length == 1">
             <v-list-item
               :key="group.id"
-              :title="group.name"
               color="primary"
               :active="adminContext.group == group.id"
               :prepend-icon="group.icon"
+              style="font-size: 14px;"
               @click="groupClick(group)"
-            />
+            >
+              {{ group.name }}
+            </v-list-item>
           </template>
           <!-- 有子项的菜单组 -->
           <template v-else>
@@ -63,10 +65,10 @@
                   :active="adminContext.item == item.id"
                   color="primary"
                   :prepend-icon="item.icon"
-                  :title="item.title"
+                  style="font-size: 14px;"
                   @click="itemClick(group ,item)"
                 >
-                  <!-- {{ item.title }} -->
+                  {{ item.title }}
                 </v-list-item>
               </template>
             </v-list-group>
@@ -431,12 +433,12 @@ export default defineComponent({
 })
 </script>
 
-<style>
-a {
-  text-decoration: none;
-}
+<style lang="scss" scoped>
 .main-body>* {
   padding-top: 16px;
+}
+a {
+  text-decoration: none;
 }
 .top-bar-welcome {
   position: absolute;

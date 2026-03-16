@@ -60,12 +60,13 @@
             <v-list-item
               v-if="item.renderOn == undefined ? true : item.renderOn(getContext())"
               :key="item.id"
+              style="font-size: 14px;"
               :active="(item.route == '/' && $route.path == '/') || ( item.route != null && item.route != '/' && $route.path.startsWith(item.route))"
               color="primary"
               :value="item.route"
-              :title="item.title"
               @click="menuClick(item, $event)"
             >
+              {{ item.title }}
               <template #prepend>
                 <!-- 菜单图标 -->
                 <v-icon v-if="item.icon" :icon="item.icon" color="primary" />
@@ -175,9 +176,6 @@ export default defineComponent({
 <style lang="scss">
 a {
   text-decoration: none;
-}
-.main-body>* {
-  padding-top: 16px;
 }
 .top-bar-welcome {
   position: absolute;
