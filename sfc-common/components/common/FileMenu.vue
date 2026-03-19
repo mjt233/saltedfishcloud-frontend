@@ -5,6 +5,7 @@
         <v-list
           bg-color="background"
           class="menu-list"
+          density="comfortable"
         >
           <template
             v-for="(menuGroup, gIndex) in availableMenu"
@@ -176,7 +177,7 @@ const resetListen = () => {
  * @param e 鼠标事件
  * @param item 菜单项对象
  */
-const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
+const itemClick = async(e: MouseEvent | KeyboardEvent, item: MenuItem<FileListContext>) => {
   // 没有子菜单、或者有子菜单且本身存在点击动作时，才关闭当前菜单
   if (!item.subItems || (item.subItems && item.action)) {
     closeMenu()
@@ -190,7 +191,7 @@ const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
         if (ret instanceof LoadingControlPromise && !ret.autoLoading) {
           return ret
         }
-        propsAttr.loadingManager.beginLoading()
+        propsAttr.loadingManager?.beginLoading()
         inloading = true
         await ret
       }
@@ -202,7 +203,7 @@ const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
     }
   } finally {
     if (inloading) {
-      propsAttr.loadingManager.closeLoading()
+      propsAttr.loadingManager?.closeLoading()
     }
   }
 }
@@ -277,6 +278,7 @@ export default defineComponent({
   width: 0 !important;
   height: 0 !important;
   position: fixed;
+  box-shadow: none;
 }
 
 </style>

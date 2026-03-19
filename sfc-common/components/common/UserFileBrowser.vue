@@ -10,7 +10,7 @@
     </div>
     <!-- 当访问公共网盘 或 已登录用户访问非公共网盘 -->
     <div v-if="!showSearch && (uid == 0 || (uid != 0 && session.user.id != 0))">
-      <file-browser
+      <file-explorer
         ref="browser"
         :path="path"
         :file-system-handler="handler"
@@ -18,6 +18,7 @@
         :uid="uid"
         :tool-buttons="getContext().menu.value.fileBrowserBtn"
         auto-compute-height
+        :root-name="uid == 0 ? '公共网盘' : '私人网盘'"
         :show-mount-icon="true"
         :preview-readme="previewReadme"
         @update:path="emits('update:path', $event)"
@@ -31,7 +32,7 @@
             @enter="search"
           />
         </template>
-      </file-browser>
+      </file-explorer>
     </div>
     <div v-else-if="!showSearch" class="d-flex justify-center">
       <v-card
@@ -70,7 +71,6 @@
 </template>
 
 <script setup lang="ts">
-import FileBrowser from 'sfc-common/components/common/FileBrowser.vue'
 import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHandler'
 import {FileSearchList,TextInput,LoadingMask } from 'sfc-common/components'
 provide('protocol', 'main')
@@ -215,6 +215,7 @@ import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { FileSearchListModel } from 'sfc-common/model/component/FileListModel'
 import { DiskFileUploadService, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import { scanDir, StringUtils, testIsDir } from 'sfc-common/utils'
+import FileExplorer from './FileExplorer/FileExplorer.vue'
 export default defineComponent({
   name: 'UserFileBrowser'
 })

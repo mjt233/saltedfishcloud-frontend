@@ -161,6 +161,26 @@ export interface BgOption {
   drawerOpacity?: number
 }
 
+export interface AppContextMenu {
+  
+  /**
+   * 用户界面主菜单
+   */
+  mainMenu: AppMenu,
+
+  /**
+   * 文件列表菜单
+   */
+  fileListMenu: MenuGroup<FileListContext>[],
+
+  /**
+   * 文件列表浏览器顶部按钮
+   */
+  fileBrowserBtn: MenuGroup<FileListContext>[],
+
+  boxMenu: MenuGroup<BoxMenuContext>[]
+}
+
 /**
  * 全局上下文属性
  */
@@ -183,24 +203,7 @@ export interface AppContext {
   /**
    * 菜单
    */
-  menu: {
-    /**
-     * 用户界面主菜单
-     */
-    mainMenu: AppMenu,
-
-    /**
-     * 文件列表菜单
-     */
-    fileListMenu: MenuGroup<FileListContext>[],
-
-    /**
-     * 文件列表浏览器顶部按钮
-     */
-    fileBrowserBtn: MenuGroup<FileListContext>[],
-
-    boxMenu: MenuGroup<BoxMenuContext>[]
-  }
+  menu: AppContextMenu
 
   /**
    * 默认头像src属性
