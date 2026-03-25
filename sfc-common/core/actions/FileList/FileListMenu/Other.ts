@@ -1,17 +1,15 @@
-import { VBtn } from 'vuetify/components'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 
 import { FileClipBoard, FileClipBoardType } from 'sfc-common/core/context/type'
 import { FileListContext, FileTransferParam } from 'sfc-common/model'
-import { defineComponent, h, reactive } from 'vue'
+import { reactive } from 'vue'
 import { getContext } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
 import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
-import { WebSocketService } from 'sfc-common/core/serivce/WebSocketService'
-import LogView from 'sfc-common/components/common/LogView.vue'
 import { AsyncTaskInfo } from 'sfc-common/components'
+import { FileListMenuItem } from './type'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -25,7 +23,7 @@ function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
     }
   } as FileClipBoard)
 }
-const otherGroup: MenuGroup<FileListContext> = 
+const otherGroup: MenuGroup<FileListContext, FileListMenuItem> = 
 {
   id: 'other',
   name: '其他操作',
@@ -33,7 +31,7 @@ const otherGroup: MenuGroup<FileListContext> =
     {
       id: 'wrap',
       title: '打包下载',
-      icon: 'mdi-download',
+      icon: 'mdi-briefcase-download',
       renderOn(ctx) {
         return ctx.selectFileList.length > 1 || ctx.selectFileList.find(e => e.dir) != undefined
       },
@@ -53,7 +51,7 @@ const otherGroup: MenuGroup<FileListContext> =
     },
     {
       id: 'unpackage',
-      icon: 'mdi-package-up',
+      icon: 'mdi-package-variant',
       title: '解压缩',
       renderOn(ctx) {
         // 只读模式不允许解压
@@ -100,7 +98,7 @@ const otherGroup: MenuGroup<FileListContext> =
     {
       id: 'compress',
       title: '压缩',
-      icon: 'mdi-package-down',
+      icon: 'mdi-zip-box',
       renderOn(ctx) {
         if (ctx.readonly) {
           return false

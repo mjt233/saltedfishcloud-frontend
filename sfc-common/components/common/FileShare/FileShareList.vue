@@ -34,14 +34,19 @@
           </div>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <form-grid>
+          <div v-if="!item.isExpired">
+
             <v-row class="form-row" align="center">
               <v-col style="height: auto; align-items: flex-start;">
                 <span class="form-label">分享链接：</span>
-                <a class="link break-text" :href="ShareService.getShareLink(item)" target="_blank">{{ ShareService.getShareLink(item) }}</a>
+                <a
+                  class="link break-text"
+                  :href="ShareService.getShareLink(item)"
+                  target="_blank"
+                >{{ ShareService.getShareLink(item) }}</a>
               </v-col>
             </v-row>
-            <v-row v-if="isSelf" class="form-row">
+            <v-row v-if="isSelf" class="form-row tip">
               <v-col v-if="item.extractCode">
                 <span class="form-label">提取码：</span>
                 <span>{{ item.extractCode }}</span>
@@ -52,20 +57,45 @@
             </v-row>
             <v-row v-if="isSelf" :align="'start'">
               <v-col class="share-handle-group">
-                <v-btn color="error" @click="actions.deleteShare(item)">
-                  <div class="d-flex align-center">
-                    <v-icon icon="mdi-delete" /> 取消分享
-                  </div>
+                <v-btn
+                  class="mb-1"
+                  color="error"
+                  text="取消分享"
+                  style="color: rgb(var(--v-theme-on-error));"
+                  @click="actions.deleteShare(item)"
+                >
+                  <template #prepend>
+                    <v-icon icon="mdi-delete" />
+                  </template>
                 </v-btn>
-                <v-btn color="primary" @click="ShareService.copyShareLinkText(item)">
-                  <div class="d-flex align-center">
+                <v-btn
+                  class="mb-1"
+                  color="primary"
+                  text="复制分享信息"
+                  @click="ShareService.copyShareLinkText(item)"
+                >
+                  <template #prepend>
                     <v-icon icon="mdi-content-copy" />
-                    复制信息
-                  </div>
+                  </template>
+                </v-btn>
+                <v-btn
+                  class="mb-1"
+                  color="primary"
+                  text="复制链接"
+                  @click="ShareService.copyShareLink(item)"
+                >
+                  <template #prepend>
+                    <v-icon icon="mdi-link-variant" />
+                  </template>
                 </v-btn>
               </v-col>
             </v-row>
-          </form-grid>
+          </div>
+          <div v-else>
+            <span class="text-warning">
+              分享已过期
+            </span>
+          </div>
           
         </v-expansion-panel-text>
       </v-expansion-panel>
@@ -80,7 +110,6 @@ import FileIcon from '../FileIcon.vue'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import EmptyTip from '../EmptyTip.vue'
 import { ShareService } from 'sfc-common/core/serivce/ShareService'
-import FormGrid from 'sfc-common/components/layout/FormGrid.vue'
 const props = defineProps({
   uid: {
     type: [Number, String],

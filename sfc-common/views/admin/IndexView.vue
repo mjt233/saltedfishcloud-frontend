@@ -1,7 +1,7 @@
 <template>
   <loading-mask :loading="loadingManager.getLoadingRef().value" />
   <!-- 顶部栏 -->
-  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'primary'">
+  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'header'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title>{{ getContext().appTitle.value }}</v-toolbar-title>
     <v-spacer />
@@ -21,9 +21,14 @@
   </v-app-bar>
 
   <!-- 侧边抽屉 -->
-  <v-navigation-drawer v-model="showDrawer" :class="{'bg-admin-drawer': enabledBg, 'enabled-glass': enabledGlass}">
+  <v-navigation-drawer v-model="showDrawer" class="bg-drawer">
     <!-- 抽屉菜单列表本体 -->
-    <v-list v-model:opened="openGroup" class="main-menu-list">
+    <v-list
+      v-model:opened="openGroup"
+      class="main-menu-list"
+      nav
+      density="compact"
+    >
       <template v-for="(group) in menuObj" :key="group.id">
         <template v-if="!group.renderOn || group.renderOn(adminContext)">
 
@@ -31,12 +36,14 @@
           <template v-if="group.items.length == 0 || group.items.length == 1">
             <v-list-item
               :key="group.id"
-              :title="group.name"
               color="primary"
               :active="adminContext.group == group.id"
               :prepend-icon="group.icon"
+              style="font-size: 14px;"
               @click="groupClick(group)"
-            />
+            >
+              {{ group.name }}
+            </v-list-item>
           </template>
           <!-- 有子项的菜单组 -->
           <template v-else>
@@ -58,10 +65,10 @@
                   :active="adminContext.item == item.id"
                   color="primary"
                   :prepend-icon="item.icon"
-                  :title="item.title"
+                  style="font-size: 14px;"
                   @click="itemClick(group ,item)"
                 >
-                  <!-- {{ item.title }} -->
+                  {{ item.title }}
                 </v-list-item>
               </template>
             </v-list-group>
@@ -73,7 +80,7 @@
   </v-navigation-drawer>
 
   <!-- 功能视图路由 -->
-  <v-main :class="{'bg-main-view': enabledBg, 'enabled-glass': enabledGlass}">
+  <v-main>
     <div v-if="adminContext.component" class="main-body" style="position: relative;">
       <keep-alive>
         <component :is="adminContext.component" />
@@ -89,7 +96,7 @@ import { UserCard } from 'sfc-common/components'
 import DarkSwitch from 'sfc-common/components/common/DarkSwitch.vue'
 import { fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
-import { enabledBg, bgUrl, bgOperacity, menuOperacity, bgSize, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
+import { enabledBg, menuOperacity, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
 const loadingManager = new LoadingManager()
 const menuObj = ref([]) as Ref<MenuGroup<AdminContext>[]>
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
@@ -426,54 +433,19 @@ export default defineComponent({
 })
 </script>
 
-<style>
-a {
-  text-decoration: none;
-}
+<style lang="scss" scoped>
 .main-body>* {
   padding-top: 16px;
+}
+a {
+  text-decoration: none;
 }
 .top-bar-welcome {
   position: absolute;
   bottom: 0px;
 }
 
-.bg-admin-drawer {
-  background: rgba(var(--v-theme-background), v-bind(menuOperacity))
-}
-
-.enabled-glass.bg-admin-drawer {
-  backdrop-filter: blur(12px) !important;
-  background: rgba(var(--v-theme-background), 0.4) !important;
-}
-@media (max-width: 1279px) {
-  .bg-admin-drawer {
-    background: rgba(var(--v-theme-background), 1)
-  }
-}
-
 .main-menu-list {
   background: none;
-}
-</style>
-
-<style scoped lang="scss">
-.bg-main-view {
-  position: relative;
-  background-image: v-bind(bgUrl);
-  background-size: v-bind(bgSize);
-  background-attachment: fixed;
-
-  &::before {
-    content: '';
-    position: fixed;
-    background: rgba(var(--v-theme-background), v-bind(bgOperacity));
-    z-index: 0;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
 }
 </style>

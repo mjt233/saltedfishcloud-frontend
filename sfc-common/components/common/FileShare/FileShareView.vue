@@ -9,7 +9,7 @@ import FileShareList from './FileShareList.vue'
 provide('protocol', 'share')
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String],
     default: 0
   }
 })

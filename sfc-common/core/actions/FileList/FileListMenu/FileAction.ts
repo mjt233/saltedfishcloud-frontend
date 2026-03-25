@@ -7,6 +7,8 @@ import { FileAttribute } from 'sfc-common/components'
 import { VBtn } from 'vuetify/components'
 import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
 import { MountPointService } from 'sfc-common/core/serivce/MountPointService'
+import { FileExplorerContext } from 'sfc-common/components/common/FileExplorer/createListContext'
+import MarkdownView from 'sfc-common/components/common/Markdown/MarkdownView.vue'
 
 const fileActionGroup: MenuGroup<FileListContext> = 
 {
@@ -59,6 +61,29 @@ const fileActionGroup: MenuGroup<FileListContext> =
       async action(ctx) {
         await MountPointService.syncFileRecord(ctx.selectFileList[0].mountId)
       }
+    },
+    {
+      id: 'previewInSide',
+      title: '在侧边栏预览',
+      icon: 'mdi-eye',
+      renderOn(ctx) {
+        return ctx instanceof FileExplorerContext
+        && ctx.sideSupport.isEnabled
+        && ctx.selectFileList.length == 1
+        && ctx.selectFileList[0].dir == false && ctx.selectFileList[0].name.endsWith('.md')
+      },
+      async action(ctx) {
+        const fctx = ctx as FileExplorerContext
+        const url = ctx.getFileUrl(ctx.selectFileList[0])
+        if (!url) {
+          return
+        }
+        const md = (await SfcUtils.request({ url })).request.responseText as string
+        fctx.sideSupport.setSide(MarkdownView, {
+          resourceParams: ctx.getProtocolParams(),
+          content: md
+        }, ctx.selectFileList[0].name)
+      },
     },
     {
       id: 'showAttr',

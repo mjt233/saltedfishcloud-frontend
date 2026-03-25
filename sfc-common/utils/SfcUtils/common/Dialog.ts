@@ -14,6 +14,7 @@ import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { Session } from 'sfc-common/core/context/session'
 import { getContext } from 'sfc-common/core/context'
 import { BaseForm, LoadingDialog } from 'sfc-common/components'
+import { VTextField } from 'vuetify/components'
 
 export interface DialogOpt {
   /**
@@ -23,6 +24,7 @@ export interface DialogOpt {
 
   onConfirm(model: DialogModel): Promise<boolean> | boolean,
   onCancel(model: DialogModel): Promise<boolean> | boolean,
+  onMounted?(): void
 
   children: ChildrenType,
   extraProps?: DialogProps
@@ -157,6 +159,10 @@ export interface PromptOpt {
    * 取消时是否为Reject
    */
   cancelToReject?: boolean
+
+  onMounted?(inst: ComponentDialogInstance): void
+
+  extraDialogOptions?: DialogProps
 }
 
 /**
@@ -174,7 +180,8 @@ export function dialog(opt: DialogOpt): DialogPromise {
     header = undefined,
     footer = undefined,
     persistent = false,
-    autoShowError = false
+    autoShowError = false,
+    onMounted
   } = opt
 
   const finalUseFullScreen = fullscreen == true || (fullscreen == 'auto' && document.documentElement.clientWidth <= 640)
@@ -237,6 +244,7 @@ export function dialog(opt: DialogOpt): DialogPromise {
     // 动态创建组件并挂载
     vueInst.value = dyncmount<DialogModel>(BaseDialog, {
       props: attrs,
+      onMounted,
       children: {
         default: children,
         actions: footer,
@@ -323,6 +331,7 @@ export interface OpenComponentDialogOption {
   showCancel?: boolean
   onConfirm?: () => boolean | Promise<boolean>
   onCancel?: () => boolean | Promise<boolean>
+  onMounted?(): void
   title?: string
   dense?: boolean
   extraDialogOptions?: DialogProps
@@ -371,13 +380,15 @@ export function openComponentDialog(component: any, opt?: OpenComponentDialogOpt
     footer,
     fullscreen = 'auto',
     persistent,
-    autoShowError = false
+    autoShowError = false,
+    onMounted
   } = opt || {}
   props.ref = 'component'
   const dialogPromise = dialog({
     children: () => h(component, props),
     onConfirm,
     onCancel,
+    onMounted,
     title,
     header,
     footer,
@@ -453,11 +464,18 @@ export function loadingDialog(param?: LoadingDialogParam) {
  * @param opt 选项
  */
 export function prompt(opt: PromptOpt): Promise<string> {
-  const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true, cancelToReject = false } = opt
+  const { rules = [Validators.notNull('不能为空')], title = '数据输入', label = '请输入数据', defaultValue = '', autofocus = true, cancelToReject = false, onMounted } = opt
   const val = ref(defaultValue)
   return new Promise((resolve, reject) => {
-    const inst = openComponentDialog(TextInputVue, {
+    const inst = openComponentDialog(VTextField, {
       fullscreen: false,
+      onMounted() {
+        setTimeout(() => {
+          onMounted && onMounted(inst)
+        }, 10)
+        
+      },
+      extraDialogOptions: opt.extraDialogOptions,
       props: reactive({
         modelValue: val,
         rules,
@@ -466,19 +484,21 @@ export function prompt(opt: PromptOpt): Promise<string> {
           val.value = e
         },
         autofocus,
-        async onEnter() {
-          const result = await (inst.getComponentInstRef() as TextInputModel).validate()
-          if(result.valid) {
-            inst.doConfirm()
-          } else {
-            SfcUtils.snackbar(result.errors.map(e => e.errorMessages).join(','))
+        async 'onKeyup'(e: KeyboardEvent) {
+          if (e.code === 'Enter') {
+            const errMsgs = await (inst.getComponentInstRef() as InstanceType<typeof VTextField>).validate()
+            if(errMsgs && errMsgs.length) {
+              SfcUtils.snackbar(errMsgs.join(','))
+            } else {
+              inst.doConfirm()
+            }
           }
-        },
+        }
       }),
       async onConfirm() {
-        const result = await (inst.getComponentInstRef() as TextInputModel).validate()
-        if (!result.valid) {
-          SfcUtils.snackbar(result.errors.map(e => e.errorMessages).join(','))
+        const errMsgs = await (inst.getComponentInstRef() as InstanceType<typeof VTextField>).validate()
+        if (errMsgs && errMsgs.length) {
+          SfcUtils.snackbar(errMsgs.join(','))
           return false
         }
         resolve(val.value)

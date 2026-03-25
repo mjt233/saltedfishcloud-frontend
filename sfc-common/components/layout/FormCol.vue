@@ -89,6 +89,5 @@ export default defineComponent({
   min-width: 280px;
   flex-direction: row;
   min-height: var(--row-height);
-  padding: 0 12px;
 }
 </style>

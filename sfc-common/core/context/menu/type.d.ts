@@ -78,7 +78,7 @@ export interface AdminContext {
 /**
  * 菜单组
  */
-export interface MenuGroup<T> {
+export interface MenuGroup<T, T2 extends MenuItem<T> = MenuItem<T>> {
   /**
    * 唯一标识
    */
@@ -92,7 +92,7 @@ export interface MenuGroup<T> {
   /**
    * 菜单项列表
    */
-  items: MenuItem<T>[],
+  items: T2[],
 
   /**
    * 当函数返回true时才显示

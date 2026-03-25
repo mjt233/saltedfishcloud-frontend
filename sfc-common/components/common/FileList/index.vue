@@ -1,5 +1,6 @@
 <template>
   <resize-container
+    right-active-offset-y="60px"
     class="file-list"
     :style="readmeViewStyle"
     :hide-right="!(readme && readme.length)"
@@ -76,8 +77,8 @@
               />  
             </td>
             <td colspan="100" class="file-col" @click="emits('back')">
-              <div class="file-icon-group">
-                <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
+              <div class="file-icon-group d-inline-flex align-center">
+                <v-icon class="mr-1" icon="mdi-keyboard-backspace" size="18" />
                 <span>返回上一级</span>
               </div>
             </td>
@@ -168,6 +169,7 @@
           @check-change="toggleSelectFile(fileInfo)"
         />
       </grid-container>
+      <slot name="append" />
     </div>
     <template #resizeable>
       <chapter-menu
@@ -626,6 +628,7 @@ import { ChapterTreeNode } from '../Markdown/type'
 import { useTypeToSearch } from './typeToSearch'
 import file from 'sfc-common/api/file'
 import { selectFile } from 'sfc-common/utils/SfcUtils/file/fileSelector'
+import ResizeContainer from 'sfc-common/components/layout/ResizeContainer.vue'
 
 export default defineComponent({
   name: 'FileList',

@@ -19,21 +19,21 @@
         <v-list-item v-bind="itemProps">
           <template #prepend>
             <CommonIcon
-              :icon="item.raw.uid == 0 ? 'mdi-earth' : 'mdi-account'"
-              :title="item.raw.uid == 0 ? '公共代理' : '自定义代理'"
+              :icon="item.uid == 0 ? 'mdi-earth' : 'mdi-account'"
+              :title="item.uid == 0 ? '公共代理' : '自定义代理'"
               class="mr-1" 
             />
           </template>
           <template #title>
-            {{ item.raw.title }}
+            {{ item.title }}
             <CommonIcon
-              v-if="item.raw.isProtect"
+              v-if="item.isProtect"
               title="该代理不公开使用"
               icon="mdi-key"
             />
           </template>
           <template #append>
-            <ProxyTestStatus :status="tester.getReactiveResult()[item.raw.id]" />
+            <ProxyTestStatus :status="tester.getReactiveResult()[item.id]" />
           </template>
         </v-list-item>
       </template>

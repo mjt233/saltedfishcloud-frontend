@@ -4,6 +4,7 @@ import { AppMenu, BoxMenuContext, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
 import { FileInfo, FileListContext, SystemFeature } from 'sfc-common/model'
+import type { FileListMenuItem } from '../actions/FileList/FileListMenu/type'
 
 export interface RouteInfo {
   /**
@@ -106,7 +107,7 @@ export interface FileClipBoard {
  */
 export interface BgOption {
   /**
-   * 是否启用
+   * 是否启用全局背景图
    */
   enabled?: boolean
 
@@ -126,9 +127,59 @@ export interface BgOption {
   size?: 'auto' | 'contain' | 'cover'
 
   /**
-   * 是否启用毛玻璃组件效果
+   * 是否启用卡片毛玻璃模糊效果
    */
-  enabledGlass?: boolean
+  enabledCardEffect?: boolean,
+
+  /**
+   * 背景图全局高斯模糊度
+   */
+  globalGassValue?: number
+
+  /**
+   * 卡片背景不透明度，范围0 ~ 1，1完全不透明
+   */
+  cardOpacity?: number
+
+  /**
+   * 卡片组件模糊度
+   */
+  cardGassValue?: number
+
+  /**
+   * 是否启用调整抽屉样式效果
+   */
+  enabledDrawerEffect?: boolean
+
+  /**
+   * 抽屉背景色毛玻璃模糊度
+   */
+  drawerGassValue?: number
+
+  /**
+   * 抽屉背景色不透明度，范围0 ~ 1，1完全不透明
+   */
+  drawerOpacity?: number
+}
+
+export interface AppContextMenu {
+  
+  /**
+   * 用户界面主菜单
+   */
+  mainMenu: AppMenu,
+
+  /**
+   * 文件列表菜单
+   */
+  fileListMenu: MenuGroup<FileListContext, FileListMenuItem>[],
+
+  /**
+   * 文件列表浏览器顶部按钮
+   */
+  fileBrowserBtn: MenuGroup<FileListContext>[],
+
+  boxMenu: MenuGroup<BoxMenuContext>[]
 }
 
 /**
@@ -153,24 +204,7 @@ export interface AppContext {
   /**
    * 菜单
    */
-  menu: {
-    /**
-     * 用户界面主菜单
-     */
-    mainMenu: AppMenu,
-
-    /**
-     * 文件列表菜单
-     */
-    fileListMenu: MenuGroup<FileListContext>[],
-
-    /**
-     * 文件列表浏览器顶部按钮
-     */
-    fileBrowserBtn: MenuGroup<FileListContext>[],
-
-    boxMenu: MenuGroup<BoxMenuContext>[]
-  }
+  menu: AppContextMenu
 
   /**
    * 默认头像src属性

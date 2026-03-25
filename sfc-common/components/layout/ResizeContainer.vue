@@ -1,19 +1,26 @@
 <template>
   <div class="main-container" :style="resizeableStyle">
+    <!-- 左侧插槽 -->
     <div class="left-slot" :class="{'hide-right': hideRight, 'auto-hide-right': autoHideRight}">
       <slot />
     </div>
-    
+
+    <!-- 右侧插槽显示/隐藏切换按钮 -->
     <div
       v-if="!hideRight"
       v-ripple
       class="show-right-btn"
+      :class="{ 'active': showRight }"
       flat
       @click="showRight = !showRight"
     >
-      <CommonIcon :icon="showRight ? 'mdi-chevron-right' : 'mdi-chevron-left'" />
+      <v-icon :icon="showRight ? 'mdi-chevron-right' : 'mdi-bookmark-minus-outline'" />
     </div>
+
+    <!-- 右侧部分 -->
     <div v-if="!hideRight" class="right-slot" :class="{'auto-hide-right': autoHideRight, 'active': showRight}">
+
+      <!-- 左右插槽分割线 -->
       <div
         class="spacer-line d-flex align-center justify-center"
         :class="{active: resizing}"
@@ -24,6 +31,8 @@
           .<br>.<br>.<br>
         </div>
       </div>
+
+      <!-- 右侧插槽 -->
       <div ref="resizeableRef" style="position: relative;width: 100%;overflow: auto;scroll-behavior:smooth">
         <slot name="resizeable" />
       </div>
@@ -47,6 +56,13 @@ const props = defineProps({
   autoHideRight: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 当autoHideRight为true，且右侧容器在满足隐藏条件且激活显示时，展示右侧时的y轴偏移位置
+   */
+  rightActiveOffsetY: {
+    type: String,
+    default: '0px'
   }
 })
 const resizing = ref(false)
@@ -61,7 +77,17 @@ const resizeableStyle =  computed(() => {
 // 右侧可伸缩大小的容器引用
 const resizeableRef = ref() as Ref<HTMLElement>
 
-const emits = defineEmits(['right-scroll'])
+const emits = defineEmits<{
+  (event: 'right-scroll', e: Event): void
+  /**
+   * 右侧容器激活状态改变时触发
+   */
+  (event: 'rightActiveChange', e: boolean): void
+}>()
+
+watch(showRight, () => {
+  emits('rightActiveChange', showRight.value)
+})
 
 
 /**
@@ -151,22 +177,31 @@ export default defineComponent({
 .show-right-btn {
   position: absolute;
   display: none;
-  right: 0;
-  width: 32px;
-  height: 32px;
+  right: 12px;
+  width: 42px;
+  height: 42px;
   color: rgb(var(--v-theme-background));
   background-color: rgb(var(--v-theme-primary));
-  z-index: 2;
   bottom: 15%;
   font-size: 18px;
   border-radius: 50%;
   margin: 6px;
   cursor: pointer;
+  transition: all .1s;
   @media (max-width: 720px) {
     & {
       display: inline-flex;
+      align-items: center;
       justify-content: center;
       position: absolute;
+      z-index: 2334;
+    }
+    &.active {
+      right: 0px;
+      width: 32px;
+      height: 28px;
+      margin-bottom: 16px;
+      border-radius: 32px 0 0 32px;
     }
   }
 }
@@ -176,23 +211,22 @@ export default defineComponent({
   min-width: 128px;
   width: calc(40% + var(--width-offset));
   overflow: auto;
-  z-index: 1;
   @media (max-width: 720px) {
     &.auto-hide-right {
       position: absolute;
       width: 100%;
-      height: 100%;
-      // padding-top: 20px;
-      // left: 10%;
+      height: calc(100% - var(v-bind(rightActiveOffsetY)));
+      left: 0;
+      bottom: 0;
       opacity: 0;
       pointer-events: none;
       background-color: rgb(var(--v-theme-background));
-      transform: scale(.8);
+      z-index: 2333;
+      transform: scale(.1);
       transition: all .15s;
       &.active {
         transform: scale(1);
-        top: 0;
-        left: 0;
+        top: v-bind(rightActiveOffsetY);
         opacity: 1;
         pointer-events: all;
       }
@@ -202,18 +236,18 @@ export default defineComponent({
 
 // 切割线
 .spacer-line {
-  display: inline-block;
   width: 10px;
   max-width: 10px;
   min-width: 10px;
   height: 100%;
   margin: 0 3px;
   border-width: 0 1px;
-  border-color: rgba($color: var(--v-theme-primary), $alpha: .08);
-  border-style: solid;
+  border-color: rgba($color: var(--v-theme-on-surface), $alpha: .1);
+  border-style: dashed;
   cursor: col-resize;
   transition: all .1s;
   &:hover,&:active,&.active {
+    border-width: 0px;
     background-color: rgba($color: var(--v-theme-primary), $alpha: .08);
   }
   @media (max-width: 720px) {

@@ -93,6 +93,5 @@ export default defineComponent({
 <style scoped>
 .custom-row {
   width: 100%;
-  padding: 0 12px;
 }
 </style>

@@ -25,7 +25,7 @@ html {
 
 
 *::-webkit-scrollbar-track {
-  background: #f6f6f6;
+  background: rgb(var(--v-theme-background));
   border-radius: 6px;
 }
 
@@ -40,7 +40,7 @@ html {
 }
 
 *::-webkit-scrollbar-corner {
-  background: #f6f6f6;
+  background: rgb(var(--v-theme-background));
 }
 
 .break-text {
@@ -184,6 +184,32 @@ html {
   }
 }
 
+.hide-in-mobile {
+  @media screen and (max-width: 720px) {
+    display: none !important;
+  }
+}
+
+.show-in-mobile {
+  @media screen and (min-width: 720px) {
+    display: none !important;
+  }
+}
+
+button.v-btn {
+  &.bg-primary {
+    color: rgb(var(--v-theme-on-primary));
+  }
+  &.text-primary {
+    color: rgb(var(--v-theme-primary));
+  }
+  &.v-btn--size-default {
+    font-size: var(--v-btn-size);
+  }
+  &.text-error {
+    color: rgb(var(--v-theme-error));
+  }
+}
 
 .v-overlay__scrim {
   transition: all .15s;
@@ -213,16 +239,22 @@ html {
   }
 }
 
-.enabled-glass {
-  .v-card--variant-elevated {
-    backdrop-filter: blur(24px);
-    background: rgba(var(--v-theme-surface), .3);
 
-    .v-table {
-      background: transparent;
-      thead>tr>th {
-        
-      }
-    }
+
+.floating-main-btn {
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1001;
+  position: relative;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }

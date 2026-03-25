@@ -98,6 +98,14 @@ function updateCurFocusRoot(e: Event) {
   }
 }
 
+function defaultTriggerChecker() {
+  if (document.activeElement instanceof HTMLInputElement && (document.activeElement.type == '' || document.activeElement.type == 'text')) {
+    return false
+  } else {
+    return true
+  }
+}
+
 /**
  * 处理键盘按键被按下的事件，采集按下的搜索关键字并触发搜索回调
  * @param e 键盘事件
@@ -108,8 +116,9 @@ function keyPressHandler(e: KeyboardEvent) {
   }
 
   const opt = registeredInfo[curRootId]
+  const triggerChecker = opt.isCanTrigger || defaultTriggerChecker
   // 判断是否有触发过滤函数，有的话则执行
-  if (opt.isCanTrigger && !opt.isCanTrigger()) {
+  if (!triggerChecker()) {
     return
   }
 
