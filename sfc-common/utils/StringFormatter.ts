@@ -22,7 +22,7 @@ export namespace StringFormatter {
       suffix = 'GiB'
       showSize = size / 1073741824
     }
-    return Number(showSize).toFixed(2) + suffix
+    return Number(showSize).toFixed(2) + ' ' + suffix
   }
   /**
    * 将Unix时间戳格式化为方便阅读的格式

@@ -290,10 +290,6 @@ export default defineComponent({
     border-radius: 3px;
   }
 
-  ul,ol {
-    margin-left: 2em;
-  }
-
   h1,h2,h3,h4,h5,h6 {
     margin: 18px 0 12px 0;
     font-weight: 600;

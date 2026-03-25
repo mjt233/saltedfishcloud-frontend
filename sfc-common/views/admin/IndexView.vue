@@ -1,7 +1,7 @@
 <template>
   <loading-mask :loading="loadingManager.getLoadingRef().value" />
   <!-- 顶部栏 -->
-  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'primary'">
+  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'header'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title>{{ getContext().appTitle.value }}</v-toolbar-title>
     <v-spacer />

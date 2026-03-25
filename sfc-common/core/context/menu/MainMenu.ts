@@ -19,15 +19,16 @@ const defaultMainMenu: MenuType.AppMenu = {
         },
         {
           id: 'public',
-          title: '公共网盘',
+          title: '公共资源',
           route: '/public',
-          icon: 'mdi-folder'
+          icon: 'mdi-earth'
         },
         {
           id: 'private',
-          title: '私人网盘',
+          title: '我的网盘',
           route: '/private',
-          icon: 'mdi-lock'
+          icon: 'mdi-account',
+          renderOn: ConditionFunction.hasLogin
         },
       ]
     },
@@ -65,7 +66,7 @@ const defaultMainMenu: MenuType.AppMenu = {
         {
           id: 'my',
           title: '个人中心',
-          icon: 'mdi-account',
+          icon: 'mdi-account-circle',
           route: '/personalCenter',
           renderOn: ConditionFunction.hasLogin
         },

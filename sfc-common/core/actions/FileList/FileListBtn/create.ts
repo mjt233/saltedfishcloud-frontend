@@ -7,7 +7,54 @@ import { FileListContext, IdType, MountPoint } from 'sfc-common/model'
 import { ValidateRule } from 'sfc-common/model/component/type'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 
-export default {
+async function doMkdir(ctx: FileListContext) {
+  
+  // 定义校验器，不允许为空，不允许重名
+  const rules: ValidateRule[] = [
+    Validators.notNull('文件夹名称不能为空'),
+    (e: string) => {
+      if(ctx.fileList.find(file => file.name == e)) {
+        return '文件名重复'
+      } else {
+        return true
+      }
+    }
+  ]
+
+  // 构造默认文件名，重名编号自动加1
+  let sameCount = 1
+  let defaultName = '新建文件夹'
+  ctx.fileList.forEach(file => {
+    if (file.name == defaultName) {
+      sameCount++
+    }
+    if (sameCount > 1) {
+      defaultName = `新建文件夹(${sameCount})`
+    }
+  })
+
+  // 打开输入对话框
+  try {
+
+    const name = await SfcUtils.prompt({
+      title: '新建文件夹',
+      label: '文件夹名称',
+      rules,
+      defaultValue: defaultName,
+      cancelToReject: true
+    })
+    await ctx.modelHandler.mkdir(name)
+    await ctx.modelHandler.refresh()
+  } catch(err) {
+    if (err == 'cancel') {
+      return
+    } else {
+      return Promise.reject(err)
+    }
+  }
+}
+
+export const createMenuGroup = {
   id: 'create',
   name: '添加',
   icon: 'mdi-plus',
@@ -16,73 +63,12 @@ export default {
   },
   items: [
     {
-      id: 'upload-file',
-      title: '上传文件',
-      icon: 'mdi-upload',
-      action(ctx) {
-        ctx.modelHandler.upload()
-      }
-    },
-    {
       id: 'mkdir',
       title: '新建文件夹',
       icon: 'mdi-folder-plus',
       async action(ctx) {
-        // 定义校验器，不允许为空，不允许重名
-        const rules: ValidateRule[] = [
-          Validators.notNull('文件夹名称不能为空'),
-          (e: string) => {
-            if(ctx.fileList.find(file => file.name == e)) {
-              return '文件名重复'
-            } else {
-              return true
-            }
-          }
-        ]
-
-        // 构造默认文件名，重名编号自动加1
-        let sameCount = 1
-        let defaultName = '新建文件夹'
-        ctx.fileList.forEach(file => {
-          if (file.name == defaultName) {
-            sameCount++
-          }
-          if (sameCount > 1) {
-            defaultName = `新建文件夹(${sameCount})`
-          }
-        })
-
-        // 打开输入对话框
-        try {
-
-          const name = await SfcUtils.prompt({
-            title: '新建文件夹',
-            label: '文件夹名称',
-            rules,
-            defaultValue: defaultName,
-            cancelToReject: true
-          })
-          await ctx.modelHandler.mkdir(name)
-          await ctx.modelHandler.refresh()
-        } catch(err) {
-          if (err == 'cancel') {
-            return
-          } else {
-            return Promise.reject(err)
-          }
-        }
+        doMkdir(ctx)
       }
-    },
-    {
-      id: 'upload-dir',
-      title: '上传文件夹',
-      action(e) {
-        e.modelHandler.uploadDir()
-      },
-      renderOn(ctx) {
-        return !ctx.readonly
-      },
-      icon: 'mdi-folder-arrow-up-outline'
     },
     {
       id: 'empty-file',
@@ -120,52 +106,6 @@ export default {
         }
         createEmptyFile()
       }
-    },
-    {
-      id: 'mount',
-      title: '云挂载目录',
-      icon: 'mdi-cloud',
-      renderOn(ctx) {
-        return !ctx.readonly
-      },
-      action(ctx) {
-        const form = SfcUtils.openComponentDialog(CreateMountPointFormVue, {
-          title: '创建挂载点',
-          props: {
-            uid: ctx.uid,
-            path: ctx.path
-          },
-          persistent: true,
-          async onConfirm() {
-            const res = await form.getInstAsForm().submit()
-            if(res.success) {
-              const refreshPromise = ctx.modelHandler.refresh()
-              const mp = form.getInstAsForm().getFormData() as MountPoint
-              if (mp.isProxyStoreRecord) {
-                (async() => {
-                  try {
-                    try {
-                      SfcUtils.beginLoading()
-                      await SfcUtils.sleep(200)
-                      await refreshPromise
-                    } finally {
-                      SfcUtils.closeLoading()
-                    }
-                    await MountPointService.syncFileRecord(ctx.fileList.find(e => e.name == mp.name)?.mountId as IdType, '新增的挂载点开启了委托存储记录，是否需要立即同步存储记录？')
-                  } catch (err) {
-                    if (err != 'cancel') {
-                      SfcUtils.snackbar(err)
-                    }
-                  }
-                })()
-              }
-              return true
-            } else {
-              return false
-            }
-          }
-        })
-      },
     }
   ]
 } as MenuGroup<FileListContext>

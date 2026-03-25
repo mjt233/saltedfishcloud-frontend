@@ -1,11 +1,25 @@
 <template>
   <!-- 顶部栏 -->
-  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'primary'">
+  <v-app-bar :color="getContext().theme.value == 'dark' ? 'surface': 'header'">
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title>{{ getContext().appTitle.value }}</v-toolbar-title>
-    <v-spacer />
+    <file-search-input
+      v-if="$router.currentRoute.value.meta.showSearch"
+      v-model="searchKey"
+      :placeholder="$router.currentRoute.value.meta.searchPlaceholder as string || '在网盘中搜索'"
+      color="surface"
+      class="mb-4 hide-in-mobile"
+      @search="doSearchInDisk"
+    />
+    <v-spacer class="hide-in-mobile" />
 
     <!-- 文件上传列表显示/隐藏切换开关 -->
+    <v-btn
+      icon="mdi-magnify"
+      variant="text"
+      class="show-in-mobile"
+      @click="mobileSearch"
+    />
     <v-tooltip
       :model-value="isShowFileAddCount"
       location="bottom"
@@ -32,7 +46,7 @@
     <dark-switch brightness />
     <user-card
       v-ripple
-      class="header-user-card"
+      class="header-user-card hide-in-mobile"
       :uid="session.user.id"
       :name="session.user.name"
       style="margin:0 16px 0 12px;"
@@ -88,11 +102,11 @@
 
 <script setup lang="ts">
 import { FileUploadExecutor, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
-import { enabledBg, menuOperacity, enabledGlass } from 'sfc-common/core/context/mainBgAttr'
+const searchKey = ref('')
 const menuObj = getContext().menu.value.mainMenu
 const uploadingExecutor = fileUploadTaskManager.getAllExecutor()
 const showDrawer = ref()
-
+const eventBus = useEventBus()
 const session = getContext().session
 // 未提示的文件添加数量
 let fileAddCount = 0
@@ -144,6 +158,25 @@ function fileUploadAddListener(e: FileUploadExecutor) {
   fileAddCount++
   showFileAddCountTip()
 }
+function doSearchInDisk() {
+  if (searchKey.value) {
+    eventBus.emit(EventNameConstants.SEARCH_IN_DISK, searchKey.value)
+  }
+}
+
+async function mobileSearch() {
+  const key = await SfcUtils.prompt({
+    title: '搜索',
+    label: getContext().routeInfo.value.curr?.meta.searchPlaceholder as string || '在网盘中搜索',
+    extraDialogOptions: {
+      fullscreen: false,
+      maxWidth: '90%'
+    },
+    defaultValue: searchKey.value
+  })
+  searchKey.value = key
+  doSearchInDisk()
+}
 
 onMounted(() => fileUploadTaskManager.addEventListener('add', fileUploadAddListener))
 onUnmounted(() => fileUploadTaskManager.removeEventListener('add', fileUploadAddListener))
@@ -155,6 +188,9 @@ import { AppContext, getContext, MenuItem } from 'sfc-common/core/context/'
 import { ConditionFunction } from 'sfc-common/core'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { MethodInterceptor } from 'sfc-common/utils'
+import FileSearchInput from 'sfc-common/components/common/FileSearchInput.vue'
+import { useEventBus } from 'sfc-common/composables/useEventBus'
+import { EventNameConstants } from 'sfc-common/core/constans/EventName'
 
 
 

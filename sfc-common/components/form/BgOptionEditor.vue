@@ -44,7 +44,7 @@
         
             <VSlider
               v-model="valueObj.globalGassValue"
-              step="0.1"
+              step="1"
               min="0"
               max="200"
               thumb-label
@@ -84,6 +84,7 @@
               v-if="valueObj.enabledCardEffect"
               v-model="valueObj.cardGassValue"
               thumb-label
+              step="1"
               min="0"
               max="200"
             >
@@ -119,6 +120,7 @@
               v-if="valueObj.enabledDrawerEffect"
               v-model="valueObj.drawerGassValue"
               thumb-label
+              step="1"
               min="0"
               max="200"
             >

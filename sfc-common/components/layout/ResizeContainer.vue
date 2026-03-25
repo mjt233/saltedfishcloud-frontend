@@ -77,7 +77,17 @@ const resizeableStyle =  computed(() => {
 // 右侧可伸缩大小的容器引用
 const resizeableRef = ref() as Ref<HTMLElement>
 
-const emits = defineEmits(['right-scroll'])
+const emits = defineEmits<{
+  (event: 'right-scroll', e: Event): void
+  /**
+   * 右侧容器激活状态改变时触发
+   */
+  (event: 'rightActiveChange', e: boolean): void
+}>()
+
+watch(showRight, () => {
+  emits('rightActiveChange', showRight.value)
+})
 
 
 /**
@@ -172,7 +182,6 @@ export default defineComponent({
   height: 42px;
   color: rgb(var(--v-theme-background));
   background-color: rgb(var(--v-theme-primary));
-  z-index: 2;
   bottom: 15%;
   font-size: 18px;
   border-radius: 50%;
@@ -185,6 +194,7 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
       position: absolute;
+      z-index: 2334;
     }
     &.active {
       right: 0px;
@@ -201,7 +211,6 @@ export default defineComponent({
   min-width: 128px;
   width: calc(40% + var(--width-offset));
   overflow: auto;
-  z-index: 1;
   @media (max-width: 720px) {
     &.auto-hide-right {
       position: absolute;
@@ -212,6 +221,7 @@ export default defineComponent({
       opacity: 0;
       pointer-events: none;
       background-color: rgb(var(--v-theme-background));
+      z-index: 2333;
       transform: scale(.1);
       transition: all .15s;
       &.active {
@@ -232,12 +242,12 @@ export default defineComponent({
   height: 100%;
   margin: 0 3px;
   border-width: 0 1px;
-  border-color: rgba($color: var(--v-theme-primary), $alpha: .4);
-  border-style: solid;
+  border-color: rgba($color: var(--v-theme-on-surface), $alpha: .1);
+  border-style: dashed;
   cursor: col-resize;
   transition: all .1s;
   &:hover,&:active,&.active {
-    border-color: rgba($color: var(--v-theme-primary), $alpha: .6);
+    border-width: 0px;
     background-color: rgba($color: var(--v-theme-primary), $alpha: .08);
   }
   @media (max-width: 720px) {

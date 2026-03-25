@@ -55,6 +55,12 @@ export namespace ShareService {
     SfcUtils.snackbar('已复制分享信息到剪切板')
   }
 
+  export function copyShareLink(shareInfo: ShareInfo) {
+    const link = getShareLink(shareInfo)
+    SfcUtils.copyToClipboard(link)
+    SfcUtils.snackbar('已复制链接到剪切板')
+  }
+
   export function createShare(opt: CreateShareFormConfig) {
     const createDialog = SfcUtils.openComponentDialog(FileShareCreateFormVue, {
       props: {

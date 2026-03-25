@@ -4,6 +4,8 @@ export namespace EventNameConstants {
    */
   export const AVATAR_UPDATE = 'avatar-update'
 
+  export const SEARCH_IN_DISK = 'search-in-disk'
+
   /**
    * 路由切换
    */

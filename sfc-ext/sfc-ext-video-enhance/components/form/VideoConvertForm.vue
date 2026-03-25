@@ -203,8 +203,8 @@
         </VTooltip>
       </FormCol>
       <FormCol>
-        <div class="d-flex align-end">
-          <FormSelect
+        <div class="d-flex align-center">
+          <VSelect
             v-model="formData.preset"
             label="编码质量预设(preset)"
             :items="[
@@ -222,7 +222,7 @@
           />
           <VTooltip location="bottom" interactive>
             视频编码的质量与速度预设，在编码速度和质量上做取舍，越慢的预设同画质下文件越小。可选值从快到慢依次为：
-            <ul class="ml-6">
+            <ul>
               <li><b>ultrafast</b> - 极速编码，压缩效率最低，输出文件最大，适用于实时流或测试</li>
               <li><b>superfast</b> - 超快速编码，适合需要快速转换的场景</li>
               <li><b>veryfast</b> - 非常快速，速度与质量的较好平衡，适合屏幕录制</li>
@@ -248,7 +248,6 @@
                 icon="mdi-help-circle"
                 v-bind="p"
                 size="16"
-                class="mb-2 ml-2"
               />
             </template>
           </VTooltip>

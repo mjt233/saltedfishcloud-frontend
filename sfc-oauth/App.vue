@@ -1,6 +1,6 @@
 <template>
   <VApp>
-    <VAppBar app color="primary">
+    <VAppBar app color="header">
       <VAppBarTitle>咸鱼云网盘 - 账号认证</VAppBarTitle>
       
       <UserAvatar :uid="curUser?.id || 0" :transition="false" />
@@ -195,7 +195,7 @@ const bgUrl = computed(() => `url("${sysFeature.value?.bgMain?.url || ''}")`)
 const bgOperacity = computed(() => `${sysFeature.value?.bgMain?.operacity || 0.9}`)
 const menuOperacity = computed(() => `${Number(bgOperacity.value) + 0.04}` )
 const bgSize = computed(() => `${sysFeature.value?.bgMain?.size || 'cover'}`)
-const enabledGlass = computed(() => sysFeature.value?.bgMain?.enabledGlass || false)
+const enabledGlass = computed(() => sysFeature.value?.bgMain?.enabledCardEffect || false)
 
 async function doLogin() {
   if (isLoading.value) {

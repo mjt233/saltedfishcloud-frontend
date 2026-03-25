@@ -1,0 +1,13 @@
+
+.file-explorer-file-list .file-item {
+  transition: all .2s;
+}
+.file-explorer-file-list .file-item:hover {
+  background-color: rgba(var(--v-theme-on-surface), .06);
+}
+.file-explorer-file-list .selected-file-item {
+  background-color:  rgba(var(--v-theme-on-surface), .1);
+}
+.file-explorer-file-list .selected-file-item:hover {
+  background-color: rgba(var(--v-theme-on-surface), .15);
+}

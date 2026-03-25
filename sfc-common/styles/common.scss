@@ -25,7 +25,7 @@ html {
 
 
 *::-webkit-scrollbar-track {
-  background: #f6f6f6;
+  background: rgb(var(--v-theme-background));
   border-radius: 6px;
 }
 
@@ -40,7 +40,7 @@ html {
 }
 
 *::-webkit-scrollbar-corner {
-  background: #f6f6f6;
+  background: rgb(var(--v-theme-background));
 }
 
 .break-text {
@@ -184,6 +184,18 @@ html {
   }
 }
 
+.hide-in-mobile {
+  @media screen and (max-width: 720px) {
+    display: none !important;
+  }
+}
+
+.show-in-mobile {
+  @media screen and (min-width: 720px) {
+    display: none !important;
+  }
+}
+
 button.v-btn {
   &.bg-primary {
     color: rgb(var(--v-theme-on-primary));
@@ -224,5 +236,25 @@ button.v-btn {
   100% {
     transform: translateY(0px);
     opacity: 1;
+  }
+}
+
+
+
+.floating-main-btn {
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1001;
+  position: relative;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
