@@ -90,7 +90,7 @@ const props = defineProps({
     default: false
   }
 })
-const fileViewType = ref<FileViewType>((localStorage.getItem('userFileViewType') || 'grid') as FileViewType)
+const fileViewType = ref<FileViewType>((localStorage.getItem('userFileViewType') || 'table') as FileViewType)
 const showSearch = ref(false)
 const inDragging = ref(false)
 const session = getContext().session
