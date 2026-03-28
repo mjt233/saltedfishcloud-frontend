@@ -1,6 +1,6 @@
 import { CommonPageInfo, CommonRequest, IdType, PageInfo, PageRequest, ResourceRequest } from 'sfc-common/model'
 import { EncodeConvertTask, EncodeConvertTaskLog, EncodeConvertTaskParam, FFMpegInfo, VideoInfo } from './model'
-import { useJsonBody } from 'sfc-common/utils/FormUtils'
+import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 
 export namespace VEAPI {
   export function getFFMpegInfo(): CommonRequest<FFMpegInfo> {

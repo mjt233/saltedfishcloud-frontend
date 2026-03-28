@@ -26,6 +26,13 @@ export function defineExtension(conf: ExtensionConfig) {
       //   autoImport: true,
       // })
     ],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler'
+        }
+      }
+    },
     define: { 'process.env': {} },
     resolve: {
       alias: {
