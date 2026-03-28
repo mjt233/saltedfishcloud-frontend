@@ -31,7 +31,8 @@
           class="mr-2"
           :width="24"
           :height="24"
-        /> {{ value }}
+        />
+        <span class="file-name" :style="{ maxWidth: fileNameMaxWidth }">{{ value }}</span>
       </div>
     </template>
     <template #item.size="p">
@@ -56,13 +57,23 @@ const props = withDefaults(defineProps<FileExplorerViewProps & {
   itemKey: 'name',
   itemValue: 'name',
   headers: () => [
-    { title: '名称', key: 'name' },
-    { title: '大小', key: 'size', width: '120px' },
-    { title: '修改时间', key: 'mtime', width: '180px', value: (item:FileInfo) => StringFormatter.toDate(item.mtime)  },
+    { title: '名称', key: 'name', minWidth: '320px' },
+    { title: '大小', key: 'size', width: '120px', minWidth: '120px' },
+    { title: '修改时间', key: 'mtime', width: '180px', minWidth: '180px', value: (item:FileInfo) => StringFormatter.toDate(item.mtime)  },
   ]
 })
 const emits = defineEmits<FileExplorerViewEmits>()
 const thisRef = ref()
+const thisWidth = ref(0)
+const fileNameMaxWidth = computed(() => {
+  if (!thisWidth.value) {
+    return undefined
+  }
+  return Math.max(320, (thisWidth.value - 380)) + 'px'
+})
+useResizeObserver(() => thisRef.value.$el, ({ 0: e}) => {
+  thisWidth.value = e.target.clientWidth
+})
 
 // 文件选择功能
 const {
@@ -150,6 +161,7 @@ import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed
 import type { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
 import type { RowPropsFunction } from 'vuetify/lib/components/VDataTable/types'
 import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText } from './baseImpl'
+import { useResizeObserver } from 'sfc-common/composables/useResizeObserver'
 
 export default defineComponent({
   name: 'FileExplorerTableView'

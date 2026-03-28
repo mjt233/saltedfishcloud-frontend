@@ -71,7 +71,9 @@ export default defineComponent({
     }
     .subtitle-list {
       position: absolute;
-      bottom: 100%; /* 紧贴触发区域上方（也可改为 top:100% 放到下方） */
+      list-style: none;
+      padding: 6px;
+      bottom: 4px;
       left: -64px;
       width: 210px;
       max-height: 280px;
