@@ -1,5 +1,6 @@
-import { CommonPageInfo, CommonRequest, IdType, PageInfo, PageRequest } from 'sfc-common/model'
-import { EncodeConvertTask, EncodeConvertTaskLog, EncodeConvertTaskParam, FFMpegInfo } from './model'
+import { CommonPageInfo, CommonRequest, IdType, PageInfo, PageRequest, ResourceRequest } from 'sfc-common/model'
+import { EncodeConvertTask, EncodeConvertTaskLog, EncodeConvertTaskParam, FFMpegInfo, VideoInfo } from './model'
+import { useJsonBody } from 'sfc-common/utils/FormUtils'
 
 export namespace VEAPI {
   export function getFFMpegInfo(): CommonRequest<FFMpegInfo> {
@@ -13,14 +14,11 @@ export namespace VEAPI {
    * @param param 任务参数
    */
   export function encodeConvert(param: EncodeConvertTaskParam): CommonRequest<string> {
-    return {
+    return useJsonBody({
       url: '/video/encodeConvert',
       data: param,
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      } 
-    }
+      method: 'post'
+    })
   }
 
   /**
@@ -92,4 +90,31 @@ export namespace VEAPI {
     }
   }
 
+  /**
+   * 获取视频编码详细信息
+   * @param resourceRequest 视频的统一资源请求参数
+   */
+  export function getVideoInfo(resourceRequest: ResourceRequest): CommonRequest<VideoInfo> {
+    return {
+      url: '/video/getVideoInfo',
+      params: resourceRequest,
+    }
+  }
+
+  /**
+   * 获取字幕资源
+   * @param resourceRequest 视频的统一资源请求参数
+   * @param stream 字幕的流编号
+   * @param type 字幕类型，默认使用webvtt
+   */
+  export function getSubtitle(resourceRequest: ResourceRequest, stream: string | number, type?: string) {
+    return {
+      url: '/video/getSubtitle',
+      params: {
+        ...resourceRequest,
+        stream,
+        type: type || 'webvtt'
+      }
+    }
+  }
 }

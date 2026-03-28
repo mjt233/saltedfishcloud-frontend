@@ -1,7 +1,7 @@
 import resource from 'sfc-common/api/resource'
 import { type EventSupport, EventSupportImpl, Validators } from 'sfc-common/core'
 import type { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandler'
-import type { FileInfo, FileListContext, IdType, ProtocolParams } from 'sfc-common/model'
+import type { FileInfo, FileListContext, IdType, ProtocolParams, ResourceRequest } from 'sfc-common/model'
 import { FileListModel, FileListModelHandler } from 'sfc-common/model/component/FileListModel'
 import { StringUtils } from 'sfc-common/utils'
 import { openDirDialog, openFileDialog } from 'sfc-common/utils/FileUtils/openFileDialog'

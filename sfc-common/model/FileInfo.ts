@@ -1,4 +1,4 @@
-import { AuditModel } from './Common'
+import { AuditModel, ResourceRequest } from './Common'
 import { IdType } from './index'
 import { FileListModel, FileListModelHandler } from './component/FileListModel'
 
@@ -59,7 +59,7 @@ export interface FileTransferInfo {
  */
 export interface ProtocolParams {
   /** 资源id */
-  id: IdType
+  id?: IdType
   [key:string]:any
 }
 export interface FileListContext {
@@ -97,5 +97,5 @@ export interface FileListContext {
   protocol: string,
 
   /** 获取访问协议资源的额外参数，如：文件分享需要vid，提取码等参数 */
-  getProtocolParams: () => ProtocolParams
+  getProtocolParams: () => ResourceRequest & ProtocolParams
 }

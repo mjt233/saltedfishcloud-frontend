@@ -192,6 +192,7 @@ const videoMenu: MenuGroup<FileListContext> = {
       },
       icon: 'mdi-information-variant',
       async action(ctx) {
+        console.log(ctx)
         const info = await actions.getVideoInfo(ctx, ctx.selectFileList[0], ctx.selectFileList[0].path as string)
         window.SfcUtils.openComponentDialog(VideoInfoVue, {
           props: {

@@ -237,11 +237,39 @@ export interface VideoInfo {
   format: Format
 }
 
-export interface EncodeConvertTaskParam {
-  source: ResourceRequest
-  target: ResourceRequest
+/**
+ * 编码规则参数
+ */
+export interface EncodeConvertParam {
+  /**
+   * 各个流的编码转换规则
+   */
   rules: EncodeConvertRule[]
+
+  /**
+   * 容器封装格式
+   */
   format?: string
+}
+
+/**
+ * 转码任务参数
+ */
+export interface EncodeConvertTaskParam {
+  /**
+   * 待转码的源文件
+   */
+  source: ResourceRequest
+
+  /**
+   * 转码后的目标文件
+   */
+  target: ResourceRequest
+
+  /**
+   * 转码参数
+   */
+  encodeConvertParam: EncodeConvertParam
   
   /** 新文件存在同名时，是否覆盖 */
   isOverwrite?: boolean

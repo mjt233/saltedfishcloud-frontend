@@ -190,7 +190,7 @@ sideSupport.isEnabled = true
 // 外部调用了context的文件列表刷新后，重新同步上下文数据源
 ctx.addEventListener('refresh', (fileList: FileInfo[]) => {
   ctxDataSource.fileList = fileList
-  afterFileListLoaded()
+  afterFileListLoaded(props.path)
 })
 
 // 本组件本身的引用
@@ -205,15 +205,20 @@ const isLoading = lm.getLoadingRef()
 const actions = MethodInterceptor.createAsyncActionProxy({
   loadList: async(path: string) => {
     ctxDataSource.fileList = await ctxDataSource.fileSystemHandler().loadList(path)
-    afterFileListLoaded()
+    afterFileListLoaded(path)
     return ctxDataSource.fileList 
   }
 }, true, lm)
 
-async function afterFileListLoaded() {
+async function afterFileListLoaded(path: string) {
   if (props.filter) {
     ctxDataSource.fileList = ctxDataSource.fileList.filter(props.filter)
   }
+  ctxDataSource.fileList.forEach(file => {
+    if (!file.path) {
+      file.path = path
+    }
+  })
   closeSide()
   await SfcUtils.sleep(5)
   ctx.syncDataSource()

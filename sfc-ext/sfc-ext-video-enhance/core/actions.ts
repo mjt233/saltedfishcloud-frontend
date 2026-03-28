@@ -7,20 +7,12 @@ const videoType = new Set(['mp4', 'mkv', 'avi', 'rm', 'rmvb', 'm4v', 'flv', 'mpg
 /**
  * 获取视频资源的统一资源获取参数 
  */
-export async function getVideoResourceParams(ctx: FileListContext, file: FileInfo, path: string): Promise<ResourceRequest> {
-  const apiParams = {
+export function getVideoResourceParams(ctx: FileListContext, file: FileInfo, path: string) {
+  return {
+    ...ctx.getProtocolParams(),
     name: file.name,
-    path: path,
-    targetId: ctx.uid,
-    sourceProtocol: ctx.protocol || 'main',
-    protocol: ctx.protocol || 'main'
-  } as any
-  const protocolParams = ctx.getProtocolParams()
-  apiParams.sourceId = protocolParams.id
-  Object.keys(protocolParams).filter(k => k != 'id').forEach(k => {
-    apiParams[k] = protocolParams[k]
-  })
-  return apiParams
+    path
+  }
 }
 
 /**
@@ -30,10 +22,8 @@ export async function getVideoResourceParams(ctx: FileListContext, file: FileInf
  * @param path 视频文件所在列表中的路径
  */
 export async function getVideoInfo(ctx: FileListContext, file: FileInfo, path: string): Promise<VideoInfo> {
-  const params = await getVideoResourceParams(ctx, file, path)
-  params.protocol = 'videoInfo'
-  const res = await (await window.SfcUtils.request(window.API.resource.getCommonResource(params)))
-  return res.data as VideoInfo
+  const res = await window.SfcUtils.request(VEAPI.getVideoInfo(getVideoResourceParams(ctx, file, path)))
+  return res.data.data
 }
 
 
@@ -45,23 +35,11 @@ export async function getVideoInfo(ctx: FileListContext, file: FileInfo, path: s
  * @param streamIndex 字幕流索引
  */
 export function getSubtitleUrl(ctx: FileListContext, file: FileInfo, path: string, streamIndex: string | number) {
-  const apiParams = {
+  return window.SfcUtils.getApiUrl(VEAPI.getSubtitle({
+    ...ctx.getProtocolParams(),
     name: file.name,
-    path: path,
-    protocol: 'subtitle',
-    targetId: ctx.uid,
-    stream: streamIndex
-  } as ResourceRequest
-  if(ctx.protocol == 'main') {
-    return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
-  }
-  const protocolParams = ctx.getProtocolParams()
-  apiParams.sourceProtocol = ctx.protocol
-  apiParams.sourceId = protocolParams.id
-  Object.keys(protocolParams).filter(k => k != 'id').forEach(k => {
-    apiParams[k] = protocolParams[k]
-  })
-  return window.SfcUtils.getApiUrl((window.API.resource.getCommonResource(apiParams)))
+    path: path
+  }, streamIndex))
 }
 
 /**
@@ -82,13 +60,22 @@ export function isVideo(filename: string) {
  */
 export async function generateConvertTaskParams(ctx: FileListContext, formData: EncodeConvertFormData, file: FileInfo, savePath: string) {
   const rules = formData.enabledConvertRules
-  const source = await getVideoResourceParams(ctx, file, file.path as string)
-  const target = await getVideoResourceParams(ctx, file, savePath)
+  const source = getVideoResourceParams(ctx, file, file.path as string)
+  const target = getVideoResourceParams(ctx, file, savePath)
   target.name = formData.fileName
   rules.filter(r => r.type == 'video').forEach(r => {
     r.crf = formData.crf
     r.preset = formData.preset
     r.tune = formData.tune
   })
-  return VEAPI.encodeConvert({rules, source, target, format: formData.format, isOverwrite: formData.isOverwrite})
+
+  return VEAPI.encodeConvert({
+    source,
+    target,
+    encodeConvertParam: {
+      rules,
+      format: formData.format
+    },
+    isOverwrite: formData.isOverwrite
+  })
 }
