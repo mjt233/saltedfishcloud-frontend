@@ -30,6 +30,7 @@
                 :is-dir="file.dir"
                 :file-name="file.name"
                 :md5="file.md5"
+                :corner-icon="showMountIcon && file.mountId ? 'mdi-share' : undefined"
               />
             </div>
             <div class="file-tile-info">
@@ -63,8 +64,8 @@ const thisRef = ref<HTMLElement>()
 
 // 平铺视图每行高度
 const TILE_ROW_HEIGHT = 72
-// 每个平铺项的最小宽度
-const TILE_ITEM_MIN_WIDTH = 280
+// 每个平铺项的宽度 + margin
+const TILE_ITEM_WIDTH = 280 + 8
 
 // 当前列数
 const columnCount = ref(1)
@@ -73,8 +74,8 @@ const columnCount = ref(1)
 function calculateColumnCount() {
   const container = fileItemContainerRef.value?.$el as HTMLElement
   if (!container) return 1
-  const containerWidth = container.clientWidth  - 24 - 16 - 10 // 减去padding 和 margin
-  return Math.max(1, Math.floor(containerWidth / TILE_ITEM_MIN_WIDTH))
+  const containerWidth = container.clientWidth  - 16 - 16 // 减去滚动容器padding 减去行padding
+  return Math.max(1, Math.floor(containerWidth / TILE_ITEM_WIDTH))
 }
 
 // 监听容器宽度变化

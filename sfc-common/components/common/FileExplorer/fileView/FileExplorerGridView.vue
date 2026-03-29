@@ -28,6 +28,7 @@
                   :is-dir="item.dir"
                   :file-name="item.name"
                   :md5="item.md5"
+                  :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
                 />
               </div>
 

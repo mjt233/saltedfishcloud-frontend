@@ -5,7 +5,6 @@ import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHand
 import { computed, h, reactive, ref } from 'vue'
 import { ComponentDialogInstance, dialog, DialogPromise, openComponentDialog } from '../common/Dialog'
 import SfcUtils from '..'
-import { FileBrowserModel } from 'sfc-common/model/component/FileListModel'
 import FileExplorer from 'sfc-common/components/common/FileExplorer/FileExplorer.vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 
@@ -75,6 +74,7 @@ export function selectFile(param: FileSelectParam): Promise<FileSelectResult> {
     'onUpdate:path': (e: string) => {
       propsAttr.path = e
     },
+    showMountIcon: true,
     fileSystemHandler: handler,
     style: {
       height: '80vh'

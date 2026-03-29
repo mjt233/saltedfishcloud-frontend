@@ -29,8 +29,9 @@
           :file-name="value"
           :md5="item.md5"
           class="mr-2"
-          :width="24"
-          :height="24"
+          :width="30"
+          :height="30"
+          :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
         />
         <span class="file-name" :style="{ maxWidth: fileNameMaxWidth }">{{ value }}</span>
       </div>
