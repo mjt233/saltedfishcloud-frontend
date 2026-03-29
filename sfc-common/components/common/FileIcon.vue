@@ -168,7 +168,7 @@ export default defineComponent({
 
 .file-icon {
   position: relative;
-  border-radius: 5px;
+  border-radius: 6px;
   overflow: hidden;
 }
 

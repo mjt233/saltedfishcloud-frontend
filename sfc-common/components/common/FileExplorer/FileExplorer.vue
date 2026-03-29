@@ -113,6 +113,7 @@
         :height="listHeight"
         :style="{ 'min-height': listHeight }"
         :show-mount-icon="showMountIcon"
+        :custom-thumbnail-url="customThumbnailUrl"
         @file-click="fileClick"
         @file-r-click="fileRClick"
         @file-select="updateSelectedFileList()"
@@ -204,6 +205,10 @@ ctx.addEventListener('refresh', (fileList: FileInfo[]) => {
   ctxDataSource.fileList = fileList
   afterFileListLoaded(props.path)
 })
+
+function customThumbnailUrl(file: FileInfo) {
+  return ctxDataSource.fileSystemHandler().getCustomThumbnailUrl(props.path, file) || ''
+}
 
 // 本组件本身的引用
 const thisRef = ref()

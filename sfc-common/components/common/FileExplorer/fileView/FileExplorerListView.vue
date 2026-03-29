@@ -1,5 +1,6 @@
 <template>
   <VList ref="thisRef" class="file-explorer-file-list">
+    <LoadingMask :loading="isLoading" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
@@ -28,6 +29,7 @@
               :md5="item.md5"
               :height="32"
               :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
+              :custom-thumbnail-url="customThumbnailUrl && customThumbnailUrl(item)"
             />
           </template>
 
@@ -105,6 +107,7 @@ import { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
 import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText } from './baseImpl'
 import FileIcon from '../../FileIcon.vue'
 import { DOMUtils, StringFormatter } from 'sfc-common/utils'
+import LoadingMask from '../../LoadingMask.vue'
 
 export default defineComponent({
   name: 'FileExplorerListView'

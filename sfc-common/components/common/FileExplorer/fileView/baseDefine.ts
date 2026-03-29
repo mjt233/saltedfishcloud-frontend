@@ -83,6 +83,12 @@ export interface FileExplorerViewProps {
   targetId?: IdType
 
   /**
+   * 自定义缩略图URL生成函数
+   * @param file 待生成缩略图的文件信息
+   */
+  customThumbnailUrl?: (file: FileInfo) => string
+
+  /**
    * 文件项的唯一key(未完全实现, 目前只对FileExplorerTableView、FileExplorerListView布局有效)
    */
   itemKey?: SelectItemKey<Record<string, any> | FileInfo>

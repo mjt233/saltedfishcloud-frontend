@@ -32,6 +32,7 @@
           :width="30"
           :height="30"
           :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
+          :custom-thumbnail-url="customThumbnailUrl && customThumbnailUrl(item)"
         />
         <span class="file-name" :style="{ maxWidth: fileNameMaxWidth }">{{ value }}</span>
       </div>

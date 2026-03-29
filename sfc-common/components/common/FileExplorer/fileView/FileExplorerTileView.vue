@@ -1,6 +1,7 @@
 <!-- Windows资源管理器"平铺"视图风格的文件列表视图 -->
 <template>
-  <div ref="thisRef">
+  <div ref="thisRef" style="position: relative;">
+    <LoadingMask :loading="isLoading" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
@@ -31,6 +32,7 @@
                 :file-name="file.name"
                 :md5="file.md5"
                 :corner-icon="showMountIcon && file.mountId ? 'mdi-share' : undefined"
+                :custom-thumbnail-url="customThumbnailUrl && customThumbnailUrl(file)"
               />
             </div>
             <div class="file-tile-info">
