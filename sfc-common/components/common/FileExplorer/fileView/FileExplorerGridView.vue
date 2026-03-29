@@ -1,6 +1,7 @@
 <!-- 注：该组件大部分代码由AI生成 -->
 <template>
-  <div ref="thisRef">
+  <div ref="thisRef" style="position: relative;">
+    <LoadingMask :loading="isLoading" />
     <div v-if="fileList.length" class="file-explorer-file-list file-grid-container" :style="{ height: height ? `${height}px` : 'auto' }">
       <div
         class="file-grid-wrapper"

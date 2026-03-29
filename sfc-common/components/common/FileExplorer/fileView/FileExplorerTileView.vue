@@ -1,6 +1,7 @@
 <!-- Windows资源管理器"平铺"视图风格的文件列表视图 -->
 <template>
-  <div ref="thisRef">
+  <div ref="thisRef" style="position: relative;">
+    <LoadingMask :loading="isLoading" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"

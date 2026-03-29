@@ -1,5 +1,6 @@
 <template>
   <VList ref="thisRef" class="file-explorer-file-list">
+    <LoadingMask :loading="isLoading" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
@@ -106,6 +107,7 @@ import { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
 import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText } from './baseImpl'
 import FileIcon from '../../FileIcon.vue'
 import { DOMUtils, StringFormatter } from 'sfc-common/utils'
+import LoadingMask from '../../LoadingMask.vue'
 
 export default defineComponent({
   name: 'FileExplorerListView'
