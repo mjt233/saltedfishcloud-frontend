@@ -1,3 +1,11 @@
+<!-- 
+
+注意：该组件已弃使用，请改用FileExplorer组件
+
+Note: This component is deprecated, please use FileExplorer component instead.
+
+ -->
+
 <template>
   <resize-container
     right-active-offset-y="60px"
@@ -337,7 +345,7 @@ const listResourceParams = computed(() => {
     path: props.path,
     protocol: fileListContext.protocol,
     targetId: fileListContext.uid,
-    ...fileListContext.getProtocolParams()
+    ...fileListContext.getProtocolParams() as any
   } as ResourceRequest
   return params
 })

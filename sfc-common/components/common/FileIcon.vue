@@ -1,5 +1,5 @@
 <template>
-  <div :style="containerStyle" style="position: relative">
+  <div class="file-icon" :style="containerStyle">
     <v-img
       :src="imgUrl"
       style="display: inline-block;width: 100%;"
@@ -63,6 +63,10 @@ const props = defineProps({
     type: String,
     default: undefined
   },
+
+  /**
+   * 角标图标
+   */
   cornerIcon: {
     type: String,
     default: undefined
@@ -162,9 +166,15 @@ export default defineComponent({
   width: 32px;
 }
 
+.file-icon {
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
 .corner-icon {
   position: absolute;
-  bottom: 3px;
+  bottom: 2%;
   left: -3px;
   font-size: 8px;
   color: rgb(var(--v-theme-primary));

@@ -112,6 +112,7 @@
         :multiple-select="useSelect"
         :height="listHeight"
         :style="{ 'min-height': listHeight }"
+        :show-mount-icon="showMountIcon"
         @file-click="fileClick"
         @file-r-click="fileRClick"
         @file-select="updateSelectedFileList()"

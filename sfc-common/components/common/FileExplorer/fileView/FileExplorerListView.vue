@@ -27,6 +27,7 @@
               :file-name="item.name"
               :md5="item.md5"
               :height="32"
+              :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
             />
           </template>
 
