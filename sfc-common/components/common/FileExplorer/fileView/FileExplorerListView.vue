@@ -28,6 +28,7 @@
               :md5="item.md5"
               :height="32"
               :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
+              :custom-thumbnail-url="customThumbnailUrl && customThumbnailUrl(item)"
             />
           </template>
 

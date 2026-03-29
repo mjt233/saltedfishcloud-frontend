@@ -12,6 +12,8 @@ export interface FileSystemHandler {
   /**
    * 获取缩略图自定义url
    * 若返回undefined则表示使用默认根据md5获取
+   * @param path 文件所在目录的路径
+   * @param file 要获取缩略图的文件
    */
   getCustomThumbnailUrl: (path:string, file: FileInfo) => string | undefined
   /**

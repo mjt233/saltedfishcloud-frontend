@@ -31,6 +31,7 @@
                 :file-name="file.name"
                 :md5="file.md5"
                 :corner-icon="showMountIcon && file.mountId ? 'mdi-share' : undefined"
+                :custom-thumbnail-url="customThumbnailUrl && customThumbnailUrl(file)"
               />
             </div>
             <div class="file-tile-info">

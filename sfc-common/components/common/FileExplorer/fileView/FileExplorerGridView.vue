@@ -29,6 +29,7 @@
                   :file-name="item.name"
                   :md5="item.md5"
                   :corner-icon="showMountIcon && item.mountId ? 'mdi-share' : undefined"
+                  :custom-thumbnail-url="customThumbnailUrl && customThumbnailUrl(item)"
                 />
               </div>
 
