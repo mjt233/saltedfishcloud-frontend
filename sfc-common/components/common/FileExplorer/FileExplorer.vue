@@ -38,6 +38,16 @@
               />
             </template>
           </VTooltip>
+          <VTooltip text="平铺视图" location="top">
+            <template #activator="{ props: tooltipProps }">
+              <VBtn
+                value="tile"
+                icon="mdi-view-module"
+                v-bind="tooltipProps"
+                @click="emits('update:fileViewType', 'tile')"
+              />
+            </template>
+          </VTooltip>
           <VTooltip text="表格视图" location="top">
             <template #activator="{ props: tooltipProps }">
               <VBtn
@@ -63,10 +73,10 @@
 
       <!-- 右键菜单 -->
       <FileMenu
-        v-if="$el && listMenu.length"
+        v-if="$el && finalFileItemMenus.length"
         :list-context="ctx"
         :container="$el"
-        :menu="listMenu"
+        :menu="finalFileItemMenus"
         :loading-manager="lm"
       />
 
@@ -155,7 +165,8 @@ watch(isMobile, () => {
 const fileViewMap = {
   table: FileExplorerTableView,
   list: FileExplorerListView,
-  grid: FileExplorerGridView
+  grid: FileExplorerGridView,
+  tile: FileExplorerTileView
 }
 watch(actualFileViewType, () => {
   // 切换文件视图时，已选文件可能会发生变化
@@ -353,6 +364,59 @@ const listMenu = useListMenu({
   listContext: ctx
 })
 
+const finalFileItemMenus = computed(() => {
+  if (props.hideFileViewToggle) {
+    return listMenu.value
+  }
+  // FileExplorer的内置菜单组，给文件菜单添加文件视图切换功能
+  // 菜单的层级均为 菜单组 => 菜单项 => 菜单组 => 菜单项...的方式无限嵌套
+  const buildInMenus = [
+    {
+      // 第一层对象，表示菜单组
+      id: 'file-view-type',
+      name: '文件视图操作（内置）',
+      renderOn(ctx) {
+        return !ctx?.selectFileList || ctx.selectFileList.length == 0
+      },
+      items: [
+        // 第二层对象，表示该菜单组下的具体菜单项
+        {
+          id: 'file-view-type-switch',
+          title: '查看方式',
+          subItems(ctx) {
+            const viewTypes = [,
+              { id: 'grid', name: '网格' },
+              { id: 'tile', name: '平铺' },
+              { id: 'table', name: '表格' },
+              { id: 'list', name: '列表' }
+            ] as { id: FileViewType, name: string }[]
+            
+            // 第三层对象，表示菜单组
+            return [
+              {
+                id: 'file-view-type-switch-group',
+                name: '',
+                // 第四层对象，表示菜单项
+                items: viewTypes.map(viewType => {
+                  return {
+                    id: `file-view-type-switch-${viewType.id}`,
+                    title: viewType.name,
+                    icon: viewType.id == props.fileViewType ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline',
+                    action(ctx) {
+                      emits('update:fileViewType', viewType.id)
+                    }
+                  }
+                })
+              }
+            ]
+          },
+        }
+      ]
+    }
+  ] as MenuGroup<FileListContext>[]
+  return buildInMenus.concat(listMenu.value)
+})
+
 onMounted(async() => {
   ctxDataSource.fileList = await actions.loadList(props.path)
 })
@@ -372,8 +436,8 @@ defineExpose({
 </script>
 
 <script lang="ts">
-import { getContext } from 'sfc-common/core'
-import { FileInfo } from 'sfc-common/model'
+import { getContext, MenuGroup, MenuSubItem } from 'sfc-common/core'
+import { FileInfo, FileListContext } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, onUnmounted, reactive, inject, computed, ComponentInstance, ComponentPublicInstance, provide, watch, mergeProps, nextTick } from 'vue'
 import { LoadingManager, MethodInterceptor, StringUtils } from 'sfc-common/utils'
 import { createListContext, FileListContextDataSource, useSideSupport } from './createListContext'
@@ -386,6 +450,7 @@ import FileExplorerToolBar from './FileExplorerToolBar.vue'
 import FileExplorerTableView from './fileView/FileExplorerTableView.vue'
 import FileExplorerListView from './fileView/FileExplorerListView.vue'
 import FileExplorerGridView from './fileView/FileExplorerGridView.vue'
+import FileExplorerTileView from './fileView/FileExplorerTileView.vue'
 import ResizeContainer from 'sfc-common/components/layout/ResizeContainer.vue'
 import MarkdownView from '../Markdown/MarkdownView.vue'
 import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
