@@ -153,7 +153,7 @@ export function useAutoComputeHeight({
   }
 }
 
-export type FileViewType = 'table' | 'list' | 'grid'
+export type FileViewType = 'table' | 'list' | 'grid' | 'tile'
 
 
 export interface FileExplorerProps {
