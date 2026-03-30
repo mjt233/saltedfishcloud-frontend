@@ -40,13 +40,22 @@ const fileActionGroup: MenuGroup<FileListContext> =
       },
       action(ctx) {
         const asyncFunWrap = async() => {
-          await SfcUtils.confirm('', '', {
-            children: [ h(DeleteConfirm, { fileList: ctx.selectFileList }) ],
-            cancelToReject: true
+          let isConfirm = false
+          await SfcUtils.openComponentDialog(DeleteConfirm, {
+            title: '删除文件',
+            props: {
+              fileList: ctx.selectFileList
+            },
+            onConfirm() {
+              isConfirm = true
+              return true
+            }
           })
-          await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
-          await ctx.modelHandler.refresh()
-          SfcUtils.snackbar('删除成功')
+          if (isConfirm) {
+            await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
+            await ctx.modelHandler.refresh()
+            SfcUtils.snackbar('删除成功')
+          }
         }
         asyncFunWrap()
       }

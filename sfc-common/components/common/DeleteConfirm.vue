@@ -1,18 +1,6 @@
 <template>
   <div>
-    <p class="text-h6">
-      确定要删除
-    </p>
-    <br>
-    <v-divider />
-    <ul class="delete-list">
-      <li v-for="file in fileList" :key="file.name + file.md5">
-        {{ file.name }}
-      </li>
-    </ul>
-    <v-divider />
-    <br>
-    <div>共<span style="color: red">{{ fileList.length }}</span>个文件吗？（不可逆操作）</div>
+    <div>共<span style="color: red">{{ fileList.length }}</span>个文件将被删除，是否确认？（不可逆操作）</div>
   </div>
 </template>
 
