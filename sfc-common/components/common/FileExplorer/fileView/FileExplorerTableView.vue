@@ -108,6 +108,14 @@ useFileListTypeToSearch({
   },
 })
 
+// Ctrl+A 全选
+useCtrlASelectAll({
+  focusRoot: () => thisRef.value.$el as HTMLElement,
+  onSelectAll() {
+    selectedList.value = props.fileList.map(f => f.name)
+  }
+})
+
 const tableHeaders = computed(() => {
   const headers = [
     ...props.headers,
@@ -162,7 +170,7 @@ import { DOMUtils, StringFormatter } from 'sfc-common/utils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import type { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
 import type { RowPropsFunction } from 'vuetify/lib/components/VDataTable/types'
-import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText } from './baseImpl'
+import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText, useCtrlASelectAll } from './baseImpl'
 import { useResizeObserver } from 'sfc-common/composables/useResizeObserver'
 
 export default defineComponent({

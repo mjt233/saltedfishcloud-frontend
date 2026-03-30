@@ -104,29 +104,38 @@ export interface DocumentFocusOptions {
  * @returns 焦点相关信息
  */
 export function useDocumentFocus(options: DocumentFocusOptions) {
-  // 为可聚焦元素随机生成一个id
-  const focusRootId = Date.now() + '_' + StringUtils.getRandomStr(6, { withNumber: true })
+  let focusRootId: Ref<string | null> = ref(null)
 
   onMounted(() => {
     initFocusManager()
 
-    // 将随机id绑定到DOM节点上
+    // 获取DOM元素
     const rootEl = options.focusRoot instanceof HTMLElement ? options.focusRoot : options.focusRoot()
-    rootEl.setAttribute('focus-root-id', focusRootId)
+
+    // 如果已存在focus-root-id，直接使用；否则生成新的id
+    const existingId = rootEl.getAttribute('focus-root-id')
+    if (existingId) {
+      focusRootId.value = existingId
+    } else {
+      focusRootId.value = Date.now() + '_' + StringUtils.getRandomStr(6, { withNumber: true })
+      rootEl.setAttribute('focus-root-id', focusRootId.value)
+    }
 
     // 注册可聚焦元素信息
-    registeredInfo[focusRootId] = {
+    registeredInfo[focusRootId.value] = {
       root: rootEl,
-      id: focusRootId,
+      id: focusRootId.value,
       onFocusChanged: options.onFocusChanged
     }
 
     // 新挂载的DOM随机id默认设置成当前焦点元素根id
-    curFocusRootId.value = focusRootId
+    curFocusRootId.value = focusRootId.value
   })
 
   onUnmounted(() => {
-    delete registeredInfo[focusRootId]
+    if (focusRootId.value) {
+      delete registeredInfo[focusRootId.value]
+    }
   })
 
   return {

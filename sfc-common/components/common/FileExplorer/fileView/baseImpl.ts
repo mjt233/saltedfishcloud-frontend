@@ -1,11 +1,11 @@
-import { md5 } from 'js-md5'
-import { ref, computed, Ref, watch } from 'vue'
+import { ref, computed, Ref, watch, onMounted, onUnmounted } from 'vue'
 import { FileExplorerViewEmits, FileExplorerViewExpose } from './baseDefine'
 import { FileInfo } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { useTypeToSearch } from 'sfc-common/composables/useTypeToSearch'
 import { MethodInterceptor } from 'sfc-common/utils'
 import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
+import { useDocumentFocus } from 'sfc-common/composables/useDocumentFocus'
 
 export interface FileListTypeToSearchOption {
   /** 获取可实时搜索内容所在的根元素，用于确保最后一次的焦点在该元素内时只触发本次搜索 */
@@ -76,6 +76,48 @@ export function useFileViewText() {
     loadingText: '正在拼命加载中...o((>ω< ))o',
     noDataText: '这里啥也没有 =￣ω￣=',
   }
+}
+
+/**
+ * Ctrl+A 全选功能选项
+ */
+export interface CtrlASelectAllOptions {
+  /**
+   * 获取可聚焦内容所在的根元素
+   * @returns 根元素
+   */
+  focusRoot: () => HTMLElement | HTMLElement
+
+  /**
+   * 全选回调函数
+   */
+  onSelectAll: () => void
+}
+
+/**
+ * 实现Ctrl+A全选功能
+ * @param options 选项
+ */
+export function useCtrlASelectAll(options: CtrlASelectAllOptions) {
+  const { focusRootId, curFocusRootId } = useDocumentFocus({
+    focusRoot: options.focusRoot
+  })
+
+  function keydownHandler(e: KeyboardEvent) {
+    // 判断是否按下Ctrl+A，且当前焦点在本组件内
+    if (e.ctrlKey && e.key === 'a' && curFocusRootId.value === focusRootId.value) {
+      e.preventDefault()
+      options.onSelectAll()
+    }
+  }
+
+  onMounted(() => {
+    window.addEventListener('keydown', keydownHandler)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('keydown', keydownHandler)
+  })
 }
 
 /**
