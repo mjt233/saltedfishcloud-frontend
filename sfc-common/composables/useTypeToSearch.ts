@@ -1,6 +1,5 @@
-import { DOMUtils, MethodInterceptor, StringUtils } from 'sfc-common/utils'
 import { onMounted, onUnmounted } from 'vue'
-
+import { getCurFocusRootId, useDocumentFocus } from './useDocumentFocus'
 
 // 当前累计记录的key
 let curKey = ''
@@ -10,9 +9,6 @@ let autoClearTimer: number | null
 
 // 是否初始化过了事件监听，用于控制防止重复初始化
 let isInit = false
-
-// 当前聚焦的可实时搜索的根元素id
-let curRootId: string | null
 
 /**
  * 实时键盘搜索选项
@@ -50,52 +46,14 @@ function testIsRepeatString(str: string) {
 
   const firstChar = str[0]
   const len = str.length
-  
+
   for (let i = 1; i < len; i++) {
     if (str[i] !== firstChar) {
       return false
     }
   }
-  
+
   return true
-}
-
-function getElementRootId(el: HTMLElement) {
-  return el.getAttribute('type-search-root-id')
-}
-
-// 由于鼠标点击，更新当前聚焦元素
-function updateCurFocusRoot(e: Event) {
-  if (!(e.target instanceof HTMLElement)) {
-    return
-  }
-
-  // 依次尝试从事件触发元素 和 当前系统聚焦元素中查找是否在已注册的实时搜索元素下
-  const rootElement = [e.target, document.activeElement]
-    .filter(e => e != null)
-    .map(dom => {
-      return DOMUtils.getElParent(dom as HTMLElement, el => {
-        const rootId = getElementRootId(el)
-        if (rootId && registeredInfo[rootId]) {
-          return true
-        } else {
-          return false
-        }
-      })
-    })
-    .find(e => e != null)
-
-  const beforeRootId = curRootId
-  if (!rootElement) {
-    curRootId = null
-  } else {
-    curRootId = getElementRootId(rootElement) as string
-  }
-
-  // 聚焦的元素切换后，清空key
-  if (curRootId != beforeRootId) {
-    curKey = ''
-  }
 }
 
 function defaultTriggerChecker() {
@@ -106,16 +64,20 @@ function defaultTriggerChecker() {
   }
 }
 
+// 当前已注册的启用搜索的可聚焦元素信息（用于存储搜索相关配置）
+const searchRegisteredInfo = {} as { [rootId: string]: TypeToSearchOptions }
+
 /**
  * 处理键盘按键被按下的事件，采集按下的搜索关键字并触发搜索回调
  * @param e 键盘事件
  */
 function keyPressHandler(e: KeyboardEvent) {
-  if (!curRootId || !registeredInfo[curRootId]) {
+  const curRootId = getCurFocusRootId().value
+  if (!curRootId || !searchRegisteredInfo[curRootId]) {
     return
   }
 
-  const opt = registeredInfo[curRootId]
+  const opt = searchRegisteredInfo[curRootId]
   const triggerChecker = opt.isCanTrigger || defaultTriggerChecker
   // 判断是否有触发过滤函数，有的话则执行
   if (!triggerChecker()) {
@@ -143,50 +105,29 @@ function init() {
   }
   isInit = true
 
-
-  // 鼠标左键或右键点击可能触发焦点切换，需要更新当前聚焦元素
-  window.addEventListener('click', updateCurFocusRoot)
-  window.addEventListener('contextmenu', updateCurFocusRoot)
-
-  // 按下Tab键可能触发焦点切换，也需要更新一下当前聚焦元素
-  window.addEventListener('keydown', e => {
-    if(e.key == 'Tab') {
-      setTimeout(() => updateCurFocusRoot(e), 100)
-    }
-  })
-
   // 键盘按键被按下，在满足条件时记录搜索的key并触发搜索回调
   window.addEventListener('keypress', keyPressHandler)
 }
-
-// 当前已注册的启用搜索的可聚焦元素信息
-const registeredInfo = {} as { [rootId: string]: { root: HTMLElement, id: string} & TypeToSearchOptions }
 
 /**
  * 在视图中输入时自动触发搜索
  */
 export function useTypeToSearch(searchOption: TypeToSearchOptions) {
-  // 为可聚焦元素随机生成一个id
-  const tmpId = Date.now() + '_' + StringUtils.getRandomStr(6, {withNumber: true})
+  // 使用useDocumentFocus来管理焦点，当焦点变化时清空curKey
+  const { focusRootId } = useDocumentFocus({
+    focusRoot: searchOption.focusRoot,
+    onFocusChanged: () => {
+      curKey = ''
+    }
+  })
 
   onMounted(() => {
     init()
-
-    // 将随机id绑定到DOM节点上
-    const rootEl = searchOption.focusRoot instanceof HTMLElement ? searchOption.focusRoot : searchOption.focusRoot()
-    rootEl.setAttribute('type-search-root-id', tmpId)
-
-    // 注册可聚焦元素信息
-    registeredInfo[tmpId] = {
-      ...searchOption,
-      root: rootEl,
-      id: tmpId
-    }
-
-    // 新挂载的DOM随机id默认设置成当前焦点元素根id
-    curRootId = tmpId
+    // 注册搜索配置信息
+    searchRegisteredInfo[focusRootId] = searchOption
   })
+
   onUnmounted(() => {
-    delete registeredInfo[tmpId]
+    delete searchRegisteredInfo[focusRootId]
   })
 }
