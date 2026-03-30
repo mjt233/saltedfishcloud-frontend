@@ -3,7 +3,7 @@ import { ref, computed, Ref, watch } from 'vue'
 import { FileExplorerViewEmits, FileExplorerViewExpose } from './baseDefine'
 import { FileInfo } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { useTypeToSearch } from '../../FileList/typeToSearch'
+import { useTypeToSearch } from 'sfc-common/composables/useTypeToSearch'
 import { MethodInterceptor } from 'sfc-common/utils'
 import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
 
