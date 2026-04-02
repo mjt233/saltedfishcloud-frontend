@@ -1,7 +1,7 @@
 <!-- Windows资源管理器"平铺"视图风格的文件列表视图 -->
 <template>
   <div ref="thisRef" style="position: relative;">
-    <LoadingMask :loading="isLoading" />
+    <LoadingMask :loading="isLoading" :z-index="100" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
@@ -183,6 +183,7 @@ import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText, use
 import FileIcon from '../../FileIcon.vue'
 import { DOMUtils, StringFormatter } from 'sfc-common/utils'
 import type { FileInfo } from 'sfc-common/model'
+import LoadingMask from '../../LoadingMask.vue'
 
 export default defineComponent({
   name: 'FileExplorerTileView'
