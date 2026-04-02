@@ -221,19 +221,25 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
       async action(ctx) {
         const clip = getContext().fileClipBoard.value
         if ((clip.otherAttr.uid === 0 || clip.otherAttr.uid) && ctx.path) {
-          const param: FileTransferParam = {
-            files: clip.files.map(e => { return {
-              source: StringUtils.appendPath(clip.path, e.name),
-              target: StringUtils.appendPath(ctx.path as string, e.name),
-            } }),
-            sourceUid: clip.otherAttr.uid,
-            targetUid: ctx.uid as number
-          }
 
           if (clip.type == 'copy') {
-            await SfcUtils.request(API.file.copy(param))
+            await SfcUtils.request(API.file.copy({
+              isOverwrite: true,
+              sourcePath: clip.path,
+              sourceUid: clip.otherAttr.uid,
+              targetPath: ctx.path,
+              targetUid: ctx.uid,
+              files: clip.files.map(e => e.name)
+            }))
           } else if (clip.type == 'cut') {
-            await SfcUtils.request(API.file.move(param))
+            await SfcUtils.request(API.file.move({
+              files: clip.files.map(e => { return {
+                source: StringUtils.appendPath(clip.path, e.name),
+                target: StringUtils.appendPath(ctx.path as string, e.name),
+              } }),
+              sourceUid: clip.otherAttr.uid,
+              targetUid: ctx.uid as number
+            }))
             getContext().fileClipBoard.value = reactive({} as FileClipBoard)
           }
           await ctx.modelHandler.refresh()

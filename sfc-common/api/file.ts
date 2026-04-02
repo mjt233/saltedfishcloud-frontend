@@ -1,5 +1,5 @@
 import { FileTransferInfo, getContext, SearchFileInfo } from 'sfc-common'
-import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from 'sfc-common/model'
+import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo, SimpleFileTransferParam } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import resource from './resource'
@@ -153,7 +153,7 @@ const file = {
       }
     }
   },
-  copy(param: FileTransferParam): CommonRequest {
+  copy(param: SimpleFileTransferParam): CommonRequest {
     return useJsonBody({
       method: 'post',
       url: `/${this.prefix}/${param.sourceUid}/copy`,
