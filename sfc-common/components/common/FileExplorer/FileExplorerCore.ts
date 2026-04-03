@@ -3,7 +3,7 @@ import { fileUploadTaskManager, TaskManagerEventListener } from 'sfc-common/core
 import type { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandler'
 import { type FileListContext, type FileInfo, ProtocolParams } from 'sfc-common/model'
 import { MethodInterceptor } from 'sfc-common/utils'
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, Ref, ref } from 'vue'
 import { useDocumentFocus } from 'sfc-common/composables/useDocumentFocus'
 
 export interface ListMenuOptions {
@@ -43,11 +43,32 @@ export function useFileUploadEvent() {
   })
 }
 
+/**
+ * 在指定元素中监听Backspace按键，按下时触发回调
+ */
 export function useBackspaceGoBack({ focusRoot, onGoBack }: { focusRoot: (() => HTMLElement), onGoBack?: () => void }) {
   const { curFocusRootId, focusRootId } = useDocumentFocus({ focusRoot })
   const keyCallback = (e: KeyboardEvent) => {
     if (e.key === 'Backspace' && curFocusRootId.value.includes(focusRootId.value)) {
       onGoBack && onGoBack()
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', keyCallback)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', keyCallback)
+  })
+}
+
+/**
+ * 创建回车键按下时触发相当于双击文件的逻辑
+ */
+export function useEnterAsClick({ focusRoot, selectedFile, onEnter }: { focusRoot: (() => HTMLElement), selectedFile: Ref<FileInfo[]>, onEnter?: (f: FileInfo) => void }) {
+  const { curFocusRootId, focusRootId } = useDocumentFocus({ focusRoot })
+  const keyCallback = (e: KeyboardEvent) => {
+    if (selectedFile.value.length == 1 && e.key === 'Enter' && curFocusRootId.value.includes(focusRootId.value) && onEnter) {
+      onEnter(selectedFile.value[0])
     }
   }
   onMounted(() => {

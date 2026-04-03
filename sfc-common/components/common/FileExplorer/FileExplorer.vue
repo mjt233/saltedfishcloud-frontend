@@ -370,6 +370,13 @@ watch(() => isSideActive.value, (isActive) => {
     updateSideHeight()
   }
 })
+useEnterAsClick({
+  focusRoot: () => fileViewRef.value.$el,
+  selectedFile: selectedFileList,
+  onEnter(f) {
+    fileClick(f)
+  },
+})
 
 /**
  * 文件列表右键菜单
@@ -463,7 +470,7 @@ import { createListContext, FileListContextDataSource, useSideSupport } from './
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import FileMenu from '../FileMenu.vue'
 import { FileExplorerViewExpose } from './fileView/baseDefine'
-import { FileExplorerProps, FileViewType, useAutoComputeHeight, useBackspaceGoBack, useListMenu } from './FileExplorerCore'
+import { FileExplorerProps, FileViewType, useAutoComputeHeight, useBackspaceGoBack, useEnterAsClick, useListMenu } from './FileExplorerCore'
 import FileExplorerPath from './FileExplorerPath.vue'
 import FileExplorerToolBar from './FileExplorerToolBar.vue'
 import FileExplorerTableView from './fileView/FileExplorerTableView.vue'
