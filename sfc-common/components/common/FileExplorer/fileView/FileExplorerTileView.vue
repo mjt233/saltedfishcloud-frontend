@@ -79,10 +79,15 @@ function calculateColumnCount() {
   const containerWidth = container.clientWidth  - 16 - 16 // 减去滚动容器padding 减去行padding
   return Math.max(1, Math.floor(containerWidth / TILE_ITEM_WIDTH))
 }
+function updateColumnCount() {
+  columnCount.value = calculateColumnCount()
+}
 
 // 监听容器宽度变化
-useResizeObserver(() => thisRef.value as HTMLElement, () => {
-  columnCount.value = calculateColumnCount()
+useResizeObserver(() => thisRef.value as HTMLElement, updateColumnCount)
+watch(fileItemContainerRef, updateColumnCount)
+onMounted(() => {
+  updateColumnCount
 })
 
 // 将文件列表按行分组
@@ -177,7 +182,7 @@ defineExpose(exposeObj)
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
 import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText, useCtrlASelectAll } from './baseImpl'
 import FileIcon from '../../FileIcon.vue'
