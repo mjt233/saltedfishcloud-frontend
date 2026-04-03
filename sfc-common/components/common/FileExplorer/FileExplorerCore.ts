@@ -4,6 +4,7 @@ import type { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandle
 import { type FileListContext, type FileInfo, ProtocolParams } from 'sfc-common/model'
 import { MethodInterceptor } from 'sfc-common/utils'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { useDocumentFocus } from 'sfc-common/composables/useDocumentFocus'
 
 export interface ListMenuOptions {
   /**
@@ -39,6 +40,21 @@ export function useFileUploadEvent() {
 
   onMounted(() => {
     fileUploadTaskManager.addEventListener('success', listener)
+  })
+}
+
+export function useBackspaceGoBack({ focusRoot, onGoBack }: { focusRoot: (() => HTMLElement), onGoBack?: () => void }) {
+  const { curFocusRootId, focusRootId } = useDocumentFocus({ focusRoot })
+  const keyCallback = (e: KeyboardEvent) => {
+    if (e.key === 'Backspace' && curFocusRootId.value.includes(focusRootId.value)) {
+      onGoBack && onGoBack()
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', keyCallback)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', keyCallback)
   })
 }
 

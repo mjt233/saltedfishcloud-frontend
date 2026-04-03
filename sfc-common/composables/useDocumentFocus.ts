@@ -2,13 +2,15 @@ import { DOMUtils, StringUtils } from 'sfc-common/utils'
 import { onMounted, onUnmounted, ref, type Ref } from 'vue'
 
 // 当前聚焦的根元素id
-const curFocusRootId = ref<string | null>(null)
+const curFocusRootId = ref<string[]>([])
 
 // 是否初始化过了事件监听，用于控制防止重复初始化
 let isInit = false
 
 // 当前已注册的可聚焦元素信息
-const registeredInfo = {} as { [rootId: string]: { root: HTMLElement; id: string; onFocusChanged?: (newId: string | null, oldId: string | null) => void } }
+const registeredInfo = {} as { [rootId: string]: { root: HTMLElement; id: string; onFocusChanged?: FocusChangedType } }
+
+type FocusChangedType = (newRootId: string[], oldRootId: string[]) => void
 
 /**
  * 获取元素的焦点根id
@@ -26,10 +28,10 @@ function updateCurFocusRoot(e: Event) {
   }
 
   // 依次尝试从事件触发元素 和 当前系统聚焦元素中查找是否在已注册的焦点元素下
-  const rootElement = [e.target, document.activeElement]
+  const allMatchFocusRoot = [e.target, document.activeElement]
     .filter(e => e != null)
-    .map(dom => {
-      return DOMUtils.getElParent(dom as HTMLElement, el => {
+    .flatMap(dom => {
+      return DOMUtils.getElAllParent(dom as HTMLElement, el => {
         const rootId = getElementRootId(el)
         if (rootId && registeredInfo[rootId]) {
           return true
@@ -38,28 +40,30 @@ function updateCurFocusRoot(e: Event) {
         }
       })
     })
-    .find(e => e != null)
+    .map(dom => {
+      return {
+        rootId: getElementRootId(dom) as string,
+        dom
+      }
+    })
 
   const oldRootId = curFocusRootId.value
-  if (!rootElement) {
-    curFocusRootId.value = null
-  } else {
-    curFocusRootId.value = getElementRootId(rootElement) as string
-  }
+  curFocusRootId.value = allMatchFocusRoot.map(e => e.rootId)
 
   // 如果焦点发生变化，通知相关的注册元素
-  if (oldRootId !== curFocusRootId.value) {
-    // 通知旧的焦点元素
-    if (oldRootId && registeredInfo[oldRootId]?.onFocusChanged) {
-      registeredInfo[oldRootId]?.onFocusChanged?.(curFocusRootId.value, oldRootId)
-    }
-    // 通知新的焦点元素
-    if (curFocusRootId.value && registeredInfo[curFocusRootId.value]?.onFocusChanged) {
-      registeredInfo[curFocusRootId.value]?.onFocusChanged?.(curFocusRootId.value, oldRootId)
-    }
+  if (isArrayEquals(curFocusRootId.value, oldRootId) ) {
+    Object.values(registeredInfo).forEach(e => {
+      if(e.onFocusChanged) {
+        e.onFocusChanged(curFocusRootId.value, oldRootId)
+      }
+    })
   }
 
   return { oldRootId, curRootId: curFocusRootId.value }
+}
+
+function isArrayEquals(arr1: any[], arr2: any[]) {
+  return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index])
 }
 
 function initFocusManager() {
@@ -95,7 +99,7 @@ export interface DocumentFocusOptions {
    * @param newFocusRootId 新的焦点元素id
    * @param oldFocusRootId 旧的焦点元素id
    */
-  onFocusChanged?: (newFocusRootId: string | null, oldFocusRootId: string | null) => void
+  onFocusChanged?: FocusChangedType
 }
 
 /**
@@ -104,7 +108,7 @@ export interface DocumentFocusOptions {
  * @returns 焦点相关信息
  */
 export function useDocumentFocus(options: DocumentFocusOptions) {
-  let focusRootId: Ref<string | null> = ref(null)
+  let focusRootId: Ref<string> = ref('')
 
   onMounted(() => {
     initFocusManager()
@@ -127,9 +131,6 @@ export function useDocumentFocus(options: DocumentFocusOptions) {
       id: focusRootId.value,
       onFocusChanged: options.onFocusChanged
     }
-
-    // 新挂载的DOM随机id默认设置成当前焦点元素根id
-    curFocusRootId.value = focusRootId.value
   })
 
   onUnmounted(() => {
@@ -151,6 +152,6 @@ export function useDocumentFocus(options: DocumentFocusOptions) {
  * 获取当前聚焦的根元素id（响应式）
  * @returns 当前聚焦的根元素id的Ref
  */
-export function getCurFocusRootId(): Ref<string | null> {
+export function getCurFocusRootId(): Ref<string[]> {
   return curFocusRootId
 }

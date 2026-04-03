@@ -59,6 +59,24 @@ const DOMUtils = {
     }
   },
   /**
+   * 按自定义逻辑查找所有匹配的父级元素
+   * @param elem 开始向上寻找DOM节点的起始元素
+   * @param mather 查找匹配规则
+   * @returns 所有满足条件的父级或多级祖父节点
+   */
+  getElAllParent(elem: HTMLElement, mather: (el: HTMLElement) => boolean) {
+    const res: HTMLElement[] = []
+    let curEl = this.getElParent(elem, mather)
+    while (curEl) {
+      res.push(curEl)
+      if (!curEl.parentNode) {
+        break
+      }
+      curEl = this.getElParent(curEl.parentNode as HTMLElement, mather)
+    }
+    return res
+  },
+  /**
    * 判断两个DOM元素是否存在体积碰撞
    * @param el 元素1
    * @param el2 元素2

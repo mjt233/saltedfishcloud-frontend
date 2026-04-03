@@ -81,7 +81,7 @@ export function useTypeToSearch(searchOption: TypeToSearchOptions) {
    */
   function keyPressHandler(e: KeyboardEvent) {
     const curRootId = getCurFocusRootId().value
-    if (curRootId != focusRootId.value) {
+    if (!curRootId.includes(focusRootId.value)) {
       return
     }
 

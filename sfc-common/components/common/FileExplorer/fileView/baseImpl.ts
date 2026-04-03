@@ -105,7 +105,7 @@ export function useCtrlASelectAll(options: CtrlASelectAllOptions) {
 
   function keydownHandler(e: KeyboardEvent) {
     // 判断是否按下Ctrl+A，且当前焦点在本组件内
-    if (e.ctrlKey && e.key === 'a' && curFocusRootId.value === focusRootId.value) {
+    if (e.ctrlKey && e.key === 'a' && curFocusRootId.value.includes(focusRootId.value)) {
       e.preventDefault()
       options.onSelectAll()
     }
