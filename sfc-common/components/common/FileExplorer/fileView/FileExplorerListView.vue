@@ -1,5 +1,5 @@
 <template>
-  <VList ref="thisRef" class="file-explorer-file-list">
+  <VList ref="thisRef" class="file-explorer-file-list" :min-height="height">
     <LoadingMask :loading="isLoading" />
     <VVirtualScroll
       v-if="fileList.length"

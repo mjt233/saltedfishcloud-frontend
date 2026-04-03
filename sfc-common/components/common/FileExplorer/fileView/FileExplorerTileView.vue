@@ -48,7 +48,7 @@
         </div>
       </template>
     </VVirtualScroll>
-    <div v-else class="text-center tip">
+    <div v-else class="text-center tip" :style="{minHeight: height ? (height + 'px') : undefined}">
       {{ noDataText }}
     </div>
   </div>

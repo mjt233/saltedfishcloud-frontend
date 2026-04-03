@@ -52,7 +52,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="tip text-center">
+    <div v-else class="tip text-center" :style="{minHeight: height ? (height + 'px') : undefined}">
       {{ noDataText }}
     </div>
   </div>
