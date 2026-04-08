@@ -12,12 +12,14 @@
         :model-value="prog?.record.loaded"
         :max="prog?.record.total"
         color="primary"
-      />
+        height="20"
+      >
+        <span class="tip" :style="{ color: (((prog?.record.loaded ?? 0) / prog.record.total) * 100) > 50 ? 'rgb(var(--v-theme-on-primary))' : '' }">
+          {{ (((prog?.record.loaded ?? 0) / prog.record.total) * 100).toFixed(1) }}%
+        </span>
+      </VProgressLinear>
     </div>
-    <div v-if="showProgress || showSpeed" class="tip mt-1 mb-2 d-flex align-center gap-2 flex-wrap">
-      <span v-if="showProgressPercent && prog?.record.total && prog?.record.total > 0" class="mr-3">
-        {{ (((prog?.record.loaded ?? 0) / prog.record.total) * 100).toFixed(1) }}%
-      </span>
+    <div v-if="showSpeed" class="tip mt-1 mb-2 d-flex align-center gap-2 flex-wrap">
       <span v-if="showSpeed && prog?.record.speed && prog?.record.speed > 0" class="mr-3">
         速度：{{ speedFormatter((prog?.record.speed ?? 0)) }}
       </span>
