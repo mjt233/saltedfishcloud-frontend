@@ -76,7 +76,7 @@ export interface ProgressRecord {
   lastUpdateTime: number
 
   /**
-   * 每毫秒完成的量
+   * 每秒完成的量
    */
   speed: number
 }

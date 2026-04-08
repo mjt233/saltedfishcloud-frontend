@@ -11,6 +11,7 @@ import { Validators } from 'sfc-common/core/helper/Validators'
 import { AsyncTaskInfo } from 'sfc-common/components'
 import { FileListMenuItem } from './type'
 import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
+import { StringFormatter } from 'sfc-common/utils'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -239,6 +240,11 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
             const dialog = AsyncTaskService.openSimpleAsyncTaskInfoDialog({
               title: '复制文件',
               taskId: asyncTask.id,
+              componentProps: {
+                speedFormatter(speed) {
+                  return StringFormatter.toSize(speed) + '/s'
+                }
+              },
               async onTaskExit(task) {
                 // 任务退出后，如果已完成则刷新当前列表
                 isFinish = true

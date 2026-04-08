@@ -14,6 +14,17 @@
         color="primary"
       />
     </div>
+    <div v-if="showProgress || showSpeed" class="tip mt-1 mb-2 d-flex align-center gap-2 flex-wrap">
+      <span v-if="showProgressPercent && prog?.record.total && prog?.record.total > 0" class="mr-3">
+        {{ (((prog?.record.loaded ?? 0) / prog.record.total) * 100).toFixed(1) }}%
+      </span>
+      <span v-if="showSpeed && prog?.record.speed && prog?.record.speed > 0" class="mr-3">
+        速度：{{ speedFormatter((prog?.record.speed ?? 0)) }}
+      </span>
+      <span v-if="showSpeed && avgSpeed > 0">
+        平均速度：{{ speedFormatter(Number(avgSpeed.toFixed(2))) }}
+      </span>
+    </div>
     <div class="log-view-container" :style="{height: logHeight + 'px'}">
       <LogView
         v-if="taskRecord"
@@ -46,6 +57,27 @@ const props = defineProps({
     default: true
   },
   /**
+   * 是否显示进度百分比
+   */
+  showProgressPercent: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 是否显示速度（包含当前速度和平均速度）
+   */
+  showSpeed: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 速度格式化函数，参数为每秒完成的量
+   */
+  speedFormatter: {
+    type: Function as PropType<(speed: number) => string>,
+    default: (speed: number) => speed + '/s'
+  },
+  /**
    * 组件可容纳的总高度，用于计算日志显示高度。未传入则使用页面高度。
    */
   height: {
@@ -54,9 +86,35 @@ const props = defineProps({
   }
 })
 
+// 平均速度统计 - 初始进度值
+let initialProgLoaded = 0
+// 组件挂载时间
+let mountTime = 0
+// 平均速度
+const avgSpeed = ref(0)
+
+function updateAvgSpeed() {
+  if (!prog.value || !mountTime) return
+  const currentLoaded = prog.value.record.loaded ?? 0
+  const elapsedSeconds = (Date.now() - mountTime) / 1000
+  if (elapsedSeconds > 0) {
+    avgSpeed.value = (currentLoaded - initialProgLoaded) / elapsedSeconds
+  }
+}
+
 const prog = useTaskProg({
-  taskId: props.taskId
+  taskId: props.taskId,
+  onUpdate() {
+    if (!mountTime) {
+      mountTime = Date.now()
+    }
+    if (!initialProgLoaded && prog.value) {
+      initialProgLoaded = prog.value.record.loaded ?? 0
+    }
+    updateAvgSpeed()
+  }
 })
+
 const taskRecord = useTaskRecord(props.taskId, {
   onLoaded(taskRecord) {
     if (!isShowLog.value && taskRecord) {
