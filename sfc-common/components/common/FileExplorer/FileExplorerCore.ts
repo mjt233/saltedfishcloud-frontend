@@ -136,6 +136,11 @@ export interface AutoComputeHeightOptions {
    * 指定计算高度偏移
    */
   offset: number
+
+  /**
+   * 文档总高度
+   */
+  documentHeight: number | (() => number)
 }
 
 /**
@@ -146,7 +151,8 @@ export function useAutoComputeHeight({
   autoComputeHeight = false,
   computeTarget,
   offset = 0,
-  observeTarget
+  observeTarget,
+  documentHeight = () => window.innerHeight
 } : AutoComputeHeightOptions) {
   
   
@@ -157,7 +163,6 @@ export function useAutoComputeHeight({
   const updateHeight = async() => {
     if (autoComputeHeight) {
       await nextTick()
-      const documentHeight = window.innerHeight
       const target = typeof computeTarget === 'function' ? computeTarget() : computeTarget
       if (!target) {
         return
@@ -168,7 +173,8 @@ export function useAutoComputeHeight({
       const oc = getComputedStyle(oTarget)
       const b = parseInt(oc.marginBottom) + parseInt(oc.paddingBottom)
       // 列表的高度 = 文档高度 - 列表在文档中的top - 其他组件的高度 + 高度补偿参数 - 检测容器margin
-      targetHeight.value = documentHeight - positionTop + offset - b
+      const documentHeightValue = typeof documentHeight === 'function' ? documentHeight() : documentHeight
+      targetHeight.value = documentHeightValue - positionTop + offset - b
     }
   }
 
