@@ -1,7 +1,7 @@
 <!-- Windows资源管理器"平铺"视图风格的文件列表视图 -->
 <template>
   <div ref="thisRef" style="position: relative;">
-    <LoadingMask :loading="isLoading" />
+    <LoadingMask :loading="isLoading" :z-index="100" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
@@ -48,7 +48,7 @@
         </div>
       </template>
     </VVirtualScroll>
-    <div v-else class="text-center tip">
+    <div v-else class="text-center tip" :style="{minHeight: height ? (height + 'px') : undefined}">
       {{ noDataText }}
     </div>
   </div>
@@ -79,10 +79,15 @@ function calculateColumnCount() {
   const containerWidth = container.clientWidth  - 16 - 16 // 减去滚动容器padding 减去行padding
   return Math.max(1, Math.floor(containerWidth / TILE_ITEM_WIDTH))
 }
+function updateColumnCount() {
+  columnCount.value = calculateColumnCount()
+}
 
 // 监听容器宽度变化
-useResizeObserver(() => thisRef.value as HTMLElement, () => {
-  columnCount.value = calculateColumnCount()
+useResizeObserver(() => thisRef.value as HTMLElement, updateColumnCount)
+watch(fileItemContainerRef, updateColumnCount)
+onMounted(() => {
+  updateColumnCount
 })
 
 // 将文件列表按行分组
@@ -155,6 +160,14 @@ useFileListTypeToSearch({
   },
 })
 
+// Ctrl+A 全选
+useCtrlASelectAll({
+  focusRoot: () => thisRef.value as HTMLElement,
+  onSelectAll() {
+    selectedList.value = props.fileList.map(f => f.name)
+  }
+})
+
 const exposeObj = getExpose({
   selectedList,
   selectedSet,
@@ -169,12 +182,13 @@ defineExpose(exposeObj)
 </script>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
-import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText } from './baseImpl'
+import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText, useCtrlASelectAll } from './baseImpl'
 import FileIcon from '../../FileIcon.vue'
 import { DOMUtils, StringFormatter } from 'sfc-common/utils'
 import type { FileInfo } from 'sfc-common/model'
+import LoadingMask from '../../LoadingMask.vue'
 
 export default defineComponent({
   name: 'FileExplorerTileView'

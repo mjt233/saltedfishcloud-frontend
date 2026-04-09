@@ -3,7 +3,8 @@ import { fileUploadTaskManager, TaskManagerEventListener } from 'sfc-common/core
 import type { FileSystemHandler } from 'sfc-common/core/serivce/FileSystemHandler'
 import { type FileListContext, type FileInfo, ProtocolParams } from 'sfc-common/model'
 import { MethodInterceptor } from 'sfc-common/utils'
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, Ref, ref } from 'vue'
+import { useDocumentFocus } from 'sfc-common/composables/useDocumentFocus'
 
 export interface ListMenuOptions {
   /**
@@ -39,6 +40,42 @@ export function useFileUploadEvent() {
 
   onMounted(() => {
     fileUploadTaskManager.addEventListener('success', listener)
+  })
+}
+
+/**
+ * 在指定元素中监听Backspace按键，按下时触发回调
+ */
+export function useBackspaceGoBack({ focusRoot, onGoBack }: { focusRoot: (() => HTMLElement), onGoBack?: () => void }) {
+  const { curFocusRootId, focusRootId } = useDocumentFocus({ focusRoot })
+  const keyCallback = (e: KeyboardEvent) => {
+    if (e.key === 'Backspace' && curFocusRootId.value.includes(focusRootId.value)) {
+      onGoBack && onGoBack()
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', keyCallback)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', keyCallback)
+  })
+}
+
+/**
+ * 创建回车键按下时触发相当于双击文件的逻辑
+ */
+export function useEnterAsClick({ focusRoot, selectedFile, onEnter }: { focusRoot: (() => HTMLElement), selectedFile: Ref<FileInfo[]>, onEnter?: (f: FileInfo) => void }) {
+  const { curFocusRootId, focusRootId } = useDocumentFocus({ focusRoot })
+  const keyCallback = (e: KeyboardEvent) => {
+    if (selectedFile.value.length == 1 && e.key === 'Enter' && curFocusRootId.value.includes(focusRootId.value) && onEnter) {
+      onEnter(selectedFile.value[0])
+    }
+  }
+  onMounted(() => {
+    window.addEventListener('keydown', keyCallback)
+  })
+  onUnmounted(() => {
+    window.removeEventListener('keydown', keyCallback)
   })
 }
 
@@ -99,6 +136,11 @@ export interface AutoComputeHeightOptions {
    * 指定计算高度偏移
    */
   offset: number
+
+  /**
+   * 文档总高度
+   */
+  documentHeight: number | (() => number)
 }
 
 /**
@@ -109,7 +151,8 @@ export function useAutoComputeHeight({
   autoComputeHeight = false,
   computeTarget,
   offset = 0,
-  observeTarget
+  observeTarget,
+  documentHeight = () => window.innerHeight
 } : AutoComputeHeightOptions) {
   
   
@@ -120,7 +163,6 @@ export function useAutoComputeHeight({
   const updateHeight = async() => {
     if (autoComputeHeight) {
       await nextTick()
-      const documentHeight = window.innerHeight
       const target = typeof computeTarget === 'function' ? computeTarget() : computeTarget
       if (!target) {
         return
@@ -131,7 +173,8 @@ export function useAutoComputeHeight({
       const oc = getComputedStyle(oTarget)
       const b = parseInt(oc.marginBottom) + parseInt(oc.paddingBottom)
       // 列表的高度 = 文档高度 - 列表在文档中的top - 其他组件的高度 + 高度补偿参数 - 检测容器margin
-      targetHeight.value = documentHeight - positionTop + offset - b
+      const documentHeightValue = typeof documentHeight === 'function' ? documentHeight() : documentHeight
+      targetHeight.value = documentHeightValue - positionTop + offset - b
     }
   }
 

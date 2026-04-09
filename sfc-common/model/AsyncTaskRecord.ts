@@ -1,4 +1,4 @@
-import { AuditModel } from './Common'
+import { AuditModel, IdType } from './Common'
 const AsyncTaskRecordStatusDict = {
   0: '等待中',
   1: '执行中',
@@ -54,4 +54,38 @@ export interface AsyncTaskRecord extends AuditModel {
    * 任务状态，0 - 等待中，1 - 执行中，2 - 执行成功，3 - 执行失败，4 - 已取消，5 - 任务离线
    */
   status: 0 | 1 | 2 | 3 | 4 | 5
+}
+
+/**
+ * 任务进度明细
+ */
+export interface ProgressRecord {
+  /**
+   * 已完成的量
+   */
+  loaded: number
+
+  /**
+   * 目标完成量，-1为未知
+   */
+  total: number
+
+  /**
+   * 速度的上一次记录时间（Unix时间戳 毫秒）
+   */
+  lastUpdateTime: number
+
+  /**
+   * 每秒完成的量
+   */
+  speed: number
+}
+
+/**
+ * 任务进度明细VO
+ */
+export interface ProgressRecordVO {
+  taskId: IdType
+
+  record: ProgressRecord
 }

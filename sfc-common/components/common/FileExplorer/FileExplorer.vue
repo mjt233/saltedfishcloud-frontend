@@ -1,123 +1,124 @@
 <template>
   <VSheet ref="thisRef" :class="isMobile ? '' : 'pl-3 pr-3'">
     <ResizeContainer :hide-right="!isSideActive || isMobile" @right-active-change="sideActiveChange">
-      
-      <!-- 路径栏 -->
-      <FileExplorerPath
-        :path="path"
-        :root-name="rootName"
-        :show-count="isMobile ? 2 : 3"
-        @path-click="changePath($event)"
-      />
-
-      <!-- 工具栏 -->
-      <div v-if="!hideToolBar && !hideFileViewToggle" class="d-flex justify-space-between align-center hide-in-mobile" style="height: 60px;">
-        <FileExplorerToolBar
-          v-if="!hideToolBar"
-          :ctx="ctx"
-          :file-item-menu="listMenu"
-          :to-new-buttons="toolButtons"
-          :read-only="readOnly"
-          @clear-selection="fileViewRef.selectFile([])"
+      <div ref="fileExplorerContentRef">
+        <!-- 路径栏 -->
+        <FileExplorerPath
+          :path="path"
+          :root-name="rootName"
+          :show-count="isMobile ? 2 : 3"
+          @path-click="changePath($event)"
         />
-        <VSpacer />
-        <VBtnToggle
-          v-if="!hideFileViewToggle"
-          :model-value="actualFileViewType"
-          density="comfortable"
-          border
-          class="ml-2"
+
+        <!-- 工具栏 -->
+        <div v-if="!hideToolBar && !hideFileViewToggle" class="d-flex justify-space-between align-center hide-in-mobile" style="height: 60px;">
+          <FileExplorerToolBar
+            v-if="!hideToolBar"
+            :ctx="ctx"
+            :file-item-menu="listMenu"
+            :to-new-buttons="toolButtons"
+            :read-only="readOnly"
+            @clear-selection="fileViewRef.selectFile([])"
+          />
+          <VSpacer />
+          <VBtnToggle
+            v-if="!hideFileViewToggle"
+            :model-value="actualFileViewType"
+            density="comfortable"
+            border
+            class="ml-2"
+          >
+            <VTooltip text="网格视图" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <VBtn
+                  value="grid"
+                  icon="mdi-grid"
+                  v-bind="tooltipProps"
+                  @click="emits('update:fileViewType', 'grid')"
+                />
+              </template>
+            </VTooltip>
+            <VTooltip text="平铺视图" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <VBtn
+                  value="tile"
+                  icon="mdi-view-module"
+                  v-bind="tooltipProps"
+                  @click="emits('update:fileViewType', 'tile')"
+                />
+              </template>
+            </VTooltip>
+            <VTooltip text="表格视图" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <VBtn
+                  value="table"
+                  icon="mdi-table"
+                  v-bind="tooltipProps"
+                  @click="emits('update:fileViewType', 'table')"
+                />
+              </template>
+            </VTooltip>
+            <VTooltip text="列表视图" location="top">
+              <template #activator="{ props: tooltipProps }">
+                <VBtn
+                  value="list"
+                  icon="mdi-format-list-bulleted-square"
+                  v-bind="tooltipProps"
+                  @click="emits('update:fileViewType', 'list')"
+                />
+              </template>
+            </VTooltip>
+          </VBtnToggle>
+        </div>
+
+        <!-- 右键菜单 -->
+        <FileMenu
+          v-if="$el && finalFileItemMenus.length"
+          :list-context="ctx"
+          :container="$el"
+          :menu="finalFileItemMenus"
+          :loading-manager="lm"
+        />
+
+        <!-- 移动端右下角操作按钮，默认为新增菜单，可通过插槽添加自定义操作按钮 -->
+        <MobileFloatingAddButton
+          v-if="isMobile"
+          :menu-items="toolButtons"
+          :ctx="ctx"
+          :read-only="readOnly"
         >
-          <VTooltip text="网格视图" location="top">
-            <template #activator="{ props: tooltipProps }">
+          <template v-if="previewReadme" #prepend="{ props: btnProps }">
+            <VSlideYReverseTransition>
               <VBtn
-                value="grid"
-                icon="mdi-grid"
-                v-bind="tooltipProps"
-                @click="emits('update:fileViewType', 'grid')"
+                v-show="readmeFileInfo"
+                v-bind="btnProps"
+                icon="mdi-text-box"
+                size="large"
+                :color="readOnly ? 'primary' : undefined"
+                @click="showMobileReadme"
               />
-            </template>
-          </VTooltip>
-          <VTooltip text="平铺视图" location="top">
-            <template #activator="{ props: tooltipProps }">
-              <VBtn
-                value="tile"
-                icon="mdi-view-module"
-                v-bind="tooltipProps"
-                @click="emits('update:fileViewType', 'tile')"
-              />
-            </template>
-          </VTooltip>
-          <VTooltip text="表格视图" location="top">
-            <template #activator="{ props: tooltipProps }">
-              <VBtn
-                value="table"
-                icon="mdi-table"
-                v-bind="tooltipProps"
-                @click="emits('update:fileViewType', 'table')"
-              />
-            </template>
-          </VTooltip>
-          <VTooltip text="列表视图" location="top">
-            <template #activator="{ props: tooltipProps }">
-              <VBtn
-                value="list"
-                icon="mdi-format-list-bulleted-square"
-                v-bind="tooltipProps"
-                @click="emits('update:fileViewType', 'list')"
-              />
-            </template>
-          </VTooltip>
-        </VBtnToggle>
-      </div>
-
-      <!-- 右键菜单 -->
-      <FileMenu
-        v-if="$el && finalFileItemMenus.length"
-        :list-context="ctx"
-        :container="$el"
-        :menu="finalFileItemMenus"
-        :loading-manager="lm"
-      />
-
-      <!-- 移动端右下角操作按钮，默认为新增菜单，可通过插槽添加自定义操作按钮 -->
-      <MobileFloatingAddButton
-        v-if="isMobile"
-        :menu-items="toolButtons"
-        :ctx="ctx"
-        :read-only="readOnly"
-      >
-        <template v-if="previewReadme" #prepend="{ props: btnProps }">
-          <VSlideYReverseTransition>
-            <VBtn
-              v-show="readmeFileInfo"
-              v-bind="btnProps"
-              icon="mdi-text-box"
-              size="large"
-              :color="readOnly ? 'primary' : undefined"
-              @click="showMobileReadme"
-            />
-          </VSlideYReverseTransition>
-        </template>
-      </MobileFloatingAddButton>
+            </VSlideYReverseTransition>
+          </template>
+        </MobileFloatingAddButton>
     
 
-      <!-- 文件列表视图本体 -->
-      <component
-        :is="fileViewMap[actualFileViewType]"
-        ref="fileViewRef"
-        :path="path"
-        :file-list="ctxDataSource.fileList"
-        :is-loading="isLoading"
-        :multiple-select="useSelect"
-        :height="listHeight"
-        :style="{ 'min-height': listHeight }"
-        :show-mount-icon="showMountIcon"
-        :custom-thumbnail-url="customThumbnailUrl"
-        @file-click="fileClick"
-        @file-r-click="fileRClick"
-        @file-select="updateSelectedFileList()"
-      />
+        <!-- 文件列表视图本体 -->
+        <component
+          :is="fileViewMap[actualFileViewType]"
+          ref="fileViewRef"
+          :path="path"
+          :file-list="ctxDataSource.fileList"
+          :is-loading="isLoading"
+          :multiple-select="useSelect"
+          :height="listHeight"
+          :style="{ 'min-height': listHeight }"
+          :show-mount-icon="showMountIcon"
+          :custom-thumbnail-url="customThumbnailUrl"
+          @file-click="fileClick"
+          @file-r-click="fileRClick"
+          @file-select="updateSelectedFileList()"
+        />
+      </div>
 
       <template #resizeable>
         <div>
@@ -141,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+const fileExplorerContentRef = ref<HTMLDivElement>()
 const emits = defineEmits<{
   (e: 'update:path', path: string): void
   (e: 'update:fileViewType', fileViewType: FileViewType): void
@@ -173,6 +175,17 @@ const fileViewMap = {
 watch(actualFileViewType, () => {
   // 切换文件视图时，已选文件可能会发生变化
   updateSelectedFileList()
+})
+useBackspaceGoBack({
+  focusRoot: () => fileExplorerContentRef.value as HTMLElement,
+  onGoBack() {
+    const paths = props.path.split('/').filter(e => e)
+    if (paths.length == 0) {
+      return
+    }
+    paths.pop()
+    changePath('/' + paths.join('/'))
+  }
 })
 // 侧边栏的div引用
 const sideBodyRef = ref<HTMLDivElement>()
@@ -357,6 +370,13 @@ watch(() => isSideActive.value, (isActive) => {
     updateSideHeight()
   }
 })
+useEnterAsClick({
+  focusRoot: () => fileViewRef.value.$el,
+  selectedFile: selectedFileList,
+  onEnter(f) {
+    fileClick(f)
+  },
+})
 
 /**
  * 文件列表右键菜单
@@ -450,7 +470,7 @@ import { createListContext, FileListContextDataSource, useSideSupport } from './
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import FileMenu from '../FileMenu.vue'
 import { FileExplorerViewExpose } from './fileView/baseDefine'
-import { FileExplorerProps, FileViewType, useAutoComputeHeight, useListMenu } from './FileExplorerCore'
+import { FileExplorerProps, FileViewType, useAutoComputeHeight, useBackspaceGoBack, useEnterAsClick, useListMenu } from './FileExplorerCore'
 import FileExplorerPath from './FileExplorerPath.vue'
 import FileExplorerToolBar from './FileExplorerToolBar.vue'
 import FileExplorerTableView from './fileView/FileExplorerTableView.vue'
@@ -460,7 +480,6 @@ import FileExplorerTileView from './fileView/FileExplorerTileView.vue'
 import ResizeContainer from 'sfc-common/components/layout/ResizeContainer.vue'
 import MarkdownView from '../Markdown/MarkdownView.vue'
 import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
-import FixedBtn from '../btn/FixedBtn.vue'
 import MobileFloatingAddButton from './MobileFloatingAddButton.vue'
 
 export default defineComponent({

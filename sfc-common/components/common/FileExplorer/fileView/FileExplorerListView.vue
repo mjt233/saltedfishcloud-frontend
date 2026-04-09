@@ -1,5 +1,5 @@
 <template>
-  <VList ref="thisRef" class="file-explorer-file-list">
+  <VList ref="thisRef" class="file-explorer-file-list" :min-height="height">
     <LoadingMask :loading="isLoading" />
     <VVirtualScroll
       v-if="fileList.length"
@@ -90,6 +90,14 @@ useFileListTypeToSearch({
   },
 })
 
+// Ctrl+A 全选
+useCtrlASelectAll({
+  focusRoot: () => thisRef.value.$el as HTMLElement,
+  onSelectAll() {
+    selectedList.value = props.fileList.map(f => f.name)
+  }
+})
+
 const exposeObj = getExpose({
   selectedList,
   selectedSet,
@@ -104,7 +112,7 @@ defineExpose(exposeObj)
 <script lang="ts">
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
 import { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
-import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText } from './baseImpl'
+import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText, useCtrlASelectAll } from './baseImpl'
 import FileIcon from '../../FileIcon.vue'
 import { DOMUtils, StringFormatter } from 'sfc-common/utils'
 import LoadingMask from '../../LoadingMask.vue'

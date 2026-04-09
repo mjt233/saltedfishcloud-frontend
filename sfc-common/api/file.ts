@@ -1,8 +1,9 @@
 import { FileTransferInfo, getContext, SearchFileInfo } from 'sfc-common'
-import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from 'sfc-common/model'
+import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo, SimpleFileTransferParam } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import resource from './resource'
+import { AsyncTaskRecord } from 'sfc-common/model/AsyncTaskRecord'
 
 /**
  * 创建文件在线压缩的异步任务
@@ -153,10 +154,21 @@ const file = {
       }
     }
   },
-  copy(param: FileTransferParam): CommonRequest {
+  copy(param: SimpleFileTransferParam): CommonRequest {
     return useJsonBody({
       method: 'post',
       url: `/${this.prefix}/${param.sourceUid}/copy`,
+      data: param
+    })
+  },
+  /**
+   * 通过创建异步任务的方式复制文件
+   * @param param 文件复制参数
+   */
+  asyncCopy(param: SimpleFileTransferParam): CommonRequest<AsyncTaskRecord> {
+    return useJsonBody({
+      method: 'post',
+      url: `/${this.prefix}/${param.sourceUid}/asyncCopy`,
       data: param
     })
   },

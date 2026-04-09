@@ -2,7 +2,7 @@ import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { SfcUtils } from 'sfc-common/utils/SfcUtils'
 
 import { FileClipBoard, FileClipBoardType } from 'sfc-common/core/context/type'
-import { FileListContext, FileTransferParam } from 'sfc-common/model'
+import { FileListContext } from 'sfc-common/model'
 import { reactive } from 'vue'
 import { getContext } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
@@ -10,6 +10,8 @@ import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { AsyncTaskInfo } from 'sfc-common/components'
 import { FileListMenuItem } from './type'
+import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
+import { StringFormatter } from 'sfc-common/utils'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -221,19 +223,59 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
       async action(ctx) {
         const clip = getContext().fileClipBoard.value
         if ((clip.otherAttr.uid === 0 || clip.otherAttr.uid) && ctx.path) {
-          const param: FileTransferParam = {
-            files: clip.files.map(e => { return {
-              source: StringUtils.appendPath(clip.path, e.name),
-              target: StringUtils.appendPath(ctx.path as string, e.name),
-            } }),
-            sourceUid: clip.otherAttr.uid,
-            targetUid: ctx.uid as number
-          }
 
           if (clip.type == 'copy') {
-            await SfcUtils.request(API.file.copy(param))
+            let isFinish = false
+            // 创建复制任务
+            const asyncTask = (await SfcUtils.request(API.file.asyncCopy({
+              isOverwrite: true,
+              sourcePath: clip.path,
+              sourceUid: clip.otherAttr.uid,
+              targetPath: ctx.path,
+              targetUid: ctx.uid,
+              files: clip.files.map(e => e.name)
+            }))).data.data
+
+            // 打开复制任务信息对话框
+            const dialog = AsyncTaskService.openSimpleAsyncTaskInfoDialog({
+              title: '复制文件',
+              taskId: asyncTask.id,
+              componentProps: {
+                speedFormatter(speed) {
+                  return StringFormatter.toSize(speed) + '/s'
+                }
+              },
+              async onTaskExit(task) {
+                // 任务退出后，如果已完成则刷新当前列表
+                isFinish = true
+                if (task.status == 2) {
+                  dialog.close()
+                  ctx.modelHandler.refresh()
+                  await SfcUtils.snackbar('复制完成')
+                }
+              },
+              async onDialogCancel() {
+                // 点击取消时，如果任务未完成则中断任务
+                if (!isFinish) {
+                  SfcUtils.beginLoading()
+                  try {
+                    await SfcUtils.request(API.asyncTask.interrupt(asyncTask.id))
+                  } finally {
+                    SfcUtils.closeLoading()
+                  }
+                }
+                return true
+              },
+            })
           } else if (clip.type == 'cut') {
-            await SfcUtils.request(API.file.move(param))
+            await SfcUtils.request(API.file.move({
+              files: clip.files.map(e => { return {
+                source: StringUtils.appendPath(clip.path, e.name),
+                target: StringUtils.appendPath(ctx.path as string, e.name),
+              } }),
+              sourceUid: clip.otherAttr.uid,
+              targetUid: ctx.uid as number
+            }))
             getContext().fileClipBoard.value = reactive({} as FileClipBoard)
           }
           await ctx.modelHandler.refresh()
