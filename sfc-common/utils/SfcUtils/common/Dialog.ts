@@ -458,6 +458,21 @@ export function loadingDialog(param?: LoadingDialogParam) {
   return dialog
 }
 
+/**
+ * 在异步函数执行期间打开一个加载对话框，任务执行完成后自动关闭对话框
+ * @param param 对话框初始参数
+ * @param func 异步任务函数
+ * @returns 
+ */
+export async function loadingDialogTask<T, P extends LoadingDialogParam>(param: P | undefined, func: (p: P) => Promise<T>) {
+  const p = param || reactive({ msg: '加载中' })
+  const dialog = loadingDialog(param)
+  try {
+    return await func(p as P)
+  } finally {
+    dialog.closeLoading()
+  }
+}
 
 /**
  * 弹出输入提示框

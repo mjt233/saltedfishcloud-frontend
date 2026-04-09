@@ -5,11 +5,7 @@
     :submit-action="actions.submit"
     :son-forms="sonForms"
   >
-    <form-row>
-      <form-col label="文件名" top-label>
-        <text-input v-model="formData.name" />
-      </form-col>
-    </form-row>
+    <VTextField v-model="formData.name" label="文件名" />
     <MarkdownImagePatseForm ref="configFormRef" style="padding: 0px" :show-title="false" />
   </base-form>
 </template>

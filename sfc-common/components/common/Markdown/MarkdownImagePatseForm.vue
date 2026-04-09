@@ -1,49 +1,48 @@
 <template>
   <base-form ref="formRef" :model-value="formData" :submit-action="actions.submit">
-    <VContainer>
-      <template v-if="showTitle">
-
-        <div class="text-h6">
+    <template v-if="showTitle">
+      <VRow class="mb-4">
+        <div class="text-h5 tip">
           图片粘贴设置
         </div>
         <VDivider />
-      </template>
-      <form-row style="margin-top: 12px;">
-        <form-col top-label label="位置">
-          <v-radio-group v-model="formData.location" inline hide-details>
-            <v-radio
-              color="primary"
-              label="文件当前位置"
-              value="1"
-            />
-            <v-radio
-              color="primary"
-              label="指定位置"
-              value="2"
-            />
-          </v-radio-group>
-        </form-col>
-        <form-col top-label label="路径">
-          <TextInput v-model="formData.path" :rules="validators.path" />
-          <VBtn
-            v-if="formData.location == '2'"
-            size="small"
-            flat
-            @click="selectDirPath"
-          >
-            浏览
-          </VBtn>
-        </form-col>
-        <form-col top-label label="其他">
-          <VCheckbox
-            v-model="formData.alwayConfirm"
-            label="每次上传前询问"
-            hide-details
-            color="primary"
-          />
-        </form-col>
-      </form-row>
-    </VContainer>
+      </VRow>
+    </template>
+    <div>
+      <div class="tip mb-2">
+        路径定位方式
+      </div>
+      <v-radio-group
+        v-model="formData.location"
+        color="primary"
+      >
+        <v-radio
+          label="相对当前文件位置"
+          value="1"
+        />
+        <v-radio
+          label="固定位置"
+          value="2"
+        />
+      </v-radio-group>
+    </div>
+    <div class="d-flex align-center">
+      <VTextField v-model="formData.path" :rules="validators.path" label="图片保存路径" />
+      <VBtn
+        v-if="formData.location == '2'"
+        variant="text"
+        class="ml-2"
+        @click="selectDirPath"
+      >
+        浏览
+      </VBtn>
+    </div>
+    <VCheckbox
+      v-model="formData.alwayConfirm"
+      label="每次粘贴图片前询问"
+      hide-details
+      color="primary"
+    />
   </base-form>
 </template>
 
@@ -62,7 +61,7 @@ let inited = false
 
 const getDefaultConfig = () => ({
   location: '1',
-  path: './',
+  path: './img',
   alwayConfirm: true
 } as ImagePatseOption)
 
