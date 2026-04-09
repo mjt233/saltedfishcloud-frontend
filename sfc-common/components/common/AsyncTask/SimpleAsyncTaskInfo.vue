@@ -1,6 +1,15 @@
 <template>
   <div ref="thisRef">
-    <span v-if="showName">任务名称：{{ taskRecord?.name }}</span>
+    <div v-if="showName" class="d-flex align-center gap-1">
+      <VIcon
+        v-if="[2,3].includes(taskRecord?.status || 0)"
+        :color="taskRecord?.status === 2 ? 'success' : 'error'"
+        size="small"
+        :icon="taskRecord?.status === 2 ? 'mdi-check-circle' : 'mdi-close-circle'"
+        class="mt-1"
+      />
+      <span>任务名称：{{ taskRecord?.name }}</span>
+    </div>
     <div v-if="showProgress" class="mt-1 mb-2">
       <VProgressCircular
         v-if="!prog || prog.record.total <= 0"
@@ -27,7 +36,13 @@
         平均速度：{{ speedFormatter(Number(avgSpeed.toFixed(2))) }}
       </span>
     </div>
-    <div class="log-view-container" :style="{height: logHeight + 'px'}">
+    <VBtn
+      variant="text"
+      @click="logVisible = !logVisible"
+    >
+      {{ logVisible ? '隐藏明细' : '显示明细' }}
+    </VBtn>
+    <div v-show="logVisible" class="log-view-container rounded" :style="{height: logHeight + 'px', border: '1px solid rgb(var(--v-border-color))' }">
       <LogView
         v-if="taskRecord"
         :log-text="logText"
@@ -37,6 +52,7 @@
 </template>
 
 <script setup lang="ts">
+
 const thisRef = ref<HTMLElement | null>(null)
 const emits = defineEmits<AsyncTaskInfoEmits>()
 const props = defineProps({
@@ -85,10 +101,19 @@ const props = defineProps({
   height: {
     type: Number,
     default: undefined
+  },
+  /**
+   * 日志是否默认折叠
+   */
+  logCollapsed: {
+    type: Boolean,
+    default: true
   }
 })
 
-// 平均速度统计 - 初始进度值
+// 日志是否可见
+const logVisible = ref(!props.logCollapsed)
+// 用于平均速度统计的初始进度值
 let initialProgLoaded = 0
 // 组件挂载时间
 let mountTime = 0
@@ -104,7 +129,7 @@ function updateAvgSpeed() {
   }
 }
 
-const prog = useTaskProg({
+const { prog, startUpdateProgress, stopUpdateProgress } = useTaskProg({
   taskId: props.taskId,
   onUpdate() {
     if (!mountTime) {
@@ -119,8 +144,12 @@ const prog = useTaskProg({
 
 const taskRecord = useTaskRecord(props.taskId, {
   onLoaded(taskRecord) {
-    if (!isShowLog.value && taskRecord) {
-      startLoadLogData()
+    if (taskRecord) {
+      startUpdateProgress()
+      // 只有当日志可见时才加载日志
+      if (logVisible.value && !isShowLog.value) {
+        startLoadLogData()
+      }
     } else {
       console.log('获取不到任务')
     }
@@ -131,6 +160,7 @@ const taskRecord = useTaskRecord(props.taskId, {
       prog.value.record.loaded = prog.value.record.total
     }
     emits('task-exit', taskRecord.value as AsyncTaskRecord)
+    stopUpdateProgress()
   }
 })
 const isMobile = useCheckIsMobile()
@@ -143,16 +173,25 @@ const { targetHeight: logHeight } = useAutoComputeHeight({
     return props.height || (isMobile.value ? (window.innerHeight - 80) : window.innerHeight - 320)
   }
 })
-const { logText, isShowLog, startLoadLogData } = useTaskLogText(props.taskId, {
+const { logText, isShowLog, startLoadLogData, clear: clearLog } = useTaskLogText(props.taskId, {
   taskStatus() {
     return taskRecord.value?.status
   },
+})
+
+// 监听日志显示状态，切换到显示时加载日志，隐藏时停止加载
+watch(logVisible, (newVal) => {
+  if (newVal && !isShowLog.value && taskRecord.value) {
+    startLoadLogData()
+  } else if (!newVal && isShowLog.value) {
+    clearLog()
+  }
 })
 </script>
 
 <script lang="ts">
 import { IdType } from 'sfc-common/model'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, watch } from 'vue'
 import { useTaskProg } from './composables/useTaskProg'
 import { useTaskRecord } from './composables/useTaskRecord'
 import LogView from '../LogView.vue'

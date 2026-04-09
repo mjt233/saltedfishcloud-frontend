@@ -28,13 +28,14 @@ async function getProg(taskId: IdType) {
 export function useTaskProg(opt: TaskProgOptions) {
   const { taskId, onUpdate } = opt
   const prog = ref<ProgressRecordVO>()
-  let isUnmounted = false
+  let isStoped = false
+  let isRunning = false
 
   async function refresh() { 
     isLoading = true
     try {
       const r = await getProg(taskId)
-      if (r) {
+      if (!isStoped && r) {
         prog.value = reactive(r)
         onUpdate?.(prog.value)
       }
@@ -45,28 +46,46 @@ export function useTaskProg(opt: TaskProgOptions) {
     }
   }
 
-  async function loopUpdateProg() { 
-    while (!isUnmounted) {
-      await refresh()
-      await SfcUtils.sleep(1000)
-      // 满进度了就退出循环
-      if (prog.value && prog.value.record.total > 0 && prog.value.record.loaded == prog.value.record.total) {
-        break
+  async function loopUpdateProg() {
+    try {
+      while (!isStoped) {
+        await refresh()
+        await SfcUtils.sleep(1000)
+        // 满进度了就退出循环
+        if (prog.value && prog.value.record.total > 0 && prog.value.record.loaded == prog.value.record.total) {
+          break
+        }
       }
+    } finally { 
+      isRunning = false
     }
   }
 
   let isLoading = false
 
   onMounted(async() => {
-    await refresh()
-    SfcUtils.sleep(1000)
-    loopUpdateProg()
   })
 
   onUnmounted(() => {
-    isUnmounted = true
+    isStoped = true
   })
 
-  return prog
+  return {
+    // 当前进度信息
+    prog,
+    // 开始更新进度
+    async startUpdateProgress() {
+      if (isRunning) {
+        throw new Error('任务正在执行中')
+      }
+      isRunning = true
+      await refresh()
+      SfcUtils.sleep(1000)
+      loopUpdateProg()
+    },
+    // 停止更新进度
+    stopUpdateProgress() {
+      isStoped = true
+    }
+  }
 }

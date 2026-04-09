@@ -48,11 +48,13 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
       ws.close()
       ws = undefined
       console.log('已清理ws连接')
+      isShowLog.value = false
     }
     if (ajaxTimer) {
       clearInterval(ajaxTimer)
       ajaxTimer = undefined
       console.log('已停止轮询')
+      isShowLog.value = false
     }
   }
 
@@ -105,8 +107,6 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
       await loadLogByAjax()
       return
     }
-    await SfcUtils.sleep(2000)
-    console.log('是执行中')
     try {
       // 先获取当前历史日志
       await loadLogByAjax()
