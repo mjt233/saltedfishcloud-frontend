@@ -93,7 +93,15 @@ const sys = {
       data: config,
       method: 'put'
     })
-  }
+  },
+  /**
+   * 获取系统支持的缩略图生成器名称
+   */
+  getThumbnailHandlerNames(): CommonRequest<string[]> {
+    return {
+      url: `${this.prefix}/getThumbnailHandlerNames`
+    }
+  },
 }
 
 export default sys
