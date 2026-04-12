@@ -4,10 +4,14 @@ import { getContext } from './index'
 
 /** 文件属性面板扩展段渲染项 */
 export interface FileAttributeSectionItem {
+  /** 扩展段标题，存在值时在组件上方显示 */
+  title?: string
   /** 要渲染的组件 */
   component: Component | string
   /** 传给组件的 props */
   props?: Record<string, any>
+  /** 是否默认展开 */
+  defaultExpanded?: boolean
 }
 
 /**

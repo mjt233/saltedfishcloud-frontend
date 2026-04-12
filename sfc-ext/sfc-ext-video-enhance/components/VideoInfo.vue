@@ -1,8 +1,5 @@
 <template>
   <div v-if="videoInfoObj">
-    <div class="text-title">
-      视频信息
-    </div>
     <VTable>
       <tbody>
         <tr>

@@ -196,10 +196,12 @@ registerFileAttributeSection({
       return null
     }
     return {
+      title: '视频信息',
       component: VideoInfoVue,
       props: {
         videoInfoRequestParam: VEAPI.getVideoInfo(actions.getVideoResourceParams(ctx, ctx.selectFileList[0], ctx.selectFileList[0].path as string))
-      }
+      },
+      defaultExpanded: false
     }
   }
 })
