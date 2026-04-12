@@ -12,7 +12,8 @@
             :is-dir="files[0].dir"
             :md5="files[0].md5"
             :custom-thumbnail-url="thumbnailUrl"
-            style="height: 48px;width: 48px;"
+            :width="48"
+            :height="48"
           />
         </div>
         <div>{{ files[0].name }}</div>
@@ -97,6 +98,7 @@ const showMountInfo = ref(false)
 import { FileInfo, MountPoint } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import FileIcon from './FileIcon.vue'
 
 export default defineComponent({
   name: 'FileAttribute'
