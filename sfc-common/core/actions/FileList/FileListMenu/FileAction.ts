@@ -9,8 +9,9 @@ import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint
 import { MountPointService } from 'sfc-common/core/serivce/MountPointService'
 import { FileExplorerContext } from 'sfc-common/components/common/FileExplorer/createListContext'
 import MarkdownView from 'sfc-common/components/common/Markdown/MarkdownView.vue'
+import { FileListMenuItem } from './type'
 
-const fileActionGroup: MenuGroup<FileListContext> = 
+const fileActionGroup: MenuGroup<FileListContext, FileListMenuItem> = 
 {
   id: 'action',
   name: '文件操作',
