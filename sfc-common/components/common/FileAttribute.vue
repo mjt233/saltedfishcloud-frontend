@@ -47,7 +47,7 @@
     
     <template v-if="files.length == 1 && files[0].mountId">
       <v-divider style="margin: 16px 0 32px 0" />
-      
+
       <create-mount-point-form
         v-show="showMountInfo"
         :data-id="files[0].mountId"
@@ -56,7 +56,13 @@
         @loaded="emits('mountPointLoaded', $event) ;showMountInfo = true"
       />
     </template>
-    
+
+    <!-- 扩展段 -->
+    <template v-for="(section, i) in extensionSections" :key="i">
+      <v-divider style="margin: 16px 0 32px 0" />
+      <component :is="section.component" v-bind="section.props ?? {}" />
+    </template>
+
   </div>
 </template>
 
@@ -86,6 +92,13 @@ const props = defineProps({
   thumbnailUrl: {
     type: String,
     default: undefined
+  },
+  /**
+   * 扩展属性段列表
+   */
+  extensionSections: {
+    type: Array as PropType<{ component: any, props?: Record<string, any> }[]>,
+    default: () => []
   }
 })
 const size = computed(() => {

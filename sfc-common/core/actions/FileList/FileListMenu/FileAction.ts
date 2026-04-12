@@ -2,7 +2,7 @@ import DeleteConfirm from 'sfc-common/components/common/DeleteConfirm.vue'
 import { FileListContext, IdType, MountPoint } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { h, ref } from 'vue'
-import { MenuGroup } from 'sfc-common/core/context'
+import { MenuGroup, getContext } from 'sfc-common/core/context'
 import { FileAttribute } from 'sfc-common/components'
 import { VBtn } from 'vuetify/components'
 import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
@@ -10,6 +10,7 @@ import { MountPointService } from 'sfc-common/core/serivce/MountPointService'
 import { FileExplorerContext } from 'sfc-common/components/common/FileExplorer/createListContext'
 import MarkdownView from 'sfc-common/components/common/Markdown/MarkdownView.vue'
 import { FileListMenuItem } from './type'
+import type { FileAttributeSectionItem } from 'sfc-common/core/context/fileAttributeExtension'
 
 const fileActionGroup: MenuGroup<FileListContext, FileListMenuItem> = 
 {
@@ -137,12 +138,25 @@ const fileActionGroup: MenuGroup<FileListContext, FileListMenuItem> =
             })
           }
           const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
+
+          // 收集扩展段
+          const extensions = getContext().fileAttributeSections.value
+          const extensionSections: FileAttributeSectionItem[] = extensions
+            .map(ext => ({ id: ext.id, section: ext.resolve(ctx) }))
+            .filter(item => item.section != null)
+            .sort((a, b) => {
+              const order: Record<string, number> = {}
+              return (order[a.id] ?? 100) - (order[b.id] ?? 100)
+            })
+            .map(item => item.section!)
+
           const attrInst = SfcUtils.openComponentDialog(FileAttribute, {
             title: '文件属性',
             props: {
               files: ctx.selectFileList,
               path: ctx.path,
               thumbnailUrl,
+              extensionSections,
               onMountPointLoaded(mountPoint: MountPoint) {
                 mountPointRef.value = mountPoint
               }

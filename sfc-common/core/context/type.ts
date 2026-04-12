@@ -1,10 +1,10 @@
-import { AdminContext } from './menu/type.d'
 import { Session } from './session'
 import { AppMenu, BoxMenuContext, MenuGroup } from './menu/type'
 import { RouteLocationNormalized, Router } from 'vue-router'
 import { EventBus } from './EventBus'
 import { FileInfo, FileListContext, SystemFeature } from 'sfc-common/model'
 import type { FileListMenuItem } from '../actions/FileList/FileListMenu/type'
+import type { FileAttributeExtension } from './fileAttributeExtension'
 
 export interface RouteInfo {
   /**
@@ -255,6 +255,9 @@ export interface AppContext {
      */
     main?: BgOption
   }
+
+  /** 文件属性面板的扩展内容段 */
+  fileAttributeSections: FileAttributeExtension[]
 
   [otherKey: string]: any
 }
