@@ -44,18 +44,6 @@
         </form-col>
       </form-row>
     </form-grid>
-    
-    <template v-if="files.length == 1 && files[0].mountId">
-      <v-divider style="margin: 16px 0 32px 0" />
-
-      <create-mount-point-form
-        v-show="showMountInfo"
-        :data-id="files[0].mountId"
-        style="padding: 0"
-        read-only
-        @loaded="emits('mountPointLoaded', $event) ;showMountInfo = true"
-      />
-    </template>
 
     <!-- 扩展段 -->
     <template v-for="(section, i) in extensionSections" :key="i">

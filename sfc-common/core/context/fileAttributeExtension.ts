@@ -1,11 +1,11 @@
-import { Component } from 'vue'
+import { Component, markRaw } from 'vue'
 import { FileListContext } from 'sfc-common/model'
 import { getContext } from './index'
 
 /** 文件属性面板扩展段渲染项 */
 export interface FileAttributeSectionItem {
   /** 扩展段标题，存在值时在组件上方显示 */
-  title?: string
+  title: string
   /** 要渲染的组件 */
   component: Component | string
   /** 传给组件的 props */

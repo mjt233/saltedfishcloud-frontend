@@ -1,11 +1,14 @@
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { EventNameConstants } from '../constans/EventName'
-import { BgOption, getContext } from '../context'
+import { BgOption, getContext, registerFileAttributeSection } from '../context'
 import { ConditionFunction } from '../helper/ConditionFunction'
 import { ConfigNodeModel } from 'sfc-common/model'
 import { buildExtensionManager } from '../serivce/Extension'
 import { bootContext } from './BootCore'
+import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
+import { h } from 'vue'
+import { VBtn } from 'vuetify/components'
 
 let isValidSessionSuccess = false
 
@@ -30,6 +33,63 @@ bootContext
           getContext().bg.value.main = newOption
           getContext().feature.value.bgMain = newOption
         }
+      })
+    }
+  })
+  .addProcessor({
+    taskName: '注册默认的文件属性扩展',
+    async execute() {
+      // 挂载点信息扩展
+      registerFileAttributeSection({
+        id: 'mount-point-info',
+        resolve(ctx) {
+          // 单选了挂载点文件夹时可见
+          if (ctx.selectFileList.length !== 1 || !ctx.selectFileList[0].mountId) {
+            return null
+          }
+          let formNodeRef: InstanceType<typeof CreateMountPointFormVue> | null = null
+          const mountId = ctx.selectFileList[0].mountId
+          return {
+            title: '挂载点信息',
+            component: () => h(CreateMountPointFormVue, {
+              dataId: mountId,
+              readOnly: true,
+              ref: (inst) => { formNodeRef = inst as InstanceType<typeof CreateMountPointFormVue> }
+            }, {
+              append: () => h(VBtn, {
+                color: 'primary',
+                block: true,
+                onclick: () => {
+                  const dialogInst = SfcUtils.openComponentDialog(CreateMountPointFormVue, {
+                    title: '修改挂载点信息',
+                    props: {
+                      dataId: mountId,
+                      readOnly: false
+                    },
+                    extraDialogOptions: {
+                      maxWidth: '640px'
+                    },
+                    onConfirm: async() => {
+                      const form = dialogInst.getInstAsForm()
+                      const res = await form.submit()
+                      if (!res.success) {
+                        return false
+                      }
+                      SfcUtils.snackbar('已修改')
+                      
+                      // 刷新文件属性中扩展的挂载点信息
+                      formNodeRef?.actions.loadData()
+                      // 刷新文件列表
+                      ctx.modelHandler.refresh()
+                      
+                      return true
+                    }
+                  })
+                }
+              }, () => '修改挂载点信息')
+            })
+          }
+        },
       })
     }
   })

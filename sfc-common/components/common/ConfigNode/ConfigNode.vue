@@ -24,15 +24,14 @@
         />
       </div>
       <template v-if="node.inputType == 'text'">
-        <text-input
+        <v-text-field
           :rules="validators"
           :model-value="nodeValue"
-          class="config-simple-input"
           :readonly="node.readonly || readOnly"
           :hide-details="dense"
           :label="useInnerLabel ? (node.title || node.name) : undefined"
           :type="node.mask ? 'password': 'text'"
-          :class="{'no-margin no-padding': dense}"
+          :class="{'no-margin no-padding': dense && !useVuetifyNativeLayout, 'config-simple-input': !useVuetifyNativeLayout}"
           @update:model-value="nodeValue = $event;updateValue(nodeValue)"
         />
       </template>
@@ -43,7 +42,7 @@
           :disabled="node.disabled || readOnly"
           :rules="validators"
           :items="selectOptions"
-          class="config-simple-input"
+          :class="useVuetifyNativeLayout ? '' : 'config-simple-input'"
           @change="nodeValue = $event.value; updateValue($event.value)"
         />
       </template>
@@ -111,6 +110,13 @@ const props = defineProps({
   useInnerLabel: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 使用Vuetify原生的栅格布局组件
+   */
+  useVuetifyNativeLayout: {
+    type: Boolean,
+    default: false
   }
 })
 const nodeValue = ref('') as Ref<any>

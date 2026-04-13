@@ -9,28 +9,34 @@
     row-height="72px"
     dense
   >
-    <loading-mask :loading="loadingRef" /> 
-    <form-row style="padding: 0 12px">
-      <form-col>
-        <form-select
+    <loading-mask :loading="loadingRef" />
+    <slot name="prepend" />
+    <v-row>
+      <v-col cols="12">
+        <VSelect
           v-model="formData.protocol"
-          placeholder="挂载类型"
+          class="pb-4"
+          label="挂载类型"
           :items="selectOptions"
-          :disabled="readOnly || isEdit"
+          hide-details
+          :rules="validators.protocol"
+          :readonly="readOnly || isEdit"
         />
-      </form-col>
-      <form-col>
-        <TextInput v-model="formData.name" label="目录名称" :readonly="readOnly || isEdit" />
-      </form-col>
-    </form-row>
-    <form-row style="padding: 0 12px">
-      <form-col top-label label="挂载目录">
-        <span class="link" style="margin-right: 12px">{{ selectPath }}</span>
-        <v-btn v-if="!readOnly && !isEdit" flat @click="actions.selectPath">
-          浏览
-        </v-btn>
-      </form-col>
-      <form-col>
+      </v-col>
+      <v-col cols="12">
+        <VTextField v-model="formData.name" label="目录名称" :readonly="readOnly || isEdit" />
+      </v-col>
+      
+      <v-col cols="12">
+        <VTextField
+          v-model="curSelectPath"
+          label="挂载路径"
+          hide-details
+          readonly
+          @focus="!readOnly && actions.selectPath()"
+        />
+      </v-col>
+      <v-col cols="12">
         <div class="d-flex align-center">
           <v-switch
             v-model="formData.isProxyStoreRecord"
@@ -58,18 +64,22 @@
             </template>
           </v-switch>
         </div>
-      </form-col>
-    </form-row>
+      </v-col>
+    </v-row>
 
     <v-divider class="form-divider" />
-    <configurable-form
+    <ConfigurableForm
       ref="mountForm"
+      :key="mountParam"
+      class="mb-4"
       :read-only="readOnly"
-      style="padding: 0 12px"
+      style="padding: 0"
       :nodes="configGroup"
+      :use-vuetify-native-layout="true"
       @change="nodeChange"
     />
     
+    <slot name="append" />
     
   </base-form>
 </template>
@@ -78,23 +88,35 @@
 import API from 'sfc-common/api'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode, TextInput } from 'sfc-common/components'
-import { ConfigNodeModel, IdType, MountPoint, NameValueType, SelectOption } from 'sfc-common/model'
+import { ConfigNodeModel, DiskFileSystemDescribe, IdType, MountPoint, NameValueType, SelectOption } from 'sfc-common/model'
 import { CommonForm, defineForm } from 'sfc-common/utils/FormUtils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 const formRef = ref() as Ref<CommonForm>
 const props = defineProps({
+  /**
+   * 挂载点所属的网盘用户id
+   */
   uid: {
     type: [String, Number] as PropType<IdType>,
     default: 0
   },
+  /**
+   * 挂载点id，当initValue为undefined时必填
+   */
   dataId: {
     type: [String, Number],
     default: undefined
   },
+  /**
+   * 是否为只读模式
+   */
   readOnly: {
     type: Boolean,
     default: false
   },
+  /**
+   * 初始化的挂载点值对象，传入该对象后不会触发提交事件
+   */
   initValue: {
     type: Object as PropType<MountPoint>,
     default: undefined
@@ -110,20 +132,22 @@ const props = defineProps({
 const mountForm = ref()
 const sonForms = ref([mountForm])
 const emits = defineEmits(['submit', 'error', 'loaded'])
-const selectPath = ref('/')
+const curSelectPath = ref('/')
+let mountParam = ref({} as any)
+
+// 挂载点配置节点变化事件
 const nodeChange = (e: NameValueType) => {
-  mountConfig[e.name] = e.value
-  formData.params = JSON.stringify(mountConfig)
+  mountParam.value[e.name] = e.value
+  formData.params = JSON.stringify(mountParam.value)
 }
+
 const selectOptions: Ref<SelectOption[]> = ref([])
 const configGroup: Ref<ConfigNodeModel[]> = ref([])
 
-let mountConfig = {} as any
 const parseParams = async(mp: MountPoint) => {
-
   Object.assign(formData, mp)
-  const opt = selectOptions.value.find(e => e.value == formData.protocol)
-  opt && opt.action && opt.action()
+  selectOptions.value.find(e => e.value == formData.protocol)?.action?.()
+
   const params = JSON.parse(formData.params)
   configGroup.value.filter(e => e.nodes)
     .flatMap(e => e.nodes)
@@ -133,10 +157,30 @@ const parseParams = async(mp: MountPoint) => {
         node.value = (val === null || val === undefined) ? node.defaultValue : val
       }
     })
-  mountConfig = JSON.parse(formData.params)
-  
-  selectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
+  mountParam.value = reactive(JSON.parse(formData.params))
+  curSelectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
 }
+
+function initMountParamDefaultValue(desc: DiskFileSystemDescribe) {
+  if (formData.protocol != desc.protocol) {
+    // 切换协议清空所有挂载参数
+    mountParam.value = reactive({})
+  }
+
+  desc.configNode.flatMap(e => e.nodes).forEach(node => {
+    if (node) {
+      if (mountParam.value[node.name]) {
+        node.value = mountParam.value[node.name]
+      } else {
+        const paramValue = node.value ?? node.defaultValue
+        mountParam.value[node.name] = paramValue
+        node.value = paramValue
+      }
+    }
+  })
+  configGroup.value = desc.configNode
+}
+
 const formInst = defineForm({
   actions: {
     async getNodeIdByPath(path: string) {
@@ -152,7 +196,7 @@ const formInst = defineForm({
           return e.dir && !e.mountId
         }
       }).then(async(path) => {
-        selectPath.value = path
+        curSelectPath.value = path
         try {
           loadingRef.value = true
           formData.nid = await this.getNodeIdByPath(path)
@@ -179,20 +223,7 @@ const formInst = defineForm({
             value: describe.protocol,
             title: describe.name,
             action() {
-              // 编辑初始数据且未切换过挂载类型时，不需要重置挂载配置参数。
-              if (!(isEdit.value && props.initValue?.protocol == formData.protocol)) {
-                mountConfig = {}
-                describe.configNode.flatMap(e => e.nodes).forEach(node => {
-                  if (node) {
-                    mountConfig[node.name] = node.defaultValue
-                    if (node.value === undefined || node.value === null) {
-                      node.value = node.defaultValue
-                    }
-                  }
-                })
-              }
-              configGroup.value = describe.configNode
-              formData.protocol = describe.protocol
+              initMountParamDefaultValue(describe)
             }
           })
         })
@@ -221,6 +252,9 @@ const formInst = defineForm({
           }
         }
       }
+    },
+    loadData() {
+      return loadData()
     }
   },
   formData: reactive({
@@ -232,7 +266,9 @@ const formInst = defineForm({
     isProxyStoreRecord: false
   }) as MountPoint,
   formRef: formRef,
-  validators: {},
+  validators: {
+    protocol: [Validators.notNull('挂载协议不能为空')]
+  },
   throwError: true
 })
 /**
@@ -241,34 +277,43 @@ const formInst = defineForm({
 const isEdit = ref<boolean>(false)
 const { formData, actions, validators, loadingRef, loadingManager  } = formInst
 
+async function loadData() {
+  if(await actions.loadSystem()) {
+    if (props.initValue) {
+      isEdit.value = !!props.initValue.id
+      await parseParams(props.initValue)
+    } else if(await actions.loadById()) {
+      emits('loaded', formData)
+    }
+  }
+  // 加载默认路径
+  if (props.path) {
+    formData.nid = await actions.getNodeIdByPath(props.path)
+    curSelectPath.value = props.path
+  }
+}
 
 onMounted(async() => {
   try {
-    if(await actions.loadSystem()) {
-      if (props.initValue) {
-        isEdit.value = !!props.initValue.id
-        await parseParams(props.initValue)
-      } else if(await actions.loadById()) {
-        emits('loaded', formData)
-      }
-    }
-    // 加载默认路径
-    if (props.path) {
-      formData.nid = await actions.getNodeIdByPath(props.path)
-      selectPath.value = props.path
-    }
-    
+    await loadData()
   } catch(err) {
     emits('error', err)
     console.error(err)
   }
 })
 defineExpose(formInst)
+watch(() => formData.protocol, (newVal, oldVal) => {
+  if (newVal) {
+    selectOptions.value.find(el => el.value == newVal)?.action?.()
+  }
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch } from 'vue'
 import { reactive } from 'vue'
+import ConfigurableForm from '../ConfigNode/ConfigurableForm.vue'
+import { Validators } from 'sfc-common/core'
 
 export default defineComponent({
   name: 'CreateMountPointForm'
@@ -278,7 +323,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 .form-divider {
   padding-bottom: 24px;
-  width: 50%;
   margin: 0 auto;
 }
 </style>
