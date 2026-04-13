@@ -1,6 +1,6 @@
 import type { MenuGroup } from 'sfc-common/core'
 import type { FileInfo, FileListContext, IdType } from 'sfc-common/model'
-import type { SelectItemKey } from 'vuetify/lib/util/helpers'
+import type { SelectItemKey } from 'vuetify/lib/util/index.mjs'
 
 export interface FileExplorerViewEmits {
   (e: 'fileClick', file: FileInfo): void
