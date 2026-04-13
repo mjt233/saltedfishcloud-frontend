@@ -20,12 +20,12 @@
             :key="item.name"
             class="file-grid-item-wrapper"
             :style="{ width: `${100 / columnCount}%` }"
-            :file-name="item.name"
-            @dblclick="itemDoubleClickFunction($event); emits('fileClick', item)"
           >
             <VCard
               class="file-grid-item cursor-default no-select"
               :class="{ 'file-grid-item--selected': selectedSet.has(item.name) }"
+              :file-name="item.name"
+              @dblclick="itemDoubleClickFunction($event); emits('fileClick', item)"
             >
               <div class="file-grid-item-icon-wrapper">
                 <FileIcon
@@ -122,12 +122,12 @@ const {
   emits,
   fileList: () => props.fileList,
   itemClickFileNameExtractor(e) {
-    const fileItemWrapper = DOMUtils.getElParent(
+    const fileItem = DOMUtils.getElParent(
       e.target as HTMLElement,
-      el => el.classList.contains('file-grid-item-wrapper') && !!el.getAttribute('file-name')
+      el => el.classList.contains('file-grid-item') && !!el.getAttribute('file-name')
     )
-    if (fileItemWrapper) {
-      return fileItemWrapper.getAttribute('file-name')
+    if (fileItem) {
+      return fileItem.getAttribute('file-name')
     }
     return ''
   },
@@ -252,8 +252,8 @@ export default defineComponent({
   line-height: 1.2;
   word-break: break-all;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-align: center;
