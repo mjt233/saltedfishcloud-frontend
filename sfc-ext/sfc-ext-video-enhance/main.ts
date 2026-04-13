@@ -1,4 +1,4 @@
-import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest, getContext, MenuHelper } from 'sfc-common'
+import { FileOpenHandler, MenuGroup,FileInfo, FileListContext, ResourceRequest, getContext, MenuHelper, registerFileAttributeSection } from 'sfc-common'
 import VideoEnhancePlayerVue from './components/player/VideoEnhancePlayer.vue'
 import { EncodeConvertFormData, Format, StreamInfo, Subtitle, VideoInfo } from './model'
 import './boot'
@@ -10,6 +10,7 @@ import { VEUtils } from './core/VEUtils'
 import * as actions from './core/actions'
 import { ConvertTaskCreator } from './core/convertTaskCreator'
 import { LoadingDialogParam } from 'sfc-common/utils/SfcUtils/common/Dialog'
+import { VEAPI } from './api'
 
 const context = window.context
 const SfcUtils = window.SfcUtils
@@ -183,27 +184,27 @@ const videoMenu: MenuGroup<FileListContext> = {
           }
         })
       }
-    },
-    {
-      title: '视频信息',
-      id: 'video-info',
-      renderOn(ctx) {
-        return ctx && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].isMount && actions.isVideo(ctx.selectFileList[0].name)
-      },
-      icon: 'mdi-information-variant',
-      async action(ctx) {
-        console.log(ctx)
-        const info = await actions.getVideoInfo(ctx, ctx.selectFileList[0], ctx.selectFileList[0].path as string)
-        window.SfcUtils.openComponentDialog(VideoInfoVue, {
-          props: {
-            videoInfo: info
-          },
-          title: `媒体信息：${ctx.selectFileList[0].name}`
-        })
-      }
     }
   ]
 }
+
+registerFileAttributeSection({
+  id: 'get-video-info',
+  resolve(ctx) {
+    // 只有单选了视频文件时显示
+    if(ctx.selectFileList.length != 1 || !actions.isVideo(ctx.selectFileList[0].name)) {
+      return null
+    }
+    return {
+      title: '视频信息',
+      component: VideoInfoVue,
+      props: {
+        videoInfoRequestParam: VEAPI.getVideoInfo(actions.getVideoResourceParams(ctx, ctx.selectFileList[0], ctx.selectFileList[0].path as string))
+      },
+      defaultExpanded: false
+    }
+  }
+})
 MenuHelper.addMoreBoxMenu({
   id: 'encoder-convert',
   title: '视频转码',

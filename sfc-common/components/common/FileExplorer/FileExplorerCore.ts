@@ -140,7 +140,7 @@ export interface AutoComputeHeightOptions {
   /**
    * 文档总高度
    */
-  documentHeight: number | (() => number)
+  documentHeight?: number | (() => number)
 }
 
 /**

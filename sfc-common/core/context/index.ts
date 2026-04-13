@@ -31,6 +31,7 @@ const context: ToRefs<AppContext> = toRefs(reactive({
     fileBrowserBtn: defaultFileBrowserTopBtns,
     boxMenu: defaultBoxMenu
   },
+  fileAttributeSections: [],
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,
   routeInfo: {},
@@ -47,7 +48,6 @@ const context: ToRefs<AppContext> = toRefs(reactive({
       size: 'cover',
       enabled: false
     }
-    
   }
 }))
 
@@ -58,3 +58,4 @@ export function getContext() {
 
 export * from './menu/type'
 export * from './type'
+export * from './fileAttributeExtension'

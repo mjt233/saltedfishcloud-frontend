@@ -122,9 +122,12 @@ export default defineComponent({
   transform: translateX(-50%);
   justify-content: space-between;
   align-items: center;
+  pointer-events: auto;
 }
 
 .custom-snackbar {
+  pointer-events: none;
+
   &.enter {
     animation: up-in .2s;
   }

@@ -12,7 +12,8 @@
             :is-dir="files[0].dir"
             :md5="files[0].md5"
             :custom-thumbnail-url="thumbnailUrl"
-            style="height: 48px;width: 48px;"
+            :width="48"
+            :height="48"
           />
         </div>
         <div>{{ files[0].name }}</div>
@@ -43,19 +44,26 @@
         </form-col>
       </form-row>
     </form-grid>
-    
-    <template v-if="files.length == 1 && files[0].mountId">
+
+    <!-- 扩展段 -->
+    <template v-for="(section, i) in extensionSections" :key="i">
       <v-divider style="margin: 16px 0 32px 0" />
-      
-      <create-mount-point-form
-        v-show="showMountInfo"
-        :data-id="files[0].mountId"
-        style="padding: 0"
-        read-only
-        @loaded="emits('mountPointLoaded', $event) ;showMountInfo = true"
-      />
+      <div
+        v-if="section.title"
+        class="d-flex align-center"
+        style="cursor: pointer; user-select: none;"
+        @click="toggleSection(i)"
+      >
+        <v-icon :icon="expandedSections[i] ? 'mdi-chevron-down' : 'mdi-chevron-right'" size="24" style="margin-right: 8px" />
+        <div class="text-title">
+          {{ section.title }}
+        </div>
+      </div>
+      <div v-show="expandedSections[i]" style="padding-top: 16px;">
+        <component :is="section.component" v-bind="section.props ?? {}" />
+      </div>
     </template>
-    
+
   </div>
 </template>
 
@@ -85,18 +93,42 @@ const props = defineProps({
   thumbnailUrl: {
     type: String,
     default: undefined
+  },
+  /**
+   * 扩展属性段列表
+   */
+  extensionSections: {
+    type: Array as PropType<FileAttributeSectionItem[]>,
+    default: () => []
   }
 })
 const size = computed(() => {
   return props.files.filter(e => !e.dir).map(e => e.size).reduce((pre, cur) => Number(pre) + Number(cur), 0)
 })
 const showMountInfo = ref(false)
+const expandedSections = ref<Record<number, boolean>>({})
+
+const initializeExpandedSections = () => {
+  const newState: Record<number, boolean> = {}
+  props.extensionSections.forEach((section, index) => {
+    newState[index] = section.defaultExpanded ?? false
+  })
+  expandedSections.value = newState
+}
+
+watch(() => props.extensionSections, initializeExpandedSections, { deep: true, immediate: true })
+
+const toggleSection = (index: number) => {
+  expandedSections.value[index] = !expandedSections.value[index]
+}
 </script>
 
 <script lang="ts">
 import { FileInfo, MountPoint } from 'sfc-common/model'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, watch } from 'vue'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import FileIcon from './FileIcon.vue'
+import { FileAttributeSectionItem } from 'sfc-common/core'
 
 export default defineComponent({
   name: 'FileAttribute'

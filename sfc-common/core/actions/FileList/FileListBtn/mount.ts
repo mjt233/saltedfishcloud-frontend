@@ -24,6 +24,9 @@ export const mountMenuGroup = {
             path: ctx.path
           },
           persistent: true,
+          extraDialogOptions: {
+            maxWidth: '720px'
+          },
           async onConfirm() {
             const res = await form.getInstAsForm().submit()
             if(res.success) {
