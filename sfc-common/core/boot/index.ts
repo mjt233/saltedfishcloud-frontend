@@ -7,6 +7,7 @@ import { ConfigNodeModel } from 'sfc-common/model'
 import { buildExtensionManager } from '../serivce/Extension'
 import { bootContext } from './BootCore'
 import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
+import MountPointSyncFileRecordForm from 'sfc-common/components/form/MountPointSyncFileRecordForm.vue'
 import { h } from 'vue'
 import { VBtn } from 'vuetify/components'
 
@@ -71,6 +72,8 @@ bootContext
                     },
                     onConfirm: async() => {
                       const form = dialogInst.getInstAsForm()
+                      const oldIsProxy = formNodeRef?.formData.isProxyStoreRecord
+                      const newIsProxy = form.getFormData().isProxyStoreRecord
                       const res = await form.submit()
                       if (!res.success) {
                         return false
@@ -81,6 +84,30 @@ bootContext
                       formNodeRef?.actions.loadData()
                       // 刷新文件列表
                       ctx.modelHandler.refresh()
+                      
+                      // 修改了挂载点的“是否委托存储记录”为true时，提示用户是否立即同步一次存储记录
+                      if (!oldIsProxy && newIsProxy) {
+                        const syncDialog = SfcUtils.openComponentDialog(MountPointSyncFileRecordForm, {
+                          title: '同步存储记录',
+                          props: {
+                            id: mountId
+                          },
+                          onConfirm: async() => {
+                            const syncForm = syncDialog.getInstAsForm()
+                            const syncRes = await SfcUtils.loadingDialogTask(
+                              { msg: '正在同步文件记录' },
+                              () => syncForm.submit()
+                            )
+                            if (syncRes.success) {
+                              SfcUtils.snackbar('同步成功')
+                              return true
+                            } else {
+                              SfcUtils.alert(syncRes.err + '', '同步出错')
+                            }
+                            return false
+                          }
+                        })
+                      }
                       
                       return true
                     }
