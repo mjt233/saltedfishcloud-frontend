@@ -11,7 +11,7 @@ export function useImageSelection(props: any, emits: any, zoomManager: any) {
    * 选择一张图片预览
    * @param idx 图片下标索引
    */
-  const selectImage = async (idx: number) => {
+  const selectImage = async(idx: number) => {
     activeIdx.value = idx
     zoomManager.setAdaptSize()
     await nextTick()

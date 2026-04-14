@@ -1,10 +1,19 @@
-import { ref, computed, Ref, nextTick } from 'vue'
+import { ref, computed, Ref, nextTick, watch } from 'vue'
 import { useElementSize } from '@vueuse/core'
 
-export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRef: Ref<any>, showPosition: { top: string, left: string }) {
+export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRef: Ref<any>, showPosition: { top: string, left: string }, isFullscreen?: Ref<boolean>) {
   const scaleSize = ref(100)
   const naturalSize = ref({ height: 0, width: 0 })
+  const rotateDeg = ref(0)
   const { width: containerWidth, height: containerHeight } = useElementSize(containerRef)
+
+  watch([containerWidth, containerHeight], async() => {
+    if (containerWidth.value && containerHeight.value && imgRef.value?.image) {
+      await nextTick()
+      setAdaptSize()
+      setCenter()
+    }
+  })
 
   const showSize = computed(() => {
     return {
@@ -14,12 +23,10 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
   })
 
   const isOverflowing = computed(() => {
-    const w = parseFloat(showSize.value.width) || 0
+    if (isFullscreen?.value) return false
     const h = parseFloat(showSize.value.height) || 0
     const top = parseFloat(showPosition.top) || 0
     const bottomBarHeight = 160
-    
-    if (w > containerWidth.value + 1) return true
     
     return top + h > containerHeight.value - bottomBarHeight + 5
   })
@@ -52,8 +59,8 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     const { width, height } = showSize.value
     const { clientHeight: containerHeight, clientWidth: containerWidth } = containerRef.value
     
-    // 留出底部工具栏（约160px）的空间，确保居中时不遮盖
-    const usableHeight = Math.max(containerHeight - 160, 0)
+    // 全屏模式下不要留出底部工具栏空间
+    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 0)
     
     const imgWidth = parseFloat(width), imgHeight = parseFloat(height)
     showPosition.top = (usableHeight - imgHeight) / 2 + 'px'
@@ -69,8 +76,8 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     const imgHeight = imgRef.value.image.naturalHeight
     const { clientHeight: containerHeight, clientWidth: containerWidth } = containerRef.value
 
-    // 在自适应计算高度时同样刨去底部栏的高度，避免缩放后依然被遮盖
-    const usableHeight = Math.max(containerHeight - 160, 100)
+    // 全屏模式下不要留出底部工具栏空间
+    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 100)
 
     if (imgWidth <= containerWidth && imgHeight <= usableHeight) {
       scaleSize.value = 100
@@ -93,14 +100,27 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     setCenter()
   }
 
+  const rotateBy = (delta: number) => {
+    rotateDeg.value = rotateDeg.value + delta
+  }
+
+  const rotateLeft = () => rotateBy(-90)
+  const rotateRight = () => rotateBy(90)
+  const resetRotate = () => { rotateDeg.value = 0 }
+
   return {
     scaleSize,
     naturalSize,
     showSize,
+    rotateDeg,
     isOverflowing,
     setScale,
     setCenter,
     setAdaptSize,
-    handleDoubleClick
+    handleDoubleClick,
+    rotateBy,
+    rotateLeft,
+    rotateRight,
+    resetRotate
   }
 }

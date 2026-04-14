@@ -6,6 +6,20 @@
     <!-- 右上角叉叉和全屏按钮 -->
     <div class="top-right-tools">
       <v-btn
+        icon="mdi-rotate-left"
+        variant="text"
+        style="color: white"
+        class="tool-btn mr-2"
+        @click.stop="zoomManager.rotateLeft"
+      />
+      <v-btn
+        icon="mdi-rotate-right"
+        variant="text"
+        style="color: white"
+        class="tool-btn mr-2"
+        @click.stop="zoomManager.rotateRight"
+      />
+      <v-btn
         icon="mdi-fullscreen"
         variant="text"
         style="color: white"
@@ -43,6 +57,7 @@
         ref="imgRef"
         class="main-img"
         :class="{'no-transition': noTransition}"
+        :style="{ transform: `rotate(${zoomManager.rotateDeg.value}deg)` }"
         :src="imgSrc"
         draggable="false"
         @load="imgLoadHandler"
@@ -57,7 +72,7 @@
     <div class="bottom-area" :class="{'hide-list': isFullscreen || zoomManager.isOverflowing.value}">
       <!-- 工具栏 -->
       <div class="image-tool-bar" :class="{'hide-toolbar': zoomManager.isOverflowing.value}">
-        <div class="image-switch hover-opacity">
+        <div class="image-switch">
           <!-- 上一张 -->
           <v-btn
             icon="mdi-chevron-left"
@@ -133,25 +148,30 @@ const barItemsRef = ref<HTMLElement[]>([])
 
 const showPosition = reactive({ top: '0px', left: '0px' })
 
-const zoomManager = useZoomManager(imgContainerRef, imgRef, showPosition)
+const zoomManager = useZoomManager(imgContainerRef, imgRef, showPosition, isFullscreen)
 const selectionManager = useImageSelection(props, emits, zoomManager)
 const { activeIdx, showMainImg, selectImage, switchImage, imgSrc } = selectionManager
 
-const dragManager = useDragManager(showPosition, emits, (delta) => switchImage(delta))
+const dragManager = useDragManager(showPosition, emits, (delta) => switchImage(delta), zoomManager)
 const { noTransition, mouseDownHandler, mousemoveHandler, mouseUpHandler, touchStartHandler, touchMoveHandler, touchEndHandler } = dragManager
 
 useKeyboardManager(() => toClose(), switchImage)
 
 const toggleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value
-  setTimeout(() => {
-    zoomManager.setAdaptSize()
-    zoomManager.setCenter()
-  }, 200)
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.warn('全屏请求失败:', err)
+    })
+  } else {
+    document.exitFullscreen()
+  }
 }
 
 const toClose = () => {
   hid.value = true
+  if (document.fullscreenElement) {
+    document.exitFullscreen()
+  }
   setTimeout(() => {
     emits('close')
   }, 120)
@@ -162,9 +182,13 @@ const imgLoadHandler = async() => {
   zoomManager.naturalSize.value.height = imgRef.value.image.naturalHeight
   zoomManager.naturalSize.value.width = imgRef.value.image.naturalWidth
   zoomManager.scaleSize.value = 100
+  zoomManager.resetRotate()
   await nextTick()
   zoomManager.setAdaptSize()
   zoomManager.setCenter()
+  setTimeout(() => {
+    noTransition.value = false
+  }, 50)
 }
 
 const mouseScrollHandler = (e: WheelEvent) => {
@@ -185,14 +209,28 @@ const updateBarScrollTop = () => {
 }
 
 watch(() => activeIdx.value, async() => {
+  noTransition.value = true
   showMainImg.value = false
   await nextTick()
   showMainImg.value = true
   setTimeout(updateBarScrollTop, 50)
 }, { immediate: true })
 
+const handleFullscreenChange = () => {
+  isFullscreen.value = !!document.fullscreenElement
+  setTimeout(() => {
+    zoomManager.setAdaptSize()
+    zoomManager.setCenter()
+  }, 200)
+}
+
 onMounted(() => {
   activeIdx.value = props.imageIndex
+  document.addEventListener('fullscreenchange', handleFullscreenChange)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('fullscreenchange', handleFullscreenChange)
 })
 
 defineExpose<ImageViewerExpose>({
@@ -296,7 +334,7 @@ export default { name: 'ImageViewer' }
     left: 0;
     width: 100%;
     z-index: 10;
-    padding-bottom: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
     transition: all 0.3s;
     pointer-events: none;
 
@@ -339,7 +377,7 @@ export default { name: 'ImageViewer' }
 
         &:hover, &:active {
           opacity: 1;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(0, 0, 0, 0.5);
         }
 
         .image-info {
