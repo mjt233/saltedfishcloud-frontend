@@ -1,3 +1,4 @@
+<!-- 注：该组件除了本条注释，不包含任何人工编写的代码 -->
 <template>
   <div class="image-viewer" :class="{'hid': hid, 'fullscreen-mode': isFullscreen}">
     <!-- 背景区域，点击空白处关闭 -->
