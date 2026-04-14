@@ -8,14 +8,15 @@
       <v-btn
         icon="mdi-fullscreen"
         variant="text"
-        color="white"
-        class="mr-2"
+        style="color: white"
+        class="tool-btn mr-2"
         @click.stop="toggleFullscreen"
       />
       <v-btn
         icon="mdi-close"
         variant="text"
-        color="white"
+        style="color: white"
+        class="tool-btn"
         @click.stop="toClose"
       />
     </div>
@@ -53,10 +54,10 @@
     </div>
 
     <!-- 底部控制栏和图片列表 -->
-    <div class="bottom-area" :class="{'hide-list': isFullscreen}">
+    <div class="bottom-area" :class="{'hide-list': isFullscreen || zoomManager.isOverflowing.value}">
       <!-- 工具栏 -->
-      <div class="image-tool-bar">
-        <div class="image-switch">
+      <div class="image-tool-bar" :class="{'hide-toolbar': zoomManager.isOverflowing.value}">
+        <div class="image-switch hover-opacity">
           <!-- 上一张 -->
           <v-btn
             icon="mdi-chevron-left"
@@ -65,7 +66,10 @@
             @click.stop="switchImage(-1)"
           />
           
-          <span class="image-info">{{ activeIdx + 1 }} / {{ fileList.length }}  |  {{ zoomManager.scaleSize.value.toFixed(0) }}%</span>
+          <span class="image-info">
+            <span class="filename text-truncate">{{ fileList[activeIdx]?.name }}</span>
+            <span class="info-text">{{ activeIdx + 1 }} / {{ fileList.length }}  |  {{ zoomManager.scaleSize.value.toFixed(0) }}%</span>
+          </span>
           
           <!-- 下一张 -->
           <v-btn
@@ -78,7 +82,7 @@
       </div>
 
       <!-- 预览缩略图列表 (使用虚拟滚动或普通横向滚动以支持大量数据) -->
-      <div ref="barRef" class="thumbnail-list-container">
+      <div ref="barRef" class="thumbnail-list-container transition-all">
         <!-- 此处使用水平居中或者水平滑动条 -->
         <div class="thumbnail-list">
           <div
@@ -97,9 +101,6 @@
               :show-thumb="true"
               :custom-thumbnail-url="thumbnailUrlGenerator && thumbnailUrlGenerator(file)"
             />
-            <div class="thumb-title text-truncate">
-              {{ file.name }}
-            </div>
           </div>
         </div>
       </div>
@@ -214,8 +215,6 @@ export default { name: 'ImageViewer' }
 }
 
 .image-viewer {
-  display: flex;
-  flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
@@ -243,16 +242,30 @@ export default { name: 'ImageViewer' }
 
   .top-right-tools {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 15px;
+    right: 20px;
     z-index: 10;
     display: flex;
     align-items: center;
+
+    .tool-btn {
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 50%;
+      text-shadow: 0 0 5px black;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+    }
   }
 
   .image-container {
-    flex: 1;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: 5;
     overflow: hidden;
     cursor: grab;
@@ -278,25 +291,40 @@ export default { name: 'ImageViewer' }
   }
 
   .bottom-area {
-    position: relative;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     z-index: 10;
-    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
     padding-bottom: 20px;
-    transition: transform 0.3s;
+    transition: all 0.3s;
+    pointer-events: none;
 
     &.hide-list {
       .thumbnail-list-container {
-        display: none;
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
       }
+    }
+
+    * {
+      pointer-events: auto;
     }
 
     .image-tool-bar {
       display: flex;
       justify-content: center;
       align-items: center;
-      text-shadow: 0 0 5px black;
       height: 50px;
       color: white;
+      transition: all 0.3s;
+
+      &.hide-toolbar {
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+      }
 
       .image-switch {
         display: flex;
@@ -305,10 +333,32 @@ export default { name: 'ImageViewer' }
         background: rgba(0, 0, 0, 0.4);
         padding: 5px 15px;
         border-radius: 20px;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s;
+        opacity: 0.6;
+
+        &:hover, &:active {
+          opacity: 1;
+          background: rgba(0, 0, 0, 0.75);
+        }
 
         .image-info {
-          font-size: 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
           user-select: none;
+          
+          .filename {
+            max-width: 180px;
+            font-size: 14px;
+            font-weight: 500;
+          }
+          
+          .info-text {
+            font-size: 13px;
+            color: #ddd;
+            white-space: nowrap;
+          }
         }
       }
     }
@@ -317,13 +367,7 @@ export default { name: 'ImageViewer' }
       width: 100%;
       overflow-x: auto;
       scroll-behavior: smooth;
-      &::-webkit-scrollbar {
-        height: 6px;
-      }
-      &::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,0.4);
-        border-radius: 3px;
-      }
+      transition: all 0.3s ease-out;
 
       .thumbnail-list {
         display: inline-flex;
@@ -335,7 +379,7 @@ export default { name: 'ImageViewer' }
           display: flex;
           flex-direction: column;
           align-items: center;
-          width: 80px;
+          width: 70px;
           cursor: pointer;
           opacity: 0.6;
           transition: all 0.2s;
@@ -346,9 +390,6 @@ export default { name: 'ImageViewer' }
               border-color: rgb(var(--v-theme-primary));
               transform: scale(1.05);
             }
-            .thumb-title {
-              color: rgb(var(--v-theme-primary));
-            }
           }
 
           .thumb-img {
@@ -358,14 +399,16 @@ export default { name: 'ImageViewer' }
             border-radius: 6px;
             overflow: hidden;
             transition: all 0.2s;
-            margin-bottom: 5px;
-          }
+            background-color: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-          .thumb-title {
-            width: 100%;
-            font-size: 12px;
-            color: #ddd;
-            text-align: center;
+            :deep(img), :deep(.v-img__img) {
+              object-fit: cover !important;
+              width: 100% !important;
+              height: 100% !important;
+            }
           }
         }
       }
