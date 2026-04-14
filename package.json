@@ -22,6 +22,7 @@
     "build-ext-webdav": "vite build --config build/extension/webdav.ts"
   },
   "dependencies": {
+    "@vueuse/core": "^14.2.1",
     "axios": "^1.13.5",
     "dplayer": "^1.27.1",
     "echarts": "^5.4.2",
