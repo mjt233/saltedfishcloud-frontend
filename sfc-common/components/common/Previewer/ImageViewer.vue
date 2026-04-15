@@ -1,11 +1,17 @@
 <!-- 注：该组件除了本条注释，不包含任何人工编写的代码 -->
 <template>
-  <div class="image-viewer" :class="{'hid': hid, 'fullscreen-mode': isFullscreen}">
+  <div
+    class="image-viewer"
+    :class="{'hid': hid, 'fullscreen-mode': isFullscreen}"
+    @mousemove="activeUi"
+    @touchstart="activeUi"
+    @click="activeUi"
+  >
     <!-- 背景区域，点击空白处关闭 -->
     <div class="image-viewer-bg" @click="toClose" />
 
     <!-- 右上角叉叉和全屏按钮 -->
-    <div class="top-right-tools">
+    <div class="top-right-tools" :class="{'hide-tools': !isUiVisible}">
       <v-btn
         icon="mdi-rotate-left"
         variant="text"
@@ -70,9 +76,9 @@
     </div>
 
     <!-- 底部控制栏和图片列表 -->
-    <div class="bottom-area" :class="{'hide-list': isFullscreen || zoomManager.isOverflowing.value}">
+    <div class="bottom-area" :class="{'hide-list': !isUiVisible || zoomManager.isOverflowing.value}">
       <!-- 工具栏 -->
-      <div class="image-tool-bar" :class="{'hide-toolbar': zoomManager.isOverflowing.value}">
+      <div class="image-tool-bar" :class="{'hide-toolbar': !isUiVisible || zoomManager.isOverflowing.value}">
         <div class="image-switch">
           <!-- 上一张 -->
           <v-btn
@@ -141,6 +147,21 @@ const emits = defineEmits(imageViewerEmits)
 const hid = ref(false)
 const loading = ref(false)
 const isFullscreen = ref(false)
+const userActive = ref(true)
+let uiHideTimer: any = null
+
+const isUiVisible = computed(() => !isFullscreen.value || userActive.value)
+
+// 当用户在全屏模式下操作时，显示UI并在无操作1秒后隐藏
+const activeUi = () => {
+  userActive.value = true
+  if (uiHideTimer) clearTimeout(uiHideTimer)
+  if (isFullscreen.value) {
+    uiHideTimer = setTimeout(() => {
+      userActive.value = false
+    }, 1000)
+  }
+}
 
 const imgContainerRef = ref<HTMLElement>()
 const imgRef = ref<any>()
@@ -160,9 +181,10 @@ useKeyboardManager(() => toClose(), switchImage)
 
 const toggleFullscreen = () => {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(err => {
-      console.warn('全屏请求失败:', err)
-    })
+    document.documentElement.requestFullscreen()
+      .catch(err => {
+        console.warn('全屏请求失败:', err)
+      })
   } else {
     document.exitFullscreen()
   }
@@ -217,8 +239,16 @@ watch(() => activeIdx.value, async() => {
   setTimeout(updateBarScrollTop, 50)
 }, { immediate: true })
 
+
+// 监听全屏状态变化以调整UI显示和图片适应
 const handleFullscreenChange = () => {
   isFullscreen.value = !!document.fullscreenElement
+  if (isFullscreen.value) {
+    activeUi()
+  } else {
+    userActive.value = true
+    if (uiHideTimer) clearTimeout(uiHideTimer)
+  }
   setTimeout(() => {
     zoomManager.setAdaptSize()
     zoomManager.setCenter()
@@ -231,6 +261,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (uiHideTimer) clearTimeout(uiHideTimer)
   document.removeEventListener('fullscreenchange', handleFullscreenChange)
 })
 
@@ -286,6 +317,13 @@ export default { name: 'ImageViewer' }
     z-index: 10;
     display: flex;
     align-items: center;
+    transition: all 0.3s;
+
+    &.hide-tools {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+    }
 
     .tool-btn {
       background-color: rgba(0, 0, 0, 0.4);

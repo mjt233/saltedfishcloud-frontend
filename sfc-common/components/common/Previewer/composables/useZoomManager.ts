@@ -79,24 +79,34 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     // 全屏模式下不要留出底部工具栏空间
     const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 100)
 
-    if (imgWidth <= containerWidth && imgHeight <= usableHeight) {
+    const xRatio = containerWidth / imgWidth * 100
+    const yRatio = usableHeight / imgHeight * 100
+    
+    // 如果不是全屏且图片比容器小，则不放大图片，保持100%
+    if (!isFullscreen?.value && imgWidth <= containerWidth && imgHeight <= usableHeight) {
       scaleSize.value = 100
       return
     }
-    const xRatio = containerWidth / imgWidth * 100
-    const yRatio = usableHeight / imgHeight * 100
+    
     scaleSize.value = Math.min(xRatio, yRatio)
   }
 
   /**
    * 双击行为：在100%和AdaptSize之间切换
    */
-  const handleDoubleClick = () => {
-    if (scaleSize.value >= 100) {
-      setAdaptSize()
+  const handleDoubleClick = async() => {
+    const originScale = scaleSize.value
+    setAdaptSize()
+    const adaptScale = scaleSize.value
+
+    // 如果当前就是AdaptSize，那就切换到100%
+    if (Math.abs(originScale - adaptScale) < 0.1) {
+      setScale(100)
     } else {
-      setScale(100, true)
+      // 否则切换到AdaptSize
+      scaleSize.value = adaptScale
     }
+    await nextTick()
     setCenter()
   }
 
