@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from 'axios'
+import type { AxiosRequestConfig } from 'axios'
 /**
  * 使用POST带表单数据的方式打开新窗口
  * @param {String} url 目标地址
