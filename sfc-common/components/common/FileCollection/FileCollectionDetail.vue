@@ -31,7 +31,7 @@
 
         <!-- 接受的文件 -->
         <v-window-item value="file">
-          <file-collection-record-list :cid="modelValue?.id" />
+          <file-collection-record-list :cid="modelValue?.id" :collection-info="modelValue" />
         </v-window-item>
       </v-window>
     </div>

@@ -64,10 +64,10 @@ const emits = defineEmits<{
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async search(page: number) {
-    const result = (await SfcUtils.request(API.file.search(props.uid, props.keywork, page))).data.data
-    searchResult.list = result.list
-    searchResult.total = result.total
-    searchResult.totalPages = result.pages
+    const result = (await SfcUtils.request(API.file.search(props.uid, props.keywork, page - 1))).data.data
+    searchResult.list = result.content
+    searchResult.total = result.totalCount
+    searchResult.totalPages = result.totalPage
   },
   async clickItem(item: FileInfo) {
     // 由于搜索文件列表并没有固定的路径记录

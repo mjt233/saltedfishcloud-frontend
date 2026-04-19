@@ -1,5 +1,5 @@
 import { FileTransferInfo, getContext, SearchFileInfo } from 'sfc-common'
-import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo, SimpleFileTransferParam } from 'sfc-common/model'
+import { CommonPageInfo, CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo, SimpleFileTransferParam } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import resource from './resource'
@@ -142,10 +142,10 @@ const file = {
    * 搜索文件
    * @param {String} uid 用户ID
    * @param {String} key 关键字
-   * @param {Number} [page = 1] 页码
+   * @param {Number} [page = 0] 页码
    * @returns
    */
-  search(uid: IdType, key: string, page: number = 1): CommonRequest<PageInfo<SearchFileInfo>> {
+  search(uid: IdType, key: string, page: number = 0): CommonRequest<CommonPageInfo<SearchFileInfo>> {
     return {
       url: `${this.prefix}/${uid}/fileList/byName/${key}`,
       method: 'get',
