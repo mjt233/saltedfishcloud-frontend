@@ -110,7 +110,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       requestResult.value = (await SfcUtils.request(API.user.getUserList(curPage.value - 1, pageSize.value))).data.data
     }
     if (requestResult.value.totalPage < curPage.value) {
-      curPage.value = requestResult.value.totalPage
+      curPage.value = Math.max(1, requestResult.value.totalPage)
     }
   },
   async grant(uid: IdType, isAdmin: boolean) {
