@@ -29,7 +29,10 @@ export namespace AsyncTaskService {
       persistent: true,
       fullscreen: false,
       showConfirm: false,
-      title: opt.title
+      title: opt.title,
+      extraDialogOptions: {
+        maxWidth: '810px'
+      }
     })
   }
 }
