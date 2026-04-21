@@ -12,6 +12,7 @@ import { AsyncTaskInfo } from 'sfc-common/components'
 import { FileListMenuItem } from './type'
 import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
 import { StringFormatter } from 'sfc-common/utils'
+import ArchiveExtractForm from 'sfc-common/components/form/ArchiveExtractForm.vue'
 
 const archiveTypeCache = new Map<string, boolean>()
 
@@ -74,22 +75,71 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
 
         // 判断拓展名是否在支持的压缩类型范围内
         if (archiveTypeCache.size == 0) {
-          getContext().feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
+          getContext().feature.value.extractArchiveType.forEach(type => archiveTypeCache.set(type.toLowerCase(), true))
         }
-        const extName = name.substring(idx + 1)
+        const extName = name.substring(idx + 1).toLowerCase()
         return archiveTypeCache.get(extName) == true
       },
       async action(ctx) {
         try {
-          const path = await SfcUtils.selectPath({
-            title: '选择解压位置',
-            uid: ctx.uid,
-            path: ctx.path
+          const file = ctx.selectFileList[0]
+          const dialog = SfcUtils.openComponentDialog(ArchiveExtractForm, {
+            props: {
+              uid: ctx.uid,
+              path: ctx.path,
+              encoding: 'UTF8',
+              archiveName: file.name
+            },
+            title: '解压缩参数',
+            async onConfirm() {
+              const submitResult = await dialog.getInstAsForm().submit()
+              if (!submitResult.success) {
+                return false
+              }
+
+              const formData = dialog.getInstAsForm().getFormData() as {
+                path: string
+                encoding: string
+              }
+              const taskId = (await SfcUtils.request(API.archive.asyncExtract({
+                source: {
+                  ...ctx.getProtocolParams(),
+                  path: ctx.path,
+                  name: file.name
+                },
+                archiveParam: {
+                  type: file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase(),
+                  encoding: formData.encoding
+                },
+                uid: ctx.uid,
+                path: formData.path
+              }))).data.data
+
+              let isFinish = false
+              const taskDialog = AsyncTaskService.openSimpleAsyncTaskInfoDialog({
+                title: '解压缩',
+                taskId,
+                componentProps: {
+                  speedFormatter(speed) {
+                    return StringFormatter.toSize(speed) + '/s'
+                  }
+                },
+                async onTaskExit(task) {
+                  isFinish = true
+                  if (task.status == 2 && formData.path == ctx.path) {
+                    await ctx.modelHandler.refresh()
+                  }
+                },
+                async onDialogCancel() {
+                  if (!isFinish) {
+                    SfcUtils.loadingDialogTask({ msg: '正在取消任务' }, () => SfcUtils.request(API.asyncTask.interrupt(taskId)))
+                  }
+                  return true
+                }
+              })
+              return true
+            }
           })
-          await SfcUtils.request(API.file.unzip(ctx.uid, ctx.path, ctx.selectFileList[0].name, path))
-          if (path == ctx.path) {
-            await ctx.modelHandler.refresh()
-          }
         } catch(err) {
           if (err != 'cancel') {
             return Promise.reject(err)

@@ -25,6 +25,7 @@
 ## 📏组件代码规范
 
 - Vue 模板内部的组件统一使用 PascalCase 命名，如：`VContainer`，`VCard`
+- 需要通过对话框打开组件时，使用`SfcUtils.openComponentDialog`
 
 
 ## 💎 组件使用准则
