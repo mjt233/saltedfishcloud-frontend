@@ -52,7 +52,7 @@ const fileActionGroup: MenuGroup<FileListContext, FileListMenuItem> =
             }
           })
           if (isConfirm) {
-            await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
+            await SfcUtils.loadingDialogTask({ msg: '正在删除文件...' }, () => ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name)))
             await ctx.modelHandler.refresh()
             SfcUtils.snackbar('删除成功')
           }
