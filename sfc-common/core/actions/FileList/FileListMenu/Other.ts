@@ -14,8 +14,6 @@ import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
 import { StringFormatter } from 'sfc-common/utils'
 import ArchiveExtractForm from 'sfc-common/components/form/ArchiveExtractForm.vue'
 
-const archiveTypeCache = new Map<string, boolean>()
-
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
   getContext().fileClipBoard.value = reactive({
     files: ctx.selectFileList,
@@ -65,7 +63,7 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
         if (ctx.selectFileList.length != 1) {
           return false
         }
-        const name = ctx.selectFileList[0].name
+        const name = ctx.selectFileList[0].name.toLowerCase()
         const idx = name.lastIndexOf('.')
 
         // 没有拓展名，排除
@@ -74,11 +72,7 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
         }
 
         // 判断拓展名是否在支持的压缩类型范围内
-        if (archiveTypeCache.size == 0) {
-          getContext().feature.value.extractArchiveType.forEach(type => archiveTypeCache.set(type.toLowerCase(), true))
-        }
-        const extName = name.substring(idx + 1).toLowerCase()
-        return archiveTypeCache.get(extName) == true
+        return getContext().feature.value.archiveEngineList.some(e => e.decompressExtensions.some(ext => name.endsWith(ext.toLowerCase())))
       },
       async action(ctx) {
         try {
@@ -182,15 +176,15 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
           })
 
           // 发起异步任务
-          const taskId = (await SfcUtils.request(API.file.asyncCompress({
+          const taskId = (await SfcUtils.request(API.archive.asyncCompress({
             sourceUid: ctx.uid,
             sourceNames: ctx.selectFileList.map(e => e.name),
             sourcePath: ctx.path,
             targetFilePath: StringUtils.appendPath(path, name),
             targetUid: ctx.uid,
-            archiveParam: {
-              type: 'zip',
-              encoding: getContext().feature.value.archiveEncoding
+            engineProviderId: 'commons-zip', // 'commons-zip',
+            engineProperty: {
+              encoding: 'UTF8'
             },
             waitExit: false
           }))).data.data
