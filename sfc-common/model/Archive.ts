@@ -158,3 +158,61 @@ export interface AsyncArchiveExtractParam {
    */
   path: string
 }
+
+/**
+ * 压缩任务资源，既可表示待压缩资源，也可表示压缩包内资源
+ */
+export interface ArchiveResource {
+  /**
+   * 文件名（不含路径）
+   */
+  name: string
+
+  /**
+   * 文件大小，单位字节
+   */
+  size: number
+
+  /**
+   * 资源在压缩包内的完整路径。规范如下：
+   * - 不使用'/'开头
+   * - 使用'/'作为分隔符
+   * - 长度 > 1 且 使用'/'作为末尾字符表示目录
+   */
+  archivePath: string
+
+  /**
+   * 是否为目录
+   */
+  isDirectory: boolean
+
+  /**
+   * 最后修改时间
+   */
+  lastModified?: Date
+
+  /**
+   * 创建时间
+   */
+  created?: Date
+}
+
+/**
+ * 读取压缩包内所有文件列表的请求参数
+ */
+export interface ListArchiveResourcesRequest {
+  /**
+   * 使用的压缩引擎id
+   */
+  engineProviderId: string
+
+  /**
+   * 压缩引擎参数
+   */
+  engineProperty: ArchiveEngineProperty
+
+  /**
+   * 要查看的压缩包资源
+   */
+  resourceRequest: ResourceRequest
+}
