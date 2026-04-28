@@ -7,12 +7,11 @@ import { reactive } from 'vue'
 import { getContext } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
 import API from 'sfc-common/api'
-import { Validators } from 'sfc-common/core/helper/Validators'
-import { AsyncTaskInfo } from 'sfc-common/components'
 import { FileListMenuItem } from './type'
 import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
 import { StringFormatter } from 'sfc-common/utils'
 import ArchiveExtractForm from 'sfc-common/components/form/ArchiveExtractForm.vue'
+import ArchiveCompressForm from 'sfc-common/components/form/ArchiveCompressForm.vue'
 
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
   getContext().fileClipBoard.value = reactive({
@@ -153,60 +152,61 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
       },
       async action(ctx) {
         try {
-          // 选择文件
-          const path = await SfcUtils.selectPath({
-            uid: ctx.uid,
-            path: ctx.path
-          })
+          const dialog = SfcUtils.openComponentDialog(ArchiveCompressForm, {
+            title: '创建压缩任务',
+            props: {
+              archiveEngineList: getContext().feature.value.archiveEngineList,
+              path: ctx.path,
+              sourceUid: ctx.uid,
+              sourcePath: ctx.path,
+              sourceNames: ctx.selectFileList.map(e => e.name)
+            },
+            async onConfirm() {
+              const submitResult = await dialog.getInstAsForm().submit()
+              if (!submitResult.success) {
+                return false
+              }
 
-          // 设置文件名
-          const name = await SfcUtils.prompt({
-            title: '压缩文件名',
-            cancelToReject: true,
-            rules: [
-              Validators.notNull('压缩文件名不能为空'),
-              (val: string) => {
-                if (!val.endsWith('.zip')) {
-                  return '必须以.zip结尾'
-                } else {
+              const formData = dialog.getInstAsForm().getFormData() as any
+              const targetFileName = formData.name + '.' + formData.format
+
+              const taskId = (await SfcUtils.request(API.archive.asyncCompress({
+                sourceUid: ctx.uid,
+                sourceNames: ctx.selectFileList.map(e => e.name),
+                sourcePath: ctx.path as string,
+                targetFilePath: StringUtils.appendPath(formData.path, targetFileName),
+                targetUid: ctx.uid,
+                engineProviderId: formData.engineId,
+                engineProperty: {
+                  encoding: formData.encoding,
+                  compressionLevel: formData.compressionLevel
+                },
+                waitExit: false
+              }))).data.data
+
+              let isFinish = false
+              const taskDialog = AsyncTaskService.openSimpleAsyncTaskInfoDialog({
+                title: '压缩文件',
+                taskId,
+                componentProps: {
+                  speedFormatter(speed) {
+                    return StringFormatter.toSize(speed) + '/s'
+                  }
+                },
+                async onTaskExit(task) {
+                  isFinish = true
+                  if (task.status == 2 && formData.path == ctx.path) {
+                    await ctx.modelHandler.refresh()
+                  }
+                },
+                async onDialogCancel() {
+                  if (!isFinish) {
+                    SfcUtils.loadingDialogTask({ msg: '正在取消任务' }, () => SfcUtils.request(API.asyncTask.interrupt(taskId)))
+                  }
                   return true
                 }
-              }
-            ]
-          })
-
-          // 发起异步任务
-          const taskId = (await SfcUtils.request(API.archive.asyncCompress({
-            sourceUid: ctx.uid,
-            sourceNames: ctx.selectFileList.map(e => e.name),
-            sourcePath: ctx.path,
-            targetFilePath: StringUtils.appendPath(path, name),
-            targetUid: ctx.uid,
-            engineProviderId: 'commons-zip', // 'commons-zip',
-            engineProperty: {
-              encoding: 'UTF8'
-            },
-            waitExit: false
-          }))).data.data
-          
-          let isFinish = false
-          // 查看任务状态
-          const dialog = SfcUtils.openComponentDialog(AsyncTaskInfo, {
-            props: {
-              taskId: taskId,
-              async onTaskExit() {
-                isFinish = true
-
-                // 原地保存时刷新
-                if (path == ctx.path) {
-                  await ctx.modelHandler.refresh()
-                }
-              }
-            },
-            showCancel: false,
-            title: '任务状态',
-            extraDialogOptions: {
-              maxWidth: '1280px'
+              })
+              return true
             }
           })
         } catch(err) {
