@@ -70,6 +70,11 @@ export interface ArchiveEngineProperty {
   compressionLevel?: 'STORE' | 'FASTEST' | 'FAST' | 'NORMAL' | 'HIGH' | 'ULTRA'
 
   /**
+   * 指定引擎使用哪种压缩/解压缩格式，如不指定则由引擎根据文件名自动识别
+   */
+  extension?: string
+
+  /**
    * 加密参数，如果不需要加密则为null
    */
   encryptionParam?: EncryptionParam
@@ -134,9 +139,14 @@ export interface AsyncArchiveExtractParam {
   source: ResourceRequest
 
   /**
-   * 解压缩参数
+   * 解压引擎id
    */
-  archiveParam: ArchiveParam
+  engineProviderId: string
+
+  /**
+   * 解压引擎的详细解压参数（编码、密码、扩展名等）
+   */
+  archiveEngineProperty: ArchiveEngineProperty
 
   /**
    * 解压到的个人网盘用户id

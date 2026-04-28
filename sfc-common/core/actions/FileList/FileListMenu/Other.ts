@@ -81,28 +81,27 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
               uid: ctx.uid,
               path: ctx.path,
               encoding: 'UTF8',
-              archiveName: file.name
+              filename: file.name,
+              archiveEngineList: getContext().feature.value.archiveEngineList
             },
-            title: '解压缩参数',
+            title: '解压文件',
             async onConfirm() {
               const submitResult = await dialog.getInstAsForm().submit()
               if (!submitResult.success) {
                 return false
               }
 
-              const formData = dialog.getInstAsForm().getFormData() as {
-                path: string
-                encoding: string
-              }
+              const formData = dialog.getInstAsForm().getFormData() as any
               const taskId = (await SfcUtils.request(API.archive.asyncExtract({
                 source: {
                   ...ctx.getProtocolParams(),
                   path: ctx.path,
                   name: file.name
                 },
-                archiveParam: {
-                  type: file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase(),
-                  encoding: formData.encoding
+                engineProviderId: formData.engineId,
+                archiveEngineProperty: {
+                  encoding: formData.encoding,
+                  extension: '.' + formData.format
                 },
                 uid: ctx.uid,
                 path: formData.path
