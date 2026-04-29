@@ -72,19 +72,25 @@ const handler: FileOpenHandler = {
       return
     }
 
-    const archiveResourceList = await SfcUtils.loadingDialogTask({ msg: '正在读取压缩包内容...' }, async p => {
-      return (await SfcUtils.request(API.archive.listResources({
-        engineProviderId: engine.engineId,
-        engineProperty: {
-          extension: `.${format}`
-        },
-        resourceRequest: {
-          ...ctx.getProtocolParams(),
-          path: ctx.path,
-          name: file.name
-        }
-      }))).data.data as ArchiveResource[]
-    })
+    let archiveResourceList: ArchiveResource[] = []
+    try {
+      archiveResourceList = await SfcUtils.loadingDialogTask({ msg: '正在读取压缩包内容...' }, async p => {
+        return (await SfcUtils.request(API.archive.listResources({
+          engineProviderId: engine.engineId,
+          engineProperty: {
+            extension: `.${format}`
+          },
+          resourceRequest: {
+            ...ctx.getProtocolParams(),
+            path: ctx.path,
+            name: file.name
+          }
+        }))).data.data as ArchiveResource[]
+      })
+    } catch (err) {
+      SfcUtils.alert(err + '', '预览失败')
+      return
+    }
 
     SfcUtils.openComponentDialog(ArchiveResourceViewer, {
       title: `查看压缩包 - ${file.name}`,
