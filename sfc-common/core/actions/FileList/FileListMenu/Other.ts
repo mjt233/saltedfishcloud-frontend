@@ -10,8 +10,7 @@ import API from 'sfc-common/api'
 import { FileListMenuItem } from './type'
 import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
 import { StringFormatter } from 'sfc-common/utils'
-import ArchiveExtractForm from 'sfc-common/components/form/ArchiveExtractForm.vue'
-import ArchiveCompressForm from 'sfc-common/components/form/ArchiveCompressForm.vue'
+import { ArchiveTaskService } from 'sfc-common/core/serivce/ArchiveTaskService'
 
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
   getContext().fileClipBoard.value = reactive({
@@ -76,61 +75,10 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
       async action(ctx) {
         try {
           const file = ctx.selectFileList[0]
-          const dialog = SfcUtils.openComponentDialog(ArchiveExtractForm, {
-            props: {
-              uid: ctx.uid,
-              path: ctx.path,
-              encoding: 'UTF8',
-              filename: file.name,
-              archiveEngineList: getContext().feature.value.archiveEngineList
-            },
-            title: '解压文件',
-            async onConfirm() {
-              const submitResult = await dialog.getInstAsForm().submit()
-              if (!submitResult.success) {
-                return false
-              }
-
-              const formData = dialog.getInstAsForm().getFormData() as any
-              const taskId = (await SfcUtils.request(API.archive.asyncExtract({
-                source: {
-                  ...ctx.getProtocolParams(),
-                  path: ctx.path,
-                  name: file.name
-                },
-                engineProviderId: formData.engineId,
-                archiveEngineProperty: {
-                  encoding: formData.encoding,
-                  extension: '.' + formData.format
-                },
-                uid: ctx.uid,
-                path: formData.path
-              }))).data.data
-
-              let isFinish = false
-              const taskDialog = AsyncTaskService.openSimpleAsyncTaskInfoDialog({
-                title: '解压缩',
-                taskId,
-                componentProps: {
-                  speedFormatter(speed) {
-                    return StringFormatter.toSize(speed) + '/s'
-                  }
-                },
-                async onTaskExit(task) {
-                  isFinish = true
-                  if (task.status == 2 && formData.path == ctx.path) {
-                    await ctx.modelHandler.refresh()
-                  }
-                },
-                async onDialogCancel() {
-                  if (!isFinish) {
-                    SfcUtils.loadingDialogTask({ msg: '正在取消任务' }, () => SfcUtils.request(API.asyncTask.interrupt(taskId)))
-                  }
-                  return true
-                }
-              })
-              return true
-            }
+          await ArchiveTaskService.openExtractDialogAndCreateTask({
+            ctx,
+            fileName: file.name,
+            title: '解压文件'
           })
         } catch(err) {
           if (err != 'cancel') {
@@ -151,62 +99,10 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
       },
       async action(ctx) {
         try {
-          const dialog = SfcUtils.openComponentDialog(ArchiveCompressForm, {
-            title: '创建压缩任务',
-            props: {
-              archiveEngineList: getContext().feature.value.archiveEngineList,
-              path: ctx.path,
-              sourceUid: ctx.uid,
-              sourcePath: ctx.path,
-              sourceNames: ctx.selectFileList.map(e => e.name)
-            },
-            async onConfirm() {
-              const submitResult = await dialog.getInstAsForm().submit()
-              if (!submitResult.success) {
-                return false
-              }
-
-              const formData = dialog.getInstAsForm().getFormData() as any
-              const targetFileName = formData.name + '.' + formData.format
-
-              const taskId = (await SfcUtils.request(API.archive.asyncCompress({
-                sourceUid: ctx.uid,
-                sourceNames: ctx.selectFileList.map(e => e.name),
-                sourcePath: ctx.path as string,
-                targetFilePath: StringUtils.appendPath(formData.path, targetFileName),
-                targetUid: ctx.uid,
-                engineProviderId: formData.engineId,
-                engineProperty: {
-                  encoding: formData.encoding,
-                  compressionLevel: formData.compressionLevel
-                },
-                waitExit: false
-              }))).data.data
-
-              let isFinish = false
-              const taskDialog = AsyncTaskService.openSimpleAsyncTaskInfoDialog({
-                title: '压缩文件',
-                taskId,
-                componentProps: {
-                  speedFormatter(speed) {
-                    return StringFormatter.toSize(speed) + '/s'
-                  }
-                },
-                async onTaskExit(task) {
-                  isFinish = true
-                  if (task.status == 2 && formData.path == ctx.path) {
-                    await ctx.modelHandler.refresh()
-                  }
-                },
-                async onDialogCancel() {
-                  if (!isFinish) {
-                    SfcUtils.loadingDialogTask({ msg: '正在取消任务' }, () => SfcUtils.request(API.asyncTask.interrupt(taskId)))
-                  }
-                  return true
-                }
-              })
-              return true
-            }
+          await ArchiveTaskService.openCompressDialogAndCreateTask({
+            ctx,
+            sourceNames: ctx.selectFileList.map(e => e.name),
+            title: '创建压缩任务'
           })
         } catch(err) {
           if (err != 'cancel') {
