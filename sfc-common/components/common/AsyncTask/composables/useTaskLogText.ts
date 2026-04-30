@@ -3,6 +3,7 @@ import { IdType } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { onUnmounted, ref, type Ref, type ComputedRef } from 'vue'
 import { WebSocketService } from 'sfc-common/core/serivce/WebSocketService'
+import LogWorker from './logWorker?worker'
 
 export interface UseTaskLogTextOptions {
   /**
@@ -29,6 +30,19 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
   // AJAX 加载中标记
   let ajaxLoading = false
   let isUnmounted = false
+  
+  let worker: Worker | undefined
+
+  const initWorker = () => {
+    if (!worker) {
+      worker = new LogWorker()
+      worker.onmessage = (e: MessageEvent) => {
+        if (e.data.type === 'update') {
+          logText.value = e.data.payload
+        }
+      }
+    }
+  }
 
   /**
    * 获取任务状态
@@ -44,6 +58,10 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
    * 清理资源
    */
   const clear = () => {
+    if (worker) {
+      worker.terminate()
+      worker = undefined
+    }
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.close()
       ws = undefined
@@ -68,10 +86,11 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
     try {
       ajaxLoading = true
       const logData = (await SfcUtils.request(API.asyncTask.getLog(taskId))).data.data
+      initWorker()
       if (logData) {
-        logText.value = logData
+        worker!.postMessage({ type: 'reset', payload: logData as string })
       } else {
-        logText.value = '无日志'
+        worker!.postMessage({ type: 'reset', payload: '无日志' })
       }
     } catch (err) {
       console.error(err)
@@ -85,9 +104,10 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
    * 通过 WebSocket 加载实时日志
    */
   const loadLogByWs = async() => {
+    initWorker()
     const websocket = await WebSocketService.connect({
       onMessage(msg) {
-        logText.value += `${msg.data}\n`
+        worker!.postMessage({ type: 'append', payload: `${msg.data}\n` })
       }
     })
     WebSocketService.subscribeAsyncTaskLog(websocket, taskId)
@@ -115,6 +135,15 @@ export function useTaskLogText(taskId: IdType, options: UseTaskLogTextOptions) {
       ws = await loadLogByWs()
       ws.addEventListener('close', () => {
         console.log('ws 已断开')
+        // 意外断开且任务未结束、组件未卸载且需显示日志时，自动尝试重连
+        if (getStatus() === 1 && !isUnmounted && isShowLog.value) {
+          setTimeout(() => {
+            if (getStatus() === 1 && !isUnmounted && isShowLog.value) {
+              console.log('尝试重新连接日志WebSocket')
+              startLoadLogData()
+            }
+          }, 1500)
+        }
       })
       console.log('已连接websocket')
     } catch (err) {

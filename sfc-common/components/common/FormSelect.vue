@@ -1,3 +1,4 @@
+<!-- 该组件已弃用，请直接使用VSelect -->
 <template>
   <div class="form-select">
     <LoadingMask type="circular" :loading="loading" />

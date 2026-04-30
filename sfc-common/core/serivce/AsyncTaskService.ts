@@ -29,7 +29,10 @@ export namespace AsyncTaskService {
       persistent: true,
       fullscreen: false,
       showConfirm: false,
-      title: '复制文件'
+      title: opt.title,
+      extraDialogOptions: {
+        maxWidth: '810px'
+      }
     })
   }
 }

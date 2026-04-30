@@ -11,9 +11,7 @@ import defaultBoxMenu from './menu/BoxMenu'
 const defaultFeature: SystemFeature = reactive({
   enableEmailReg: false,
   enableRegCode: false,
-  extractArchiveType: ['zip'],
-  archiveEncoding: 'gbk',
-  archiveType: ['zip'],
+  archiveEngineList: [],
   version: 'unknown',
   thumbType: ['jpg', 'bmp', 'gif', 'png', 'jpeg', 'webp'],
   breakpointUrl: '/api/breakpoint',

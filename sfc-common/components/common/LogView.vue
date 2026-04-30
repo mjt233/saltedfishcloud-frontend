@@ -62,7 +62,7 @@ export default defineComponent({
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.6;
-    white-space: pre-wrap;
+    white-space: pre;
     word-wrap: break-word;
   }
 }

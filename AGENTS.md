@@ -25,6 +25,9 @@
 ## 📏组件代码规范
 
 - Vue 模板内部的组件统一使用 PascalCase 命名，如：`VContainer`，`VCard`
+- 除非明确指定，表单的输入组件（如：`VTextField`、`VSelect`）不要指定`density`和`variant`
+- 需要通过对话框打开组件时，使用`SfcUtils.openComponentDialog`
+- 所有类/对象、类/对象的字段、方法/函数、interface、type、Vue组件的props和watch都需要有详细的jsdoc注释
 
 
 ## 💎 组件使用准则

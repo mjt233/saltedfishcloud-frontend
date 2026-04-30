@@ -7,13 +7,10 @@ import { reactive } from 'vue'
 import { getContext } from 'sfc-common/core/context'
 import { MenuGroup } from 'sfc-common/core/context/menu/type'
 import API from 'sfc-common/api'
-import { Validators } from 'sfc-common/core/helper/Validators'
-import { AsyncTaskInfo } from 'sfc-common/components'
 import { FileListMenuItem } from './type'
 import { AsyncTaskService } from 'sfc-common/core/serivce/AsyncTaskService'
 import { StringFormatter } from 'sfc-common/utils'
-
-const archiveTypeCache = new Map<string, boolean>()
+import { ArchiveTaskService } from 'sfc-common/core/serivce/ArchiveTaskService'
 
 function setToClipBoard(ctx: FileListContext, type: FileClipBoardType) {
   getContext().fileClipBoard.value = reactive({
@@ -64,7 +61,7 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
         if (ctx.selectFileList.length != 1) {
           return false
         }
-        const name = ctx.selectFileList[0].name
+        const name = ctx.selectFileList[0].name.toLowerCase()
         const idx = name.lastIndexOf('.')
 
         // 没有拓展名，排除
@@ -73,23 +70,16 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
         }
 
         // 判断拓展名是否在支持的压缩类型范围内
-        if (archiveTypeCache.size == 0) {
-          getContext().feature.value.archiveType.forEach(type => archiveTypeCache.set(type, true))
-        }
-        const extName = name.substring(idx + 1)
-        return archiveTypeCache.get(extName) == true
+        return getContext().feature.value.archiveEngineList.some(e => e.decompressExtensions.some(ext => name.endsWith(ext.toLowerCase())))
       },
       async action(ctx) {
         try {
-          const path = await SfcUtils.selectPath({
-            title: '选择解压位置',
-            uid: ctx.uid,
-            path: ctx.path
+          const file = ctx.selectFileList[0]
+          await ArchiveTaskService.openExtractDialogAndCreateTask({
+            ctx,
+            fileName: file.name,
+            title: '解压文件'
           })
-          await SfcUtils.request(API.file.unzip(ctx.uid, ctx.path, ctx.selectFileList[0].name, path))
-          if (path == ctx.path) {
-            await ctx.modelHandler.refresh()
-          }
         } catch(err) {
           if (err != 'cancel') {
             return Promise.reject(err)
@@ -109,61 +99,10 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
       },
       async action(ctx) {
         try {
-          // 选择文件
-          const path = await SfcUtils.selectPath({
-            uid: ctx.uid,
-            path: ctx.path
-          })
-
-          // 设置文件名
-          const name = await SfcUtils.prompt({
-            title: '压缩文件名',
-            cancelToReject: true,
-            rules: [
-              Validators.notNull('压缩文件名不能为空'),
-              (val: string) => {
-                if (!val.endsWith('.zip')) {
-                  return '必须以.zip结尾'
-                } else {
-                  return true
-                }
-              }
-            ]
-          })
-
-          // 发起异步任务
-          const taskId = (await SfcUtils.request(API.file.asyncCompress({
-            sourceUid: ctx.uid,
+          await ArchiveTaskService.openCompressDialogAndCreateTask({
+            ctx,
             sourceNames: ctx.selectFileList.map(e => e.name),
-            sourcePath: ctx.path,
-            targetFilePath: StringUtils.appendPath(path, name),
-            targetUid: ctx.uid,
-            archiveParam: {
-              type: 'zip',
-              encoding: getContext().feature.value.archiveEncoding
-            },
-            waitExit: false
-          }))).data.data
-          
-          let isFinish = false
-          // 查看任务状态
-          const dialog = SfcUtils.openComponentDialog(AsyncTaskInfo, {
-            props: {
-              taskId: taskId,
-              async onTaskExit() {
-                isFinish = true
-
-                // 原地保存时刷新
-                if (path == ctx.path) {
-                  await ctx.modelHandler.refresh()
-                }
-              }
-            },
-            showCancel: false,
-            title: '任务状态',
-            extraDialogOptions: {
-              maxWidth: '1280px'
-            }
+            title: '创建压缩任务'
           })
         } catch(err) {
           if (err != 'cancel') {
