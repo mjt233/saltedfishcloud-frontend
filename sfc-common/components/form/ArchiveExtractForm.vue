@@ -83,6 +83,15 @@
                   hide-details="auto"
                 />
               </VCol>
+
+              <VCol v-if="supportsPassword" cols="12" class="pb-1">
+                <VTextField
+                  v-model="formData.password"
+                  label="压缩包密码"
+                  type="password"
+                  hide-details="auto"
+                />
+              </VCol>
             </VRow>
           </div>
         </VExpandTransition>
@@ -206,6 +215,41 @@ const availableEngines = computed(() => {
 })
 
 /**
+ * 为当前解压格式挑选默认引擎，优先选择支持密码的引擎
+ * @returns 匹配到的默认引擎ID，若无可用引擎则返回空字符串
+ */
+function getPreferredEngineId() {
+  if (!formData.format || availableEngines.value.length === 0) {
+    return ''
+  }
+  const extension = `.${formData.format}`.toLowerCase()
+  const preferredEngine = availableEngines.value.find(engine =>
+    engine.encryptionCapabilities?.some(capability =>
+      capability.operation === 'DECOMPRESS' && capability.extension.toLowerCase() === extension
+    )
+  )
+  return preferredEngine?.engineId ?? availableEngines.value[0].engineId
+}
+
+/**
+ * 当前选中的解压引擎
+ */
+const currentEngine = computed(() => props.archiveEngineList.find(engine => engine.engineId === formData.engineId))
+
+/**
+ * 当前引擎在当前解压格式下是否支持输入压缩包密码
+ */
+const supportsPassword = computed(() => {
+  if (!formData.format || !currentEngine.value) {
+    return false
+  }
+  const extension = `.${formData.format}`.toLowerCase()
+  return currentEngine.value.encryptionCapabilities?.some(capability => (
+    capability.operation === 'DECOMPRESS' && capability.extension.toLowerCase() === extension
+  )) ?? false
+})
+
+/**
  * 根表单绑定的 DOM / Vue 组合实例引用，用于调用校验逻辑等
  */
 const formRef = ref() as Ref<CommonForm>
@@ -238,11 +282,7 @@ const formInst = defineForm({
      * 选中的强制解压格式发生表单变更时被回调执行，将引擎同步重设为新格式支持引擎列里的首个
      */
     onFormatChange() {
-      if (availableEngines.value.length > 0) {
-        formData.engineId = availableEngines.value[0].engineId
-      } else {
-        formData.engineId = ''
-      }
+      formData.engineId = getPreferredEngineId()
     },
     /**
      * 在数据准备通过被作为 Promise 提交前置入最后实际需要落盘组合过的字段（如拼合了文件名的路径）
@@ -257,7 +297,8 @@ const formInst = defineForm({
     encoding: props.encoding || 'UTF8',
     appendArchiveName: true,
     format: '',
-    engineId: ''
+    engineId: '',
+    password: ''
   },
   formRef,
   validators: {
@@ -290,6 +331,15 @@ watch(() => props.path, (path) => {
  */
 watch(() => props.filename, () => {
   formData.path = getMergedPath(selectedPath.value, formData.appendArchiveName)
+})
+
+/**
+ * 当前组合不支持密码时自动清空密码输入，避免提交无效参数
+ */
+watch(supportsPassword, (enabled) => {
+  if (!enabled) {
+    formData.password = ''
+  }
 })
 
 /**

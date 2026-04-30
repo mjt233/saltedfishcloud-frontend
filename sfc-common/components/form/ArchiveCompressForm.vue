@@ -80,6 +80,15 @@
           />
         </VCol>
 
+        <VCol v-if="supportsPassword" cols="12" class="pb-1">
+          <VTextField
+            v-model="formData.password"
+            label="压缩包密码"
+            type="password"
+            hide-details="auto"
+          />
+        </VCol>
+
         <VCol cols="12" md="6" class="pt-3">
           <VSelect
             v-model="formData.encoding"
@@ -147,6 +156,23 @@ function getDefaultName() {
   return 'archive'
 }
 
+/**
+ * 为当前压缩格式挑选默认引擎，优先选择支持密码的引擎
+ * @returns 匹配到的默认引擎ID，若无可用引擎则返回空字符串
+ */
+function getPreferredEngineId() {
+  if (!formData.format || availableEngines.value.length === 0) {
+    return ''
+  }
+  const extension = `.${formData.format}`.toLowerCase()
+  const preferredEngine = availableEngines.value.find(engine =>
+    engine.encryptionCapabilities?.some(capability =>
+      capability.operation === 'COMPRESS' && capability.extension.toLowerCase() === extension
+    )
+  )
+  return preferredEngine?.engineId ?? availableEngines.value[0].engineId
+}
+
 const formRef = ref() as Ref<CommonForm>
 const formInst = defineForm({
   actions: {
@@ -166,11 +192,7 @@ const formInst = defineForm({
       }
     },
     onFormatChange() {
-      if (availableEngines.value.length > 0) {
-        formData.engineId = availableEngines.value[0].engineId
-      } else {
-        formData.engineId = ''
-      }
+      formData.engineId = getPreferredEngineId()
     },
     async submit() {
       return formData
@@ -182,7 +204,8 @@ const formInst = defineForm({
     format: '',
     engineId: '',
     encoding: 'UTF8',
-    compressionLevel: 'NORMAL'
+    compressionLevel: 'NORMAL',
+    password: ''
   },
   formRef,
   validators: {
@@ -225,6 +248,33 @@ const availableEngines = computed(() => {
   )
 })
 
+/**
+ * 当前选中的压缩引擎
+ */
+const currentEngine = computed(() => props.archiveEngineList.find(engine => engine.engineId === formData.engineId))
+
+/**
+ * 当前引擎在当前压缩格式下是否支持设置压缩包密码
+ */
+const supportsPassword = computed(() => {
+  if (!formData.format || !currentEngine.value) {
+    return false
+  }
+  const extension = `.${formData.format}`.toLowerCase()
+  return currentEngine.value.encryptionCapabilities?.some(capability => (
+    capability.operation === 'COMPRESS' && capability.extension.toLowerCase() === extension
+  )) ?? false
+})
+
+/**
+ * 当前组合不支持密码时自动清空密码输入，避免提交无效参数
+ */
+watch(supportsPassword, (enabled) => {
+  if (!enabled) {
+    formData.password = ''
+  }
+})
+
 onMounted(() => {
   if (availableFormats.value.length > 0) {
     formData.format = availableFormats.value[0]
@@ -236,7 +286,7 @@ defineExpose(formInst)
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, defineExpose, ref, Ref, PropType, computed, onMounted } from 'vue'
+import { defineComponent, defineProps, defineExpose, ref, Ref, PropType, computed, onMounted, watch } from 'vue'
 
 export default defineComponent({
   name: 'ArchiveCompressForm'

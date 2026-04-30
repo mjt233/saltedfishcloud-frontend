@@ -23,6 +23,26 @@ export interface ArchiveEngine {
    * 支持解压缩的文件类型（带点的后缀名，如.zip）
    */
   decompressExtensions: string[]
+
+  /**
+   * 支持密码能力的声明列表；未提供时视为当前引擎未声明密码能力
+   */
+  encryptionCapabilities?: EncryptionCapability[]
+}
+
+/**
+ * 压缩引擎支持的密码能力描述
+ */
+export interface EncryptionCapability {
+  /**
+   * 文件扩展名（带点且通常为小写，如.zip、.7z、.tar.gz）
+   */
+  extension: string
+
+  /**
+   * 支持密码的操作类型
+   */
+  operation: 'COMPRESS' | 'DECOMPRESS'
 }
 
 
@@ -52,7 +72,7 @@ export interface EncryptionParam {
   /**
    * 加密算法标识
    */
-  algorithm: string,
+  algorithm?: string,
 
   /**
    * 密码

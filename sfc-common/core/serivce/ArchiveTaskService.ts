@@ -23,6 +23,9 @@ export interface CreateExtractTaskFormData {
 
   /** 解压目标路径 */
   path: string
+
+  /** 压缩包密码 */
+  password?: string
 }
 
 /**
@@ -46,6 +49,9 @@ export interface CreateCompressTaskFormData {
 
   /** 压缩级别 */
   compressionLevel?: 'STORE' | 'FASTEST' | 'FAST' | 'NORMAL' | 'HIGH' | 'ULTRA'
+
+  /** 压缩包密码 */
+  password?: string
 }
 
 /**
@@ -97,7 +103,10 @@ export class ArchiveTaskService {
       engineProviderId: formData.engineId,
       archiveEngineProperty: {
         encoding: formData.encoding,
-        extension: '.' + formData.format
+        extension: '.' + formData.format,
+        encryptionParam: formData.password ? {
+          password: formData.password
+        } : undefined
       },
       uid: ctx.uid,
       path: formData.path
@@ -122,7 +131,10 @@ export class ArchiveTaskService {
       engineProviderId: formData.engineId,
       engineProperty: {
         encoding: formData.encoding,
-        compressionLevel: formData.compressionLevel
+        compressionLevel: formData.compressionLevel,
+        encryptionParam: formData.password ? {
+          password: formData.password
+        } : undefined
       },
       waitExit: false
     }))).data.data
