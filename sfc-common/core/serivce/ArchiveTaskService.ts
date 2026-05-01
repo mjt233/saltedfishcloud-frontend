@@ -131,6 +131,7 @@ export class ArchiveTaskService {
       engineProviderId: formData.engineId,
       engineProperty: {
         encoding: formData.encoding,
+        extension: '.' + formData.format,
         compressionLevel: formData.compressionLevel,
         encryptionParam: formData.password ? {
           password: formData.password

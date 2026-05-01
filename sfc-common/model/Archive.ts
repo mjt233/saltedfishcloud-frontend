@@ -91,6 +91,8 @@ export interface ArchiveEngineProperty {
 
   /**
    * 指定引擎使用哪种压缩/解压缩格式，如不指定则由引擎根据文件名自动识别
+   * 
+   * 当使用压缩时，该值必须指定，否则会默认按zip处理
    */
   extension?: string
 
