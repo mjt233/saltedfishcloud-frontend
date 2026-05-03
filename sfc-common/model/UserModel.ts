@@ -35,7 +35,7 @@ export interface BaseUserInfo {
 /**
  * 服务器响应的原始用户对象
  */
-export interface RawUser extends BaseUserInfo {
+export interface UserPrincipal extends BaseUserInfo {
 
   /**
    * 用户类型，1 - 管理员，0 - 普通用户
@@ -46,17 +46,12 @@ export interface RawUser extends BaseUserInfo {
   /**
    * 该用户的私人存储空间配额大小（GiB）
    */
-  quota: number,
+  quota?: number,
 
   /**
    * 绑定的邮箱
    */
   email?: string
-
-  /**
-   * 用户的token
-   */
-  token?: string
 }
 
 

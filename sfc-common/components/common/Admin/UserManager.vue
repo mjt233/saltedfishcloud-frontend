@@ -80,7 +80,7 @@ const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const curPage = ref(1)
 const pageSize = ref(10)
-const requestResult: Ref<CommonPageInfo<RawUser>> = ref(reactive({
+const requestResult: Ref<CommonPageInfo<UserPrincipal>> = ref(reactive({
   content: [],
   totalCount: 0,
   totalPage: 0
@@ -123,7 +123,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
  * 授权
  * @param isAdmin 是否设为管理
  */
-const grant = async(user: RawUser, isAdmin: boolean) => {
+const grant = async(user: UserPrincipal, isAdmin: boolean) => {
   const msg = isAdmin ? `是否将${user.user}设为管理员？` : `是否撤销${user.user}的管理员权限？`
   await SfcUtils.confirm(msg, '操作确认')
   actions.grant(user.id, isAdmin)
@@ -132,7 +132,7 @@ const grant = async(user: RawUser, isAdmin: boolean) => {
 /**
  * 重置密码
  */
-const resetPassword = async(user:RawUser) => {
+const resetPassword = async(user:UserPrincipal) => {
   const inst = SfcUtils.openComponentDialog(ChangePassowrdForm, {
     props: {
       inputOldPassword: false,
@@ -170,7 +170,7 @@ onMounted(actions.loadList)
 <script lang="ts">
 import API from 'sfc-common/api'
 import { ChangePassowrdForm } from 'sfc-common/components/form'
-import { CommonPageInfo, IdType, RawUser } from 'sfc-common/model'
+import { CommonPageInfo, IdType, UserPrincipal } from 'sfc-common/model'
 import { LoadingManager,MethodInterceptor } from 'sfc-common/utils/'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, nextTick } from 'vue'

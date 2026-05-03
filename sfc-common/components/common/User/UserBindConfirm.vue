@@ -30,7 +30,7 @@ const props = defineProps({
    * 待绑定的咸鱼云网盘用户
    */
   bindUser: {
-    type: Object as PropType<RawUser>,
+    type: Object as PropType<UserPrincipal>,
     default: undefined
   },
   /**
@@ -60,7 +60,7 @@ const props = defineProps({
 </script>
 
 <script lang="ts">
-import { IdType, RawUser, ThirdPartyPlatformUser } from 'sfc-common/model'
+import { IdType, UserPrincipal, ThirdPartyPlatformUser } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, Prop } from 'vue'
 import { CommonIcon, UserAvatar } from 'sfc-common/components'
 
