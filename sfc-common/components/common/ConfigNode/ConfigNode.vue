@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="config-describe tip">
-        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.describe" />
+        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.title" />
         <v-switch
           v-if="node.inputType == 'switch'"
           color="primary"
@@ -28,6 +28,7 @@
           :rules="validators"
           :model-value="nodeValue"
           :readonly="node.readonly || readOnly"
+          :placeholder="node.describe"
           :hide-details="dense"
           :label="useInnerLabel ? (node.title || node.name) : undefined"
           :type="node.mask ? 'password': 'text'"
@@ -63,7 +64,12 @@
         </v-radio-group>
       </template>
       <template v-if="node.inputType == 'form'">
-        <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
+        <config-node-form-input
+          :model-value="node.value + ''"
+          :node="node"
+          :show-form-view="showFormView"
+          @update:model-value="formChange"
+        />
       </template>
       <template v-if="node.inputType == 'template'">
         <component
@@ -117,6 +123,13 @@ const props = defineProps({
   useVuetifyNativeLayout: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 对于类型为`form`的节点，是否显示表单视图。默认为true。
+   */
+  showFormView: {
+    type: Boolean,
+    default: true
   }
 })
 const nodeValue = ref('') as Ref<any>

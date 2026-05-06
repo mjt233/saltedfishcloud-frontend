@@ -28,6 +28,7 @@
 - 除非明确指定，表单的输入组件（如：`VTextField`、`VSelect`）不要指定`density`和`variant`
 - 需要通过对话框打开组件时，使用`SfcUtils.openComponentDialog`
 - 所有类/对象、类/对象的字段、方法/函数、interface、type、Vue组件的props和watch都需要有详细的jsdoc注释
+- 生成的代码中，每个关键步骤需要有行内注释，新生成的函数需要有jsdoc注释
 
 
 ## 💎 组件使用准则
@@ -42,10 +43,3 @@
 - **严禁**硬编码颜色值（如 `#ffffff` 或 `black`）。
 - **必须**使用语义化颜色或 CSS 变量：
   - 正确示例：`<VCard color="surface" class="text-on-surface">`。
-
-## 🛠 开发工作流
-- **样式验证**: 修改样式后，检查在 Mobile 端（375px）和 Desktop 端（1920px）的显示效果。
-- **禁止内联样式**: 禁止使用 `style="color: red;"`，必须转为 Class 或 Props。
-
-## ⚠️ 避坑指南
-- 处理列表时，优先使用 `<VList>` 及其子组件，不要手写 `<ul>`。

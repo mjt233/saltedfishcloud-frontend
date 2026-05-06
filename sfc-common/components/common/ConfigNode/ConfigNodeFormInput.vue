@@ -1,34 +1,14 @@
 <template>
-  <div class="config-node-form-input">
-    <form-grid label-width="auto" row-height="81px">
-      <template v-for="item in node.nodes" :key="item.name">
-        <div class="group-title">
-          {{ item.title }}
-        </div>
-        <form-row>
-          <form-col
-            v-for="field in item.nodes"
-            :key="field.name"
-            style="max-width: 280px;"
-            :label="field.title || field.describe"
-            top-label
-          >
-            <div v-if="!isBooleanType(field)" class="break-text">
-              {{ field.mask ? '******': valObj[field.name] }}
-            </div>
-            <div>
-              <VSwitch
-                v-if="field.inputType == 'switch'"
-                :model-value="valObj[field.name]"
-                hide-details
-                readonly
-                color="primary"
-              />
-            </div>
-          </form-col>
-        </form-row>
-      </template>
-    </form-grid>
+  <div>
+    <VCard v-if="showFormView" class="mb-4">
+      <VCardText>
+        <ConfigurableForm
+          :nodes="formNodes"
+          read-only
+          use-vuetify-native-layout
+        />
+      </VCardText>
+    </VCard>
     <v-btn v-if="!readOnly" color="primary" @click="edit">
       编辑
     </v-btn>
@@ -45,18 +25,39 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  /**
+   * 是否为只读。只读模式下不显示编辑按钮。
+   */
   readOnly: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 是否显示表单的当前值视图
+   */
+  showFormView: {
+    type: Boolean,
+    default: true
   }
 })
 
-const isBooleanType = (field: ConfigNodeModel) => {
-  return ['checkbox', 'switch'].includes(field.inputType)
-}
-
 const valObj = computed(() => {
   return reactive(StringUtils.parseJSON(props.modelValue || props.node.value + ''))
+})
+
+const formNodes = computed(() => {
+  return props.node.nodes?.map(n => {
+    return {
+      ...n,
+      value: valObj.value?.[n.name] ?? n.value,
+      nodes: n.nodes?.map(subNode => {
+        return {
+          ...subNode,
+          value: valObj.value?.[subNode.name] ?? subNode.value
+        }
+      })
+    }
+  })
 })
 
 const emits = defineEmits(['update:model-value'])
@@ -93,6 +94,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import ConfigFormVue from '../ConfigForm.vue'
 import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import ConfigurableForm from './ConfigurableForm.vue'
 
 export default defineComponent({
   name: 'ConfigNodeFormInput'
