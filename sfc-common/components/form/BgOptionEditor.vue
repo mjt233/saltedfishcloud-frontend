@@ -222,6 +222,7 @@ async function selectImgFile() {
     path: lastSelectPath,
     filter: () => true,
     requireFile: true,
+    readOnly: false
   })
   valueObj.url = selectResult.fileListContext.getFileUrl(selectResult.file[0])
   lastSelectPath = selectResult.path

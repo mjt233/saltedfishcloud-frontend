@@ -59,6 +59,11 @@ export interface FileSelectResult {
   fileListContext: FileListContext
 }
 
+/**
+ * 从咸鱼云网盘中选择文件或目录
+ * @param param 选择参数
+ * @returns 
+ */
 export function selectFile(param: FileSelectParam): Promise<FileSelectResult> {
   const { path, uid, title = '选择目录', filter = (e) => e.dir, fullscreen = false, readOnly = true, selectType = 'all' } = param
 

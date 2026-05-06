@@ -500,7 +500,8 @@ async function selectPath() {
     formData.savePath = await window.SfcUtils.selectPath({
       filter: file => file.dir,
       path: formData.savePath,
-      uid: props.uid
+      uid: props.uid,
+      readOnly: false
     })
   } catch (e) {
     if (e != 'cancel') {

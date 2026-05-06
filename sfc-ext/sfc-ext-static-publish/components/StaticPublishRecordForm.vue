@@ -118,7 +118,7 @@ const selectPath = async() => {
       path: formData.path,
       title: '选择站点部署路径',
       uid: formData.uid,
-      readOnly: true
+      readOnly: false
     })
   } catch (err) {
     if (err != 'cancel') {
