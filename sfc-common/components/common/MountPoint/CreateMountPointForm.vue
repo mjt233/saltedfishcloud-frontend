@@ -194,7 +194,8 @@ const formInst = defineForm({
         title: '选择挂载位置',
         filter(e) {
           return e.dir && !e.mountId
-        }
+        },
+        readOnly: false
       }).then(async(path) => {
         curSelectPath.value = path
         try {

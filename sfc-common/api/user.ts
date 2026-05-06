@@ -1,5 +1,5 @@
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
-import { BaseUserInfo, CommonPageRequestParam, CommonRequest, IdType, PageRequest, RawUser } from 'sfc-common/model'
+import { BaseUserInfo, CommonPageRequestParam, CommonRequest, IdType, PageRequest, UserPrincipal } from 'sfc-common/model'
 
 export interface UserRegOpt {
   // 用户名
@@ -183,7 +183,7 @@ const user = {
    * @param {Number} page 页码
    * @returns
    */
-  getUserList(page = 0, size = 10): PageRequest<RawUser> {
+  getUserList(page = 0, size = 10): PageRequest<UserPrincipal> {
     return {
       url: `${this.prefix}/list`,
       params: {
@@ -198,7 +198,7 @@ const user = {
    * @param pageRequest 分页参数
    * @returns axios请求配置，响应数据包含符合条件的用户列表和分页信息
    */
-  search(keyword: string, pageRequest?: CommonPageRequestParam): PageRequest<RawUser> {
+  search(keyword: string, pageRequest?: CommonPageRequestParam): PageRequest<UserPrincipal> {
     return {
       url: `${this.prefix}/search`,
       params: {
@@ -238,7 +238,7 @@ const user = {
   /**
    * 获取用户信息
    */
-  getUserInfo(): CommonRequest<RawUser> {
+  getUserInfo(): CommonRequest<UserPrincipal> {
     return {
       url: this.prefix,
       method: 'get'

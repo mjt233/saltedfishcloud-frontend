@@ -1,4 +1,4 @@
-import { AuditModel, BaseUserInfo, IdType, RawUser } from 'sfc-common'
+import { AuditModel, BaseUserInfo, IdType, UserPrincipal } from 'sfc-common'
 
 export interface ThirdPartyPlatformUser extends AuditModel {
   /**
@@ -91,7 +91,7 @@ export interface ThirdPartyPlatformCallbackResult {
    * 认证成功后已关联或即将关联的咸鱼云系统用户。
    * 当该字段有值，但isNewUser为true时，表示一个已登录的用户操作了第三方登录，可能在进行关联操作。前端在确认关联时需要比对是否与页面当前用户一致，不一致时应拒绝操作。
    */
-  user: RawUser
+  user: UserPrincipal
 
   /**
    * 认证成功后的平台用户信息

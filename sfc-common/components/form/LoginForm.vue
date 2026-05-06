@@ -184,7 +184,7 @@ async function loadThirdPlatformList() {
     }
   }
 }
-function doLoginSuccess(user: RawUser, token: string) {
+function doLoginSuccess(user: UserPrincipal, token: string) {
   const session = getContext().session.value
   session.setToken(token)
   session.setUserInfo(user)
@@ -196,7 +196,7 @@ async function doThirdPlatformLogin(platform: ThirdPartyAuthPlatform) {
     emit('thirdLoginBegin')
     const res = await UserService.startThirdPlatformLogin(platform)
     if (res.success) {
-      doLoginSuccess(res.result?.user as RawUser, res.token as string)
+      doLoginSuccess(res.result?.user as UserPrincipal, res.token as string)
     }
   } catch (err) {
     if (err != 'cancel') {
@@ -219,7 +219,7 @@ import API from 'sfc-common/api'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { getContext } from 'sfc-common/core/context'
 import { computed, defineComponent, reactive, Ref, ref } from 'vue'
-import { RawUser, ThirdPartyAuthPlatform, UserService } from 'sfc-common'
+import { UserPrincipal, ThirdPartyAuthPlatform, UserService } from 'sfc-common'
 import { CommonIcon } from '../common'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 

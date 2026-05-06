@@ -15,6 +15,7 @@
       <config-node
         v-for="(node) in group.nodes"
         :key="node.name"
+        :show-form-view="showFormView"
         :node="node"
         :class="{'template-node': node.inputType == 'template'}"
         :use-inner-label="false"
@@ -34,7 +35,14 @@ const props = defineProps({
   useStickTitle: {
     type: Boolean,
     default: true
-  }
+  },
+  /**
+   * 对于类型为`form`的节点，是否显示只读的表单视图。默认为true。
+   */
+  showFormView: {
+    type: Boolean,
+    default: true
+  },
 })
 
 const emits = defineEmits(['nodeChange'])

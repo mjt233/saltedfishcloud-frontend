@@ -1,4 +1,5 @@
 <!-- 采用配置方式生成的表单 -->
+<!-- 注意：该表单已弃用，请使用 ConfigurableForm 替代 -->
 <template>
   <base-form
     ref="formRef"

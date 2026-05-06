@@ -5,6 +5,7 @@
     :submit-action="actions.submit"
   >
     <form-grid
+      ref="formGridRef"
       label-width="auto"
       row-height="72px"
     >
@@ -16,11 +17,11 @@
             <!-- 列 col -->
             <component
               :is="node.isRow ? 'div' : layoutCol"
-              cols="12"
+              :cols="dynamicCols"
               :required="node.required"
               top-label
               :label="['switch', 'text', 'select'].includes(node.inputType) ? '' : (node.title || node.name)"
-              :class="node.isRow ? 'custom-row' : useVuetifyNativeLayout ? '' : 'mw-50'"
+              :class="node.isRow ? 'custom-row' : ''"
             >
               <config-node
                 :read-only="readOnly"
@@ -44,7 +45,12 @@
 <script setup lang="ts">
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 import { CommonForm, defineForm } from 'sfc-common/utils/FormUtils'
+import { useDynamicColCols } from 'sfc-common/composables/useDynamicCols'
+
 const formRef = ref() as Ref<CommonForm>
+const formGridRef = ref<HTMLElement>()
+const dynamicCols = useDynamicColCols(() => formGridRef.value ? (formGridRef.value as any).$el || formGridRef.value : undefined)
+
 const props = defineProps({
   nodes: {
     type: Array as PropType<ConfigNodeModel[]>,

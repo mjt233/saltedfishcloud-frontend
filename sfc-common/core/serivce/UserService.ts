@@ -1,6 +1,6 @@
 import API from 'sfc-common/api'
 import { LoginForm, UserBindConfirm } from 'sfc-common/components'
-import { RawUser, ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model'
+import { UserPrincipal, ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { DialogPromise, ComponentDialogInstance } from 'sfc-common/utils/SfcUtils/common/Dialog'
 import { getContext } from '..'
@@ -203,7 +203,7 @@ export namespace UserService {
     }
     
 
-    function doLoginSuccess(user: RawUser, token: string) {
+    function doLoginSuccess(user: UserPrincipal, token: string) {
       if(loginContext.result) {
         loginContext.result.user = user
       }

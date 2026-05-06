@@ -1,6 +1,6 @@
 import { PageableRequest } from './../model/ApiRequest'
 import { BindUserParam, ThirdPartyApp, ThirdPartyAppAuthorization, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
-import { CommonPageInfo, CommonRequest, ConfigNodeModel, IdType, JsonResult, RawUser } from 'sfc-common/model'
+import { CommonPageInfo, CommonRequest, ConfigNodeModel, IdType, JsonResult, UserPrincipal } from 'sfc-common/model'
 import { ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model/Oauth'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 
@@ -54,7 +54,7 @@ export default {
       }
     }
   },
-  bindUser(param: BindUserParam): CommonRequest<RawUser & {token: string}> {
+  bindUser(param: BindUserParam): CommonRequest<UserPrincipal & {token: string}> {
     return useJsonBody({
       url: `${this.prefix}/bindUser`,
       method: 'post',

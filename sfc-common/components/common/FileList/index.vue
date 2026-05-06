@@ -634,8 +634,6 @@ import ChapterMenu from '../Markdown/ChapterMenu.vue'
 import MarkdownView from '../Markdown/MarkdownView.vue'
 import { ChapterTreeNode } from '../Markdown/type'
 import { useTypeToSearch } from 'sfc-common/composables/useTypeToSearch'
-import file from 'sfc-common/api/file'
-import { selectFile } from 'sfc-common/utils/SfcUtils/file/fileSelector'
 import ResizeContainer from 'sfc-common/components/layout/ResizeContainer.vue'
 
 export default defineComponent({
