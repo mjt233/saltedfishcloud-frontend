@@ -21,6 +21,11 @@ const props = defineProps({
     type: Object as PropType<ConfigNodeModel>,
     default: () => {return{}}
   },
+  /**
+   * 整个表单的各项值，JSON字符串格式。优先级高于node.value。
+   * 
+   * key为node.nodes中定义的节点的name，value为对应节点的值。
+   */
   modelValue: {
     type: String,
     default: ''
@@ -63,19 +68,26 @@ const formNodes = computed(() => {
 const emits = defineEmits(['update:model-value'])
 
 const edit = () => {
-  const inst = SfcUtils.openComponentDialog(ConfigFormVue, {
+  // 初始化本地数据副本，以当前值为起点，后续通过 change 事件收集用户修改
+  const localData = reactive({ ...valObj.value })
+
+  const inst = SfcUtils.openComponentDialog(ConfigurableForm, {
     props: {
-      groups: props.node.nodes,
-      modelValue: valObj.value
+      nodes: formNodes.value,
+      useVuetifyNativeLayout: true,
+      // 监听子节点变更，实时更新本地数据副本
+      onChange(e: { name: string, value: any, node: ConfigNodeModel }) {
+        localData[e.name] = e.value
+      }
     },
     title: props.node.title,
     inWrap: false,
     fullscreen: 'auto',
     async onConfirm() {
-      const form = (inst.getComponentInstRef() as any as CommonForm)
+      const form = inst.getInstAsForm()
       const validRst = await form.validate()
       if (validRst.valid) {
-        emits('update:model-value', JSON.stringify(form.getFormData()))
+        emits('update:model-value', JSON.stringify(localData))
         return true
       } else {
         SfcUtils.snackbar(validRst.errors.map(e => e.errorMessages).join(';'))
@@ -91,10 +103,9 @@ const edit = () => {
 import { ConfigNodeModel } from 'sfc-common/model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, reactive } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import ConfigFormVue from '../ConfigForm.vue'
-import { CommonForm } from 'sfc-common/utils/FormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import ConfigurableForm from './ConfigurableForm.vue'
+import { use } from 'echarts'
 
 export default defineComponent({
   name: 'ConfigNodeFormInput'
