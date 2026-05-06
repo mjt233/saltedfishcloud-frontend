@@ -4,12 +4,13 @@
       <VCardText>
         <ConfigurableForm
           :nodes="formNodes"
-          read-only
+          :read-only="readOnly || !inlineEdit"
           use-vuetify-native-layout
+          @change="handleInlineChange"
         />
       </VCardText>
     </VCard>
-    <v-btn v-if="!readOnly" color="primary" @click="edit">
+    <v-btn v-if="!readOnly && !inlineEdit" color="primary" @click="edit">
       编辑
     </v-btn>
   </div>
@@ -38,9 +39,18 @@ const props = defineProps({
     default: false
   },
   /**
-   * 是否显示表单的当前值视图
+   * 非内联编辑模式下，是否显示表单的当前值视图
    */
   showFormView: {
+    type: Boolean,
+    default: true
+  },
+  /**
+   * 是否启用内联编辑模式。
+   * 启用后，非只读状态下可直接与 VCard 内的表单交互进行编辑，无需点击编辑按钮。
+   * 启用时编辑按钮将被隐藏。
+   */
+  inlineEdit: {
     type: Boolean,
     default: true
   }
@@ -66,6 +76,17 @@ const formNodes = computed(() => {
 })
 
 const emits = defineEmits(['update:model-value'])
+
+/**
+ * 内联编辑模式下处理表单字段变更，将最新值合并后直接 emit 给父组件。
+ * @param e - ConfigurableForm 的 change 事件载荷
+ */
+const handleInlineChange = (e: { name: string, value: any, node: ConfigNodeModel }) => {
+  if (!props.inlineEdit || props.readOnly) return
+  // 合并最新字段值并通知父组件
+  const newData = { ...valObj.value, [e.name]: e.value }
+  emits('update:model-value', JSON.stringify(newData))
+}
 
 const edit = () => {
   // 初始化本地数据副本，以当前值为起点，后续通过 change 事件收集用户修改
