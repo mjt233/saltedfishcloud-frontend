@@ -28,7 +28,7 @@
                         存储域
                       </td>
                       <td style="min-width: 128px">
-                        {{ status.area == 'public' ? '公共网盘' : '私人网盘' }}
+                        {{ status.area == 'public' ? '公共资源' : '个人网盘' }}
                       </td>
                     </tr>
                     <tr>

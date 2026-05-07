@@ -17,6 +17,13 @@ const commonConfig: UserConfigExport = {
     //   dts: 'sfc-common/components.d.ts'
     // })
   ],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler'
+      }
+    }
+  },
   optimizeDeps: {
     include: [
       'monaco-editor/esm/vs/language/json/json.worker',

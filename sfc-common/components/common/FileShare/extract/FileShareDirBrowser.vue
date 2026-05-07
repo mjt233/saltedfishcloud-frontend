@@ -1,23 +1,26 @@
 <template>
-  <file-browser
+  <file-explorer
     v-if="shareInfo?.type == 'DIR'"
+    v-model:file-view-type="fileViewType"
     :path="path"
     :file-system-handler="handler"
     :uid="shareInfo.uid"
     read-only
+    :root-name="'分享目录：' + shareInfo.name"
     :auto-compute-height="autoComputeHeight"
     :compensate-height="compensateHeight"
-    :enable-menu="['refresh', 'share-download', 'showAttr']"
+    :enable-menu="['refresh', 'share-download', 'showAttr', 'previewInSide']"
     :append-menu="shareMenu"
     :tool-buttons="toolButtons"
     :top-button-min-width="'120px'"
     preview-readme
+    :auto-compute-height-offset="-18"
     @update:path="emits('update:path', $event)"
   />
 </template>
 
 <script setup lang="ts">
-import FileBrowser from '../../FileBrowser.vue'
+const fileViewType = ref<FileViewType>('grid')
 const props = defineProps({
   shareInfo: {
     type: Object as PropType<ShareInfo>,
@@ -144,6 +147,11 @@ import { MenuGroup } from 'sfc-common/core/context'
 import { FileInfo, FileListContext } from 'sfc-common/model'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
+import FileExplorer from '../../FileExplorer/FileExplorer.vue'
+import { FileViewType } from '../../FileExplorer/FileExplorerCore'
+import { FileExplorerContext } from '../../FileExplorer/createListContext'
+import { MarkdownView } from '../../Markdown'
+import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
 
 export default defineComponent({
   name: 'FileShareDirBrowser'

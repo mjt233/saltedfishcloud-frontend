@@ -8,17 +8,16 @@ import { defaultFileOpenHandlers } from './fileOpenHandler'
 import { defaultFileBrowserTopBtns } from 'sfc-common/core/actions/FileList/FileListBtn'
 import defaultBoxMenu from './menu/BoxMenu'
 
-const defaultFeature: SystemFeature = {
+const defaultFeature: SystemFeature = reactive({
   enableEmailReg: false,
   enableRegCode: false,
-  extractArchiveType: ['zip'],
-  archiveEncoding: 'gbk',
-  archiveType: ['zip'],
+  archiveEngineList: [],
   version: 'unknown',
   thumbType: ['jpg', 'bmp', 'gif', 'png', 'jpeg', 'webp'],
   breakpointUrl: '/api/breakpoint',
-  darkTheme: false
-}
+  darkTheme: false,
+  isUseCommonUpload: false
+})
 
 const context: ToRefs<AppContext> = toRefs(reactive({
   appTitle: '咸鱼云网盘',
@@ -30,6 +29,7 @@ const context: ToRefs<AppContext> = toRefs(reactive({
     fileBrowserBtn: defaultFileBrowserTopBtns,
     boxMenu: defaultBoxMenu
   },
+  fileAttributeSections: [],
   defaultAvatar: '/api/static/defaultAvatar.png',
   session: emptySession,
   routeInfo: {},
@@ -46,7 +46,6 @@ const context: ToRefs<AppContext> = toRefs(reactive({
       size: 'cover',
       enabled: false
     }
-    
   }
 }))
 
@@ -57,3 +56,4 @@ export function getContext() {
 
 export * from './menu/type'
 export * from './type'
+export * from './fileAttributeExtension'

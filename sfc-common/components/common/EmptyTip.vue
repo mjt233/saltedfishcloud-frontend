@@ -1,5 +1,5 @@
 <template>
-  <div class="empty-tip">
+  <div class="empty-tip tip">
     (～￣▽￣)～{{ text }}
     <slot name="append" />
   </div>
@@ -27,6 +27,6 @@ export default defineComponent({
 .empty-tip {
   text-align: center;
   margin: 16px 0;
-  color: grey;
+  font-size: 16px;
 }
 </style>

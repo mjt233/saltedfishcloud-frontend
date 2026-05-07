@@ -10,14 +10,16 @@
     </div>
     <!-- 当访问公共网盘 或 已登录用户访问非公共网盘 -->
     <div v-if="!showSearch && (uid == 0 || (uid != 0 && session.user.id != 0))">
-      <file-browser
+      <file-explorer
         ref="browser"
+        v-model:file-view-type="fileViewType"
         :path="path"
         :file-system-handler="handler"
         :read-only="readOnly"
         :uid="uid"
         :tool-buttons="getContext().menu.value.fileBrowserBtn"
         auto-compute-height
+        :root-name="uid == 0 ? '公共资源' : '我的网盘'"
         :show-mount-icon="true"
         :preview-readme="previewReadme"
         @update:path="emits('update:path', $event)"
@@ -31,9 +33,9 @@
             @enter="search"
           />
         </template>
-      </file-browser>
+      </file-explorer>
     </div>
-    <div v-else-if="!showSearch" class="d-flex justify-center">
+    <div v-else-if="!showSearch" class="d-flex justify-center mt-6">
       <v-card
         color="background"
         title="访问受限"
@@ -58,19 +60,11 @@
         @click="showSearch = false"
       />
       <loading-mask :loading="loadingManager.getLoadingRef().value" />
-      <file-search-list
-        ref="searchListRef"
-        :uid="uid"
-        :keywork="searchName"
-        @click-parent="clickSearchParent"
-        @click-item="clickSearchItem"
-      />
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import FileBrowser from 'sfc-common/components/common/FileBrowser.vue'
 import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHandler'
 import {FileSearchList,TextInput,LoadingMask } from 'sfc-common/components'
 provide('protocol', 'main')
@@ -96,15 +90,20 @@ const props = defineProps({
     default: false
   }
 })
+const fileViewType = ref<FileViewType>((localStorage.getItem('userFileViewType') || 'table') as FileViewType)
 const showSearch = ref(false)
 const inDragging = ref(false)
 const session = getContext().session
-const browser = ref()
+const browser = ref<InstanceType<typeof FileExplorer>>()
 const emits = defineEmits(['update:path'])
 const searchName = ref('')
 const loadingManager = new LoadingManager()
 const handler = computed(() => {
   return FileSystemHandlerFactory.getFileSystemHandler(ref(props.uid))
+})
+
+watch(fileViewType, (val) => {
+  localStorage.setItem('userFileViewType', val)
 })
 
 const login = () => {
@@ -123,22 +122,6 @@ const readOnly = computed(() => {
   return !(session.value.user.role == 'admin' || (props.uid != 0 && props.uid == session.value.user.id))
 })
 
-/**
- * 搜索列表点击文件的所在目录事件回调
- */
-const clickSearchParent = async(item: SearchFileInfo) => {
-  loadingManager.beginLoading()
-  try {
-    const parsePath = (await SfcUtils.request(API.resource.parseNodeId(props.uid, item.node))).data.data
-    emits('update:path', parsePath)
-    await nextTick()
-    showSearch.value = false
-  } catch(err) {
-    SfcUtils.snackbar(err)
-  } finally {
-    loadingManager.closeLoading()
-  }
-}
 const dragLeave = (e: DragEvent) => {
   inDragging.value = false
 } 
@@ -147,34 +130,130 @@ const dragOver = (e: DragEvent) => {
     inDragging.value = true
   }
 }
-const dropFinish = (e: DragEvent) => {
+const dropFinish = async(e: DragEvent) => {
   inDragging.value = false
-  if (!props.useDropUpload || readOnly.value || !e.dataTransfer?.files.length) {
+  if (!props.useDropUpload || readOnly.value || !e.dataTransfer) {
     return
   }
-  const fileCount = e.dataTransfer.files.length
-  for (let i = 0; i < fileCount; i++) {
-    const file = e.dataTransfer.files[i]
-    const executor = DiskFileUploadService.uploadToDisk(props.uid, props.path, file)
-    fileUploadTaskManager.addExecutor(executor)
-  }
-  SfcUtils.snackbar(`已添加${fileCount}个文件到上传队列`)
-}
-const clickSearchItem = async(item: SearchFileInfo) => {
-  try {
-    if (item.dir) {
-      const path = (await SfcUtils.request(API.resource.parseNodeId(props.uid, item.md5))).data.data
-      emits('update:path', path)
-      showSearch.value = false
-    } else {
-      SfcUtils.openFile(searchListRef.value.getListContext(), item)
+  let fileCount = 0
+  const tasks = []
+  if (e.dataTransfer.items.length > 0) {
+    for(const item of Array.from(e.dataTransfer.items)) {
+      if(testIsDir(item)) {
+        tasks.push(scanDir(item, i => {
+          if (i.isDir) {
+            return
+          }
+          fileCount++
+          handler.value.uploadDirect(StringUtils.appendPath(props.path, i.relativePath), i.file as File)
+        }))
+      } else {
+        fileCount++
+        handler.value.uploadDirect(props.path, item.getAsFile() as File)
+      }
     }
-  } catch (err) {
-    console.error(err)
-    SfcUtils.snackbar(err)
   }
-  
+  await Promise.all(tasks)
+  if (fileCount == 0) {
+    SfcUtils.alert('未检测到文件')
+  } else {
+    SfcUtils.snackbar(`已添加${fileCount}个文件到上传队列`)
+  }
 }
+
+
+// 监听搜索事件
+useEventBus({
+  [EventNameConstants.SEARCH_IN_DISK](key: string) {
+    // todo 文件搜索列表使用新的FileExplorer实现
+    const inst = SfcUtils.openComponentDialog(FileSearchList, {
+      props: {
+        uid: props.uid,
+        keywork: key,
+        /**
+         * 点击父级目录
+         */
+        async onClickParent(file: SearchFileInfo) {
+          inst.close()
+          loadingManager.beginLoading()
+          try {
+            const parsePath = (await SfcUtils.request(API.resource.parseNodeId(props.uid, file.node))).data.data
+            await browser.value?.changePath(parsePath)
+            browser.value?.selectFile([file.name])
+            browser.value?.scrollTo(file.name)
+            emits('update:path', parsePath)
+            await nextTick()
+            showSearch.value = false
+          } catch(err) {
+            SfcUtils.snackbar(err)
+          } finally {
+            loadingManager.closeLoading()
+          }
+        },
+        /**
+         * 点击搜索结果的文件
+         */
+        async onClickItem(file: SearchFileInfo) {
+          loadingManager.beginLoading()
+          try {
+            if (file.dir) {
+              const path = (await SfcUtils.request(API.resource.parseNodeId(props.uid, file.md5))).data.data
+              emits('update:path', path)
+              browser.value?.changePath(path)
+              inst.close()
+              return
+            }
+            const ctx = browser.value?.getListContext()
+            if (!ctx) {
+              SfcUtils.snackbar('列表缺少context')
+              return
+            }
+            const parentPath = (await SfcUtils.request(API.resource.parseNodeId(props.uid || 0, file.node))).data.data
+            const searchFileInfoRef = inst.getComponentInstRef() as InstanceType<typeof FileSearchList>
+            
+            const tempCtx: FileListContext = Object.assign({}, ctx, {
+              path: parentPath,
+              fileList: searchFileInfoRef.getSearchResult().list,
+              selectFileList: [file],
+              getFileUrl(file: FileInfo) {
+                return ctx.getFileUrl(file)
+              },
+              getProtocolParams() {
+                return ctx.getProtocolParams()
+              },
+              getThumbnailUrl(file: FileInfo) {
+                return ctx.getThumbnailUrl(file)
+              },
+              modelHandler: ctx.modelHandler 
+            })
+            SfcUtils.openFile(tempCtx, file)
+          } finally {
+            loadingManager.closeLoading()
+          }
+        }
+      },
+      title: `文件搜索 ${key}`,
+      dense: true,
+      showConfirm: false,
+      fullscreen: true,
+      extraDialogOptions: {
+        cancelText: '关闭'
+      }
+    })
+  }
+})
+
+defineExpose({
+  changePath(path: string) {
+    return browser.value?.changePath(path)
+  },
+  selectFile(fileName: string[]) {
+    return browser.value?.selectFile(fileName)
+  },
+  scrollTo(fileName: string) {
+    return browser.value?.scrollTo(fileName)
+  }
+})
 </script>
 
 <script lang="ts">
@@ -182,10 +261,14 @@ import { getContext } from 'sfc-common/core/context'
 import { computed, defineComponent, inject, nextTick, onMounted, provide, Ref, ref, watch } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
-import { SearchFileInfo } from 'sfc-common/model'
+import type { FileInfo, FileListContext, SearchFileInfo } from 'sfc-common/model'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { FileSearchListModel } from 'sfc-common/model/component/FileListModel'
-import { DiskFileUploadService, fileUploadTaskManager } from 'sfc-common/core/serivce/FileUpload'
+import { scanDir, StringUtils, testIsDir } from 'sfc-common/utils'
+import FileExplorer from './FileExplorer/FileExplorer.vue'
+import { FileViewType } from './FileExplorer/FileExplorerCore'
+import { useEventBus } from 'sfc-common/composables'
+import { EventNameConstants } from 'sfc-common/core/constans/EventName'
 export default defineComponent({
   name: 'UserFileBrowser'
 })

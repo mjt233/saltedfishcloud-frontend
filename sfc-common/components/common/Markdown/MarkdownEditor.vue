@@ -240,10 +240,14 @@ const patseImage = async(file: File) => {
   const conf = API.resource.uploadCommonResource(params, file)
   
   // 打开上传进度对话框
-  const loadingParam = reactive({msg: '正在上传...'})
+  const loadingParam = reactive({msg: '正在粘贴图片...'})
   const loadingDialog = SfcUtils.loadingDialog(loadingParam)
-  conf.onUploadProgress = (e: Prog) => {
-    loadingParam.msg = '正在上传...' + ((e.loaded/e.total)*100).toFixed(1) + '%'
+  conf.onUploadProgress = (e: AxiosProgressEvent) => {
+    if (e.total !== undefined) {
+      loadingParam.msg = '正在粘贴图片...' + ((e.loaded/e.total)*100).toFixed(1) + '%'
+    } else {
+      loadingParam.msg = `'正在粘贴图片...已传输${StringFormatter.toSize(e.loaded)}`
+    }
   }
 
   try {
@@ -323,6 +327,8 @@ import API from 'sfc-common/api'
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
 import MarkdownView from './MarkdownView.vue'
 import ChapterMenu from './ChapterMenu.vue'
+import { CodeEditor } from '../Editor'
+import { AxiosProgressEvent } from 'axios'
 
 export default defineComponent({
   name: 'MarkdownEditor',

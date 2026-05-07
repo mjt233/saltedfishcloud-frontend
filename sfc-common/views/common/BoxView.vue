@@ -12,7 +12,13 @@
     </div>
     <v-window :model-value="inActive">
       <v-window-item value="0">
-        <grid-menu :items="getContext().menu.value.boxMenu" :arg-provider="argProvider" @click="itemClick" />
+        <grid-menu
+          :items="getContext().menu.value.boxMenu"
+          :arg-provider="argProvider"
+          use-card
+          :item-size="100"
+          @click="itemClick"
+        />
       </v-window-item>
       <v-window-item value="1">
         <div style="padding: 0 16px; overflow: auto;min-height: 360px;">

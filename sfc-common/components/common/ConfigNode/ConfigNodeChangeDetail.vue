@@ -1,7 +1,12 @@
 <template>
   <div>
     <div v-if="!node.nodes?.length">
-      {{ node.originValue }} -> {{ currentValue }}
+      <template v-if="node.valueNameMapping">
+        {{ node.valueNameMapping[node.originValue + ''] || node.originValue }} -> {{ node.valueNameMapping[currentValue + ''] || currentValue }}
+      </template>
+      <template v-else>
+        {{ node.originValue }} -> {{ currentValue }}
+      </template>
     </div>
     <div v-else>
       <div v-for="(item, index) in fieldsDiff" :key="item.name">

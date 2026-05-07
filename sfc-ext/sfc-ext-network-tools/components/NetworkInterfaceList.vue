@@ -29,7 +29,7 @@ actions.loadData()
 <script lang="ts">
 import { LoadingManager, MethodInterceptor } from 'sfc-common'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
-import { NetworkInterfaceInfo } from '../model'
+import { NetworkInterfaceInfo } from '../model/'
 import { NwtApi } from '../api'
 import NetworkInterfaceInfoCard from './NetworkInterfaceInfoCard.vue'
 

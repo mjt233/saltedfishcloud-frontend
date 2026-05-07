@@ -1,7 +1,12 @@
 <template>
   <loading-mask :type="'circular'" :loading="loading" style="min-height: 180px" />
   <v-expansion-panels v-if="!isEmpty" class="panels" :style="{'max-height': records.length ? (records.length * 54.5 + 280 + 'px') : '0px'}">
-    <file-collection-record v-for="(item, index) in records" :key="index" :item="item" />
+    <file-collection-record
+      v-for="(item, index) in records"
+      :key="index"
+      :item="item"
+      :collection-info="collectionInfo"
+    />
   </v-expansion-panels>
   <empty-tip v-else />
 </template>
@@ -11,9 +16,19 @@ import EmptyTip from '../EmptyTip.vue'
 import FileCollectionRecord from './FileCollectionRecord.vue'
 import LoadingMask from '../LoadingMask.vue'
 const props = defineProps({
+  /**
+   * 文件收集ID
+   */
   cid: {
-    type: Number,
+    type: [Number, String],
     default: 0
+  },
+  /**
+   * 文件收集信息（包含验证信息）
+   */
+  collectionInfo: {
+    type: Object as PropType<CollectionInfo>,
+    default: undefined
   }
 })
 
@@ -48,7 +63,7 @@ onMounted(() => {
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
 import API from 'sfc-common/api'
 import { getContext } from 'sfc-common/core/context'
-import { CollectionRecord } from 'sfc-common/model/FileCollection'
+import { CollectionInfo, CollectionRecord } from 'sfc-common/model/FileCollection'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 
 export default defineComponent({

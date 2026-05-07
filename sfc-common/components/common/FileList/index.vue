@@ -1,5 +1,15 @@
+<!-- 
+
+注意：该组件已弃使用，请改用FileExplorer组件
+
+Note: This component is deprecated, please use FileExplorer component instead.
+
+ -->
+
 <template>
-  <resize-container 
+  <resize-container
+    right-active-offset-y="60px"
+    class="file-list"
     :style="readmeViewStyle"
     :hide-right="!(readme && readme.length)"
   >
@@ -75,8 +85,8 @@
               />  
             </td>
             <td colspan="100" class="file-col" @click="emits('back')">
-              <div class="file-icon-group">
-                <v-icon class="d-flex back-icon" icon="mdi-keyboard-backspace" />
+              <div class="file-icon-group d-inline-flex align-center">
+                <v-icon class="mr-1" icon="mdi-keyboard-backspace" size="18" />
                 <span>返回上一级</span>
               </div>
             </td>
@@ -90,6 +100,7 @@
             v-for="(fileInfo, index) in fileList"
             :key="path + fileInfo.name"
             v-ripple
+            :file-name="fileInfo.name"
             file-item
             :class="{active: selectedFile[fileInfo.name + fileInfo.md5]}"
             @contextmenu.prevent="fileRClick($event, fileInfo)"
@@ -147,20 +158,26 @@
       >
         <empty-tip v-if="fileList.length == 0" style="position: absolute;width: calc(100% - 16px);" />
         <file-list-grid-item
-          v-for="(fileInfo) in fileList"
+          v-for="fileInfo in fileList"
+          :id="fileInfo.name + fileInfo.md5"
           :key="path + fileInfo.name + fileInfo.md5"
           ref="gridItemRef"
           v-ripple
+          tabindex="1"
+          :file-name="fileInfo.name"
           :file-info="fileInfo"
           :corner-icon="showMountIcon && fileInfo.mountId ? 'mdi-share' : undefined"
           :active="!!selectedFile[fileInfo.name + fileInfo.md5]"
           :path="path"
           :use-select="useSelect"
           @click="fileLClick($event, fileInfo)"
+          @keypress.enter="fileLClick($event, fileInfo)"
+          @keypress.space="fileLClick($event, fileInfo)"
           @contextmenu.prevent="fileRClick($event, fileInfo)"
           @check-change="toggleSelectFile(fileInfo)"
         />
       </grid-container>
+      <slot name="append" />
     </div>
     <template #resizeable>
       <chapter-menu
@@ -205,7 +222,12 @@ const readme = ref('')
 const readmeViewMaxHeight = ref('0')
 
 let lastClickFile: FileInfo | null | boolean = null
-const selectedFile = reactive({}) as {[key:string]: FileInfo}
+
+/**
+ * 当前已选文件，key - 文件名+md5，value - fileList的元素
+ */
+const selectedFile = reactive({}) as { [key:string]: FileInfo }
+
 const renameNewName = ref('')
 const renameIndex = ref(-1)
 let renamePromiseResolve: ((value: string | PromiseLike<string>) => void) | null= null
@@ -218,7 +240,6 @@ const menuRef = ref() as Ref<ComponentPublicInstance>
 const rootRef = ref() as Ref<HTMLElement>
 const tableRef = ref() as Ref<ComponentPublicInstance>
 const gridRef = ref() as Ref<ComponentPublicInstance>
-const spacerRef = ref() as Ref<HTMLElement>
 const gridItemRef = ref()
 
 // 是否处于文件框选状态
@@ -243,6 +264,48 @@ const chapterClick = (node: ChapterTreeNode) => {
   
 }
 
+// 启用按键实时搜索
+useTypeToSearch({
+  focusRoot() {
+    return rootRef.value as HTMLElement
+  },
+  isCanTrigger() {
+    if (renameIndex.value != -1) {
+      return false
+    }
+    if (document.activeElement instanceof HTMLInputElement && (document.activeElement.type == '' || document.activeElement.type == 'text')) {
+      return false
+    }
+    return true
+  },
+  searchCallback(key, replaceKey) {
+    const useFirstCharMatch = replaceKey !== undefined
+    // 一直重复输入一个key时，采用按单个首字母检索模式，每重复一次就自动切换到下一个文件选中
+    const actualSearchKey = useFirstCharMatch ? replaceKey : key
+    // 下面两个变量只在首字母检索模式下赋值，确保文件可以一直从当前已选的文件开始往后选中而不会倒回去前面
+    let startSearchIdx = -1
+    let curSelectedFile: FileInfo | undefined
+    if (useFirstCharMatch && Object.keys(selectedFile).length == 1) {
+      curSelectedFile = Object.values(selectedFile)[0]
+      startSearchIdx = props.fileList.findIndex(f => f == curSelectedFile)
+    }
+
+    const matchFile = props.fileList.find((e, idx) => idx > startSearchIdx && e != curSelectedFile && e.name.toLowerCase().startsWith(actualSearchKey.toLowerCase()))
+    if (!matchFile) {
+      return
+    }
+    // 搜索匹配上了就自动选择这个文件
+    resetSelect()
+    selectedFile[matchFile.name + matchFile.md5] = matchFile
+
+    // 选择后滚动到对应位置
+    const el = rootRef.value.querySelector(`[file-name="${matchFile.name}"]`) as HTMLElement
+    if (!el) {
+      return
+    }
+    (scrollAnchor.value as HTMLElement).scrollTo({ top: el.offsetTop })
+  }
+})
 
 // README.md预览视图的style，设定最大高度和动态宽度
 const readmeViewStyle = computed(() => {
@@ -282,7 +345,7 @@ const listResourceParams = computed(() => {
     path: props.path,
     protocol: fileListContext.protocol,
     targetId: fileListContext.uid,
-    ...fileListContext.getProtocolParams()
+    ...fileListContext.getProtocolParams() as any
   } as ResourceRequest
   return params
 })
@@ -570,6 +633,8 @@ import { loadMDToHtml } from './MarkdownLoader'
 import ChapterMenu from '../Markdown/ChapterMenu.vue'
 import MarkdownView from '../Markdown/MarkdownView.vue'
 import { ChapterTreeNode } from '../Markdown/type'
+import { useTypeToSearch } from 'sfc-common/composables/useTypeToSearch'
+import ResizeContainer from 'sfc-common/components/layout/ResizeContainer.vue'
 
 export default defineComponent({
   name: 'FileList',

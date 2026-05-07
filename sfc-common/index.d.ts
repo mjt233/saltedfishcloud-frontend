@@ -14,6 +14,7 @@ import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import * as SfcCommon from 'sfc-common'
 import * as monaco from 'monaco-editor'
+import { FileAttributeExtension } from 'sfc-common/core/context/fileAttributeExtension'
 
 declare global {
   interface Window {
@@ -32,5 +33,6 @@ declare global {
     StringUtils: typeof StringUtils,
     SfcCommon: typeof SfcCommon
     monaco: typeof monaco
+    registerFileAttributeSection: (extension: FileAttributeExtension) => void
   }
 }

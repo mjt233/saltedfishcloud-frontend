@@ -2,7 +2,27 @@ import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { FormFieldType } from 'sfc-common/utils/FormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 
+function isNon(v: any) {
+  return v === undefined || v === null || v === ''
+}
+
+/**
+ * 预设的校验函数
+ */
 export namespace Validators {
+
+
+  export function isNum(msg: string = '只能填写数字') {
+    return (e: string) => {
+      return isNon(e) || /^-?\d+(\.\d+)?$/.test(e) ? true : msg
+    }
+  }
+
+  export function isNonNegativeNum(msg: string = '只能填写非负数字') {
+    return (e: string) => {
+      return isNon(e) || /^\d+(\.\d+)?$/.test(e) ? true : msg
+    }
+  }
 
   export function requireFile(msg: string = '请选择文件') {
     return (e: File[] | File) => {
@@ -35,6 +55,15 @@ export namespace Validators {
 
   export function notNull(msg: string = '不能为空') {
     return (e: FormFieldType) => !!e || msg
+  }
+
+  export function isUrl(msg: string = '请填写有效的URL') {
+    return (e: FormFieldType) => {
+      if (typeof e !== 'string') {
+        return msg
+      }
+      return /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/.test(e) || msg
+    }
   }
 
   export function minLen(msg: string | undefined | null, len: number) {

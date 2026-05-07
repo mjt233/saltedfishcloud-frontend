@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="config-describe tip">
-        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.describe" />
+        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.title" />
         <v-switch
           v-if="node.inputType == 'switch'"
           color="primary"
@@ -24,15 +24,15 @@
         />
       </div>
       <template v-if="node.inputType == 'text'">
-        <text-input
+        <v-text-field
           :rules="validators"
           :model-value="nodeValue"
-          class="config-simple-input"
           :readonly="node.readonly || readOnly"
+          :placeholder="node.describe"
           :hide-details="dense"
           :label="useInnerLabel ? (node.title || node.name) : undefined"
           :type="node.mask ? 'password': 'text'"
-          :class="{'no-margin no-padding': dense}"
+          :class="{'no-margin no-padding': dense && !useVuetifyNativeLayout, 'config-simple-input': !useVuetifyNativeLayout}"
           @update:model-value="nodeValue = $event;updateValue(nodeValue)"
         />
       </template>
@@ -43,7 +43,7 @@
           :disabled="node.disabled || readOnly"
           :rules="validators"
           :items="selectOptions"
-          class="config-simple-input"
+          :class="useVuetifyNativeLayout ? '' : 'config-simple-input'"
           @change="nodeValue = $event.value; updateValue($event.value)"
         />
       </template>
@@ -64,7 +64,12 @@
         </v-radio-group>
       </template>
       <template v-if="node.inputType == 'form'">
-        <config-node-form-input :model-value="node.value + ''" :node="node" @update:model-value="formChange" />
+        <config-node-form-input
+          :model-value="node.value + ''"
+          :node="node"
+          :show-form-view="showFormView"
+          @update:model-value="formChange"
+        />
       </template>
       <template v-if="node.inputType == 'template'">
         <component
@@ -111,10 +116,26 @@ const props = defineProps({
   useInnerLabel: {
     type: Boolean,
     default: true
+  },
+  /**
+   * 使用Vuetify原生的栅格布局组件
+   */
+  useVuetifyNativeLayout: {
+    type: Boolean,
+    default: false
+  },
+  /**
+   * 对于类型为`form`的节点，是否显示表单视图。默认为true。
+   */
+  showFormView: {
+    type: Boolean,
+    default: true
   }
 })
 const nodeValue = ref('') as Ref<any>
-const emits = defineEmits(['change'])
+const emits = defineEmits<{
+  (e: 'change', val: any): void
+}>()
 
 const selectOptions = computed(() => {
   if (props.node.inputType == 'select') {
@@ -152,7 +173,7 @@ const getCustomParamsObj = (node: ConfigNodeModel) => {
  */
 const hasChange = ref(false)
 
-const updateValue = (val: string) => {
+const updateValue = (val: any) => {
   if (val != props.node.value) {
     emits('change', val)
   }

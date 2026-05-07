@@ -87,7 +87,10 @@ const windowClickListener = async(e: MouseEvent) => {
   if (!props.show || !props.autoHide || e.target == null || !(e.target instanceof HTMLElement)) {
     return
   }
-  if(DOMUtils.getElParentByClass(e.target as HTMLElement, 'upload-list')) {
+  if(
+    DOMUtils.getElParentByClass(e.target as HTMLElement, 'upload-list')
+    || DOMUtils.getElParentByClass(e.target as HTMLElement, 'v-dialog')
+  ) {
   } else {
     emits('update:show', false)
   }

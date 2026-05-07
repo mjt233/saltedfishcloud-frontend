@@ -16,8 +16,14 @@ export interface ApiRequest<T> extends AxiosRequestConfig {
 export type CommonRequest<T=null> = ApiRequest<JsonResult<T>>
 
 export interface CommonPageRequestParam {
+  /**
+   * 每页数据的大小
+   */
   size: number
 
+  /**
+   * 查询的页码，第一页的页码为0
+   */
   page: number
 }
 

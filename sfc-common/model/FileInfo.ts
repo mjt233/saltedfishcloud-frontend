@@ -1,4 +1,4 @@
-import { AuditModel } from './Common'
+import { AuditModel, ResourceRequest } from './Common'
 import { IdType } from './index'
 import { FileListModel, FileListModelHandler } from './component/FileListModel'
 
@@ -21,7 +21,7 @@ export interface FileInfo extends AuditModel {
   /* 是否来自挂载的文件系统 */
   isMount: boolean
 
-  /* 所处路径 */
+  /* 所处路径(不包含本身文件名) */
   path?: string
 }
 
@@ -55,11 +55,34 @@ export interface FileTransferInfo {
 }
 
 /**
- * 获取访问协议资源的额外参数，如：文件分享需要vid，提取码等参数
+ * 简单一些的文件传输参数
+ */
+export interface SimpleFileTransferParam {
+  /** 文件原位置用户 id */
+  sourceUid: IdType
+
+  /** 文件原所在的目录路径 */
+  sourcePath: string
+
+  /** 待传输的文件名列表。当该参数为 null 则表示使用 sourcePath 下的所有文件。 */
+  files?: string[] | null
+
+  /** 文件目标用户 id */
+  targetUid: IdType
+
+  /** 文件目标所在的目录路径 */
+  targetPath: string
+
+  /** 是否覆盖同名文件 */
+  isOverwrite: boolean
+}
+
+/**
+ * 获取访问协议资源的额外参数，如：文件分享需要 vid，提取码等参数
  */
 export interface ProtocolParams {
   /** 资源id */
-  id: IdType
+  id?: IdType
   [key:string]:any
 }
 export interface FileListContext {
@@ -96,6 +119,7 @@ export interface FileListContext {
   /** 文件列表的网盘资源访问协议 */
   protocol: string,
 
-  /** 获取访问协议资源的额外参数，如：文件分享需要vid，提取码等参数 */
-  getProtocolParams: () => ProtocolParams
+  /** 获取访问协议资源的额外参数，如：文件分享需要 vid，提取码等参数 */
+  getProtocolParams: () => ResourceRequest & ProtocolParams
 }
+

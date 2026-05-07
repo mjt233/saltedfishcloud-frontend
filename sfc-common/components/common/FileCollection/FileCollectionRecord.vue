@@ -39,19 +39,34 @@ const props = defineProps({
   item: {
     type: Object as PropType<CollectionRecord>,
     default: undefined
+  },
+  collectionInfo: {
+    type: Object as PropType<CollectionInfo>,
+    default: undefined
   }
 })
 const toDate = StringFormatter.toDate
 
 const downloadFile = (record: CollectionRecord) => {
-  const url = StringUtils.appendPath(API.getDefaultPrefix(), API.resource.downloadFileByMD5(record.md5, record.filename).url)
+  // const url = StringUtils.appendPath(API.getDefaultPrefix(), API.resource.downloadFileByMD5(record.md5, record.filename).url)
+  const url = StringUtils.appendPath(API.getDefaultPrefix(), API.resource.getCommonResource({
+    protocol: 'collection',
+    name: record.filename,
+    path: '/',
+    targetId: record.id,
+
+    // collection 类型的自定义参数
+    cid: record.cid,
+    type: 'GET',
+    verification: props.collectionInfo?.verification
+  }).url)
   window.open(url)
 }
 </script>
 
 <script lang="ts">
 import API from 'sfc-common/api'
-import { CollectionRecord } from 'sfc-common/model/FileCollection'
+import { CollectionInfo, CollectionRecord } from 'sfc-common/model/FileCollection'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'

@@ -78,7 +78,6 @@ onMounted(async() => {
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed, onMounted } from 'vue'
 import FormSelect from '../FormSelect.vue'
 import { SelectOption } from 'sfc-common/model'
-import LoadingMask from '../LoadingMask.vue'
 import { LoadingManager, MethodInterceptor } from 'sfc-common/utils'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'

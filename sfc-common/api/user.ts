@@ -1,5 +1,5 @@
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
-import { BaseUserInfo, CommonRequest, IdType, PageRequest, RawUser } from 'sfc-common/model'
+import { BaseUserInfo, CommonPageRequestParam, CommonRequest, IdType, PageRequest, UserPrincipal } from 'sfc-common/model'
 
 export interface UserRegOpt {
   // 用户名
@@ -64,6 +64,15 @@ const user = {
   updateToken(): CommonRequest<string> {
     return {
       url: `${this.prefix}/updateToken`,
+      method: 'post'
+    }
+  },
+  /**
+   * 退出登录
+   */
+  logout(): CommonRequest {
+    return {
+      url: `${this.prefix}/logout`,
       method: 'post'
     }
   },
@@ -174,12 +183,27 @@ const user = {
    * @param {Number} page 页码
    * @returns
    */
-  getUserList(page = 1, size = 10): PageRequest<RawUser> {
+  getUserList(page = 0, size = 10): PageRequest<UserPrincipal> {
     return {
       url: `${this.prefix}/list`,
       params: {
         page,
         size
+      }
+    }
+  },
+  /**
+   * 搜索用户
+   * @param keyword 搜索关键词（用户名 或 邮箱）
+   * @param pageRequest 分页参数
+   * @returns axios请求配置，响应数据包含符合条件的用户列表和分页信息
+   */
+  search(keyword: string, pageRequest?: CommonPageRequestParam): PageRequest<UserPrincipal> {
+    return {
+      url: `${this.prefix}/search`,
+      params: {
+        keyword,
+        ...(pageRequest || {})
       }
     }
   },
@@ -197,22 +221,24 @@ const user = {
    * 用户登录
    * @param {String} user 用户
    * @param {String} passwd 密码
+   * @param getCookie 响应中是否携带值为token的HttpOnly Cookie
    * @returns token
    */
-  login(user: string, passwd: string): CommonRequest<string> {
+  login(user: string, passwd: string, getCookie?: boolean): CommonRequest<string> {
     return {
       url: this.prefix + '/token',
       method: 'post',
       params: {
         user: user,
-        passwd: passwd
+        passwd: passwd,
+        getCookie: getCookie ? '1' : undefined
       }
     }
   },
   /**
    * 获取用户信息
    */
-  getUserInfo(): CommonRequest<RawUser> {
+  getUserInfo(): CommonRequest<UserPrincipal> {
     return {
       url: this.prefix,
       method: 'get'

@@ -1,5 +1,6 @@
 import { CommonPageRequestParam, CommonRequest, IdType, PageRequest } from 'sfc-common/model'
-import { AsyncTaskRecord } from 'sfc-common/model/AsyncTaskRecord'
+import { AsyncTaskRecord, ProgressRecordVO } from 'sfc-common/model/AsyncTaskRecord'
+import { useJsonBody } from 'sfc-common/utils'
 
 const asyncTask = {
   prefix: '/asyncTask',
@@ -14,6 +15,17 @@ const asyncTask = {
         taskId
       }
     }
+  },
+  /**
+   * 批量获取任务的执行进度明细
+   * @param taskIds 异步任务id
+   */
+  getProg(taskIds: IdType[]): CommonRequest<ProgressRecordVO[]> {
+    return useJsonBody({
+      url: `${this.prefix}/getProg`,
+      data: taskIds,
+      method: 'post'
+    })
   },
   /**
    * 按条件查询任务记录

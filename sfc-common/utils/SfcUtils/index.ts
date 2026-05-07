@@ -127,7 +127,13 @@ const SfcUtils = {
    * @param apiConfig api配置
    */
   getApiUrl(apiConfig: any) {
-    return StringUtils.appendPath(API.getDefaultPrefix(), apiConfig.url)
+    const url = new URL(StringUtils.appendPath(API.getDefaultPrefix(), apiConfig.url))
+    if (apiConfig.params) {
+      Object.keys(apiConfig.params).forEach(key => {
+        url.searchParams.set(key, apiConfig.params[key])
+      })
+    }
+    return url.toString()
   },
   /**
    * 新窗口打开API配置中的URL

@@ -5,19 +5,23 @@
     :submit-action="actions.submit"
   >
     <form-grid
+      ref="formGridRef"
       label-width="auto"
       row-height="72px"
     >
       <template v-for="group in nodes" :key="group.name">
         <span class="text-primary d-block pb-6 pt-3" :class="showChange ? 'pl-3' : ''">{{ group.title || group.name }}</span>
-        <form-row>
+        <!-- 行 row -->
+        <component :is="layoutRow" gap="18">
           <template v-for="node in group.nodes" :key="node.name">
+            <!-- 列 col -->
             <component
-              :is="node.isRow ? 'div' : 'form-col'"
+              :is="node.isRow ? 'div' : layoutCol"
+              :cols="dynamicCols"
               :required="node.required"
               top-label
               :label="['switch', 'text', 'select'].includes(node.inputType) ? '' : (node.title || node.name)"
-              :class="node.isRow ? 'custom-row' : 'mw-50'"
+              :class="node.isRow ? 'custom-row' : ''"
             >
               <config-node
                 :read-only="readOnly"
@@ -27,11 +31,12 @@
                 :show-title="false"
                 :node="node"
                 :show-change="showChange"
+                :use-vuetify-native-layout="useVuetifyNativeLayout"
                 @change="emits('change', {name: node.name, value: $event, node: node})"
               />
             </component>
           </template>
-        </form-row>
+        </component>
       </template>
     </form-grid>
   </base-form>
@@ -40,7 +45,12 @@
 <script setup lang="ts">
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 import { CommonForm, defineForm } from 'sfc-common/utils/FormUtils'
+import { useDynamicColCols } from 'sfc-common/composables/useDynamicCols'
+
 const formRef = ref() as Ref<CommonForm>
+const formGridRef = ref<HTMLElement>()
+const dynamicCols = useDynamicColCols(() => formGridRef.value ? (formGridRef.value as any).$el || formGridRef.value : undefined)
+
 const props = defineProps({
   nodes: {
     type: Array as PropType<ConfigNodeModel[]>,
@@ -56,8 +66,23 @@ const props = defineProps({
   showChange: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 使用Vuetify原生的栅格布局组件
+   */
+  useVuetifyNativeLayout: {
+    type: Boolean,
+    default: false
   }
 })
+
+const layoutRow = computed(() => {
+  return props.useVuetifyNativeLayout ? 'v-row' : 'form-row'
+})
+const layoutCol = computed(() => {
+  return props.useVuetifyNativeLayout ? 'v-col' : 'form-col'
+})
+
 const emits = defineEmits<{
   (e: 'submit'): any,
   (e: 'change', value: { name:string, value: any, node: ConfigNodeModel }): any
@@ -83,7 +108,7 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { ConfigNodeModel } from 'sfc-common/model'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 
 export default defineComponent({
   name: 'ConfigurableForm'
@@ -93,6 +118,5 @@ export default defineComponent({
 <style scoped>
 .custom-row {
   width: 100%;
-  padding: 0 12px;
 }
 </style>

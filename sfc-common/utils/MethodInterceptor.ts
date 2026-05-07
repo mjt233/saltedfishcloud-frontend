@@ -63,6 +63,30 @@ export namespace MethodInterceptor {
       invoke: target
     }
   }
+
+  /**
+   * 创建一个缓存返回值的函数，该函数只有第一次被调用时才会真正执行内部逻辑，后续重复被调用会直接返回第一次被调用时的值
+   * @param func 待缓存的函数
+   * @returns func的代理
+   */
+  export function cacheReturnValue<T extends(...args: any[]) => any>(func: T): T {
+    let isCalled = false
+    let value: ReturnType<T>
+
+    // 使用 function 以确保能正确捕获调用时的 this
+    return function(this: any, ...args: Parameters<T>): ReturnType<T> {
+      if (isCalled) {
+        return value
+      }
+      
+      // 转发 this 和所有参数
+      value = func.apply(this, args)
+      isCalled = true
+      
+      return value
+    } as T // 强制断言回原类型，保持签名一致
+  }
+
   /**
    * 创建一个方法调用时会被自定义拦截器操作的被代理对象
    * @param target 被代理的目标对象

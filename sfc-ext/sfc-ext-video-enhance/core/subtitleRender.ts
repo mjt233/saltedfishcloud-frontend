@@ -1,0 +1,182 @@
+import { Subtitle } from '../model'
+import libpgsWorkerUrl from 'libpgs/dist/libpgs.worker?url'
+import type { PgsRenderer } from 'libpgs'
+
+
+/**
+ * 动态加载的外部库定义
+ */
+const extraLibDefine = {
+  'libass-wasm': {
+    url: getResourceUrl('/libass-wasm/subtitles-octopus.js')
+  }
+}
+
+/**
+ * 获取视频插件的资源URL
+ * @param path 资源路径
+ */
+function getResourceUrl(path: string) {
+  return window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', path))
+}
+
+
+const libassWorkerUrl = getResourceUrl('/libass-wasm/subtitles-octopus-worker.js')
+const libassLegacyWorkerUrl = getResourceUrl('/libass-wasm/subtitles-octopus-worker-legacy.js')
+/**
+ * 记录外部库加载的Promise
+ */
+const libLoadPromiseMap = {} as {[key: string]: Promise<any>}
+
+/**
+ * 加载外部库
+ * @param url 库的URL
+ */
+function loadLib(url: string) {
+  if (!libLoadPromiseMap[url]) {
+    libLoadPromiseMap[url] = new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.onload = () => resolve(true)
+      script.onerror = () => {
+        reject(new Error(`Failed to load library: ${url}`)) 
+        document.head.removeChild(script)
+      }
+      document.head.appendChild(script)
+    })
+  }
+  return libLoadPromiseMap[url]
+}
+
+export interface SubtitleRender {
+  /**
+   * 初始化字幕渲染器
+   * @param video 要附靠的video元素
+   * @returns 字幕容器元素
+   */
+  init(video: HTMLVideoElement): Promise<HTMLElement | null>
+
+  /**
+   * 销毁字幕渲染器实例
+   */
+  destroy(): void
+
+  /**
+   * 获取当前字幕对象
+   */
+  getSubtitle(): Subtitle
+
+  /**
+   * 获取字幕容器元素。只有当字幕渲染器已初始化时才返回容器元素。
+   */
+  getContainer(): HTMLElement | null
+}
+
+export class SupSubtitleRender implements SubtitleRender {
+  private subtitle: Subtitle
+  private container?: HTMLCanvasElement
+  private pgsRenderer?: PgsRenderer
+
+  constructor(subtitle: Subtitle) {
+    this.subtitle = subtitle
+  }
+  async init(video: HTMLVideoElement): Promise<HTMLElement> {
+    const libpgs = await import('libpgs')
+    
+    const canvas = document.createElement('canvas')
+    this.container = canvas
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const render = new libpgs.PgsRenderer({
+      video,
+      subUrl: this.subtitle.url,
+      workerUrl: libpgsWorkerUrl,
+      canvas: canvas,
+      aspectRatio: 'contain'
+    })
+    this.pgsRenderer = render
+    return this.container
+  }
+
+  destroy(): void {
+    if (this.pgsRenderer) {
+      this.pgsRenderer.dispose()
+    }
+  }
+
+  getSubtitle(): Subtitle {
+    return this.subtitle
+  }
+
+  getContainer(): HTMLElement | null {
+    return this.container || null
+  }
+}
+
+/**
+ * ASS字幕渲染器实现
+ */
+export class AssSubtitleRender implements SubtitleRender {
+  private subtitle: Subtitle
+  /**
+   * ASS实例
+   */
+  private assInst: any
+  
+  constructor(subtitle: Subtitle) {
+    this.subtitle = subtitle
+  }
+
+  async init(video: HTMLVideoElement): Promise<HTMLElement | null> {
+    await loadLib(extraLibDefine['libass-wasm'].url)
+    // 销毁旧实例
+    this.destroy()
+    const SubtitlesOctopus = (window as any).SubtitlesOctopus
+
+    // 初始化ASS实例
+    const assContent = (await window.SfcUtils.request({ url: this.subtitle.url})).data
+    this.assInst = new SubtitlesOctopus({
+      subContent: assContent,
+      video: video,
+      workerUrl: libassWorkerUrl,
+      legacyWorkerUrl: libassLegacyWorkerUrl,
+      fallbackFont: window.SfcUtils.getApiUrl(window.API.plugin.getPluginResource('video-enhance', 'SourceHanSansSC-Regular-2.otf')),
+      targetFps: 60
+    })
+    if (video.readyState >= 3 && video.paused === false) {
+      // 不知道libass-wasm是不是有bug，如果给播放中的视频加载字幕，字幕的帧率会很低，目测只有1FPS的样子，需要暂停一下再播放 或 转跳一下 才能恢复
+      video.pause()
+      await window.SfcUtils.sleep(10)
+      video.play()
+    }
+    return null
+  }
+
+  destroy(): void {
+    if (this.assInst) {
+      this.assInst.dispose()
+    }
+  }
+
+  getSubtitle(): Subtitle {
+    return this.subtitle
+  }
+  
+  getContainer(): HTMLElement | null {
+    return null
+  }
+}
+
+/**
+ * 创建字幕渲染器实例
+ * @param subtitle 待渲染的字幕
+ * @returns 字幕渲染器实例
+ */
+export function createSubtitleRender(subtitle: Subtitle): SubtitleRender | null {
+  if (subtitle.type === 'ass') {
+    return new AssSubtitleRender(subtitle)
+  } else if (subtitle.type === 'sup') {
+    return new SupSubtitleRender(subtitle)
+  }
+  return null
+}

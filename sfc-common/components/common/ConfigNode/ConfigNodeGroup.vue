@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-for="(group, idx) in items" :key="idx" class="node-group">
+  <div class="config-node-group">
+    <div v-for="(group, idx) in items" :key="idx" class="config-node-group-item">
       <slot name="title" :group="group">
         <template v-if="group.title || group.name">
           <span class="node-title">{{ group.title || group.name }}</span>
@@ -15,6 +15,7 @@
       <config-node
         v-for="(node) in group.nodes"
         :key="node.name"
+        :show-form-view="showFormView"
         :node="node"
         :class="{'template-node': node.inputType == 'template'}"
         :use-inner-label="false"
@@ -34,7 +35,14 @@ const props = defineProps({
   useStickTitle: {
     type: Boolean,
     default: true
-  }
+  },
+  /**
+   * 对于类型为`form`的节点，是否显示只读的表单视图。默认为true。
+   */
+  showFormView: {
+    type: Boolean,
+    default: true
+  },
 })
 
 const emits = defineEmits(['nodeChange'])
@@ -64,12 +72,12 @@ export default defineComponent({
   font-weight: 600;
 }
 
-/* .node-group>*:hover,.node-title:hover {
+/* .config-node-group-item>*:hover,.node-title:hover {
   background-color: rgba(var(--v-theme-primary), .05);
 } */
 
 /* Vue模板组件类型的不悬浮高亮了 */
-.node-group>.template-node:hover {
+.config-node-group-item>.template-node:hover {
   background-color: transparent;
 }
 </style>

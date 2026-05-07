@@ -1,8 +1,25 @@
 <template>
-  <div>
+  <div ref="thisRef">
     <LoadingMask :loading="loading" />
     <VCard>
-      <VTable fixed-header height="70vh">
+      <div class="d-flex align-center justify-end pl-4 pr-4 pt-4">
+        <VTextField
+          v-model="keyword"
+          placeholder="搜索用户名或邮箱"
+          variant="outlined"
+          density="comfortable"
+          hide-details
+          clearable
+          style="max-width: 640px;"
+          @keyup.enter="onSearch"
+          @click:clear="onClear"
+        >
+          <template #append-inner>
+            <VIcon icon="mdi-magnify" @click="onSearch" />
+          </template>
+        </VTextField>
+      </div>
+      <VTable ref="tableRef" fixed-header :height="tableHeight">
         <thead>
           <tr>
             <th style="width: 280px;z-index: 1;">
@@ -63,17 +80,37 @@ const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const curPage = ref(1)
 const pageSize = ref(10)
-const requestResult: Ref<CommonPageInfo<RawUser>> = ref(reactive({
+const requestResult: Ref<CommonPageInfo<UserPrincipal>> = ref(reactive({
   content: [],
   totalCount: 0,
   totalPage: 0
 }))
+const thisRef = ref()
+const tableRef = ref()
+const keyword = ref('')
+const searchKeyword = ref('')
+
+const onSearch = () => {
+  searchKeyword.value = keyword.value
+  curPage.value = 1
+}
+
+const onClear = () => {
+  keyword.value = ''
+  searchKeyword.value = ''
+  curPage.value = 1
+}
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
-    requestResult.value = (await SfcUtils.request(API.user.getUserList(curPage.value, pageSize.value))).data.data
+    const pageParam = { page: curPage.value - 1, size: pageSize.value }
+    if (searchKeyword.value) {
+      requestResult.value = (await SfcUtils.request(API.user.search(searchKeyword.value, pageParam))).data.data
+    } else {
+      requestResult.value = (await SfcUtils.request(API.user.getUserList(curPage.value - 1, pageSize.value))).data.data
+    }
     if (requestResult.value.totalPage < curPage.value) {
-      curPage.value = requestResult.value.totalPage
+      curPage.value = Math.max(1, requestResult.value.totalPage)
     }
   },
   async grant(uid: IdType, isAdmin: boolean) {
@@ -86,7 +123,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
  * 授权
  * @param isAdmin 是否设为管理
  */
-const grant = async(user: RawUser, isAdmin: boolean) => {
+const grant = async(user: UserPrincipal, isAdmin: boolean) => {
   const msg = isAdmin ? `是否将${user.user}设为管理员？` : `是否撤销${user.user}的管理员权限？`
   await SfcUtils.confirm(msg, '操作确认')
   actions.grant(user.id, isAdmin)
@@ -95,7 +132,7 @@ const grant = async(user: RawUser, isAdmin: boolean) => {
 /**
  * 重置密码
  */
-const resetPassword = async(user:RawUser) => {
+const resetPassword = async(user:UserPrincipal) => {
   const inst = SfcUtils.openComponentDialog(ChangePassowrdForm, {
     props: {
       inputOldPassword: false,
@@ -118,20 +155,27 @@ const resetPassword = async(user:RawUser) => {
     }
   })
 }
-
+const { targetHeight: tableHeight } = useAutoComputeHeight({
+  autoComputeHeight: true,
+  computeTarget: () => tableRef.value?.$el as HTMLElement,
+  observeTarget: () => thisRef.value as HTMLElement,
+  offset: -84
+})
 watch(curPage, actions.loadList)
 watch(pageSize, actions.loadList)
+watch(searchKeyword, actions.loadList)
 onMounted(actions.loadList)
 </script>
 
 <script lang="ts">
 import API from 'sfc-common/api'
 import { ChangePassowrdForm } from 'sfc-common/components/form'
-import { CommonPageInfo, IdType, RawUser } from 'sfc-common/model'
+import { CommonPageInfo, IdType, UserPrincipal } from 'sfc-common/model'
 import { LoadingManager,MethodInterceptor } from 'sfc-common/utils/'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, nextTick } from 'vue'
 import CommonPagination from '../CommonPagination.vue'
+import { useAutoComputeHeight } from '../FileExplorer/FileExplorerCore'
 
 export default defineComponent({
   name: 'UserManager',

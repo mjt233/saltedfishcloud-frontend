@@ -22,11 +22,11 @@ const logRecord = {
    * @returns 查询结果
    */
   queryLogStatistic(param?: RangeRequest<Date | string | number>): CommonRequest<LogRecordStatisticVO[]> {
-    return {
+    return useJsonBody({
       url: `${this.prefix}/queryLogStatistic`,
       data: param,
       method: 'post'
-    }
+    })
   },
   /**
    * 列出系统支持的日志存储器

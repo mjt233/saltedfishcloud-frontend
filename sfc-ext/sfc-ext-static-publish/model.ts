@@ -1,4 +1,4 @@
-import { AuditModel, ClusterNodeInfo, NodeInfo } from 'sfc-common'
+import { AuditModel, ClusterNodeInfo } from 'sfc-common'
 
 /**
  * 站点访问方式：1 - 按主机名匹配，2 - 按路径匹配，3 - 按根路径匹配

@@ -1,8 +1,10 @@
 <!-- 采用配置方式生成的表单 -->
+<!-- 注意：该表单已弃用，请使用 ConfigurableForm 替代 -->
 <template>
   <base-form
     ref="formRef"
     v-model="valObj"
+    component-name="config-form"
     row-height="80px"
     :label-width="labelWidth"
   >
@@ -14,28 +16,22 @@
         <form-col
           v-for="field in item.nodes"
           :key="field.name"
-          :label="['text'].includes(field.inputType) ? undefined : field.title"
+          :label="['text', 'select'].includes(field.inputType) ? undefined : field.title"
           class="mw-50"
           top-label
         >
-          <template v-if="field.inputType == 'text'">
-            <text-input
-              v-model="formData[field.name]"
-              :label="field.title"
-              :type="field.mask ? 'password': 'text'"
-              :rules="field.required ? [Validators.notNull(field.title + '不能为空')] : []"
-            />
+          <template v-if="field.inputType == 'switch'" #label>
+            <span style="position: absolute;">{{ field.title }}</span>
           </template>
-          <template v-else-if="field.inputType == 'switch'">
-            <v-switch
-              v-model="formData[field.name]"
-              hide-details
-              color="primary"
-            />
-          </template>
-          <template v-else>
-            <config-node :show-describe="false" :node="field" @change="formData[field.name] = $event" />
-          </template>
+          <config-node
+            style="padding: 0;"
+            :style="{'margin-top': field.inputType == 'switch' ? '6px' : ''}"
+            :node="field"
+            :show-describe="false"
+            :show-title="false"
+            :show-change="false"
+            @change="formData[field.name] = $event;field.value = $event"
+          />
         </form-col>
       </form-row>
     </template>
@@ -62,10 +58,8 @@ const props = defineProps({
   }
 })
 
-const valObj = {} as any
+let valObj = reactive({}) as any
 const maxLabelWidth = 120
-
-Object.assign(valObj, props.modelValue)
 
 const labelWidth = computed(() => {
   let currentWidth = 0
@@ -86,13 +80,24 @@ const form = defineForm({
 })
 
 const { formData } = form
-
 defineExpose(form)
+
+function initObj() {
+
+  Object.assign(valObj, props.modelValue)
+  props.groups.flatMap(e => e.nodes).forEach(node => {
+    if (node) {
+      node.value = formData[node?.name]
+    }
+  })
+}
+
+initObj()
 </script>
 
 <script lang="ts">
 import { ConfigNodeModel } from 'sfc-common/model'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, computed } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, computed, onMounted } from 'vue'
 import { defineBaseForm, defineForm } from 'sfc-common/utils/FormUtils'
 import { Validators } from 'sfc-common/core'
 

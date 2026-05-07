@@ -26,6 +26,13 @@ export function defineExtension(conf: ExtensionConfig) {
       //   autoImport: true,
       // })
     ],
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler'
+        }
+      }
+    },
     define: { 'process.env': {} },
     resolve: {
       alias: {
@@ -46,7 +53,8 @@ export function defineExtension(conf: ExtensionConfig) {
       lib: {
         entry: path.resolve(__dirname, `../../sfc-ext/${extensionName}/main.ts`),
         name: extensionName,
-        fileName: (format) => `index.${format}.js`
+        fileName: (format) => `index.${format}.js`,
+        formats: ['umd']
       },
       rollupOptions: {
         // 确保外部化处理那些你不想打包进库的依赖

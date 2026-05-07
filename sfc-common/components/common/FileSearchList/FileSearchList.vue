@@ -10,7 +10,7 @@
     />
     <span class="tip" style="margin-left: 12px;">共{{ searchResult.total }}条结果</span>
     
-    <file-list
+    <FileExplorerTableView
       ref="listRef"
       :file-list="searchResult.list"
       :uid="uid"
@@ -19,31 +19,25 @@
       :show-back="false"
       :use-select="false"
       :path="listPath"
-      @click-item="actions.clickItem"
+      :headers="[{ title: '名称', key: 'name' }]"
+      :extra-headers="[{title: '上级目录', key: 'parent'}]"
+      :item-key="(f) => f.name + '_' + f.node"
+      :item-value="(f) => f.id + '_' + f.node"
+      @file-click="actions.clickItem"
     >
-      <template #thead>
-        <th
-          style="background-color: transparent !important"
-        >
-          位置
-        </th>
+      <template #item.parent="{ item: fileInfo }">
+        <a class="link" @click="emits('click-parent', fileInfo as SearchFileInfo)"> {{ (fileInfo as SearchFileInfo).parent || '/' }}</a>
       </template>
-      <template #tbody="{ fileInfo }">
-        <td @click="emits('click-parent', fileInfo as SearchFileInfo)">
-          <a class="link"> {{ (fileInfo as SearchFileInfo).parent || '/' }}</a>
-        </td>
-      </template>
-    </file-list>
+    </FileExplorerTableView>
   </div>
 </template>
 
 <script setup lang="ts">
 // 简易的文件搜索列表，仅能针对特定用户的私人网盘或公共网盘进行主存储的搜索
 import LoadingMask from '../LoadingMask.vue'
-import FileList from '../FileList/index.vue'
 import type { SearchFileInfo } from 'sfc-common/model'
 const listPath = ref('/')
-const listRef = ref() as Ref<FileListModel>
+const listRef = ref() as Ref<InstanceType<typeof FileExplorerTableView>>
 const props = defineProps({
   uid: {
     type: [Number, String],
@@ -70,12 +64,12 @@ const emits = defineEmits<{
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async search(page: number) {
-    const result = (await SfcUtils.request(API.file.search(props.uid, props.keywork, page))).data.data
-    searchResult.list = result.list
-    searchResult.total = result.total
-    searchResult.totalPages = result.pages
+    const result = (await SfcUtils.request(API.file.search(props.uid, props.keywork, page - 1))).data.data
+    searchResult.list = result.content
+    searchResult.total = result.totalCount
+    searchResult.totalPages = result.totalPage
   },
-  async clickItem(ctx: FileListContext, item: FileInfo) {
+  async clickItem(item: FileInfo) {
     // 由于搜索文件列表并没有固定的路径记录
     // 为了确保能正确被文件打开操作器识别打开的文件路径，这里需要根据节点id获取路径
     if (item.path) {
@@ -95,9 +89,8 @@ watch(curPage, () => {
   actions.search(curPage.value)
 })
 defineExpose({
-  getListContext() {
-    listRef.value.context.fileList = searchResult.list
-    return listRef.value.context
+  getSearchResult() {
+    return searchResult
   }
 })
 </script>
@@ -109,7 +102,7 @@ import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch } from 'vue'
 import { FileInfo, FileListContext } from 'sfc-common/model'
-import { FileListModel } from 'sfc-common/model/component/FileListModel'
+import FileExplorerTableView from '../FileExplorer/fileView/FileExplorerTableView.vue'
 
 export default defineComponent({
   name: 'FileSearchList'

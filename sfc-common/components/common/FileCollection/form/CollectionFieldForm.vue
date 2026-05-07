@@ -78,7 +78,7 @@
     <FormRow v-if="formData.type == 'OPTION'">
       <FormCol class="elevation-2" style="height: auto;max-height: 240px;">
         <div style="height: 100%; overflow: auto">
-          <span v-for="(option,index) in formData.options" :key="index" style="min-width: ;">
+          <span v-for="(option,index) in formData.options" :key="index">
             <v-chip color="primary" style="margin: 6px">
               <v-icon 
                 v-if="!readonly"

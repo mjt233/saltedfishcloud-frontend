@@ -1,14 +1,16 @@
 import DeleteConfirm from 'sfc-common/components/common/DeleteConfirm.vue'
 import { FileListContext, IdType, MountPoint } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { h, ref } from 'vue'
-import { MenuGroup } from 'sfc-common/core/context'
+import { h, markRaw, ref } from 'vue'
+import { MenuGroup, getContext } from 'sfc-common/core/context'
 import { FileAttribute } from 'sfc-common/components'
-import { VBtn } from 'vuetify/components'
-import { CreateMountPointFormVue } from 'sfc-common/components/common/MountPoint'
 import { MountPointService } from 'sfc-common/core/serivce/MountPointService'
+import { FileExplorerContext } from 'sfc-common/components/common/FileExplorer/createListContext'
+import MarkdownView from 'sfc-common/components/common/Markdown/MarkdownView.vue'
+import { FileListMenuItem } from './type'
+import type { FileAttributeSectionItem } from 'sfc-common/core/context/fileAttributeExtension'
 
-const fileActionGroup: MenuGroup<FileListContext> = 
+const fileActionGroup: MenuGroup<FileListContext, FileListMenuItem> = 
 {
   id: 'action',
   name: '文件操作',
@@ -38,13 +40,22 @@ const fileActionGroup: MenuGroup<FileListContext> =
       },
       action(ctx) {
         const asyncFunWrap = async() => {
-          await SfcUtils.confirm('', '', {
-            children: [ h(DeleteConfirm, { fileList: ctx.selectFileList }) ],
-            cancelToReject: true
+          let isConfirm = false
+          await SfcUtils.openComponentDialog(DeleteConfirm, {
+            title: '删除文件',
+            props: {
+              fileList: ctx.selectFileList
+            },
+            onConfirm() {
+              isConfirm = true
+              return true
+            }
           })
-          await ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name))
-          await ctx.modelHandler.refresh()
-          SfcUtils.snackbar('删除成功')
+          if (isConfirm) {
+            await SfcUtils.loadingDialogTask({ msg: '正在删除文件...' }, () => ctx.modelHandler.delete(ctx.selectFileList.map(file => file.name)))
+            await ctx.modelHandler.refresh()
+            SfcUtils.snackbar('删除成功')
+          }
         }
         asyncFunWrap()
       }
@@ -61,6 +72,29 @@ const fileActionGroup: MenuGroup<FileListContext> =
       }
     },
     {
+      id: 'previewInSide',
+      title: '在侧边栏预览',
+      icon: 'mdi-eye',
+      renderOn(ctx) {
+        return ctx instanceof FileExplorerContext
+        && ctx.sideSupport.isEnabled
+        && ctx.selectFileList.length == 1
+        && ctx.selectFileList[0].dir == false && ctx.selectFileList[0].name.endsWith('.md')
+      },
+      async action(ctx) {
+        const fctx = ctx as FileExplorerContext
+        const url = ctx.getFileUrl(ctx.selectFileList[0])
+        if (!url) {
+          return
+        }
+        const md = (await SfcUtils.request({ url })).request.responseText as string
+        fctx.sideSupport.setSide(MarkdownView, {
+          resourceParams: ctx.getProtocolParams(),
+          content: md
+        }, ctx.selectFileList[0].name)
+      },
+    },
+    {
       id: 'showAttr',
       title: '属性',
       icon: 'mdi-information',
@@ -68,56 +102,44 @@ const fileActionGroup: MenuGroup<FileListContext> =
         return ctx.selectFileList && ctx.selectFileList.length > 0
       },
       action(ctx) {
-        const doAction = () => {
-          const mountPointRef = ref<MountPoint>()
-          const closeBtn = h(VBtn, {color: 'primary', onClick: () => attrInst.close()}, () => '关闭')
-          const editBtn = h(VBtn, {color: 'primary', onClick: () => editMountPoint()}, () => '编辑挂载参数')
-          const editMountPoint = () => {
-            attrInst.close()
-            const mpInst = SfcUtils.openComponentDialog(CreateMountPointFormVue, {
-              title: '修改挂载点',
-              props: {
-                initValue: mountPointRef.value
-              },
-              async onConfirm() {
-                try {
-                  const form = mpInst.getInstAsForm()
-                  const mountPointFormData = form.getFormData() as MountPoint
-                  const res = await form.submit()
-                  if (!res.success) {
-                    return false
-                  }
-                  doAction()
-                  if (mountPointFormData.isProxyStoreRecord && mountPointRef.value && !mountPointRef.value.isProxyStoreRecord) {
-                    await MountPointService.syncFileRecord(
-                      mountPointFormData.id as IdType,
-                      `挂载点 【${mountPointFormData.name}】 的委托存储记录功能已切换为开启，是否需要立即同步存储记录？`
-                    )
-                  }
-                  return true
-                } catch (err) {
-                  return false
-                }
-              },
-            })
-          }
-          const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
-          const attrInst = SfcUtils.openComponentDialog(FileAttribute, {
-            title: '文件属性',
-            props: {
-              files: ctx.selectFileList,
-              path: ctx.path,
-              thumbnailUrl,
-              onMountPointLoaded(mountPoint: MountPoint) {
-                mountPointRef.value = mountPoint
-              }
-            },
-            showCancel: false,
-            showConfirm: false,
-            footer: () => mountPointRef.value ? [editBtn, closeBtn] : [closeBtn]
+        const thumbnailUrl = ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir ? ctx.getThumbnailUrl(ctx.selectFileList[0]) : undefined
+
+        // 收集扩展段
+        const extensions = getContext().fileAttributeSections.value
+        const extensionSections: FileAttributeSectionItem[] = extensions
+          .map(ext => ({ id: ext.id, section: ext.resolve(ctx) }))
+          .filter(item => item.section != null)
+          .sort((a, b) => {
+            const order: Record<string, number> = {}
+            return (order[a.id] ?? 100) - (order[b.id] ?? 100)
           })
+          .map(item => item.section!)
+
+        extensionSections.forEach(s => {
+          if (typeof s.component !== 'string') {
+            s.component = markRaw(s.component)
+          }
+        })
+
+        const props = {
+          files: ctx.selectFileList,
+          path: ctx.path,
+          thumbnailUrl,
+          extensionSections
         }
-        doAction()
+        // if (ctx instanceof FileExplorerContext && ctx.sideSupport.isEnabled && !useCheckIsMobile().value) {
+        //   ctx.sideSupport.setSide(FileAttribute, props, '文件属性')
+        //   return
+        // } else {
+        // }
+        SfcUtils.openComponentDialog(FileAttribute, {
+          title: '文件属性',
+          props: props,
+          showCancel: false,
+          extraDialogOptions: {
+            maxWidth: '720px'
+          }
+        })
       }
     }
   ]

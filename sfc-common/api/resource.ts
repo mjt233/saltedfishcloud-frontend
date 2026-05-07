@@ -1,10 +1,26 @@
-import { AxiosRequestConfig } from 'axios'
-import { CommonRequest, IdType, NodeInfo, ResourceRequest } from 'sfc-common/model'
-import { StringUtils } from 'sfc-common/utils/StringUtils'
 import qs from 'qs'
+import { CommonRequest, FileInfo, IdType, ResourceRequest } from 'sfc-common/model'
+import { StringUtils } from 'sfc-common/utils/StringUtils'
 
 const resource = {
   prefix: 'resource',
+  /**
+   * 统一的资源和文件上传接口
+   * @param param 待上传的资源请求参数
+   * @param file 待上传文件
+   */
+  upload(param: ResourceRequest, file: File | undefined | null): CommonRequest {
+    const fd = new FormData()
+    fd.set('param', JSON.stringify(param))
+    if (file) {
+      fd.set('file', file)
+    }
+    return {
+      url: 'file/upload',
+      data: fd,
+      method: 'post'
+    }
+  },
   /**
    * 通用资源请求接口
    * @param param 请求参数
@@ -45,7 +61,7 @@ const resource = {
    * @param uid 用户ID
    * @param path 路径
    */
-  getNodeInfo(uid: IdType, path: string): CommonRequest<NodeInfo[]> {
+  getNodeInfo(uid: IdType, path: string): CommonRequest<FileInfo[]> {
     path = path.replace(/\/+/g, '/')
     if (path.startsWith('/')) {
       path = path.substring(1)

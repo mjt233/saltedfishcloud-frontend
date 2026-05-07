@@ -1,4 +1,4 @@
-import { AuditModel, BaseUserInfo, RawUser } from 'sfc-common'
+import { AuditModel, BaseUserInfo, IdType, UserPrincipal } from 'sfc-common'
 
 export interface ThirdPartyPlatformUser extends AuditModel {
   /**
@@ -33,6 +33,11 @@ export interface ThirdPartyPlatformUser extends AuditModel {
    * 第三方平台账号的唯一标识
    */
   thirdPartyUserId: string
+
+  /**
+   * 第三方平台用户头像url
+   */
+  avatarUrl?: string
 }
 
 export interface ThirdPartyAuthPlatform extends AuditModel {
@@ -67,6 +72,11 @@ export interface ThirdPartyAuthPlatform extends AuditModel {
   isAllowRegister: true
 
   /**
+   * 服务器后台向第三方平台请求接口调用时，使用的代理id
+   */
+  proxyId?: IdType
+
+  /**
    * 第三方认证授权地址
    */
   authUrl: string
@@ -81,7 +91,7 @@ export interface ThirdPartyPlatformCallbackResult {
    * 认证成功后已关联或即将关联的咸鱼云系统用户。
    * 当该字段有值，但isNewUser为true时，表示一个已登录的用户操作了第三方登录，可能在进行关联操作。前端在确认关联时需要比对是否与页面当前用户一致，不一致时应拒绝操作。
    */
-  user: RawUser
+  user: UserPrincipal
 
   /**
    * 认证成功后的平台用户信息
@@ -132,3 +142,126 @@ export interface BindUserParam {
   password?: string
 }
 
+/**
+ * 第三方OAuth应用信息
+ */
+export interface ThirdPartyApp extends AuditModel {
+  /**
+   * 应用名称
+   */
+  name: string
+
+  /**
+   * 用户确认授权后的回调URL
+   */
+  callbackUrl: string
+
+  /**
+   * 应用介绍
+   */
+  describeContent?: string
+
+  /**
+   * 联系邮箱
+   */
+  email?: string
+
+  /**
+   * 应用图标(URL 支持base64)
+   */
+  icon?: string
+
+  /**
+   * 是否已启用
+   */
+  isEnabled: boolean
+}
+
+/**
+ * 第三方OAuth应用密钥凭证
+ */
+export interface ThirdPartyAppKeyVo {
+  
+  /**
+   * 应用id
+   */
+  appId: IdType
+
+  /**
+   * 客户端密钥
+   */
+  clientSecret: string
+
+  /**
+   * 凭证名称标签
+   */
+  name: string
+
+  /**
+   * 备注
+   */
+  remark: string
+
+  /**
+   * id
+   */
+  id: IdType
+
+  /**
+   * 创建时间
+   */
+  createAt: string
+
+  /**
+   * 更新时间
+   */
+  updateAt: string
+
+  /**
+   * 创建者id
+   */
+  uid: string
+}
+
+export interface ThirdPartyAppAuthorization extends AuditModel {
+  /**
+   * 授权应用id
+   */
+  appId: IdType
+
+  /**
+   * 已授权范围，多个权限使用空格分割
+   */
+  scope: string
+
+  /**
+   * 关联的第三方应用
+   */
+  thirdPartyApp?: ThirdPartyApp
+}
+
+/**
+ * 用户对第三方OAuth应用的授权信息明细
+ */
+export interface ThirdPartyAppUserAuthorizationVo {
+  /**
+   * 授权应用信息
+   */
+  thirdPartyApp: ThirdPartyApp
+
+  /**
+   * 授权信息。如果没有过任何授权，该值为null
+   */
+  authorization?: ThirdPartyAppAuthorization
+}
+
+/**
+ * 用户授权结果
+ */
+export interface UserAuthorizeResult {
+  /** 授权码 */
+  code: string
+
+  /** 第三方OAuth应用重定向URL */
+  redirectUrl: string
+}

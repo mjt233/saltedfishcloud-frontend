@@ -191,8 +191,8 @@ const formInst = defineForm({
       try {
         uploadStatus.uploading = true
         const conf = API.collection.submit(props.cid, props.vid, formData, file.value)
-        conf.onUploadProgress = (e: Prog) => {
-          uploadStatus.total = e.total
+        conf.onUploadProgress = e => {
+          uploadStatus.total = e.total as number
           uploadStatus.loaded = e.loaded
         }
         await SfcUtils.request(conf)
@@ -267,13 +267,7 @@ const formInst = defineForm({
   formRef: formRef,
   validators: {
     fileRules: [
-      (e: File[]) => {
-        if (e && e.length > 0) {
-          return true
-        } else {
-          return '请选择文件'
-        }
-      },
+      Validators.requireFile('请选择文件'),
       (e: File[]) => {
         const maxSize = collectionInfo.value.maxSize
         if (maxSize != -1 && e[0].size > collectionInfo.value.maxSize) {

@@ -1,3 +1,4 @@
+<!-- 该组件已弃用，请直接使用VSelect -->
 <template>
   <div class="form-select">
     <LoadingMask type="circular" :loading="loading" />
@@ -15,6 +16,7 @@
       :multiple="multiple"
       :label="label || placeholder"
       :disabled="disabled"
+      :clearable="clearable"
     >
       <template #selection="{ item, index }">
         <component :is="useChip ? 'v-chip' : 'span'" v-if="!multiple || multipleShowNum == -1 || index < Number(multipleShowNum)">
@@ -42,6 +44,10 @@ const otherCount = computed(() => {
   }
 })
 const props = defineProps({
+  clearable: {
+    type: Boolean,
+    default: false
+  },
   dense: {
     type: Boolean,
     default: false
@@ -155,8 +161,10 @@ watch(currentSelect, (oldVal, newVal) => {
       options.forEach(e => e.action && e.action())
     } else {
       const option = currentSelect.value as any as SelectOption
-      emits('update:modelValue', option.value)
-      option.action && option.action()
+      emits('update:modelValue', option?.value)
+      if (option) {
+        option.action && option.action()
+      }
     }
     
   }

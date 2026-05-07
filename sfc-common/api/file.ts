@@ -1,57 +1,10 @@
-import { FileTransferInfo, SearchFileInfo } from 'sfc-common'
-import { CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo } from 'sfc-common/model'
+import { FileTransferInfo, getContext, SearchFileInfo } from 'sfc-common'
+import { CommonPageInfo, CommonRequest, FileInfo, FileTransferParam,IdType, PageInfo, SimpleFileTransferParam } from 'sfc-common/model'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
+import resource from './resource'
+import { AsyncTaskRecord } from 'sfc-common/model/AsyncTaskRecord'
 
-/**
- * 创建文件在线压缩的异步任务
- */
-export interface AsyncCompressParam {
-  /**
-   * 文件源用户id
-   */
-  sourceUid: IdType
-
-  /**
-   * 源目录路径
-   */
-  sourcePath: string
-
-  /**
-   * 源文件名（相对目录路径下的直接一级文件名）
-   */
-  sourceNames: string[]
-
-  /**
-   * 压缩文件输出到的用户id
-   */
-  targetUid: IdType
-
-  /**
-   * 输出文件的完整路径
-   */
-  targetFilePath: string
-
-  /**
-   * 压缩参数
-   */
-  archiveParam: {
-    /**
-     * 类型，目前只支持zip
-     */
-    type: string
-
-    /**
-     * 文件名编码
-     */
-    encoding: string
-  }
-
-  /**
-   * 是否等待完成
-   */
-  waitExit: boolean
-}
 
 const file = {
   prefix: 'diskFile',
@@ -126,24 +79,13 @@ const file = {
     })
   },
   /**
-   * 以异步任务的方式在网盘中创建压缩文件
-   * @param param 压缩参数
-   */
-  asyncCompress(param: AsyncCompressParam): CommonRequest<IdType> {
-    return useJsonBody({
-      url: `/${this.prefix}/0/asyncCompress`,
-      data: param,
-      method: 'post'
-    })
-  },
-  /**
    * 搜索文件
    * @param {String} uid 用户ID
    * @param {String} key 关键字
-   * @param {Number} [page = 1] 页码
+   * @param {Number} [page = 0] 页码
    * @returns
    */
-  search(uid: IdType, key: string, page: number = 1): CommonRequest<PageInfo<SearchFileInfo>> {
+  search(uid: IdType, key: string, page: number = 0): CommonRequest<CommonPageInfo<SearchFileInfo>> {
     return {
       url: `${this.prefix}/${uid}/fileList/byName/${key}`,
       method: 'get',
@@ -152,10 +94,21 @@ const file = {
       }
     }
   },
-  copy(param: FileTransferParam): CommonRequest {
+  copy(param: SimpleFileTransferParam): CommonRequest {
     return useJsonBody({
       method: 'post',
       url: `/${this.prefix}/${param.sourceUid}/copy`,
+      data: param
+    })
+  },
+  /**
+   * 通过创建异步任务的方式复制文件
+   * @param param 文件复制参数
+   */
+  asyncCopy(param: SimpleFileTransferParam): CommonRequest<AsyncTaskRecord> {
+    return useJsonBody({
+      method: 'post',
+      url: `/${this.prefix}/${param.sourceUid}/asyncCopy`,
       data: param
     })
   },
@@ -205,23 +158,33 @@ const file = {
    * @param {String} path 资源路径
    * @param {File} file 文件
    * @param {String} md5 文件MD5
-   * @returns 新文件- 1，覆盖旧文件 - 0
    */
-  upload(uid: IdType, path: string, file: File | undefined | null, md5?: string): CommonRequest<number> {
-    path = path.split('/').map(e => encodeURIComponent(e)).join('/')
-    const fd = new FormData()
-    if (md5) {
-      fd.set('md5', md5)
-    }
-    
-    if (file) {
-      fd.set('file', file)
-      fd.set('mtime', file.lastModified.toString())
-    }
-    return {
-      url: StringUtils.appendPath(`/${this.prefix}/${uid}/file`, path),
-      method: 'put',
-      data: fd
+  upload(uid: IdType, path: string, file: File | undefined | null, md5?: string): CommonRequest {
+    if(getContext().feature.value.isUseCommonUpload) {
+      return resource.upload({
+        mtime: file?.lastModified,
+        protocol: 'main',
+        path: path,
+        targetId: uid,
+        name: file?.name as string,
+        md5
+      }, file)
+    } else {
+      path = path.split('/').map(e => encodeURIComponent(e)).join('/')
+      const fd = new FormData()
+      if (md5) {
+        fd.set('md5', md5)
+      }
+      
+      if (file) {
+        fd.set('file', file)
+        fd.set('mtime', file.lastModified.toString())
+      }
+      return {
+        url: StringUtils.appendPath(`/${this.prefix}/${uid}/file`, path),
+        method: 'put',
+        data: fd
+      }
     }
   },
   /**

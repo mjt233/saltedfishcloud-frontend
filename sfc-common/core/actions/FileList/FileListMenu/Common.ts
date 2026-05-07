@@ -6,8 +6,9 @@ import { MenuGroup, MenuItem, getContext } from 'sfc-common/core/context'
 import { ShareService } from 'sfc-common/core/serivce/ShareService'
 import { CreateLinkForm } from 'sfc-common/components/'
 import { h } from 'vue'
+import type { FileListMenuItem } from './type'
 
-const commonGroup: MenuGroup<FileListContext> = {
+const commonGroup: MenuGroup<FileListContext, FileListMenuItem> = {
 
   id: 'common',
   name: '通用功能',
@@ -18,7 +19,21 @@ const commonGroup: MenuGroup<FileListContext> = {
       async action(ctx) {
         return await ctx.modelHandler.refresh()
       },
-      icon: 'mdi-refresh'
+      icon: 'mdi-refresh',
+      hideOnToolBar: true
+    },
+    {
+      id: 'download',
+      title: '下载',
+      icon: 'mdi-download',
+      onlyShowOnToolBar: true,
+      action(ctx) {
+        const url = ctx.getFileUrl(ctx.selectFileList[0])
+        window.open(url, '_blank')
+      },
+      renderOn(ctx) {
+        return ctx.selectFileList && ctx.selectFileList.length == 1 && !ctx.selectFileList[0].dir
+      }
     },
     {
       id: 'share',
@@ -81,7 +96,7 @@ const commonGroup: MenuGroup<FileListContext> = {
     {
       id: 'open-as',
       title: '打开方式',
-      icon: '',
+      icon: 'mdi-dots-horizontal',
       subItems: (ctx) => {
         const file = ctx.selectFileList[0]
         const items = getContext().fileOpenHandler.value.map(handler => {
@@ -93,7 +108,7 @@ const commonGroup: MenuGroup<FileListContext> = {
               handler.action(ctx, file)
             },
             icon: handler.icon
-          } as MenuItem<FileListContext>
+          } as FileListMenuItem
         })
         items.push({
           id: 'open-as-more',

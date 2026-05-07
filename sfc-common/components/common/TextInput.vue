@@ -1,3 +1,4 @@
+<!-- 该组件已弃用，请直接使用 VTextField -->
 <template>
   <v-text-field
     ref="inputRef"

@@ -1,18 +1,15 @@
 import { BgOption } from 'sfc-common'
+import { ArchiveEngine } from './Archive'
 
 /**
  * 系统支持的特性
  */
 export interface SystemFeature {
-  /**
-   * 压缩和解压缩时采用的文件编码格式，一般是gbk或utf-8
-   */
-  archiveEncoding: string
 
   /**
-   * 支持的文件压缩类型，默认为['zip']
+   * 系统支持的压缩引擎列表
    */
-  archiveType: string[]
+  archiveEngineList: ArchiveEngine[]
 
   /**
    * 断点续传url
@@ -28,11 +25,6 @@ export interface SystemFeature {
    * 是否开放注册码注册
    */
   enableRegCode: boolean
-
-  /**
-   * 支持的解压缩文件类型
-   */
-  extractArchiveType: string[]
 
   /**
    * 支持显示缩略图的格式
@@ -53,6 +45,11 @@ export interface SystemFeature {
    * 是否默认为黑暗主题
    */
   darkTheme: boolean
+
+  /**
+   * 网盘文件上传是否使用通用资源请求接口/api/file/upload
+   */
+  isUseCommonUpload: boolean
 
   /**
    * 其他的拓展类型

@@ -15,7 +15,7 @@ import BaseForm from '../common/BaseForm.vue'
 import LoadingMask from '../common/LoadingMask.vue'
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
-const formData = reactive({
+let formData = reactive({
   data: ''
 })
 const form = ref() as Ref<CommonForm>
@@ -50,14 +50,12 @@ defineExpose(formInst)
 
 <script lang="ts">
 import { defineComponent, reactive, ref, defineProps, defineExpose, defineEmits, Ref, ComponentPublicInstance } from 'vue'
-import API from 'sfc-common/api'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { CommonForm, deconstructForm } from 'sfc-common/utils/FormUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
-import SfcUtils from 'sfc-common/utils/SfcUtils'
 
 export default defineComponent({
-  name: 'CreateDownloadForm'
+  name: 'CreateFileCollection'
 })
 </script>

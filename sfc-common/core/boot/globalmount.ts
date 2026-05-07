@@ -24,6 +24,7 @@ import * as echarts from 'echarts'
 function mountGlobalAttr() {
   getContext().routeInfo.value.router = router
   window.context = getContext()
+  window.getContext = getContext
   window.Vue = Vue
   window.SfcUtils = SfcUtils
   window.API = API

@@ -1,36 +1,58 @@
 <template>
   <div ref="rootRef" class="box-view">
-    <div v-for="group in availableItems" :key="group.id" class="item-group">
-      <template v-if="getCanRenderItems(group.items).length">
-        <div v-if="!hideGroupName" class="text-subtitle-1">
-          {{ group.name }}
-        </div>
-        <v-divider v-if="!hideGroupName" />
-        <grid-container
-          type="evenly"
-          :width="boxSize"
-          :gap="'0px'"
-        >
-          <template v-for="(item, index) in group.items.filter(e => canRender(e))" :key="item.id">
-            <div
-              v-if="item.renderOn ? item.renderOn(getContext()) : true"
-              v-ripple
-              class="grid-item"
-              @click="itemClick(item, index)"
-            >
-              <div class="grid-item-icon">
-                <v-icon>
-                  {{ item.icon || 'mdi-puzzle' }}
-                </v-icon>
+    <VRow>
+      <template v-for="group in availableItems" :key="group.id">
+        <VCol :cols="12" :md="Math.max(minCols, 6)">
+          <!-- 卡片 / 菜单组 -->
+          <component
+            :is="useCard ? 'VCard' : 'div'"
+            v-if="getCanRenderItems(group.items).length"
+            :class="useCard ? 'box-group-card' : ''"
+          >
+
+            <!-- 标题 -->
+            <template v-if="useCard">
+              <v-card-title v-if="!hideGroupName">
+                {{ group.name }}
+              </v-card-title>
+            </template>
+            <template v-else>
+              <div v-if="!hideGroupName" class="text-subtitle-1">
+                {{ group.name }}
               </div>
-              <div class="grid-item-title text-shade">
-                {{ item.title }}
-              </div>
-            </div>
-          </template>
-        </grid-container>
+              <v-divider v-if="!hideGroupName" class="mb-2" />
+            </template>
+
+            <!-- 菜单项 -->
+            <component :is="useCard ? 'VCardText' : 'div'">
+              <grid-container
+                type="evenly"
+                :width="boxSize"
+                :gap="'0px'"
+              >
+                <template v-for="(item, index) in group.items.filter(e => canRender(e))" :key="item.id">
+                  <div
+                    v-if="item.renderOn ? item.renderOn(getContext()) : true"
+                    v-ripple
+                    class="grid-item"
+                    @click="itemClick(item, index)"
+                  >
+                    <div class="grid-item-icon">
+                      <v-icon>
+                        {{ item.icon || 'mdi-puzzle' }}
+                      </v-icon>
+                    </div>
+                    <div class="grid-item-title text-shade">
+                      {{ item.title }}
+                    </div>
+                  </div>
+                </template>
+              </grid-container>
+            </component>
+          </component>
+        </VCol>
       </template>
-    </div>
+    </VRow>
     <empty-tip v-if="canRenderCount == 0" />
   </div>
 </template>
@@ -59,8 +81,16 @@ const props = defineProps({
   itemSize: {
     type: Number,
     default: 120
+  },
+  /**
+   * 是否使用卡片样式
+   */
+  useCard: {
+    type: Boolean,
+    default: false
   }
 })
+const minCols = ref(6)
 const emits = defineEmits(['click'])
 const availableItems = computed(() => {
   return props.items.filter((e, idx) => e.renderOn ? e.renderOn(props.argProvider.getArgument(idx, e.id)) : true)
@@ -110,16 +140,22 @@ const itemClick = (item: MenuItem<any>, index: number) => {
   }
 }
 
+let resizeObserver: ResizeObserver
 onMounted(() => {
-  setTimeout(() => {
+  resizeObserver = new ResizeObserver(() => {
+    if(rootRef.value?.clientWidth > 0 && rootRef.value.clientWidth < 1200) {
+      minCols.value = 12
+    } else {
+      minCols.value = 6
+    }
     updateSize()
-    window.addEventListener('resize', updateSize)
-  }, 200)
-  updateSize()
+  })
+
+  resizeObserver.observe(rootRef.value)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateSize)
+  resizeObserver?.disconnect()
 })
 
 if (!props.argProvider) {
@@ -138,9 +174,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 .box-view {
   padding: 12px;
-}
-.item-group>* {
-  margin: 6px 0;
 }
 
 .grid-item {

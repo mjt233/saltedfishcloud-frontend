@@ -5,6 +5,7 @@
         <v-list
           bg-color="background"
           class="menu-list"
+          density="comfortable"
         >
           <template
             v-for="(menuGroup, gIndex) in availableMenu"
@@ -49,7 +50,7 @@
 <script setup lang="ts">
 const propsAttr = defineProps({
   menu: {
-    type: Array as PropType<MenuGroup<FileListContext>[]>,
+    type: Array as PropType<MenuGroup<FileListContext, FileListMenuItem>[]>,
     default: () => []
   },
   container: {
@@ -74,7 +75,6 @@ const emits = defineEmits<{
   (name: 'close'): void
 }>()
 const subItemRefMap = {} as {[other: string]: any}
-const itemRefMap = {} as {[other: string]: any}
 
 /**
  * 获取菜单子项数组
@@ -94,7 +94,7 @@ const getSubItems = (items?: MenuSubItem<FileListContext>) => {
 const availableMenu = computed(() => {
   const ret = propsAttr.menu
     .map(group => {
-      const availableItem = group.items.filter(item => !item.renderOn || item.renderOn(propsAttr.listContext))
+      const availableItem = group.items.filter(item => !item.onlyShowOnToolBar && (!item.renderOn || item.renderOn(propsAttr.listContext)))
       const newGroup = {} as MenuGroup<FileListContext>
       Object.assign(newGroup, group)
       newGroup.items = availableItem
@@ -176,7 +176,7 @@ const resetListen = () => {
  * @param e 鼠标事件
  * @param item 菜单项对象
  */
-const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
+const itemClick = async(e: MouseEvent | KeyboardEvent, item: MenuItem<FileListContext>) => {
   // 没有子菜单、或者有子菜单且本身存在点击动作时，才关闭当前菜单
   if (!item.subItems || (item.subItems && item.action)) {
     closeMenu()
@@ -190,7 +190,7 @@ const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
         if (ret instanceof LoadingControlPromise && !ret.autoLoading) {
           return ret
         }
-        propsAttr.loadingManager.beginLoading()
+        propsAttr.loadingManager?.beginLoading()
         inloading = true
         await ret
       }
@@ -202,7 +202,7 @@ const itemClick = async(e: MouseEvent, item: MenuItem<FileListContext>) => {
     }
   } finally {
     if (inloading) {
-      propsAttr.loadingManager.closeLoading()
+      propsAttr.loadingManager?.closeLoading()
     }
   }
 }
@@ -264,6 +264,7 @@ import { FileListContext } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { LoadingControlPromise, LoadingManager } from 'sfc-common/utils/LoadingManager'
 import DOMUtils from 'sfc-common/utils/DOMUtils'
+import { FileListMenuItem } from 'sfc-common/core/actions/FileList/FileListMenu/type'
 
 export default defineComponent({
   name: 'FileMenu'
@@ -277,6 +278,7 @@ export default defineComponent({
   width: 0 !important;
   height: 0 !important;
   position: fixed;
+  box-shadow: none;
 }
 
 </style>

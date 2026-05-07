@@ -5,7 +5,8 @@ import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHand
 import { computed, h, reactive, ref } from 'vue'
 import { ComponentDialogInstance, dialog, DialogPromise, openComponentDialog } from '../common/Dialog'
 import SfcUtils from '..'
-import { FileBrowserModel } from 'sfc-common/model/component/FileListModel'
+import FileExplorer from 'sfc-common/components/common/FileExplorer/FileExplorer.vue'
+import { StringUtils } from 'sfc-common/utils/StringUtils'
 
 
 export interface FileSelectParam {
@@ -32,6 +33,11 @@ export interface FileSelectParam {
   filter?: (file: FileInfo) => boolean
 
   /**
+   * 选择的文件类型，默认为all 表示同时可以选择文件或目录
+   */
+  selectType?: 'file' | 'dir' | 'all'
+
+  /**
    * 是否全屏显示对话框
    */
   fullscreen?: boolean
@@ -53,10 +59,14 @@ export interface FileSelectResult {
   fileListContext: FileListContext
 }
 
+/**
+ * 从咸鱼云网盘中选择文件或目录
+ * @param param 选择参数
+ * @returns 
+ */
 export function selectFile(param: FileSelectParam): Promise<FileSelectResult> {
-  const { path, uid, title = '选择目录', filter = (e) => e.dir, fullscreen = false, readOnly = true } = param
+  const { path, uid, title = '选择目录', filter = (e) => e.dir, fullscreen = false, readOnly = true, selectType = 'all' } = param
 
-  let lastClickItem: FileInfo | null = null
   let dialogInst: DialogPromise & ComponentDialogInstance
 
   // 我也不知道为什么要用computed，反正不用computed的话，这个handler的方法调用时，内部的this.uid通通变成number类型而不是Ref类型...
@@ -68,37 +78,47 @@ export function selectFile(param: FileSelectParam): Promise<FileSelectResult> {
     filter,
     'onUpdate:path': (e: string) => {
       propsAttr.path = e
-      lastClickItem = null
     },
+    showMountIcon: true,
     fileSystemHandler: handler,
     style: {
       height: '80vh'
     },
     autoComputeHeight: true,
-    compensateHeight: -108,
+    autoComputeHeightOffset: -72,
     useSelect: false,
+    fileViewType: 'list',
     readOnly,
     autoOpenFile: false,
-    onClickItem: (ctx: FileListContext, file: FileInfo) => {
-      lastClickItem = file
-    },
-    onClickFile: (ctx: FileListContext, file: FileInfo) => {
-      dialogInst.doConfirm()
+    hideToolBar: true,
+    hideFileViewToggle: true,
+    onFileClick(file: FileInfo) {
+      if (!file.dir) {
+        dialogInst.doConfirm()
+      }
     }
   })
 
   return new Promise((resolve, reject) => {
-    dialogInst = openComponentDialog(FileBrowser, {
+    dialogInst = openComponentDialog(FileExplorer, {
       props: propsAttr,
       onConfirm() {
-        if (param.requireFile && !lastClickItem) {
+        const explorer = dialogInst.getComponentInstRef() as InstanceType<typeof FileExplorer>
+        const { selectFileList } = explorer.getListContext()
+        if (selectFileList.length == 1 && selectFileList[0].dir) {
+          // 单独选了一个文件夹时，直接进入这个文件夹
+          explorer.changePath(StringUtils.appendPath(propsAttr.path, selectFileList[0].name))
+          return false
+        }
+
+        if (param.requireFile && explorer.getListContext().selectFileList.length == 0) {
           SfcUtils.snackbar('请选择一个文件')
           return false
         }
         resolve({
           path: propsAttr.path,
-          file: lastClickItem ? [lastClickItem] : [],
-          fileListContext: (dialogInst.getComponentInstRef() as any as FileBrowserModel).getListContext()
+          file: explorer.getListContext().selectFileList,
+          fileListContext: (dialogInst.getComponentInstRef() as InstanceType<typeof FileExplorer>).getListContext()
         })
         return true
       },
@@ -106,6 +126,7 @@ export function selectFile(param: FileSelectParam): Promise<FileSelectResult> {
         reject('cancel')
         return true
       },
+      dense: true,
       title,
       extraDialogOptions: {
         maxWidth: '720px'

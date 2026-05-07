@@ -1,11 +1,13 @@
 <template>
-  <div :style="{width: width ? width + 'px' : '100%'}" style="position: relative">
+  <div class="file-icon" :style="containerStyle">
     <v-img
       :src="imgUrl"
       style="display: inline-block;width: 100%;"
+      :style="{ height: computedHeight }"
       :transition="false"
       draggable="false"
       class="file-icon-img"
+      cover
       @mousedown.prevent
       @error="loadError"
     >
@@ -14,6 +16,8 @@
           draggable="false"
           :src="commonUrl"
           :transition="false" 
+          :height="computedHeight"
+          cover
           @mousedown.prevent
         />
       </template>
@@ -59,19 +63,54 @@ const props = defineProps({
     type: String,
     default: undefined
   },
+
+  /**
+   * 角标图标
+   */
   cornerIcon: {
     type: String,
     default: undefined
   },
   height: {
-    type: [Number,String],
+    type: [Number, String],
     default: undefined
   },
   width: {
-    type: [Number,String],
+    type: [Number, String],
     default: undefined
   }
 })
+
+// 判断字符串是否包含CSS单位
+const hasUnit = (value: string): boolean => {
+  const unitRegex = /^[\d.]+\s*(px|em|rem|%|vh|vw|pt|cm|mm|in|pc|ex|ch|vmin|vmax)$/i
+  return unitRegex.test(value.trim())
+}
+
+// 计算 height 的值，如果是数字则添加 'px'，如果是字符串且无单位则添加 'px'
+const computedHeight = computed(() => {
+  if (!props.height) return ''
+  if (typeof props.height === 'string') {
+    return hasUnit(props.height) ? props.height : `${props.height}px`
+  }
+  return `${props.height}px`
+})
+
+// 计算 width 的值，如果是数字则添加 'px'，如果是字符串且无单位则添加 'px'
+const computedWidth = computed(() => {
+  if (!props.width) return '100%'
+  if (typeof props.width === 'string') {
+    return hasUnit(props.width) ? props.width : `${props.width}px`
+  }
+  return `${props.width}px`
+})
+
+// 容器样式
+const containerStyle = computed(() => ({
+  width: computedWidth.value,
+  height: computedHeight.value
+}))
+
 const isError = ref(false)
 const commonUrl = computed(() => {
   return props.isDir ? iconProvider.getDirIconUrl(props.fileName) : iconProvider.getFileIconUrl(props.fileName, props.md5)
@@ -127,9 +166,15 @@ export default defineComponent({
   width: 32px;
 }
 
+.file-icon {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
 .corner-icon {
   position: absolute;
-  bottom: 3px;
+  bottom: 2%;
   left: -3px;
   font-size: 8px;
   color: rgb(var(--v-theme-primary));

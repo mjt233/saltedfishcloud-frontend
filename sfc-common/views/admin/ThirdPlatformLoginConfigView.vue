@@ -1,36 +1,38 @@
 <template>
-  <div style="padding: 0 12px;">
-    <LoadingMask :loading="loading" />
-    <template v-if="configList?.length">
-      <VTabs v-model="tab">
-        <VTab
-          v-for="item in configList"
-          :key="item.platform.type"
-          color="primary"
-          :value="item.platform.type"
-        >
-          <CommonIcon :icon="item.platform.icon" /> {{ item.platform.type }}
-        </VTab>
-      </VTabs>
-      <VWindow v-model="tab">
-        <VWindowItem
-          v-for="item in configList"
-          :key="item.platform.type"
-          :value="item.platform.type"
-        >
-          <ConfigurableForm
-            :key="loadCount"
-            :ref="(form) => setForm(item.platform.type, form)"
-            style="max-width: 640px;"
-            :show-change="true"
-            :nodes="item.configNodeList"
-            @change="configChange(item, $event)"
-          />
-        </VWindowItem>
-      </VWindow>
-    </template>
-    <EmptyTip v-else-if="!loading" />
-  </div>
+  <VCard class="ml-3 mr-3 mt-3" style="padding-top: 0; max-width: 1200px;">
+    <VCardText>
+      <LoadingMask :loading="loading" />
+      <template v-if="configList?.length">
+        <VTabs v-model="tab">
+          <VTab
+            v-for="item in configList"
+            :key="item.platform.type"
+            color="primary"
+            :value="item.platform.type"
+          >
+            <CommonIcon :icon="item.platform.icon" /> {{ item.platform.type }}
+          </VTab>
+        </VTabs>
+        <VWindow v-model="tab">
+          <VWindowItem
+            v-for="item in configList"
+            :key="item.platform.type"
+            :value="item.platform.type"
+          >
+            <ConfigurableForm
+              :key="loadCount"
+              :ref="(form) => setForm(item.platform.type, form)"
+              style="max-width: 640px;"
+              :show-change="true"
+              :nodes="item.configNodeList"
+              @change="configChange(item, $event)"
+            />
+          </VWindowItem>
+        </VWindow>
+      </template>
+      <EmptyTip v-else-if="!loading" />
+    </VCardText>
+  </VCard>
 </template>
 
 <script setup lang="ts">
@@ -102,7 +104,33 @@ const actions = MethodInterceptor.createAsyncActionProxy({
                 originValue: platform.isAllowRegister || false,
                 title: '能否注册新用户',
                 describe: '能否注册新用户'
-              } as ConfigNodeModel
+              } as ConfigNodeModel,
+              {
+                name: 'proxyId',
+                inputType: 'template',
+                template: 'proxySelector',
+                params: {
+                  clearable: true,
+                  refreshable: true,
+                  onListLoaded(proxyList: ProxyInfo[]) {
+                    // 代理列表加载完成后，构造代理id与名称的映射对象
+                    // 实现在保存确认配置修改中，能显示代理名称而不是代理的id
+                    const proxyConfigNode = configList.value?.find(e => e.platform.type == platform.type)?.configNodeList.flatMap(n => n.nodes || []).find(n => n.name == 'proxyId')
+                    if (proxyConfigNode) {
+                      proxyConfigNode.valueNameMapping = {}
+                      for(const proxy of proxyList) {
+                        proxyConfigNode.valueNameMapping[proxy.id] = proxy.name
+                      }
+                    }
+                  }
+                },
+                title: '代理',
+                value: platform.proxyId,
+                originValue: platform.proxyId,
+                describe: '服务器后台向第三方平台请求接口调用时，使用的代理',
+                isRow: true,
+                valueNameMapping: {}
+              }
             ]
           } as ConfigNodeModel,
         ].concat(configNodeList)
@@ -151,6 +179,7 @@ function getChangePlatformList() {
     // 通用属性写到单独字段上面
     e.platform.isEnable = platformConfigObjMap[e.platform.type].isEnable
     e.platform.isAllowRegister = platformConfigObjMap[e.platform.type].isAllowRegister
+    e.platform.proxyId = platformConfigObjMap[e.platform.type].proxyId
   })
   return configList.value?.filter(e => {
     const origin = JSON.stringify(originPlatformObjMap[e.platform.type])
@@ -166,7 +195,12 @@ onMounted(() => {
     if (!platformChangeList || platformChangeList.length == 0) {
       return
     }
-    const errorMsg = (await Promise.allSettled(platformChangeList.map(c => formMap[c.type].validate())))
+    const validResultList = await Promise.allSettled(platformChangeList.filter(c => formMap[c.type]).map(c => formMap[c.type].validate()))
+    if (!validResultList.some(res => res.status == 'rejected')) {
+      return
+    }
+
+    const errorMsg = validResultList
       .map(res => {
         if (res.status == 'rejected') {
           return res.reason
@@ -200,14 +234,14 @@ onUnmounted(() => {
 
 <script lang="ts">
 import API from 'sfc-common/api'
-import { CommonIcon, ConfigNodeGroup, EmptyTip, LoadingMask } from 'sfc-common/components'
+import { CommonIcon, EmptyTip, LoadingMask } from 'sfc-common/components'
 import ConfigurableForm from 'sfc-common/components/common/ConfigNode/ConfigurableForm.vue'
-import { AdminContext, NodeMap } from 'sfc-common/core'
-import { ConfigNodeInputType, ConfigNodeModel } from 'sfc-common/model'
+import { AdminContext } from 'sfc-common/core'
+import { ConfigNodeModel, ProxyInfo } from 'sfc-common/model'
 import { ThirdPartyAuthPlatform } from 'sfc-common/model/Oauth'
 import { CommonForm, LoadingManager, MethodInterceptor } from 'sfc-common/utils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, onMounted, onUnmounted } from 'vue'
+import { defineComponent, ref, PropType, reactive, onMounted, onUnmounted } from 'vue'
 
 export default defineComponent({
   name: 'ThirdPlatformLoginConfigView'

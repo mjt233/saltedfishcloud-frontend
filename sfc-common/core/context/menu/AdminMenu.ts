@@ -7,6 +7,7 @@ import { MenuGroup } from './type'
 import MonitorView from 'sfc-common/views/admin/MonitorView.vue'
 import ThirdPlatformLoginConfigView from 'sfc-common/views/admin/ThirdPlatformLoginConfigView.vue'
 import { ChildrenType } from 'sfc-common/utils/SfcUtils/common/DyncMount'
+import ThirdPartyAppConfigView from 'sfc-common/views/admin/ThirdPartyAppConfigView.vue'
 
 const cache = {} as {[k:string]: ChildrenType}
 export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
@@ -57,7 +58,6 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
           title: '第三方登录',
           action(ctx) {
             if (!cache[this.id]) {
-              console.log('渲染组件')
               cache[this.id] = h(ThirdPlatformLoginConfigView, { adminContext: ctx })
             }
             ctx.component = cache[this.id]
@@ -65,9 +65,9 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
         },
         {
           id: 'third-platform-income',
-          title: 'OAuth Apps',
+          title: 'OAuth 应用',
           action(ctx) {
-            ctx.component = h('div', null, '未开发')
+            ctx.component = h(ThirdPartyAppConfigView, { adminContext: ctx  })
           },
         }
       ]

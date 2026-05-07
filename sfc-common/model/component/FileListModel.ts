@@ -12,6 +12,11 @@ export interface FileListModelHandler {
    */
   upload: () => Promise<any>
 
+  /**
+   * 通知列表触发选择整个文件夹上传
+   */
+  uploadDir: () => Promise<any>
+
   /** 
    * 通知列表执行加载
    * @returns 若加载成功，则返回文件列表
@@ -31,7 +36,13 @@ export interface FileListModelHandler {
    * @param name 被删除的文件名列表集合
    * @returns 删除的文件数量
    */
-  delete: (name: string[]) => Promise<number> 
+  delete: (name: string[]) => Promise<number>
+
+  /**
+   * 获取该列表指定目录的文件
+   * @param path 要获取文件列表的路径
+   */
+  list(path: string): Promise<FileInfo[]>
 }
 export interface FileListModel extends ComponentPublicInstance {
   context: FileListContext

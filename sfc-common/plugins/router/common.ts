@@ -25,23 +25,41 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
       path: '/public',
       component: () => import('sfc-common/views/common/PublicDisk.vue'),
       meta: {
-        allowNoLogin: true
+        allowNoLogin: true,
+        showSearch: true,
+        searchPlaceholder: '在公共资源中搜索'
+      },
+      props: {
+        uid: 0
       }
     },
     {
       path: '/public/:path*',
       component: () => import('sfc-common/views/common/PublicDisk.vue'),
       meta: {
-        allowNoLogin: true
+        allowNoLogin: true,
+        showSearch: true,
+        searchPlaceholder: '在公共资源中搜索'
+      },
+      props: {
+        uid: 0
       }
     },
     {
       path: '/private',
-      component: () => import('sfc-common/views/common/PrivateDisk.vue')
+      component: () => import('sfc-common/views/common/PrivateDisk.vue'),
+      meta: {
+        showSearch: true,
+        searchPlaceholder: '在我的网盘中搜索'
+      }
     },
     {
       path: '/private/:path*',
-      component: () => import('sfc-common/views/common/PrivateDisk.vue')
+      component: () => import('sfc-common/views/common/PrivateDisk.vue'),
+      meta: {
+        showSearch: true,
+        searchPlaceholder: '在我的网盘中搜索'
+      }
     },
     {
       path: '/login',

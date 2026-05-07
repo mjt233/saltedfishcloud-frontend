@@ -121,25 +121,33 @@ const growHeight = () => {
  * 监听编辑器粘贴处理
  */
 const listenPaste = () => {
-  let range: monaco.Range
-  editor.onDidPaste(e => {
-    range = e.range
-  })
-
-  editorRef.value.addEventListener('paste', e => {
-    const items = e.clipboardData?.items
-    if (items?.length) {
-      const file = items[0].getAsFile()
-      if (file && file.type.includes('image')) {
-        emits('patseImage', file)
-        editor.executeEdits('', [{
-          range: range,
-          text: ''
-        }])
+  
+  // 监听 Monaco 的粘贴事件钩子
+  editor.onDidPaste(async(e) => {
+    try {
+      // 1. 获取剪切板内容
+      const clipboardItems = await navigator.clipboard.read()
+      
+      for (const item of clipboardItems) {
+        // 2. 筛选出图片类型的 MIME Type
+        const imageType = item.types.find(type => type.startsWith('image/'))
+        
+        if (imageType) {
+          // 3. 异步获取 Blob 数据
+          const blob = await item.getType(imageType)
+          
+          // 4. 转换为 File 对象并提交事件
+          const file = new File([blob], `pasted-image-${Date.now()}.png`, { type: imageType })
+          emits('patseImage', file)
+        }
       }
+    } catch (err) {
+      // 如果用户拒绝了剪切板权限，或者浏览器不支持，会进入这里
+      console.error('无法读取剪切板数据:', err)
     }
   })
 }
+
 
 /**
  * 在编辑器当前光标处插入文本（外部方法）

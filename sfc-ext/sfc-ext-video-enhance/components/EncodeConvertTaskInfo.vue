@@ -71,29 +71,17 @@ const params = computed(() => {
 const toDate = window.StringFormatter.toDate
 
 const getLog = async() => {
-  const dialog = window.SfcUtils.loadingDialog()
-  try {
-    const ret = (await window.SfcUtils.request(VEAPI.getLog(props.task.asyncTaskRecord.id))).data.data
-    if (!ret) {
-      window.SfcUtils.alert('没能查询到日志')
-    } else {
-      window.SfcUtils.openComponentDialog(window.components.CodeEditor, {
-        props: {
-          modelValue: ret.taskLog,
-          readOnly: true,
-          useMiniMap: true,
-          style: {
-            height: '100%'
-          }
-        },
-        fullscreen: true
-      })
+  window.SfcUtils.openComponentDialog(window.components.AsyncTaskInfo, {
+    props: {
+      taskId: props.task.asyncTaskRecord.id,
+      autoOpenLog: true
+    },
+    title: `任务详情-${props.task.asyncTaskRecord.name}`,
+    showCancel: false,
+    extraDialogOptions: {
+      maxWidth: '1280px'
     }
-  } catch (err) {
-    window.SfcUtils.alert(err as any, '错误')
-  } finally {
-    dialog.close()
-  }
+  })
 }
 
 const cancel = async() => {

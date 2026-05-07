@@ -30,6 +30,8 @@ export interface MountOption {
   tempDOMHandler?: (dom: HTMLElement) => void
   children?: ChildrenType | undefined | null | {[slotName: string]: ChildrenType | undefined}
   props?: any
+
+  onMounted?: ()=> void
 }
 /**
  * 动态挂载一个组件
@@ -38,7 +40,7 @@ export interface MountOption {
  * @returns         动态组件操作器
  */
 export function dyncmount<T = {}>(component: Component,  mountOption?: MountOption): DyncComponentHandler<T> {
-  const { wrapVApp = true, vappProps = {}, tempDOMHandler = ()=> {}, children, props = {} } = mountOption || {}
+  const { wrapVApp = true, vappProps = {}, tempDOMHandler = ()=> {}, children, props = {}, onMounted } = mountOption || {}
   const tempDOM = document.createElement('div')
   document.body.appendChild(tempDOM)
   tempDOM.style.position = 'fixed'
@@ -71,7 +73,10 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
       } else {
         return h(component as any, props, children as any)
       }
-    }
+    },
+    mounted() {
+      onMounted && onMounted()
+    },
   })
 
   // 挂载
@@ -79,8 +84,11 @@ export function dyncmount<T = {}>(component: Component,  mountOption?: MountOpti
 
   return {
     unmount() {
-      document.body.removeChild(tempDOM)
-      tempApp.unmount()
+      try {
+        document.body.removeChild(tempDOM)
+      } catch(_) { } finally {
+        tempApp.unmount()
+      }
     },
     getComponentInst() {
       return (inst.$refs[ROOT_REF_NAME] as ComponentPublicInstance & T)
