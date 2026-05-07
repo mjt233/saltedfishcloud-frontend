@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
     "allowJs": true,
@@ -14,9 +14,8 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["index.d.ts","**/*.ts", "**/*.d.ts", "**/*.tsx", "**/*.vue", "**/index.ts", "**/index.vue", "sfc-common/index.d.ts"],
