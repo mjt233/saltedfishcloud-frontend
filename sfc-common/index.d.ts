@@ -14,11 +14,15 @@ import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import * as SfcCommon from 'sfc-common'
 import * as monaco from 'monaco-editor'
+import * as echarts from 'echarts'
+import * as qs from 'qs'
+import { getContext } from 'sfc-common/core/context'
 import { FileAttributeExtension } from 'sfc-common/core/context/fileAttributeExtension'
 
 declare global {
   interface Window {
     context: ToRefs<AppContext>
+    getContext: typeof getContext,
     Vue: typeof Vue,
     SfcUtils: typeof SfcUtils,
     API: typeof API,
@@ -27,12 +31,15 @@ declare global {
     bootContext: BootContext,
     FormUtils: typeof FormUtils
     components: typeof components,
+    Components: typeof components,
     DOMUtils: typeof DOMUtils,
     MethodInterceptor: typeof MethodInterceptor,
     StringFormatter: typeof StringFormatter,
     StringUtils: typeof StringUtils,
     SfcCommon: typeof SfcCommon
     monaco: typeof monaco
+    echarts: typeof echarts,
+    qs: typeof qs,
     registerFileAttributeSection: (extension: FileAttributeExtension) => void
   }
 }
