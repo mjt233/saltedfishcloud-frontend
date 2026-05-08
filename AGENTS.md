@@ -1,45 +1,32 @@
-# 咸鱼云网盘 前端 AI 样式编程说明
-
-## 🎨 核心 UI 框架
+## 核心 UI 框架
 - **基础框架**: Vue 3
-- **UI 组件库**: Vuetify 3
-- **CSS 方案**: Tailwind CSS (用于辅助布局与微调)
+- **UI 组件库**: Vuetify 4.0.0
+- **CSS 方案**: Tailwind CSS (用于辅助布局与微调)、SCSS
 
-## 📐 样式优先级规则 (重要)
+## 前端组件与样式规范
 
-在编写样式时，必须遵循以下优先级顺序，严禁随意在 `<style>` 中编写原生 CSS：
-1. **Vuetify Props**: 优先使用组件自带的属性（如 `color`, `elevation`, `density`）。
-2. **Vuetify Utility Classes**: 使用内置的间距、文字格式工具类（如 `pa-4`, `text-h5`, `rounded-lg`）。
-3. **Tailwind CSS**: 仅在 Vuetify 工具类无法满足需求时使用（如 `flex-1`, `grid-cols-4`, `gap-2`）。
-4. **Scoped CSS**: 只有在处理复杂的第三方库样式覆盖或极个别特殊动画时使用，且必须开启 `scoped`。
+需要创建组件或改动组件样式时，请参考规范[前端样式说明](./docs/front-end-style.md)
 
-## 🍱 布局规范
+## 通用代码规范
 
-- **响应式设计**: 必须适配多种屏幕。
-  - 使用 `<VContainer>`, `<VRow>`, `<VCol>` 处理网格布局。
-  - 响应式断点遵循 Vuetify 标准（xs, sm, md, lg, xl）。
-- **间距一致性**: 
-  - 统一使用 `n * 4px` 的步长。例如：`ma-2` 代表 `8px`，`pa-4` 代表 `16px`。
-  - 严禁在代码中出现 `margin: 13px` 这种非标准数字。
-
-## 📏组件代码规范
-
-- Vue 模板内部的组件统一使用 PascalCase 命名，如：`VContainer`，`VCard`
-- 除非明确指定，表单的输入组件（如：`VTextField`、`VSelect`）不要指定`density`和`variant`
 - 需要通过对话框打开组件时，使用`SfcUtils.openComponentDialog`
 - 所有类/对象、类/对象的字段、方法/函数、interface、type、Vue组件的props和watch都需要有详细的jsdoc注释
 - 生成的代码中，每个关键步骤需要有行内注释，新生成的函数需要有jsdoc注释
 
 
-## 💎 组件使用准则
-- **颜色语义**:
-  - `primary`: 品牌主色。
-  - `secondary`: 辅助色。
-  - `error`: 危险/报错（删除操作）。
-  - `success`: 成功提醒。
+## 工作流与验证机制
 
-## 🌗 主题适配
-- 项目支持深色/浅色模式切换。
-- **严禁**硬编码颜色值（如 `#ffffff` 或 `black`）。
-- **必须**使用语义化颜色或 CSS 变量：
-  - 正确示例：`<VCard color="surface" class="text-on-surface">`。
+
+### 行为约束
+
+- 禁止直接修复与用户要求无关的顺手发现的bug。发现与本次任务无关的bug应反馈给用户。
+
+### 编译验证
+
+- 修改代码文件后，需要使用`npx vue-tsc --noEmit`验证确保没有类型错误
+
+
+### Git 提交规范
+
+- 当用户要求你将文件提交到Git时，请参考[Git 提交规范](./docs/git-commit-convention.md)
+- 除非用户明确要求后续执行的修改都自动提交git，否则禁止在执行完任务后立即提交git。请等待用户的明确指示后再执行git提交。
