@@ -1,6 +1,6 @@
 import { getContext } from 'sfc-common/core/context'
 import { getPublicUser } from 'sfc-common/core/context/session'
-import axios from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 import qs from 'qs'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { h } from 'vue'
@@ -43,7 +43,7 @@ inst.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencode
 // axios请求拦截器 添加token 和转换表单数据类型
 inst.interceptors.request.use(conf => {
   if (!conf.headers) {
-    conf.headers = {}
+    conf.headers = new AxiosHeaders()
   }
   if (getContext().session.value.token != null && getContext().session.value.token.length > 0) {
     conf.headers.Token = getContext().session.value.token

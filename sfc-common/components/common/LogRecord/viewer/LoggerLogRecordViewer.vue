@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a v-if="logRecord.level == 'ERROR' || logRecord.msgDetail.indexOf('\n') != -1" class="link" @click="showDetail">查看明细</a>
+    <a v-if="logRecord?.level == 'ERROR' || logRecord?.msgDetail.indexOf('\n') != -1" class="link" @click="showDetail">查看明细</a>
     <a v-else>-</a>
   </div>
 </template>

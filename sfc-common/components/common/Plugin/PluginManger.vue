@@ -134,8 +134,8 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       props: dialogProps
     })
     const config = API.plugin.uploadPlugin(file)
-    config.onUploadProgress = (e: Prog) => {
-      dialogProps.msg = '正在上传...' + ((e.loaded / e.total) * 100).toFixed(1) + '%'
+    config.onUploadProgress = (e: AxiosProgressEvent) => {
+      dialogProps.msg = '正在上传...' + e.total === undefined ? '' : (((e.loaded / (e.total ?? 1)) * 100).toFixed(1) + '%')
     }
 
     try {
@@ -200,7 +200,7 @@ import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, h, reactive } from 'vue'
 import { LoadingDialog, PluginInfoCard } from 'sfc-common/components'
-import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
+import { AxiosProgressEvent } from 'axios'
 
 export default defineComponent({
   name: 'PluginManager'

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a v-if="logRecord.msgDetail" class="link" @click="openDetail">查看明细</a>
+    <a v-if="logRecord?.msgDetail" class="link" @click="openDetail">查看明细</a>
     <span v-else> - </span>
   </div>
 </template>

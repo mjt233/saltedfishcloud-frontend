@@ -32,10 +32,6 @@ const handler: FileOpenHandler = {
         height: '100%'
       },
       resourceParams: {
-        name: '',
-        path: ctx.path,
-        protocol: ctx.protocol,
-        targetId: ctx.uid,
         isCache: true,
         ...ctx.getProtocolParams()
       } as ResourceRequest

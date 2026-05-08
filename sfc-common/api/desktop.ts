@@ -1,4 +1,4 @@
-import { DesktopComponentConfig } from './../core/model/Desktop'
+import { DesktopComponentConfig } from 'sfc-common/model/Desktop'
 import { CommonRequest, IdType } from 'sfc-common/model'
 import { DesktopComponent } from 'sfc-common/model/Desktop'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'

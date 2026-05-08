@@ -17,9 +17,6 @@ function getOfficeOpenHandler(title: string, isView: boolean, icon: string, id: 
     sort: getContext().fileOpenHandler.value.length,
     action(ctx, files) {
       const param = {
-        targetId: ctx.uid,
-        path: ctx.path,
-        protocol: ctx.protocol,
         isView: isView || ctx.readonly,
         ...ctx.getProtocolParams(),
         name: files.name

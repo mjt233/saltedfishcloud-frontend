@@ -154,8 +154,8 @@ const sendFile = async() => {
     code: sendCode.value,
     message: message.value,
   })
-  requestParam.onUploadProgress = (e: Prog) => {
-    loadingParam.msg = '上传中...' + ((e.loaded / e.total) * 100).toFixed(2) + '%'
+  requestParam.onUploadProgress = (e: AxiosProgressEvent) => {
+    loadingParam.msg = '上传中...' + ((e.loaded / (e.total ?? 1)) * 100).toFixed(2) + '%'
   }
   try {
     const e = await SfcUtils.request(requestParam)
@@ -203,7 +203,7 @@ onMounted(() => {
 
 <script lang="ts">
 import { Validators,ValidateResult, StringUtils, StringFormatter, getContext } from 'sfc-common'
-import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
+import { AxiosProgressEvent } from 'axios'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, reactive, h, onMounted } from 'vue'
 import QuickShareApi from '../api'
 import { CommonIcon } from 'sfc-common/components'

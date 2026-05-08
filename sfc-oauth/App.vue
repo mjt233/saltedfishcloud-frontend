@@ -142,7 +142,7 @@ const props = defineProps({})
 const { msgList, addMsg } = useMessage()
 const lm = new LoadingManager()
 const isLoading = lm.getLoadingRef()
-const curUser = ref() as Ref<RawUser | null>
+const curUser = ref() as Ref<UserPrincipal | null>
 const isNeedLogin = ref(false)
 const username = ref('')
 const password = ref('')
@@ -284,7 +284,7 @@ onMounted(async() => {
 import 'sfc-common/styles/common.scss'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, computed } from 'vue'
 import { createAutoLoadingProxy, getAuthorityList, getCurUser, getSysFeature, login, request, useMessage } from './core'
-import { IdType, RawUser, SystemFeature, ThirdPartyApp, ThirdPartyAppUserAuthorizationVo, ValidateResult } from 'sfc-common'
+import { IdType, UserPrincipal, SystemFeature, ThirdPartyApp, ThirdPartyAppUserAuthorizationVo, ValidateResult } from 'sfc-common'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'

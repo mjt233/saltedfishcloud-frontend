@@ -50,7 +50,7 @@ const emits = defineEmits<{
 </script>
 
 <script lang="ts">
-import { Subtitle } from 'sfc-ext/sfc-ext-video-enhance/model'
+import { Subtitle } from '../../model'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
 
 export default defineComponent({

@@ -95,7 +95,6 @@ function getDeviceIcon(device: Upnp.UpnpDevice) {
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
 import { Upnp } from '../model'
 import { NwtApi } from '../api'
-import { s } from 'vite/dist/node/types.d-aGj9QkWt'
 
 export default defineComponent({
   name: 'UpnpIcon'
