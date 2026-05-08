@@ -124,10 +124,8 @@ import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { CommonForm, deconstructForm } from 'sfc-common/utils/FormUtils'
 import { Validators } from 'sfc-common/core/helper/Validators'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import FormSelect from '../common/FormSelect.vue'
 import { ProxyInfo, SelectOption } from 'sfc-common/model'
 import { computed } from 'vue'
-import propsOptions from '../common/FileList/props'
 import ProxySelector from '../common/ProxyConfig/ProxySelector.vue'
 
 export default defineComponent({

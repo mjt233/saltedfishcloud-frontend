@@ -1,4 +1,3 @@
-import FileBrowser from 'sfc-common/components/common/FileBrowser.vue'
 import { IdType } from 'sfc-common/model'
 import { FileInfo, FileListContext } from 'sfc-common/model/FileInfo'
 import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHandler'
