@@ -32,6 +32,7 @@
       <!-- 状态筛选 -->
       <v-chip-group
         v-model="statusFilter"
+        mandatory
         @update:model-value="loadList"
       >
         <v-chip
@@ -161,17 +162,6 @@ const fetchTaskList = async(): Promise<DownloadTaskInfo[]> => {
   const uid = getQueryUid()
   const res = await SfcUtils.request(API.task.download.getTaskList(uid as IdType, statusFilter.value, 1, 300))
   let list = res.data.data.content || []
-  list.push({
-    id: 'test1',
-    name: '测试文件1',
-    url: 'https://example.com/file1.zip',
-    size: 1024 * 1024 * 500,
-    loaded: 1024 * 1024 * 100,
-    asyncTaskRecord: {
-      status: 1
-    },
-    speed: 1024 * 500,
-  } as DownloadTaskInfo)
 
   // 如果是全部筛选，则把“进行中”任务排到前面
   if (statusFilter.value === 'ALL') {

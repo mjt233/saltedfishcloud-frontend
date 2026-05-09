@@ -22,38 +22,35 @@
     </v-list-item-subtitle>
     
     <v-list-item-subtitle class="d-flex align-center mt-1">
-      <!-- 文件大小 -->
-      <span class="mr-4 text-grey">大小：{{ StringFormatter.toSize(item.size) }}</span>
-
-      <!-- 进行中状态显示进度与速度 -->
-      <template v-if="isInProgress">
-        <span class="mr-4 text-primary font-weight-medium">
-          速度：{{ StringFormatter.toSize(item.speed) }}/s
-        </span>
-        <span class="text-primary font-weight-medium mr-2">
-          进度：{{ progressPercent }}%
-        </span>
+      <!-- 非进行中状态显示文件大小和状态标签 -->
+      <template v-if="!isInProgress">
+        <span class="mr-4 text-grey">大小：{{ StringFormatter.toSize(item.size) }}</span>
+        <v-chip
+          size="small"
+          :color="statusColor"
+          class="ml-auto"
+          variant="flat"
+        >
+          {{ statusText }}
+        </v-chip>
       </template>
-
-      <!-- 状态标签 -->
-      <v-chip
-        size="small"
-        :color="statusColor"
-        class="ml-auto"
-        variant="flat"
-      >
-        {{ statusText }}
-      </v-chip>
     </v-list-item-subtitle>
 
     <!-- 进行中时显示进度条 -->
-    <div v-if="isInProgress" class="mt-2">
+    <div v-if="isInProgress" class="mt-2 progress-bar-wrapper">
       <v-progress-linear
         :model-value="progressPercent"
         color="primary"
-        height="6"
+        height="28"
         rounded
-      />
+      >
+        <template #default>
+          <div class="progress-bar-content d-flex justify-space-between align-center pl-2 pr-2">
+            <span v-if="item.size > 0" class="progress-bar-left">{{ StringFormatter.toSize(item.size) }}</span>
+            <span class="progress-bar-center">{{ StringFormatter.toSize(item.speed) }}/s</span>
+          </div>
+        </template>
+      </v-progress-linear>
     </div>
 
     <!-- 操作按钮 -->
@@ -159,5 +156,17 @@ export default defineComponent({
 }
 .download-task-item:last-child {
   border-bottom: none;
+}
+.progress-bar-wrapper {
+  position: relative;
+}
+.progress-bar-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  mix-blend-mode: difference;
 }
 </style>
