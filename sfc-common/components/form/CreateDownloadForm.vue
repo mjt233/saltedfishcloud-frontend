@@ -5,39 +5,53 @@
     :submit-action="actions.createTask"
   >
     <loading-mask :loading="loading" />
-    <FormRow>
-      <FormCol>
-        <text-input
+    <v-row>
+      <v-col cols="12">
+        <v-text-field
           ref="urlRef"
           v-model="formData.url"
-          label="URL-下载地址，仅支持http(s)"
+          label="URL"
+          placeholder="文件下载地址 - 仅支持http(s)"
           :rules="validators.url"
           @keypress.enter="emitSubmit"
         />
-      </FormCol>
-    </FormRow>
-    <FormRow>
-      <FormCol style="min-height: 48px;">
-        <p class="text-title" style="margin-top: 12px;">
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <path-selector
+          v-model="formData.savePath"
+          :uid="props.uid"
+          label="文件保存路径"
+          dialog-title="选择下载保存路径"
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12" class="pb-0">
+        <div class="text-subtitle-1 font-weight-bold text-primary">
           其他选项
-        </p>
-      </FormCol>
-    </FormRow>
-    <FormRow>
-      <FormCol>
-        <v-switch v-model="formData.useProxy" label="使用代理" color="primary" />
-      </FormCol>
-    </FormRow>
-    <FormRow>
-      <FormCol>
-        <proxy-selector v-if="formData.useProxy" v-model="formData.proxy" />
-      </FormCol>
-    </FormRow>
+        </div>
+      </v-col>
+    </v-row>
+    <v-row align="center">
+      <v-col cols="12" md="3">
+        <v-switch
+          v-model="formData.useProxy"
+          label="使用代理"
+          color="primary"
+          hide-details
+          @update:model-value="($event) => { if (!$event) { formData.proxy = '' } } "
+        />
+      </v-col>
+      <v-col v-if="formData.useProxy" cols="12" md="9">
+        <proxy-selector v-model="formData.proxy" :rules="validators.proxy" />
+      </v-col>
+    </v-row>
   </base-form>
 </template>
 
 <script setup lang="ts">
-import TextInput from '../common/TextInput.vue'
 import BaseForm from '../common/BaseForm.vue'
 import LoadingMask from '../common/LoadingMask.vue'
 const props = defineProps({
@@ -50,7 +64,6 @@ const props = defineProps({
     default: '/'
   }
 })
-const urlRef = ref() as Ref<ComponentPublicInstance>
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 let formData = reactive({
@@ -61,49 +74,27 @@ let formData = reactive({
 })
 const form = ref() as Ref<CommonForm>
 const validators = {
-  url: [Validators.notNull('url不能为空'), (url: string) => {
-    try {
-      new URL(url)
-    } catch (err) {
-      return 'url格式无效'
-    }
-    return true
-  }]
+  url: [
+    Validators.notNull('url不能为空'),
+    Validators.isUrl('url格式无效')
+  ],
+  proxy: [
+    Validators.notNull('代理节点不能为空')
+  ]
 }
-const proxys: ProxyInfo[] = reactive([])
-const proxyOptions = computed(() => {
-  return proxys.map(proxy => {
-    return {
-      title: proxy.name,
-      value: proxy.id + ''
-    } as SelectOption
-  })
-})
-const actions = MethodInterceptor.createAutoCatch(
-  MethodInterceptor.createAutoLoadingProxy({
-    async createTask() {
-      const conf = API.task.download.create({
-        method: 'GET',
-        uid: props.uid,
-        savePath: props.savePath,
-        url: formData.url,
-        proxy: formData.useProxy ? formData.proxy : ''
-      })
-      return await SfcUtils.request(conf)
-    },
-    async loadProxy() {
-      (await SfcUtils.request(API.task.download.getProxy())).data.data.forEach(e => {
-        proxys.push({
-          ...e,
-          name: e.uid == 0 ? `【公共代理】${e.name}` : `${e.name}`
-        })
-      })
-    }
-  }
-  , loadingManager
-  )
-  ,true
-)
+const actions = MethodInterceptor.createAsyncActionProxy({
+  async createTask() {
+    const conf = API.task.download.create({
+      method: 'GET',
+      uid: props.uid,
+      savePath: formData.savePath,
+      url: formData.url,
+      proxy: formData.useProxy ? formData.proxy : ''
+    })
+    return await SfcUtils.request(conf)
+  },
+}, true, loadingManager)
+
 const formInst = deconstructForm(form)
 const emit = defineEmits(['submit'])
 const emitSubmit = async() => {
@@ -113,11 +104,14 @@ const emitSubmit = async() => {
   }
 }
 defineExpose(formInst)
-actions.loadProxy()
+
+onMounted(() => {
+  formData.savePath = props.savePath
+})
 </script>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, defineProps, defineExpose, defineEmits, Ref, ComponentPublicInstance, PropType } from 'vue'
+import { defineComponent, reactive, ref, defineProps, defineExpose, defineEmits, Ref, ComponentPublicInstance, PropType, onMounted } from 'vue'
 import API from 'sfc-common/api'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
@@ -127,6 +121,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ProxyInfo, SelectOption } from 'sfc-common/model'
 import { computed } from 'vue'
 import ProxySelector from '../common/ProxyConfig/ProxySelector.vue'
+import PathSelector from '../common/PathSelector.vue'
 
 export default defineComponent({
   name: 'CreateDownloadForm'

@@ -219,10 +219,14 @@ const autoLoadList = async() => {
  */
 const onCancelTask = async(taskId: string) => {
   try {
-    const uid = getQueryUid()
-    await SfcUtils.request(API.task.download.interruptTask(uid as IdType, taskId))
-    SfcUtils.snackbar('已取消任务')
-    loadList()
+    await SfcUtils.loadingDialogTask({ msg: '正在取消任务...'},
+      async() => {
+        const uid = getQueryUid()
+        await SfcUtils.request(API.task.download.interruptTask(uid as IdType, taskId))
+        await SfcUtils.sleep(500)
+        SfcUtils.snackbar('已取消任务')
+        loadList()
+      })
   } catch (err) {
     SfcUtils.snackbar('取消任务失败')
   }
@@ -241,7 +245,7 @@ onMounted(() => {
     activeTab.value = 'my'
   }
   loadList()
-  autoRefreshTimer = setInterval(autoLoadList, 1000)
+  autoRefreshTimer = setInterval(autoLoadList, 2000)
 })
 
 onUnmounted(() => {
