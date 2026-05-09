@@ -42,7 +42,7 @@ import BaseForm from '../common/BaseForm.vue'
 import LoadingMask from '../common/LoadingMask.vue'
 const props = defineProps({
   uid: {
-    type: Number,
+    type: [Number, String] as PropType<number | string>,
     default: 0
   },
   savePath: {
@@ -117,7 +117,7 @@ actions.loadProxy()
 </script>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, defineProps, defineExpose, defineEmits, Ref, ComponentPublicInstance } from 'vue'
+import { defineComponent, reactive, ref, defineProps, defineExpose, defineEmits, Ref, ComponentPublicInstance, PropType } from 'vue'
 import API from 'sfc-common/api'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
