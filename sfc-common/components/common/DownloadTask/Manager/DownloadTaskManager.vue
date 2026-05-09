@@ -140,11 +140,49 @@ const getQueryUid = () => {
     // 即使被认为是 public，如果是管理员，公共区域一般 uid 为 0
     return 0
   }
-  // 结合提示：我的下载页签中查询任务列表使用的uid参数可能固定为 '0'，这里如果为了兼容题意强制0的话可能会导致覆盖props。
-  // 我们优先使用 props.uid，如果不存在则使用上下文 user.id。但为了兼容“我的下载页签中查询任务列表使用的uid参数固定为'0'”的奇怪要求：
-  // 按照常理，公共下载是 0，我的下载是自己的uid。我们在这里给出一个容错：如果 props.uid === '0'，那就用，否则就用上下文中或者props传入的。
-  // 其实最好的理解是：普通用户的 myUid。
+  // 优先使用 props.uid 指定的用户，如果没有，则使用当前登录用户的 id
   return props.uid ?? ctx.session.value.user?.id
+}
+
+/**
+ * 判断任务是否处于进行中状态
+ * @param task 下载任务
+ * @returns 是否进行中（0:等待中, 1:进行中）
+ */
+const isTaskInProgress = (task: DownloadTaskInfo): boolean => {
+  return task.asyncTaskRecord?.status === 0 || task.asyncTaskRecord?.status === 1
+}
+
+/**
+ * 请求任务列表，并按当前筛选条件进行排序
+ * @returns 处理后的任务列表
+ */
+const fetchTaskList = async(): Promise<DownloadTaskInfo[]> => {
+  const uid = getQueryUid()
+  const res = await SfcUtils.request(API.task.download.getTaskList(uid as IdType, statusFilter.value, 1, 300))
+  let list = res.data.data.content || []
+  list.push({
+    id: 'test1',
+    name: '测试文件1',
+    url: 'https://example.com/file1.zip',
+    size: 1024 * 1024 * 500,
+    loaded: 1024 * 1024 * 100,
+    asyncTaskRecord: {
+      status: 1
+    },
+    speed: 1024 * 500,
+  } as DownloadTaskInfo)
+
+  // 如果是全部筛选，则把“进行中”任务排到前面
+  if (statusFilter.value === 'ALL') {
+    list = list.slice().sort((a: DownloadTaskInfo, b: DownloadTaskInfo) => {
+      const ia = isTaskInProgress(a) ? 0 : 1
+      const ib = isTaskInProgress(b) ? 0 : 1
+      return ia - ib
+    })
+  }
+
+  return list
 }
 
 /**
@@ -153,9 +191,7 @@ const getQueryUid = () => {
 const loadList = async() => {
   try {
     listLoading.value = true
-    const uid = getQueryUid()
-    const res = await SfcUtils.request(API.task.download.getTaskList(uid as IdType, statusFilter.value, 1, 300))
-    taskList.value = res.data.data.content
+    taskList.value = await fetchTaskList()
   } catch (err) {
     console.error(err)
   } finally {
@@ -179,9 +215,7 @@ const autoLoadList = async() => {
   if (isAutoLoading) return
   try {
     isAutoLoading = true
-    const uid = getQueryUid()
-    const res = await SfcUtils.request(API.task.download.getTaskList(uid as IdType, statusFilter.value, 1, 300))
-    taskList.value = res.data.data.content
+    taskList.value = await fetchTaskList()
   } catch (err) {
     // 忽略后台加载错误
   } finally {
