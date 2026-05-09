@@ -13,7 +13,6 @@
     </v-list-item-title>
     
     <v-list-item-subtitle class="text-caption text-truncate mb-1">
-      <span class="text-grey-darken-1">URL: </span>
       <a
         :href="item.url"
         target="_blank"

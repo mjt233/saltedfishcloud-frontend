@@ -1,5 +1,5 @@
 <template>
-  <div class="download-task-manager w-100 h-100 d-flex flex-column">
+  <div ref="thisRef" class="download-task-manager d-flex flex-column">
     <!-- 顶部页签 -->
     <v-tabs
       v-if="isAdmin"
@@ -32,41 +32,41 @@
       <!-- 状态筛选 -->
       <v-chip-group
         v-model="statusFilter"
-        mandatory
-        active-class="primary--text"
         @update:model-value="loadList"
       >
-        <v-chip value="ALL">
-          全部
-        </v-chip>
-        <v-chip value="DOWNLOADING">
-          进行中
-        </v-chip>
-        <v-chip value="FINISH">
-          已完成
-        </v-chip>
-        <v-chip value="FAILED">
-          已失败
+        <v-chip
+          v-for="status in statusOptions"
+          :key="status.value"
+          :value="status.value"
+          :color="statusFilter === status.value ? 'primary' : undefined"
+        >
+          {{ status.label }}
         </v-chip>
       </v-chip-group>
     </div>
 
     <!-- 任务列表容器 -->
-    <div class="task-list-container flex-grow-1 overflow-y-auto px-4 pb-4">
+    <div ref="taskListContainerRef" class="task-list-container flex-grow-1 overflow-y-auto px-4 pb-4">
       <template v-if="listLoading">
         <v-skeleton-loader v-for="i in 3" :key="i" type="list-item-avatar-two-line" />
       </template>
       <template v-else-if="taskList.length === 0">
         <empty-tip />
       </template>
-      <v-list v-else lines="two" bg-color="transparent">
-        <download-task-manager-item
-          v-for="item in taskList"
-          :key="item.id"
-          :item="item"
-          @cancel="onCancelTask"
-        />
-      </v-list>
+      <v-virtual-scroll
+        v-else
+        :items="taskList"
+        :height="targetHeight"
+        item-height="88"
+      >
+        <template #default="{ item }">
+          <download-task-manager-item
+            :key="item.id"
+            :item="item"
+            @cancel="onCancelTask"
+          />
+        </template>
+      </v-virtual-scroll>
     </div>
 
     <!-- 悬浮创建按钮 (窄屏) -->
@@ -88,6 +88,7 @@ import { IdType, DownloadTaskInfo } from 'sfc-common/model'
 import { TaskType } from 'sfc-common/api/task'
 import { getContext } from 'sfc-common/core/context'
 import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
+import { useAutoComputeHeight } from 'sfc-common/composables/useAutoComputeHeight'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
 import { EmptyTip } from 'sfc-common/components'
@@ -103,7 +104,7 @@ const props = defineProps({
     default: undefined
   }
 })
-
+const thisRef = ref<HTMLElement>()
 const isMobile = useCheckIsMobile()
 const ctx = getContext()
 const isAdmin = computed(() => ctx.session.value.user?.role === 'admin')
@@ -111,8 +112,23 @@ const isAdmin = computed(() => ctx.session.value.user?.role === 'admin')
 const activeTab = ref<'my' | 'public'>('my')
 const statusFilter = ref<TaskType>('ALL')
 
+const statusOptions: { value: TaskType, label: string }[] = [
+  { value: 'ALL', label: '全部' },
+  { value: 'DOWNLOADING', label: '进行中' },
+  { value: 'FINISH', label: '已完成' },
+  { value: 'FAILED', label: '已失败' }
+]
+
 const taskList = ref<DownloadTaskInfo[]>([])
 const listLoading = ref(false)
+
+const taskListContainerRef = ref<HTMLElement>()
+const { targetHeight } = useAutoComputeHeight({
+  autoComputeHeight: true,
+  computeTarget: () => taskListContainerRef.value as HTMLElement,
+  observeTarget: () => thisRef.value as HTMLElement,
+  offset: -16
+})
 
 let autoRefreshTimer: any = null
 
@@ -158,13 +174,18 @@ const onTabChange = () => {
 /**
  * 后台自动加载（用于刷新速度、进度等），不带有 loading 效果
  */
+let isAutoLoading = false
 const autoLoadList = async() => {
+  if (isAutoLoading) return
   try {
+    isAutoLoading = true
     const uid = getQueryUid()
     const res = await SfcUtils.request(API.task.download.getTaskList(uid as IdType, statusFilter.value, 1, 300))
     taskList.value = res.data.data.content
   } catch (err) {
     // 忽略后台加载错误
+  } finally {
+    isAutoLoading = false
   }
 }
 
@@ -196,7 +217,7 @@ onMounted(() => {
     activeTab.value = 'my'
   }
   loadList()
-  autoRefreshTimer = setInterval(autoLoadList, 5000)
+  autoRefreshTimer = setInterval(autoLoadList, 1000)
 })
 
 onUnmounted(() => {
