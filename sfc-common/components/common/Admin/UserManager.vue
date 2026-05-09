@@ -175,7 +175,7 @@ import { LoadingManager,MethodInterceptor } from 'sfc-common/utils/'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, nextTick } from 'vue'
 import CommonPagination from '../CommonPagination.vue'
-import { useAutoComputeHeight } from '../FileExplorer/FileExplorerCore'
+import { useAutoComputeHeight } from '../../../composables/useAutoComputeHeight'
 
 export default defineComponent({
   name: 'UserManager',
