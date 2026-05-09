@@ -18,15 +18,6 @@ const offlineDownload: MenuGroup<FileListContext> = reactive({
       action(ctx) {
         DownloadTaskService.openCreateTask(ctx.uid, ctx.path, true)
       }
-    },
-    {
-      id: 'view-download',
-      icon: 'mdi-format-list-bulleted',
-      name: '查看下载任务',
-      title: '查看下载任务',
-      action(ctx) {
-        DownloadTaskService.openTaskView(ctx.uid, ctx.path, true)
-      }
     }
   ]
 })
