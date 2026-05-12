@@ -32,8 +32,8 @@ const props = defineProps({
 const link = computed(() => {
   return ShareService.getShareLink(props.data as ShareInfo)
 })
-const doCopy = () => {
-  ShareService.copyShareLinkText(props.data as ShareInfo)
+const doCopy = async() => {
+  await ShareService.copyShareLink(props.data as ShareInfo)
 }
 </script>
 
