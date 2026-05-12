@@ -76,7 +76,7 @@ const props = defineProps({
     default: ''
   },
   /**
-   * 提取码
+   * 默认填写的提取码
    */
   extractCode: {
     type: String,
@@ -91,7 +91,7 @@ const emits = defineEmits(['update:path'])
 provide('protocol', 'share')
 provide('protocolParams', () => {
   return {
-    code: props.extractCode,
+    code: inputExtractCode.value,
     vid: props.vid,
     id: props.sid
   } as ProtocolParams
@@ -130,6 +130,7 @@ const extract = async() => {
 }
 
 onMounted(() => {
+  inputExtractCode.value = props.extractCode || ''
   actions.getShareInfo()
 })
 </script>

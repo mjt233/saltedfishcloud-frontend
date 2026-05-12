@@ -33,31 +33,23 @@ export namespace ShareService {
   
   /**
    * 获取分享链接地址
+   * @param withExtractCode 是否包含提取码到url中
    */
-  export function getShareLink(shareInfo: ShareInfo) {
-    return StringUtils.appendPath(location.origin, '#/s', (shareInfo.id || '') + '', shareInfo.verification || '')
+  export function getShareLink(shareInfo: ShareInfo, withExtractCode = true) {
+    let url = StringUtils.appendPath(location.origin, '#/s', (shareInfo.id || '') + '', shareInfo.verification || '')
+    if (withExtractCode && shareInfo.extractCode) {
+      url += `?code=${shareInfo.extractCode}`
+    }
+    return url
   }
 
   export async function getShareInfo(sid: number | string, vid: string, extractCode: string | null | undefined) {
     return (await SfcUtils.request(API.share.getBaseShareInfo(sid, vid, extractCode))).data.data
   }
 
-  /**
-   * 复制分享链接信息到剪切板
-   * @param shareInfo 分享信息
-   */
-  export function copyShareLinkText(shareInfo: ShareInfo) {
+  export async function copyShareLink(shareInfo: ShareInfo) {
     const link = getShareLink(shareInfo)
-    
-    let res = `呐呐呐(。・∀・)ノ，我用咸鱼云向你分享了文件：${shareInfo.name}\n链接：${link}`
-    if (shareInfo.needExtractCode) res += `\n提取码：${shareInfo.extractCode}\n`
-    SfcUtils.copyToClipboard(res)
-    SfcUtils.snackbar('已复制分享信息到剪切板')
-  }
-
-  export function copyShareLink(shareInfo: ShareInfo) {
-    const link = getShareLink(shareInfo)
-    SfcUtils.copyToClipboard(link)
+    await SfcUtils.copyToClipboard(link)
     SfcUtils.snackbar('已复制链接到剪切板')
   }
 

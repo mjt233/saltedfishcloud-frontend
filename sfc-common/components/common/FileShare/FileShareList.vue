@@ -41,8 +41,8 @@
                 <span class="form-label">分享链接：</span>
                 <a
                   class="link break-text"
-                  :href="ShareService.getShareLink(item)"
                   target="_blank"
+                  @click="actions.doCopy(item)"
                 >{{ ShareService.getShareLink(item) }}</a>
               </v-col>
             </v-row>
@@ -72,7 +72,7 @@
                   class="mb-1"
                   color="primary"
                   text="复制分享信息"
-                  @click="ShareService.copyShareLinkText(item)"
+                  @click="ShareService.copyShareLink(item)"
                 >
                   <template #prepend>
                     <v-icon icon="mdi-content-copy" />
@@ -147,8 +147,9 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 
     shareList.value = data
   },
-  doCopy(item: ShareInfo) {
-    ShareService.copyShareLinkText(item)
+  async doCopy(item: ShareInfo) {
+    await ShareService.copyShareLink(item)
+    SfcUtils.snackbar('已复制链接到剪切板')
   },
   deleteShare(item: ShareInfo) {
     SfcUtils.confirm('确定要取消该分享吗？', '取消确认', {cancelToReject: true})
