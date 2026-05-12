@@ -77,7 +77,7 @@ const emits = defineEmits(['cancel'])
 </script>
 
 <script lang="ts">
-import { DownloadTaskInfo, DownloadTaskStatus } from 'sfc-common/model/DownloadTask'
+import { DownloadTaskInfo } from 'sfc-common/model/DownloadTask'
 import { defineComponent, defineProps, defineEmits, PropType } from 'vue'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 

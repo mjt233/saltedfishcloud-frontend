@@ -44,8 +44,9 @@ export namespace DownloadTaskService {
    * @param uid 用户id
    * @param path 默认下载路径
    * @param canOpenView 是否允许下载对话框中打开查看下载任务详情的对话框
+   * @param onSuccess 提交成功后的回调，用于刷新外层状态
    */
-  export function openCreateTask(uid: IdType, path: string, canOpenView: boolean) {
+  export function openCreateTask(uid: IdType, path: string, canOpenView: boolean, onSuccess?: () => void | Promise<void>) {
     const inst = SfcUtils.openComponentDialog(CreateDownloadForm, {
       props: {
         uid,
@@ -62,6 +63,7 @@ export namespace DownloadTaskService {
         const form = inst.getComponentInstRef() as any as CommonForm
         const ret = await form.submit()
         if (ret.success) {
+          await onSuccess?.()
           return true
         } else {
           return false

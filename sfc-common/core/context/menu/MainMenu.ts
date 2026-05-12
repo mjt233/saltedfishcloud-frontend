@@ -37,6 +37,13 @@ const defaultMainMenu: MenuType.AppMenu = {
       name: '便捷功能',
       items: [
         {
+          id: 'download-task',
+          title: '下载任务',
+          route: '/download-task',
+          icon: 'mdi-download',
+          renderOn: ConditionFunction.hasLogin
+        },
+        {
           id: 'box',
           title: '工具箱',
           route: '/box',

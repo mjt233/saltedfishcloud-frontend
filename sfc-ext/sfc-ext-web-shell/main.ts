@@ -7,8 +7,8 @@ window.xterm = xterm
 
 window.bootContext.addProcessor({
   execute(app, handler) {
-    app.component(WsSimpleExecView.name, WsSimpleExecView)
-    app.component(WsInteractiveExecView.name, WsInteractiveExecView)
+    app.component(WsSimpleExecView.name!, WsSimpleExecView)
+    app.component(WsInteractiveExecView.name!, WsInteractiveExecView)
   },
   taskName: '注册WebShell组件'
 })

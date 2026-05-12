@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "allowSyntheticDefaultImports": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "jsx": "preserve",
     "allowJs": true,
@@ -14,11 +14,13 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "sfc-oauth/*": ["./sfc-oauth/*"],
+      "sfc-common/*": ["./sfc-common/*"]
     }
   },
   "include": ["index.d.ts","**/*.ts", "**/*.d.ts", "**/*.tsx", "**/*.vue", "**/index.ts", "**/index.vue", "sfc-common/index.d.ts"],
+  "exclude": ["vite.config.ts", "build/**"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

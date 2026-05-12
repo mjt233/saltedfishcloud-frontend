@@ -1,7 +1,15 @@
-import { CommonRequest, DownloadTaskInfo, JpaPageInfo } from 'sfc-common/model'
+import { CommonRequest, DownloadTaskInfo, IdType, JpaPageInfo } from 'sfc-common/model'
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import { ProxyBaseInfo, ProxyInfo } from 'sfc-common/model/Proxy'
-export type TaskType = 'DOWNLOAD' | 'FINISH' | 'ALL'
+
+/**
+ * 任务类型。
+ */
+export type TaskType = 'DOWNLOADING' | 'FINISH' | 'FAILED' | 'ALL'
+
+/**
+ * 请求方法。
+ */
 export type RequestMethod = 'GET' | 'POST'
 export interface DownloadTaskCreateOpt {
   /** 文件URL */
@@ -11,7 +19,7 @@ export interface DownloadTaskCreateOpt {
   savePath: string
 
   /** 保存路径所属用户id */
-  uid: number
+  uid: IdType
 
   /** 请求方法 */
   method: RequestMethod
@@ -23,6 +31,9 @@ export interface DownloadTaskCreateOpt {
   headers?: {[anyHeader: string]: string}
 }
 
+/**
+ * 任务相关接口集合。
+ */
 const task = {
   download: {
     prefix: '/task/download',
@@ -32,7 +43,7 @@ const task = {
      * @param taskId 任务ID
      * @returns {import("axios").AxiosRequestConfig}
      */
-    interruptTask(uid: number, taskId: string): CommonRequest {
+    interruptTask(uid: IdType, taskId: string): CommonRequest {
       return {
         url: `${this.prefix}`,
         method: 'delete',
@@ -49,7 +60,7 @@ const task = {
      * @param size 每页大小
      * @returns
      */
-    getTaskList(uid: number, type: TaskType, page = 1, size = 10): CommonRequest<JpaPageInfo<DownloadTaskInfo>> {
+    getTaskList(uid: IdType, type: TaskType, page = 1, size = 10): CommonRequest<JpaPageInfo<DownloadTaskInfo>> {
       return {
         url: `${this.prefix}`,
         params: {

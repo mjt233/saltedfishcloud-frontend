@@ -1,4 +1,3 @@
-import FileBrowser from 'sfc-common/components/common/FileBrowser.vue'
 import { IdType } from 'sfc-common/model'
 import { FileInfo, FileListContext } from 'sfc-common/model/FileInfo'
 import { FileSystemHandlerFactory } from 'sfc-common/core/serivce/FileSystemHandler'
@@ -53,9 +52,23 @@ export interface FileSelectParam {
   requireFile?: boolean
 }
 
+/**
+ * 文件选择结果
+ */
 export interface FileSelectResult {
+  /**
+   * 选择的文件列表
+   */
   file: FileInfo[],
+
+  /**
+   * 选择的文件所在目录的路径
+   */
   path: string,
+
+  /**
+   * 文件列表上下文
+   */
   fileListContext: FileListContext
 }
 

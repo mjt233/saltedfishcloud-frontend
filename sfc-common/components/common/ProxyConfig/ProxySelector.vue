@@ -14,6 +14,7 @@
       variant="underlined"
       no-data-text="无可用代理"
       :clearable="clearable"
+      :rules="rules"
     >
       <template #item="{ props: itemProps, item }">
         <v-list-item v-bind="itemProps">
@@ -97,6 +98,14 @@ const props = defineProps({
   refreshable: {
     type: Boolean,
     default: false
+  },
+
+  /**
+   * 代理节点的下拉选择组件表单校验规则
+   */
+  rules: {
+    type: Array as PropType<(string | ((v: any) => boolean | string))[]>,
+    default: () => []
   }
 })
 const emits = defineEmits<{

@@ -128,7 +128,7 @@ const getRangeChartOption = (series: {name: string, data: [number, number|string
   return {
     xAxis: {
       type: 'time',
-      boundaryGap: false
+      boundaryGap: ['0%', '0%'] as [string, string]
     },
     tooltip: {
       trigger: 'axis',

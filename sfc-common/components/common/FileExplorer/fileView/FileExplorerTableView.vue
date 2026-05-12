@@ -169,7 +169,7 @@ import { FileInfo } from 'sfc-common/model'
 import { DOMUtils, StringFormatter } from 'sfc-common/utils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, computed } from 'vue'
 import type { FileExplorerViewEmits, FileExplorerViewProps } from './baseDefine'
-import type { RowPropsFunction } from 'vuetify/lib/components/VDataTable/types'
+type RowPropsFunction<T> = (data: { index: number, item: T, internalItem: unknown }) => Record<string, unknown>
 import { getExpose, useFileListTypeToSearch, useFileSelect, useFileViewText, useCtrlASelectAll } from './baseImpl'
 import { useResizeObserver } from 'sfc-common/composables/useResizeObserver'
 

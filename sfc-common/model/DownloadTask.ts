@@ -1,21 +1,18 @@
+import { IdType } from '..'
 import { AsyncTaskRecord } from './AsyncTaskRecord'
 
-export type DownloadTaskStatus = 'WAITING' | 'DOWNLOADING' | 'FAILED' | 'FINISH' | 'CANCEL'
 export interface DownloadTaskInfo {
   /** 任务id */
   id: string
 
   /** 任务所属用户id */
-  uid: number
+  uid: IdType
 
   /** 下载url */
   url: string
 
   /** 使用的代理名称 */
   proxy: string
-
-  /** 任务状态 */
-  state: DownloadTaskStatus
 
   /** 任务消息 */
   message?: string

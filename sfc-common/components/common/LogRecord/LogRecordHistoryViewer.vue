@@ -132,24 +132,41 @@ const dateRange = reactive({
   begin: StringFormatter.formatDate(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7), 'yyyy-MM-dd'),
   end: StringFormatter.formatDate(new Date(), 'yyyy-MM-dd')
 })
+
+/**
+ * 构建日志查询时间范围。
+ * begin 固定为当天 00:00:00，end 固定为当天 23:59:59，确保截止日期当天日志可被完整查询。
+ */
+function buildQueryDateRange() {
+  const begin = new Date(dateRange.begin)
+  begin.setHours(0, 0, 0, 0)
+
+  const end = new Date(dateRange.end)
+  end.setHours(23, 59, 59, 999)
+
+  return {
+    begin,
+    end
+  }
+}
+
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
+    const queryDateRange = buildQueryDateRange()
     const res = (await SfcUtils.request(API.admin.logRecord.queryLog({
       level: selectedLevel.value,
       type: selectedType.value,
       pageableRequest: pageRequest,
-      dateRange: {
-        begin: new Date(dateRange.begin),
-        end: new Date(dateRange.end)
-      }
+      dateRange: queryDateRange
     }))).data.data
     recordList.value = res.content
     totalLen.value = res.totalCount
   },
   async loadStatistic() {
+    const queryDateRange = buildQueryDateRange()
     statisticItems.value = (await SfcUtils.request(API.admin.logRecord.queryLogStatistic({
-      begin: new Date(dateRange.begin),
-      end: new Date(dateRange.end)
+      begin: queryDateRange.begin,
+      end: queryDateRange.end
     }))).data.data.map(e => {
       return {
         title: `${e.type}(${e.count})`,

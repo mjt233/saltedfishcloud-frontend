@@ -8,6 +8,13 @@ const commonRoute: VueRouter.RouteRecordRaw  =  {
   component: Index,
   children: [
     {
+      path: '/download-task',
+      component: () => import('sfc-common/components/common/DownloadTask/Manager/DownloadTaskManager.vue'),
+      meta: {
+        allowNoLogin: false
+      }
+    },
+    {
       path: '/',
       component: IndexDesktopView,
       meta: {

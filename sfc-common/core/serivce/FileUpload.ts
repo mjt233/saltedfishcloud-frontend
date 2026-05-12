@@ -1,6 +1,6 @@
 import { StringUtils } from 'sfc-common/utils/StringUtils'
 import API from 'sfc-common/api'
-import { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosRequestConfig, AxiosResponse, AxiosProgressEvent } from 'axios'
 import axios from 'axios'
 
 import { Prog } from 'sfc-common/utils/FileUtils/FileDataProcess'
@@ -714,7 +714,7 @@ export class BreakPointUploadExecutor extends CommonFileUploadExecutor {
       let curPartFinishSize = 0
       const range = getPartRange(startPos, multiple, this.metaData?.chunkCount as number)
       const conf = API.breakpoint.uploadPart(this.metaData?.taskId as string, sliceData, range)
-      conf.onUploadProgress = (e: Prog) => {
+      conf.onUploadProgress = (e: AxiosProgressEvent) => {
         curPartFinishSize = e.loaded
         this.uploadInfo.prog.loaded = finishSize + curPartFinishSize
       }
