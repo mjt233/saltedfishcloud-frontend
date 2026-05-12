@@ -1,6 +1,6 @@
 <template>
   <VList ref="thisRef" class="file-explorer-file-list" :min-height="height">
-    <LoadingMask :loading="isLoading" />
+    <LoadingMask :loading="isLoading" z-index="100" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
