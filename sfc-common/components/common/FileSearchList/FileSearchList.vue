@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="file-search-list">
     <loading-mask :loading="loading" />
     <v-pagination
       v-model="curPage"
@@ -19,14 +19,14 @@
       :show-back="false"
       :use-select="false"
       :path="listPath"
-      :headers="[{ title: '名称', key: 'name' }]"
-      :extra-headers="[{title: '上级目录', key: 'parent'}]"
+      :headers="[{ title: '名称', key: 'name', maxWidth: nameMaxWidth }]"
+      :extra-headers="[{title: '上级目录', key: 'parent', minWidth: '120px'}]"
       :item-key="(f) => f.name + '_' + f.node"
       :item-value="(f) => f.id + '_' + f.node"
       @file-click="actions.clickItem"
     >
       <template #item.parent="{ item: fileInfo }">
-        <a class="link" @click="emits('click-parent', fileInfo as SearchFileInfo)"> {{ (fileInfo as SearchFileInfo).parent || '/' }}</a>
+        <a class="link" @click.prevent.stop="emits('click-parent', fileInfo as SearchFileInfo)"> {{ (fileInfo as SearchFileInfo).parent || '/' }}</a>
       </template>
     </FileExplorerTableView>
   </div>
@@ -38,6 +38,10 @@ import LoadingMask from '../LoadingMask.vue'
 import type { SearchFileInfo } from 'sfc-common/model'
 const listPath = ref('/')
 const listRef = ref() as Ref<InstanceType<typeof FileExplorerTableView>>
+const nameMaxWidth = computed(() => {
+  const parentWidth = listRef.value?.$el?.clientWidth || window.innerWidth
+  return parentWidth ? `${parentWidth - 120}px` : 'auto'
+})
 const props = defineProps({
   uid: {
     type: [Number, String],
@@ -100,7 +104,7 @@ import API from 'sfc-common/api'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, reactive, watch, computed } from 'vue'
 import { FileInfo, FileListContext } from 'sfc-common/model'
 import FileExplorerTableView from '../FileExplorer/fileView/FileExplorerTableView.vue'
 
