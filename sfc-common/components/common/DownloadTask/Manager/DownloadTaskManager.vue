@@ -58,14 +58,16 @@
         v-else
         :items="taskList"
         :height="targetHeight"
-        item-height="88"
+        item-height="102"
       >
         <template #default="{ item }">
-          <download-task-manager-item
-            :key="item.id"
-            :item="item"
-            @cancel="onCancelTask"
-          />
+          <v-sheet class="mt-2 mb-2 ml-1 mr-1" elevation="1" rounded>
+            <download-task-manager-item
+              :key="item.id"
+              :item="item"
+              @cancel="onCancelTask"
+            />
+          </v-sheet>
         </template>
       </v-virtual-scroll>
     </div>
