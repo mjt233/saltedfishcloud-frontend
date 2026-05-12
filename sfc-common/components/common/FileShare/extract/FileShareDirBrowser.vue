@@ -89,6 +89,9 @@ const shareMenu:MenuGroup<FileListContext>[] = [
         async action(ctx) {
           if (ctx.selectFileList.length == 1) {
             const file = ctx.selectFileList[0]
+            if (file.dir) {
+              return wrapDownload(ctx.path, ctx.selectFileList)
+            }
             const url = ctx.getFileUrl(file)
             if (!url) {
               SfcUtils.alert('无法获取文件url')
