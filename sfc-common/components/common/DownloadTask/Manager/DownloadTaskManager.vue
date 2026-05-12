@@ -58,7 +58,7 @@
         v-else
         :items="taskList"
         :height="targetHeight"
-        item-height="102"
+        item-height="104"
       >
         <template #default="{ item }">
           <v-sheet class="mt-2 mb-2 ml-1 mr-1" elevation="1" rounded>

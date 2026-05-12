@@ -9,14 +9,14 @@
 
     <!-- 主体内容 -->
     <v-list-item-title class="text-subtitle-1 font-weight-bold mb-1">
-      {{ item.name }}
+      {{ item.name || '未知文件' }}
     </v-list-item-title>
     
     <v-list-item-subtitle class="text-caption text-truncate mb-1">
       <a
         :href="item.url"
         target="_blank"
-        class="text-primary text-decoration-none"
+        class="link"
         @click.stop
       >{{ item.url }}</a>
     </v-list-item-subtitle>
