@@ -81,25 +81,27 @@
         />
 
         <!-- 移动端右下角操作按钮，默认为新增菜单，可通过插槽添加自定义操作按钮 -->
-        <MobileFloatingAddButton
-          v-if="isMobile"
-          :menu-items="toolButtons"
-          :ctx="ctx"
-          :read-only="readOnly"
+        <div
+          v-if="isMobile && (showMobileReadmeButton || showMobileAddButton)"
+          class="mobile-floating-action-container"
         >
-          <template v-if="previewReadme" #prepend="{ props: btnProps }">
-            <VSlideYReverseTransition>
-              <VBtn
-                v-show="readmeFileInfo"
-                v-bind="btnProps"
-                icon="mdi-text-box"
-                size="large"
-                :color="readOnly ? 'primary' : undefined"
-                @click="showMobileReadme"
-              />
-            </VSlideYReverseTransition>
-          </template>
-        </MobileFloatingAddButton>
+          <VSlideYReverseTransition>
+            <VBtn
+              v-if="showMobileReadmeButton"
+              icon="mdi-text-box"
+              size="large"
+              elevation="8"
+              :color="readOnly ? 'primary' : undefined"
+              @click="showMobileReadme"
+            />
+          </VSlideYReverseTransition>
+          <MobileFloatingAddButton
+            v-if="showMobileAddButton"
+            :menu-items="toolButtons"
+            :ctx="ctx"
+            :read-only="readOnly"
+          />
+        </div>
     
 
         <!-- 文件列表视图本体 -->
@@ -443,6 +445,32 @@ const finalFileItemMenus = computed(() => {
   return buildInMenus.concat(listMenu.value)
 })
 
+/**
+ * 判断移动端是否存在可用的新增菜单项。
+ */
+const hasVisibleMobileToolButtons = computed(() => {
+  return (props.toolButtons || []).some(group => {
+    if (group.renderOn && !group.renderOn(ctx)) {
+      return false
+    }
+    return group.items.some(item => !item.renderOn || item.renderOn(ctx))
+  })
+})
+
+/**
+ * 判断移动端是否显示 README 预览按钮。
+ */
+const showMobileReadmeButton = computed(() => {
+  return !!props.previewReadme && !!readmeFileInfo.value
+})
+
+/**
+ * 判断移动端是否显示新增按钮。
+ */
+const showMobileAddButton = computed(() => {
+  return !props.readOnly && hasVisibleMobileToolButtons.value
+})
+
 onMounted(async() => {
   ctxDataSource.fileList = await actions.loadList(props.path)
 })
@@ -487,3 +515,16 @@ export default defineComponent({
   name: 'FileExplorer'
 })
 </script>
+
+<style scoped lang="scss">
+.mobile-floating-action-container {
+  position: fixed;
+  right: 16px;
+  bottom: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+</style>

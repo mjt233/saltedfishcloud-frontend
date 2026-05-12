@@ -20,19 +20,14 @@
       transition="slide-y-transition"
     >
       <template #activator="{ props: menuProps }">
-        <div class="d-inline-flex" style="flex-direction: column;">
-          <slot name="prepend" :props="{ class: 'floating-main-btn mb-4' }" />
-          <VBtn
-            v-if="!readOnly"
-            v-bind="menuProps"
-            class="floating-main-btn"
-            :color="menuOpen ? 'secondary' : 'primary'"
-            :icon="menuOpen ? 'mdi-close' : 'mdi-plus'"
-            size="large"
-            elevation="8"
-          />
-          <slot name="append" :props="{ class: 'floating-main-btn mb-4' }" />
-        </div>
+        <VBtn
+          v-if="!readOnly"
+          v-bind="menuProps"
+          :color="menuOpen ? 'secondary' : 'primary'"
+          :icon="menuOpen ? 'mdi-close' : 'mdi-plus'"
+          size="large"
+          elevation="8"
+        />
       </template>
 
       <!-- 子按钮菜单 -->
@@ -142,10 +137,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .mobile-floating-add-button {
-  position: fixed;
-  bottom: 24px;
-  right: 16px;
-  z-index: 1000;
+  position: relative;
 
   .menu-backdrop {
     position: fixed;
