@@ -208,7 +208,8 @@ function openAppDialog(app?: ThirdPartyApp) {
                 extraDialogOptions: {
                   maxWidth: '420px',
                   dense: true,
-                  confirmText: '好的，我已妥善保管密钥'
+                  confirmText: '好的，我已妥善保管密钥',
+                  persistent: true
                 },
                 showCancel: false
               })
