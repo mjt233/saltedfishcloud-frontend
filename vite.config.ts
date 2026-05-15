@@ -55,6 +55,11 @@ const commonConfig: UserConfigExport = {
         target: 'http://127.0.0.1:8087',
         changeOrigin: true,
         ws: true
+      },
+      '/oauth': {
+        target: 'http://localhost:4001',
+        changeOrigin: true,
+        ws: true
       }
     }
   },

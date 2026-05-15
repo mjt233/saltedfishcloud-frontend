@@ -46,6 +46,7 @@
     "@types/dplayer": "^1.25.2",
     "@types/js-md5": "^0.4.3",
     "@types/markdown-it": "^12.2.3",
+    "@types/node": "^25.8.0",
     "@types/qs": "^6.9.7",
     "@types/webfontloader": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
