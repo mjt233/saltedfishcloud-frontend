@@ -173,11 +173,11 @@ export default {
    * @param appId 第三方OAuth应用id
    * @param scope 授权范围（增量授权，多个权限使用空格分割）
    */
-  authorize(appId: IdType, scope: IdType): CommonRequest<UserAuthorizeResult> {
+  authorize(appId: IdType, scope: IdType, redirectUrl?: string): CommonRequest<UserAuthorizeResult> {
     return {
       url: `${this.prefix}/authorize`,
       params: {
-        appId, scope
+        appId, scope, redirectUrl
       }
     }
   },

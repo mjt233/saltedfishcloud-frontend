@@ -105,6 +105,16 @@
                 以下权限
               </div>
 
+              
+              <VAlert
+                v-for="msg in msgList"
+                :key="msg.id"
+                class="mt-2"
+                :text="msg.msg"
+                :type="msg.type"
+                variant="tonal"
+                style="animation: up-in .2s;"
+              />
               <!-- 展示请求的权限列表 -->
               <VSheet elevation="2">
                 <VList v-if="requireAuthorityList.length" class="mt-6 mb-6">
@@ -171,10 +181,19 @@ const actions = createAutoLoadingProxy({
    * 确认授权，并转跳回第三方OAuth应用
    */
   async confirmAuthorize() {
-    const res = await request(oauth.authorize(requireAppId as string, requireNewScope.value.join(' ')))
-    // 授权已确认，开始转跳并永久开启遮罩直到离开该页面
-    lm.beginLoading()
-    location.replace(res.data.data.redirectUrl)
+    try {
+      const res = await request(oauth.authorize(requireAppId as string, requireNewScope.value.join(' '), requireRedirect))
+      // 授权已确认，开始转跳并永久开启遮罩直到离开该页面
+      lm.beginLoading()
+      setTimeout(() => {
+        location.replace(res.data.data.redirectUrl)
+      }, 100)
+    } catch (err) {
+      addMsg('授权失败: ' + err, 'error')
+      lm.closeLoading()
+      console.error(err)
+      
+    }
   }
 }, lm)
 
@@ -185,6 +204,7 @@ const curUrl = new URL(location.href)
 const errorMsg = ref('')
 const requireScope = curUrl.searchParams.get('scope')
 const requireAppId = curUrl.searchParams.get('appId')
+const requireRedirect = curUrl.searchParams.get('redirectUrl') || undefined
 // 需要新授权的权限
 const requireNewScope = ref([]) as Ref<string[]>
 const requireAuthorityList = ref([]) as Ref<AuthorityItem[]>
@@ -293,6 +313,7 @@ import { AxiosError } from 'axios'
 import oauth from 'sfc-common/api/oauth'
 import { AuthorityItem } from './model'
 import AuthorityListItem from './components/AuthorityListItem.vue'
+import { log } from 'node:console'
 
 export default defineComponent({
   name: 'App',
