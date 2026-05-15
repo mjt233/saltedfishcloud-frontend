@@ -20,7 +20,8 @@
     "build-ext-static-publish": "vite build --config build/extension/static-publish.ts",
     "build-ext-only-office": "vite build --config build/extension/only-office.ts",
     "build-ext-rtc": "vite build --config build/extension/rtc.ts",
-    "build-ext-webdav": "vite build --config build/extension/webdav.ts"
+    "build-ext-webdav": "vite build --config build/extension/webdav.ts",
+    "build-ext-mcp": "vite build --config build/extension/mcp.ts"
   },
   "dependencies": {
     "@vueuse/core": "^14.2.1",
