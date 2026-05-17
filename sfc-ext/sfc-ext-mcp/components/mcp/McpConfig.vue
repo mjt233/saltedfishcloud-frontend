@@ -26,18 +26,21 @@
               正在查询当前用户的 MCP ApiTicket...
             </div>
           </VAlert>
-          <VAlert v-else-if="!apiTicket" type="warning" variant="tonal">
-            <div class="d-flex align-center justify-space-between pr-2">
-              <span>当前用户还没有可用的 MCP ApiTicket，请先完成 MCP 应用授权。</span>
-              <VBtn
-                :loading="isOpeningOauth"
-                @click="openOauthAuthorizeWindow"
-              >
-                去授权
-              </VBtn>
-            </div>
-            
-          </VAlert>
+          <template v-else-if="!apiTicket">
+
+            <VAlert type="warning" variant="tonal">
+              当前用户还没有可用的 MCP ApiTicket，请先完成 MCP 应用授权。
+            </VAlert>
+            <VBtn
+              class="mt-2"
+              color="warning"
+              style="color: rgb(var(--v-theme-on-warning))"
+              :loading="isOpeningOauth"
+              @click="openOauthAuthorizeWindow"
+            >
+              去授权
+            </VBtn>
+          </template>
         </VCol>
       </VRow>
 
@@ -47,7 +50,7 @@
             <div class="text-subtitle-1 mb-2">
               当前 ApiTicket
             </div>
-            <div class="d-flex flex-column flex-sm-row ga-3 align-sm-center">
+            <div>
               <VTextField
                 :model-value="apiTicket"
                 readonly
@@ -56,8 +59,14 @@
                 hide-details
                 class="ticket-input"
               />
-              <VBtn color="primary" variant="tonal" @click="copyApiTicket">
-                复制 ApiTicket
+              <VBtn
+                color="primary"
+                variant="tonal"
+                :loading="isOpeningOauth"
+                class="mt-2"
+                @click="handleApiTicketAction"
+              >
+                {{ apiTicketActionText }}
               </VBtn>
             </div>
           </VCol>
@@ -82,8 +91,9 @@
 import { MarkdownView } from 'sfc-common/components/common'
 import { type IdType } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { McpOauthApi } from '../../api'
+import { waitOAuthCallback } from '../../core/waitOAuthCallback'
 
 /**
  * McpConfig 组件属性。
@@ -101,7 +111,7 @@ const props = defineProps<McpConfigProps>()
 /**
  * Claude Code 需要接入的 MCP 服务路径。
  */
-const mcpServerPath = '/api/mcp'
+const mcpServerPath = '/api/mcp/stream'
 
 /**
  * Claude Code 实际需要配置的 MCP 服务完整地址。
@@ -112,6 +122,12 @@ const mcpServerUrl = computed(() => new URL(mcpServerPath, location.origin).toSt
  * 当前用户已有的 MCP ApiTicket。
  */
 const apiTicket = ref<string | null>(null)
+
+/**
+ * 当前展示的 ApiTicket 是否为历史上已生成过的遮掩票据。
+ * 为 true 时，表示用户只能重新生成，不能直接复制使用。
+ */
+const isHistoricalApiTicket = ref(false)
 
 /**
  * 当前是否正在查询 ApiTicket。
@@ -171,7 +187,7 @@ function buildConfigGuide(ticket: string, serverUrl: string): string {
   const cliCommand = `claude mcp add xyy --transport http ${serverUrl} --header \"Authorization: ${authorizationHeader}\"`
   const configExample = {
     mcpServers: {
-      saltedfishcloud: {
+      xyy: {
         type: 'http',
         url: serverUrl,
         headers: {
@@ -182,8 +198,6 @@ function buildConfigGuide(ticket: string, serverUrl: string): string {
   }
 
   return [
-    '# Claude Code 配置说明',
-    '',
     '将以下配置添加到 Claude Code 的 MCP 服务配置中。',
     '',
     '```json',
@@ -212,6 +226,11 @@ const configGuide = computed(() => {
 })
 
 /**
+ * 当前 ApiTicket 操作按钮的显示文本。
+ */
+const apiTicketActionText = computed(() => isHistoricalApiTicket.value ? '重新生成' : '复制 ApiTicket')
+
+/**
  * 查询当前登录态下已有的 MCP ApiTicket。
  * 接口按当前登录态返回数据，因此这里用 uid 作为重新加载触发条件。
  */
@@ -219,11 +238,16 @@ async function loadApiTicket(): Promise<void> {
   isLoading.value = true
   errorMessage.value = ''
   apiTicket.value = null
+  isHistoricalApiTicket.value = false
 
   try {
     // 仅展示当前用户已经持有的 ApiTicket，不在这里触发新的授权流程。
     const response = await SfcUtils.request(McpOauthApi.getExistingApiTicket())
-    apiTicket.value = response.data.data
+    const existingApiTicket = response.data.data
+
+    // 这里返回的是历史已生成过的票据展示值，因此需要标记为不可直接复制使用。
+    apiTicket.value = existingApiTicket
+    isHistoricalApiTicket.value = existingApiTicket !== null
   } catch (error) {
     errorMessage.value = getErrorMessage(error)
   } finally {
@@ -248,6 +272,61 @@ async function copyApiTicket(): Promise<void> {
 }
 
 /**
+ * 执行 MCP OAuth 授权流程，并在授权完成后更新为新的 ApiTicket 原文。
+ */
+async function startOauthAuthorizeFlow(): Promise<void> {
+  // 先查询系统中为 MCP 配置的 OAuth 应用ID，再拼接当前站点的授权地址。
+  const response = await SfcUtils.request(McpOauthApi.getAppId())
+  const authorizeUrl = buildOauthAuthorizeUrl(response.data.data)
+
+  // 提前挂起回调监听，确保授权页返回时能接收到新的 ApiTicket。
+  void waitOAuthCallback().then((apiTicketValue) => {
+    apiTicket.value = apiTicketValue
+    isHistoricalApiTicket.value = false
+    SfcUtils.snackbar('授权成功，ApiTicket 已更新')
+  }).catch((error) => {
+    SfcUtils.alert(String(error))
+  })
+
+  // 使用独立小窗口打开授权页，避免用户离开当前配置页面。
+  SfcUtils.openSmallWindow(authorizeUrl)
+}
+
+/**
+ * 重新生成 MCP ApiTicket 前弹出确认，提示旧票据会立即失效。
+ */
+async function regenerateApiTicket(): Promise<void> {
+  try {
+    // 重新生成后旧票据立即失效，因此在继续前要求用户明确确认。
+    await SfcUtils.confirm('重新生成后，旧 ApiTicket 将立即失效，确认继续吗？', '提示', {
+      cancelToReject: true,
+      confirmBtnText: '确认重新生成',
+      cancelBtnText: '取消'
+    })
+  } catch (error) {
+    if (error === 'cancel') {
+      return
+    }
+    throw error
+  }
+
+  await openOauthAuthorizeWindow()
+}
+
+/**
+ * 根据当前 ApiTicket 状态执行对应动作。
+ * 历史遮掩票据只能重新生成；新票据原文才允许复制。
+ */
+async function handleApiTicketAction(): Promise<void> {
+  if (isHistoricalApiTicket.value) {
+    await regenerateApiTicket()
+    return
+  }
+
+  await copyApiTicket()
+}
+
+/**
  * 打开 MCP OAuth 授权窗口，引导当前用户完成授权。
  */
 async function openOauthAuthorizeWindow(): Promise<void> {
@@ -258,20 +337,7 @@ async function openOauthAuthorizeWindow(): Promise<void> {
   isOpeningOauth.value = true
 
   try {
-    // 先查询系统中为 MCP 配置的 OAuth 应用ID，再拼接当前站点的授权地址。
-    const response = await SfcUtils.request(McpOauthApi.getAppId())
-    const authorizeUrl = buildOauthAuthorizeUrl(response.data.data)
-
-    waitOAuthCallback().then((apiTicketValue) => {
-      apiTicket.value = apiTicketValue
-      SfcUtils.snackbar('MCP 授权成功，ApiTicket 已更新')
-    }).catch((error) => {
-      console.log(error)
-      SfcUtils.alert(error + '')
-    })
-    // 使用独立小窗口打开授权页，避免用户离开当前配置页面。
-    SfcUtils.openSmallWindow(authorizeUrl)
-
+    await startOauthAuthorizeFlow()
   } catch (error) {
     SfcUtils.snackbar(getErrorMessage(error))
   } finally {
@@ -293,7 +359,6 @@ watch(
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { waitOAuthCallback } from '../../core/waitOAuthCallback'
 
 export default defineComponent({
   name: 'McpConfig'
