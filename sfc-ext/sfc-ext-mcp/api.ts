@@ -18,7 +18,7 @@ export const McpOauthApi = {
    */
   getApiTicket(code: string): CommonRequest<string> {
     return {
-      url: `${this.prefix}/getApiTicket?code`,
+      url: `${this.prefix}/getApiTicket`,
       params: { code }
     }
   },

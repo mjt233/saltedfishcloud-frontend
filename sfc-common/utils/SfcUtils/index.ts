@@ -106,7 +106,7 @@ const SfcUtils = {
    * @param url url
    */
   openSmallWindow(url: string) {
-    window.open(url, '_blank', 'menubar=no')
+    return window.open(url, '_blank', 'menubar=no')
   },
 
   /**

@@ -1,6 +1,6 @@
 import { MenuHelper } from 'sfc-common'
-import McpConfig from './components/McpConfig.vue'
 import { h } from 'vue'
+import McpConfig from './components/mcp/McpConfig.vue'
 
 export {}
 

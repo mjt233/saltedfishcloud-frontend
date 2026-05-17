@@ -82,8 +82,8 @@
 import { MarkdownView } from 'sfc-common/components/common'
 import { type IdType } from 'sfc-common/model'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { computed, ref, watch } from 'vue'
-import { McpOauthApi } from '../api'
+import { computed, onMounted, ref, watch } from 'vue'
+import { McpOauthApi } from '../../api'
 
 /**
  * McpConfig 组件属性。
@@ -132,17 +132,6 @@ const errorMessage = ref('')
  * MCP 授权时需要申请的 OAuth 范围。
  */
 const oauthScope = 'profile storage_read storage_write'
-
-/**
- * OAuth 授权窗口宽度。
- */
-const oauthPopupWidth = 720
-
-/**
- * OAuth 授权窗口高度。
- */
-const oauthPopupHeight = 820
-
 /**
  * 将未知错误对象转换为可展示的文本。
  * @param error 接口请求抛出的错误对象
@@ -167,6 +156,7 @@ function buildOauthAuthorizeUrl(appId: string): string {
   const authorizeUrl = new URL('/oauth', location.origin)
   authorizeUrl.searchParams.set('appId', appId)
   authorizeUrl.searchParams.set('scope', oauthScope)
+  authorizeUrl.searchParams.set('redirectUrl', location.origin + '/mcpOAuthCallback')
   return authorizeUrl.toString()
 }
 
@@ -178,14 +168,14 @@ function buildOauthAuthorizeUrl(appId: string): string {
  */
 function buildConfigGuide(ticket: string, serverUrl: string): string {
   const authorizationHeader = `ApiTicket ${ticket}`
-  const cliCommand = `claude mcp add --transport http --header \"authorization: ${authorizationHeader}\" saltedfishcloud ${serverUrl}`
+  const cliCommand = `claude mcp add xyy --transport http ${serverUrl} --header \"Authorization: ${authorizationHeader}\"`
   const configExample = {
     mcpServers: {
       saltedfishcloud: {
         type: 'http',
         url: serverUrl,
         headers: {
-          authorization: authorizationHeader
+          Authorization: authorizationHeader
         }
       }
     }
@@ -272,6 +262,13 @@ async function openOauthAuthorizeWindow(): Promise<void> {
     const response = await SfcUtils.request(McpOauthApi.getAppId())
     const authorizeUrl = buildOauthAuthorizeUrl(response.data.data)
 
+    waitOAuthCallback().then((apiTicketValue) => {
+      apiTicket.value = apiTicketValue
+      SfcUtils.snackbar('MCP 授权成功，ApiTicket 已更新')
+    }).catch((error) => {
+      console.log(error)
+      SfcUtils.alert(error + '')
+    })
     // 使用独立小窗口打开授权页，避免用户离开当前配置页面。
     SfcUtils.openSmallWindow(authorizeUrl)
 
@@ -296,6 +293,7 @@ watch(
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { waitOAuthCallback } from '../../core/waitOAuthCallback'
 
 export default defineComponent({
   name: 'McpConfig'
@@ -313,7 +311,6 @@ export default defineComponent({
 
 .markdown-wrapper {
   min-height: 280px;
-  max-height: 520px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 12px;
