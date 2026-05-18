@@ -48,7 +48,7 @@
         <VRow>
           <VCol cols="12">
             <div class="text-subtitle-1 mb-2">
-              当前 ApiTicket
+              ApiTicket
             </div>
             <div>
               <VTextField
@@ -72,14 +72,21 @@
           </VCol>
         </VRow>
 
-        <VRow class="mt-2">
+        <VRow class="mt-8">
+          <div class="text-h3">
+            Agent MCP 接入案例说明
+          </div>
           <VCol cols="12">
-            <div class="text-subtitle-1 mb-2">
-              Claude Code 配置说明
-            </div>
-            <div class="markdown-wrapper">
-              <MarkdownView :content="configGuide" class="guide-markdown" />
-            </div>
+            <VExpansionPanels>
+              <VExpansionPanel>
+                <VExpansionPanelTitle class="text-subtitle-1">
+                  Claude Code
+                </VExpansionPanelTitle>
+                <VExpansionPanelText>
+                  <MarkdownView :content="configGuide" />
+                </VExpansionPanelText>
+              </VExpansionPanel>
+            </VExpansionPanels>
           </VCol>
         </VRow>
       </template>
@@ -228,7 +235,7 @@ const configGuide = computed(() => {
 /**
  * 当前 ApiTicket 操作按钮的显示文本。
  */
-const apiTicketActionText = computed(() => isHistoricalApiTicket.value ? '重新生成' : '复制 ApiTicket')
+const apiTicketActionText = computed(() => isHistoricalApiTicket.value ? '重新生成' : '复制')
 
 /**
  * 查询当前登录态下已有的 MCP ApiTicket。
@@ -283,7 +290,7 @@ async function startOauthAuthorizeFlow(): Promise<void> {
   void waitOAuthCallback().then((apiTicketValue) => {
     apiTicket.value = apiTicketValue
     isHistoricalApiTicket.value = false
-    SfcUtils.snackbar('授权成功，ApiTicket 已更新')
+    SfcUtils.alert('授权成功，请立即保存好 ApiTicket 票据原文，离开或刷新页面后只能重新生成新票据，无法再查看当前原文了。')
   }).catch((error) => {
     SfcUtils.alert(String(error))
   })
@@ -372,17 +379,6 @@ export default defineComponent({
 
 .ticket-input {
   flex: 1 1 auto;
-}
-
-.markdown-wrapper {
-  min-height: 280px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 12px;
-}
-
-.guide-markdown {
-  height: 100%;
 }
 
 .markdown-wrapper :deep(.markdown-view) {
