@@ -95,12 +95,12 @@
 </template>
 
 <script setup lang="ts">
-import { MarkdownView } from 'sfc-common/components/common'
 import { type IdType } from 'sfc-common/model'
-import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { computed, ref, watch } from 'vue'
 import { McpOauthApi } from '../../api'
 import { waitOAuthCallback } from '../../core/waitOAuthCallback'
+const SfcUtils = window.SfcUtils
+const MarkdownView = window.Components.MarkdownView
 
 /**
  * McpConfig 组件属性。

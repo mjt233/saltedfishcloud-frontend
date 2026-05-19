@@ -21,3 +21,12 @@ npx vite --port=4001
 ```shell
 npx vite --port=4002
 ```
+
+### 打包
+
+有两份资源需要打包，一份需要随前端主应用一起加载，一份需要作为单独的MCP OAuth回调。
+
+一步打包：在前端项目根目录下执行`npm run build-ext-mcp`即可
+
+- 需要随主应用一起加载的资源在`public/ext/sfc-ext-mcp`
+- 需要作为单独的MCP OAuth回调的资源在`sfc-ext/sfc-ext-mcp/dist`

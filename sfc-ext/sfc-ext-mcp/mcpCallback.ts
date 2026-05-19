@@ -3,8 +3,6 @@ import { McpOauthApi } from './api'
 import { ApiRequest } from 'sfc-common/model'
 import { McpOAuthCallbackData } from './model'
 
-let isCallbackFinish = false
-
 async function doCallback() {
 
   if(!window.opener) {
@@ -35,7 +33,6 @@ async function doCallback() {
       type: 'McpOAuthCallbackData'
     } as McpOAuthCallbackData)
   } finally {
-    isCallbackFinish = true
     window.close()
   }
 }

@@ -21,7 +21,7 @@
     "build-ext-only-office": "vite build --config build/extension/only-office.ts",
     "build-ext-rtc": "vite build --config build/extension/rtc.ts",
     "build-ext-webdav": "vite build --config build/extension/webdav.ts",
-    "build-ext-mcp": "vite build --config build/extension/mcp.ts"
+    "build-ext-mcp": "vite build --config build/extension/mcp.ts && cd sfc-ext/sfc-ext-mcp && vite build"
   },
   "dependencies": {
     "@vueuse/core": "^14.2.1",

@@ -1,22 +1,13 @@
-import { defineConfig, UserConfigExport } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vuetify from 'vite-plugin-vuetify'
 
 export default defineConfig({
   base: '/mcpOAuthCallback',
   build: {
-    outDir: '../dist/mcpOauthCallback'
+    outDir: 'dist/mcpOAuthCallback',
   },
   plugins: [
     vue(),
-    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
-    vuetify({
-      autoImport: true,
-    }),
-    // Components({
-    //   dirs: 'sfc-common/components',
-    //   dts: 'sfc-common/components.d.ts'
-    // })
   ],
   css: {
     preprocessorOptions: {
