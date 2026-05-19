@@ -155,6 +155,13 @@ const errorMessage = ref('')
  * MCP 授权时需要申请的 OAuth 范围。
  */
 const oauthScope = 'profile storage_read storage_write'
+
+/**
+ * MCP OAuth 回调路径。
+ * 开发环境不添加 /api 前缀，正式打包环境添加 /api 前缀。
+ */
+const oauthCallbackPath = import.meta.env.DEV ? '/mcpOAuthCallback' : '/api/mcpOAuthCallback'
+
 /**
  * 将未知错误对象转换为可展示的文本。
  * @param error 接口请求抛出的错误对象
@@ -179,7 +186,7 @@ function buildOauthAuthorizeUrl(appId: string): string {
   const authorizeUrl = new URL('/oauth', location.origin)
   authorizeUrl.searchParams.set('appId', appId)
   authorizeUrl.searchParams.set('scope', oauthScope)
-  authorizeUrl.searchParams.set('redirectUrl', location.origin + '/mcpOAuthCallback')
+  authorizeUrl.searchParams.set('redirectUrl', location.origin + oauthCallbackPath)
   return authorizeUrl.toString()
 }
 
