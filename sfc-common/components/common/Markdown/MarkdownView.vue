@@ -174,7 +174,7 @@ const addImgClickAction = () => {
     }
   })
 }
-const html = ref('')
+const html = computed(() => md.render(props.content || ''))
 const chapterList = ref([]) as Ref<ChapterTreeNode[]>
 const updateChapter = () => {
   const createNode = (el: Element) => {
@@ -236,18 +236,29 @@ const updateChapter = () => {
   }
   emits('chapterChange', chapterList.value)
 }
-const update = async() => {
-  const tempHtml = md.render(props.content || '')
+
+/**
+ * 在 markdown DOM 完成渲染后补充图片点击行为和章节目录。
+ * 这里保留为挂载后执行，避免在首帧渲染阶段打断父容器对该组件内容高度的测量。
+ */
+const updateRenderedContent = async() => {
+  if (!rootRef.value) {
+    return
+  }
+
   tempRoot = rootRef.value
-  html.value = tempHtml
   await nextTick()
   addImgClickAction()
   updateChapter()
 }
 
-onMounted(update)
+onMounted(() => {
+  void updateRenderedContent()
+})
 
-watch(() => props.content, update)
+watch(() => props.content, () => {
+  void updateRenderedContent()
+})
 </script>
 
 <script lang="ts">
@@ -255,7 +266,7 @@ import highlight from 'highlight.js'
 import MarkdownIt from 'markdown-it'
 import MarkdownItTaskLists from 'markdown-it-task-lists'
 import 'highlight.js/styles/atom-one-dark.css'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick, inject } from 'vue'
+import { computed, defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, watch, nextTick, inject } from 'vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { ImagePreviewer } from '../Previewer'
 import { FileInfo, ResourceRequest } from 'sfc-common/model'

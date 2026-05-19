@@ -60,6 +60,11 @@ const commonConfig: UserConfigExport = {
         target: 'http://localhost:4001',
         changeOrigin: true,
         ws: true
+      },
+      '/mcpOAuthCallback': {
+        target: 'http://localhost:4002',
+        changeOrigin: true,
+        ws: true
       }
     }
   },
