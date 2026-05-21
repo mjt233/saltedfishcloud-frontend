@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="config-describe tip">
-        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.title" />
+        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.describe" />
         <v-switch
           v-if="node.inputType == 'switch'"
           color="primary"
