@@ -175,6 +175,11 @@ export interface ThirdPartyApp extends AuditModel {
    * 是否已启用
    */
   isEnabled: boolean
+
+  /**
+   * 是否允许签发无限期凭证（ApiTicket）
+   */
+  allowPermanentApiTicket?: boolean
 }
 
 /**

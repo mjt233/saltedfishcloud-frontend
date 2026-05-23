@@ -19,17 +19,22 @@
         </div>
       </v-col>
       <v-col>
-        <text-input v-model="formData.name" label="应用名称" :rules="validators.name" />
+        <v-text-field v-model="formData.name" label="应用名称" :rules="validators.name" />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <text-input v-model="formData.callbackUrl" label="回调URL" :rules="validators.callbackUrl" />
+        <v-text-field
+          v-model="formData.callbackUrl"
+          label="回调URL"
+          :rules="validators.callbackUrl"
+          placeholder="允许为空，为空时允许转跳到指定任意回调"
+        />
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <text-input v-model="formData.email" label="联系邮箱" :rules="validators.email" />
+        <v-text-field v-model="formData.email" label="联系邮箱" :rules="validators.email" />
       </v-col>
     </v-row>
     <v-row>
@@ -48,7 +53,8 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-checkbox-btn v-model="formData.isEnabled" label="启用该应用" color="primary" />
+        <v-switch v-model="formData.isEnabled" label="启用该应用" color="primary" />
+        <v-switch v-model="formData.allowPermanentApiTicket" label="允许签发无限期凭证（ApiTicket）" color="primary" />
       </v-col>
     </v-row>
   </base-form>
@@ -81,8 +87,7 @@ const formInst = defineForm({
       Validators.notNull('应用名称不能为空')
     ],
     callbackUrl: [
-      Validators.notNull('回调URL不能为空'),
-      Validators.isUrl(),
+      (val: FormFieldType) => !val || Validators.isUrl()(val),
       Validators.maxLen(null, 1024)
     ],
     email: [
