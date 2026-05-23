@@ -88,7 +88,7 @@
 import API from 'sfc-common/api'
 import BaseForm from 'sfc-common/components/common/BaseForm.vue'
 import { FormRow, FormCol, FormSelect, ConfigNodeGroup, ConfigNode, TextInput } from 'sfc-common/components'
-import { ConfigNodeModel, DiskFileSystemDescribe, IdType, MountPoint, NameValueType, SelectOption } from 'sfc-common/model'
+import { ConfigNodeModel, StorageMetadata, IdType, MountPoint, NameValueType, SelectOption } from 'sfc-common/model'
 import { CommonForm, defineForm } from 'sfc-common/utils/FormUtils'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 const formRef = ref() as Ref<CommonForm>
@@ -161,7 +161,7 @@ const parseParams = async(mp: MountPoint) => {
   curSelectPath.value = (await SfcUtils.request(API.resource.parseNodeId(formData.uid, formData.nid))).data.data
 }
 
-function initMountParamDefaultValue(desc: DiskFileSystemDescribe) {
+function initMountParamDefaultValue(desc: StorageMetadata) {
   if (formData.protocol != desc.protocol) {
     // 切换协议清空所有挂载参数
     mountParam.value = reactive({})
@@ -218,7 +218,7 @@ const formInst = defineForm({
      */
     async loadSystem() {
       try {
-        const res = await SfcUtils.request(API.mountPoint.listAvailableFileSystem())
+        const res = await SfcUtils.request(API.mountPoint.listAvailableStorage())
         res.data.data.forEach(describe => {
           selectOptions.value.push({
             value: describe.protocol,

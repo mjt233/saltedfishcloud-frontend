@@ -3,7 +3,7 @@ import { ConfigNodeModel, IdType } from './Common'
 /**
  * 文件系统参数描述
  */
-export interface DiskFileSystemDescribe {
+export interface StorageMetadata {
   name: string
   protocol: string
   describe: string
