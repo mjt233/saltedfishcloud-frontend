@@ -151,11 +151,6 @@ const otherGroup: MenuGroup<FileListContext, FileListMenuItem> =
           return false
         }
 
-        // 跨盘剪切不显示
-        if (clipBoard.type == 'cut' && clipBoard.otherAttr?.uid !== ctx.uid) {
-          return false
-        }
-
         // 其他情况显示
         return true
       },
