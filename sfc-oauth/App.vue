@@ -203,8 +203,8 @@ const sysFeature = ref() as Ref<SystemFeature | null>
 const curUrl = new URL(location.href)
 const errorMsg = ref('')
 const requireScope = curUrl.searchParams.get('scope')
-const requireAppId = curUrl.searchParams.get('appId')
-const requireRedirect = curUrl.searchParams.get('redirectUrl') || undefined
+const requireAppId = curUrl.searchParams.get('appId') || curUrl.searchParams.get('client_id')
+const requireRedirect = curUrl.searchParams.get('redirectUrl') || curUrl.searchParams.get('redirect_uri') || undefined
 // 需要新授权的权限
 const requireNewScope = ref([]) as Ref<string[]>
 const requireAuthorityList = ref([]) as Ref<AuthorityItem[]>
