@@ -26,7 +26,10 @@
         <template v-else>
           <!-- 登录视图 -->
           <LoginView v-if="isNeedLogin" @login-success="onLoginSuccess" />
-          <!-- 授权视图 -->
+          <!-- 设备授权：有完整参数（user_code + scope + client_id），直接进入权限确认视图 -->
+          <!-- 设备授权：缺少完整参数，显示用户码输入视图 -->
+          <UserCodeView v-else-if="isDeviceFlow && !isDeviceAuthConfirm" @confirm="onUserCodeConfirm" />
+          <!-- 授权确认视图（普通 OAuth 授权 或 设备授权确认） -->
           <AuthorizeView
             v-else-if="curUser"
             :cur-user="curUser"
@@ -56,6 +59,16 @@ const errorMsg = ref('')
 const curUrl = new URL(location.href)
 const requireScope = curUrl.searchParams.get('scope')
 const requireAppId = curUrl.searchParams.get('appId') || curUrl.searchParams.get('client_id')
+/** 当前 OAuth 授权类型，user_code 表示设备授权流程 */
+const grantType = curUrl.searchParams.get('grant_type')
+/** 设备授权流程中 URL 携带的用户码 */
+const deviceUserCode = curUrl.searchParams.get('user_code')
+/** 是否处于设备授权流程 */
+const isDeviceFlow = ref(false)
+/** 是否处于设备授权的权限确认阶段（URL 同时携带 user_code、scope、client_id） */
+const isDeviceAuthConfirm = computed(() =>
+  isDeviceFlow.value && !!deviceUserCode && !!requireScope && !!requireAppId
+)
 
 const enabledBg = computed(() => sysFeature.value?.bgMain?.enabled)
 const bgUrl = computed(() => `url("${sysFeature.value?.bgMain?.url || ''}")`)
@@ -74,20 +87,37 @@ const actions = createAutoLoadingProxy({
 }, lm)
 
 /**
- * 登录成功后的处理：重定向回 /oauth2/authorize，由 Spring AS 接管后续流程
+ * 登录成功后的处理：
+ * - 设备授权流程：刷新当前页面，使设备授权流程重新进入已登录状态
+ * - 普通授权流程：重定向回 /oauth2/authorize，由 Spring AS 接管后续流程
  */
 function onLoginSuccess() {
-  location.replace('/oauth2/authorize?' + curUrl.searchParams.toString())
+  if (isDeviceFlow.value) {
+    location.reload()
+  } else {
+    location.replace('/oauth2/authorize?' + curUrl.searchParams.toString())
+  }
 }
 
 /**
- * 用户确认授权后的处理：构造隐藏表单并 POST 到 /oauth2/authorize
+ * 用户确认输入用户码后的处理：跳转到设备验证页面
+ * @param userCode 用户输入的用户码
+ */
+function onUserCodeConfirm(userCode: string) {
+  location.href = '/oauth2/device_verification?user_code=' + encodeURIComponent(userCode)
+}
+
+/**
+ * 用户确认授权后的处理：构造隐藏表单并 POST 提交
+ * - 设备授权确认阶段：POST 到 /oauth2/device_verification，额外携带 user_code
+ * - 普通 OAuth 授权：POST 到 /oauth2/authorize
  * @param data 授权表单数据，包含 clientId、state 和 scopes
  */
 function onConfirmAuthorize(data: { clientId: string, state: string, scopes: string[] }) {
   const form = document.createElement('form')
   form.method = 'POST'
-  form.action = '/oauth2/authorize'
+  // 根据流程类型决定提交目标
+  form.action = isDeviceAuthConfirm.value ? '/oauth2/device_verification' : '/oauth2/authorize'
 
   // 辅助方法：添加 hidden input 字段
   const addField = (name: string, value: string) => {
@@ -103,6 +133,10 @@ function onConfirmAuthorize(data: { clientId: string, state: string, scopes: str
   // 逐个添加 scope 字段
   for (const scope of data.scopes) {
     addField('scope', scope)
+  }
+  // 设备授权确认阶段额外携带 user_code
+  if (isDeviceAuthConfirm.value && deviceUserCode) {
+    addField('user_code', deviceUserCode)
   }
 
   document.body.appendChild(form)
@@ -129,7 +163,13 @@ async function init() {
 
 onMounted(async() => {
   try {
-    // 缺少必要 URL 参数时直接展示错误
+    if (grantType === 'user_code') {
+      // 设备授权流程：无需 client_id / scope 校验，直接初始化并判断登录状态
+      isDeviceFlow.value = true
+      await init()
+      return
+    }
+    // 普通授权流程：缺少必要 URL 参数时直接展示错误
     if (!requireAppId || !requireScope) {
       getSysFeature().then(e => sysFeature.value = e)
       errorMsg.value = '参数错误，缺少 client_id 或 scope'
@@ -153,13 +193,15 @@ import LoadingMask from 'sfc-common/components/common/LoadingMask.vue'
 import UserAvatar from './components/UserAvatar.vue'
 import LoginView from './views/LoginView.vue'
 import AuthorizeView from './views/AuthorizeView.vue'
+import UserCodeView from './views/UserCodeView.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
     UserAvatar,
     LoginView,
-    AuthorizeView
+    AuthorizeView,
+    UserCodeView
   }
 })
 </script>
