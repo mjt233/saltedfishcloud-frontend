@@ -80,8 +80,8 @@
               </VForm>
             </VCardText>
           </VCard>
-          <VCard 
-            v-else-if="app"
+          <VCard
+            v-else-if="state"
             class="mt-12"
             width="calc(100% - 32px)"
             max-width="640px"
@@ -178,22 +178,30 @@ const actions = createAutoLoadingProxy({
   },
 
   /**
-   * 确认授权，并转跳回第三方OAuth应用
+   * 确认授权，通过表单 POST 到 /oauth2/authorize
    */
   async confirmAuthorize() {
-    try {
-      const res = await request(oauth.authorize(requireAppId as string, requireNewScope.value.join(' '), requireRedirect))
-      // 授权已确认，开始转跳并永久开启遮罩直到离开该页面
-      lm.beginLoading()
-      setTimeout(() => {
-        location.replace(res.data.data.redirectUrl)
-      }, 100)
-    } catch (err) {
-      addMsg('授权失败: ' + err, 'error')
-      lm.closeLoading()
-      console.error(err)
-      
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = '/oauth2/authorize'
+
+    const addField = (name: string, value: string) => {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = name
+      input.value = value
+      form.appendChild(input)
     }
+
+    addField('client_id', requireAppId as string)
+    addField('state', state)
+    for (const scope of requireNewScope.value) {
+      addField('scope', scope)
+    }
+
+    document.body.appendChild(form)
+    lm.beginLoading()
+    form.submit()
   }
 }, lm)
 
@@ -204,7 +212,7 @@ const curUrl = new URL(location.href)
 const errorMsg = ref('')
 const requireScope = curUrl.searchParams.get('scope')
 const requireAppId = curUrl.searchParams.get('appId') || curUrl.searchParams.get('client_id')
-const requireRedirect = curUrl.searchParams.get('redirectUrl') || curUrl.searchParams.get('redirect_uri') || undefined
+const state = curUrl.searchParams.get('state') || ''
 // 需要新授权的权限
 const requireNewScope = ref([]) as Ref<string[]>
 const requireAuthorityList = ref([]) as Ref<AuthorityItem[]>
@@ -227,8 +235,8 @@ async function doLogin() {
   }
   try {
     await actions.login()
-    // location.reload()
-    init()
+    // 登录成功后重定向回 /oauth2/authorize，由 Spring AS 接管后续流程
+    location.replace('/oauth2/authorize?' + curUrl.searchParams.toString())
   } catch (err) {
     if (err instanceof AxiosError) {
       const msg = err.response?.data?.msg
@@ -249,29 +257,30 @@ async function doLogin() {
 }
 
 async function init() {
-
   // 初始化，获取系统特性参数和判断当前用户是否已登录
   isNeedLogin.value = false
   await Promise.all([
     isMounted.value ? Promise.resolve() : getSysFeature().then(e => sysFeature.value = e),
     actions.getCurUser()
   ])
+
+  // 未登录 → 登录模式
   if (!curUser.value) {
     isNeedLogin.value = true
     return
   }
 
-  // 获取当前用户的授权信息
+  // 已登录 → 授权模式，获取应用信息并展示权限列表
+  // state 由 Spring AS 在 consent 重定向时生成，此时必然存在
   actions.getUserAuthentication()
     .then(() => {
       if (requireNewScope.value.length == 0) {
-        // 无需新授权，直接确认授权
+        // 无需新权限，直接确认
         actions.confirmAuthorize()
       } else {
-        // 拉取授权明细列表，用于展示和让用户确认
+        // 展示权限列表
         actions.getAuthorityList()
           .then(() => {
-          // 筛选出无效的权限
             const availableAuthorityCodeSet = new Set(requireAuthorityList.value.map(e => e.code))
             const invalidAuthorityList = requireNewScope.value.filter(e => !availableAuthorityCodeSet.has(e))
             if (invalidAuthorityList.length > 0) {
@@ -285,11 +294,11 @@ async function init() {
     })
 }
 
-onMounted(async() => { 
+onMounted(async() => {
   try {
     if (!requireAppId || !requireScope) {
       getSysFeature().then(e => sysFeature.value = e)
-      errorMsg.value = '参数错误，缺少appId或scope'
+      errorMsg.value = '参数错误，缺少 client_id 或 scope'
       return
     }
     await init()
