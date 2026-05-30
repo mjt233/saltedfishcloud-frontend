@@ -26,6 +26,8 @@
         <template v-else>
           <!-- 登录视图 -->
           <LoginView v-if="isNeedLogin" @login-success="onLoginSuccess" />
+          <!-- 设备授权成功视图 -->
+          <DeviceSuccessView v-else-if="isDeviceSuccess" />
           <!-- 设备授权：有完整参数（user_code + scope + client_id），直接进入权限确认视图 -->
           <!-- 设备授权：缺少完整参数，显示用户码输入视图 -->
           <UserCodeView v-else-if="isDeviceFlow && !isDeviceAuthConfirm" @confirm="onUserCodeConfirm" />
@@ -65,6 +67,8 @@ const grantType = curUrl.searchParams.get('grant_type')
 const deviceUserCode = curUrl.searchParams.get('user_code')
 /** 是否处于设备授权流程 */
 const isDeviceFlow = ref(false)
+/** 设备授权是否已成功（success=true） */
+const isDeviceSuccess = ref(false)
 /** 是否处于设备授权的权限确认阶段（URL 同时携带 user_code、scope、client_id） */
 const isDeviceAuthConfirm = computed(() =>
   isDeviceFlow.value && !!deviceUserCode && !!requireScope && !!requireAppId
@@ -166,6 +170,12 @@ onMounted(async() => {
     if (grantType === 'user_code') {
       // 设备授权流程：无需 client_id / scope 校验，直接初始化并判断登录状态
       isDeviceFlow.value = true
+      // success=true 表示设备授权已完成，直接展示成功视图
+      if (curUrl.searchParams.get('success') === 'true') {
+        isDeviceSuccess.value = true
+        getSysFeature().then(e => sysFeature.value = e)
+        return
+      }
       await init()
       return
     }
@@ -194,6 +204,7 @@ import UserAvatar from './components/UserAvatar.vue'
 import LoginView from './views/LoginView.vue'
 import AuthorizeView from './views/AuthorizeView.vue'
 import UserCodeView from './views/UserCodeView.vue'
+import DeviceSuccessView from './views/DeviceSuccessView.vue'
 
 export default defineComponent({
   name: 'App',
@@ -201,7 +212,8 @@ export default defineComponent({
     UserAvatar,
     LoginView,
     AuthorizeView,
-    UserCodeView
+    UserCodeView,
+    DeviceSuccessView
   }
 })
 </script>
