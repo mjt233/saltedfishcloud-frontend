@@ -19,6 +19,13 @@
     </VCardTitle>
 
     <VCardText>
+      <VAlert
+        v-if="errorMsg"
+        type="error"
+        variant="tonal"
+        class="mb-4"
+        :text="errorMsg"
+      />
       <VForm ref="formRef">
         <VContainer>
           <VTextField
@@ -40,8 +47,19 @@
 </template>
 
 <script setup lang="ts">
+/** 错误代码与用户提示的映射 */
+const errorMap: Record<string, string> = {
+  invalid_user_code: '用户码无效，请检查后重试'
+}
+
+const curUrl = new URL(location.href)
+const errorCode = curUrl.searchParams.get('error')
+
+/** 错误提示信息，根据 URL 中的 error 参数自动映射，无匹配时直接展示原始错误码 */
+const errorMsg = ref(errorCode ? (errorMap[errorCode] || `错误：${errorCode}`) : '')
+
 /** 用户码输入值，若 URL 参数中携带 user_code 则自动填写 */
-const userCode = ref(new URL(location.href).searchParams.get('user_code') || '')
+const userCode = ref(curUrl.searchParams.get('user_code') || '')
 
 /** 表单引用，用于触发校验 */
 const formRef = ref()
