@@ -6,7 +6,7 @@
       <UserAvatar :uid="curUser?.id || 0" :transition="false" />
       <span class="mr-3" style="font-size: 14px;">{{ curUser?.user || '[未登录]' }}</span>
     </VAppBar>
-    <LoadingMask v-if="!isMounted" :loading="isLoading" :type="'circular'" />
+    <LoadingMask :loading="isLoading" :type="'circular'" />
     <VMain class="oauth-main" :class="{'bg-main-view': enabledBg, 'enabled-glass': enabledGlass, 'loaded': isMounted}">
       <div class="d-flex justify-center">
         <template v-if="errorMsg">
@@ -145,7 +145,9 @@ function onConfirmAuthorize(data: { clientId: string, state: string, scopes: str
 
   document.body.appendChild(form)
   lm.beginLoading()
-  form.submit()
+  setTimeout(() => {
+    form.submit()
+  }, 100)
 }
 
 /**
@@ -167,6 +169,7 @@ async function init() {
 
 onMounted(async() => {
   try {
+    lm.beginLoading()
     if (grantType === 'user_code') {
       // 设备授权流程：无需 client_id / scope 校验，直接初始化并判断登录状态
       isDeviceFlow.value = true
@@ -187,6 +190,7 @@ onMounted(async() => {
     }
     await init()
   } finally {
+    lm.closeLoading()
     isMounted.value = true
   }
 })
@@ -205,6 +209,7 @@ import LoginView from './views/LoginView.vue'
 import AuthorizeView from './views/AuthorizeView.vue'
 import UserCodeView from './views/UserCodeView.vue'
 import DeviceSuccessView from './views/DeviceSuccessView.vue'
+import { log } from 'console'
 
 export default defineComponent({
   name: 'App',

@@ -35,12 +35,16 @@
 
       <!-- 展示请求的权限列表 -->
       <VSheet elevation="2">
-        <VList v-if="requireAuthorityList.length" class="mt-6 mb-6">
+        <VList v-if="allAuthorityList.length" class="mt-6 mb-6">
           <AuthorityListItem
-            v-for="item in requireAuthorityList"
+            v-for="item in allAuthorityList"
             :key="item.code"
             class="authority-list-item"
             :item="item"
+            show-checkbox
+            :checked="existScopeSet.has(item.code) || selectedNewScopes.includes(item.code)"
+            :disabled="existScopeSet.has(item.code)"
+            @update:checked="toggleScope(item.code, $event)"
           />
         </VList>
       </VSheet>
@@ -80,10 +84,14 @@ const isLoading = lm.getLoadingRef()
 
 /** 第三方应用信息 */
 const app = ref<ThirdPartyApp>()
-/** 本次需要新授权的权限 scope 列表 */
-const requireNewScope = ref([]) as Ref<string[]>
-/** 本次需要新授权的权限详情列表 */
-const requireAuthorityList = ref([]) as Ref<AuthorityItem[]>
+/** 本次请求的所有权限 scope 列表（含已授权+新请求） */
+const allRequestScope = ref<string[]>([])
+/** 已授权的权限 scope 集合 */
+const existScopeSet = ref(new Set<string>())
+/** 所有请求权限的详情列表（用于展示） */
+const allAuthorityList = ref([]) as Ref<AuthorityItem[]>
+/** 用户本次勾选的新授权 scope 列表 */
+const selectedNewScopes = ref<string[]>([])
 
 /** 当前页面 URL 参数 */
 const curUrl = new URL(location.href)
@@ -99,51 +107,75 @@ const actions = createAutoLoadingProxy({
   async getUserAuthentication() {
     const vo = (await request(oauth.getUserAuthorization(requireAppId as string))).data.data
     app.value = vo.thirdPartyApp
-    // 提取已有授权中的 scope，过滤出本次新增的 scope
-    const existAuthorities = new Set(vo.authorization?.scope?.split(' ').filter(e => e) || [])
-    requireNewScope.value = requireScope?.split(' ').filter(e => !existAuthorities.has(e)) || []
+    // 提取已有授权中的 scope
+    existScopeSet.value = new Set(vo.authorization?.scope?.split(' ').filter(e => e) || [])
+    // 所有请求的 scope
+    allRequestScope.value = requireScope?.split(' ').filter(e => e) || []
+    // 本次新请求的权限默认勾选
+    selectedNewScopes.value = allRequestScope.value.filter(e => !existScopeSet.value.has(e))
   },
 
   /**
-   * 根据 requireNewScope 获取详细权限信息列表
+   * 根据所有请求的 scope 获取详细权限信息列表，并将已授权的排到最后
    */
   async getAuthorityList() {
-    requireAuthorityList.value = await getAuthorityList(requireNewScope.value.join(' '))
+    const list = await getAuthorityList(allRequestScope.value.join(' '))
+    // 已授权的权限排到最后显示
+    allAuthorityList.value = [
+      ...list.filter(e => !existScopeSet.value.has(e.code)),
+      ...list.filter(e => existScopeSet.value.has(e.code))
+    ]
   }
 }, lm)
 
 /**
- * 确认授权，向父组件发送授权表单所需的全部数据
+ * 切换新权限的勾选状态
+ * @param scope 权限 scope 代码
+ * @param checked 是否勾选
+ */
+function toggleScope(scope: string, checked: boolean) {
+  const idx = selectedNewScopes.value.indexOf(scope)
+  if (checked && idx === -1) {
+    selectedNewScopes.value.push(scope)
+  } else if (!checked && idx !== -1) {
+    selectedNewScopes.value.splice(idx, 1)
+  }
+}
+
+/**
+ * 确认授权，向父组件发送用户本次选择的新授权 scope 列表
  */
 function confirmAuthorize() {
   emit('confirm-authorize', {
     clientId: requireAppId as string,
     state,
-    scopes: requireNewScope.value
+    scopes: selectedNewScopes.value
   })
 }
 
 onMounted(async() => {
-  actions.getUserAuthentication()
-    .then(() => {
-      if (requireNewScope.value.length == 0) {
-        // 无需新权限，直接确认授权
-        confirmAuthorize()
-      } else {
-        // 展示权限列表，并检查是否存在无效权限
-        actions.getAuthorityList()
-          .then(() => {
-            const availableAuthorityCodeSet = new Set(requireAuthorityList.value.map(e => e.code))
-            const invalidAuthorityList = requireNewScope.value.filter(e => !availableAuthorityCodeSet.has(e))
-            if (invalidAuthorityList.length > 0) {
-              emit('error', `存在无效的请求权限：${invalidAuthorityList.join('、')}`)
-            }
-          })
+  try {
+    // 获取当前用户的授权信息和请求的应用信息
+    await actions.getUserAuthentication()
+    // 获取所有请求权限的详情
+    await actions.getAuthorityList()
+
+    // 计算本次需要新授权的 scope（排除已授权的）
+    const newScopes = allRequestScope.value.filter(e => !existScopeSet.value.has(e))
+    if (newScopes.length == 0) {
+      // 无需新权限，直接确认授权
+      confirmAuthorize()
+    } else {
+      // 检查是否存在无效权限
+      const availableAuthorityCodeSet = new Set(allAuthorityList.value.map(e => e.code))
+      const invalidAuthorityList = allRequestScope.value.filter(e => !availableAuthorityCodeSet.has(e))
+      if (invalidAuthorityList.length > 0) {
+        emit('error', `存在无效的请求权限：${invalidAuthorityList.join('、')}`)
       }
-    })
-    .catch(err => {
-      emit('error', err)
-    })
+    }
+  } catch (err) {
+    emit('error', String(err))
+  }
 })
 </script>
 
