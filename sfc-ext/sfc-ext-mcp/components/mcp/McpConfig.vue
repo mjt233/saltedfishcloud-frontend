@@ -1,6 +1,6 @@
 <template>
   <VCard class="mcp-config" variant="text">
-    <VCardText>
+    <VCardText class="pa-1">
       <VRow>
         <VCol cols="12">
           <div class="text-h6 d-flex align-center mb-2">
@@ -33,7 +33,7 @@
             variant="tonal"
             class="mb-4"
           >
-            当前展示的是占位符 API Key（&lt;YOUR_MCP_API_KEY&gt;）示例配置。生成新的 MCP API Key 后，说明会自动替换为你刚生成的 Key 原文。
+            当前展示的是占位符 &lt;YOUR_MCP_API_KEY&gt; 示例配置。生成新的 MCP API Key 后，说明会自动替换。
           </VAlert>
           <VExpansionPanels
             v-model="expandedPanels"

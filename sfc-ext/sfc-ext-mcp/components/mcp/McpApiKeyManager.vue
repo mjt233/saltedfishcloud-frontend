@@ -267,9 +267,9 @@ watch(
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
-import { Validators } from 'sfc-common/core'
+import { Validators } from 'sfc-common'
 import { type IdType } from 'sfc-common/model'
-import { StringFormatter } from 'sfc-common/utils'
+import { StringFormatter } from 'sfc-common'
 import { McpApiKeyApi } from '../../api'
 import { type McpApiKeyVo } from '../../model'
 import McpApiKeyAuthorityNotice from './McpApiKeyAuthorityNotice.vue'
