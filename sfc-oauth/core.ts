@@ -99,6 +99,12 @@ export function useMessage() {
 
 const buildinAuthorityList = [
   {
+    name: 'OpenID 身份标识',
+    code: 'openid',
+    icon: 'mdi-identifier',
+    describe: '您的唯一用户标识（sub）'
+  },
+  {
     name: '用户基本信息',
     code: 'profile',
     icon: 'mdi-account-circle',
