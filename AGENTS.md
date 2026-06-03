@@ -12,6 +12,7 @@
 - 需要通过对话框打开组件时，使用`SfcUtils.openComponentDialog`
 - 所有类/对象、类/对象的字段、方法/函数、interface、type、Vue组件的props和watch都需要有详细的jsdoc注释
 - 生成的代码中，每个关键步骤需要有行内注释，新生成的函数需要有jsdoc注释
+- 涉及异步的函数优先使用async / await
 
 
 ## 工作流与验证机制
