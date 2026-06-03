@@ -21,7 +21,9 @@
     "build-ext-only-office": "vite build --config build/extension/only-office.ts",
     "build-ext-rtc": "vite build --config build/extension/rtc.ts",
     "build-ext-webdav": "vite build --config build/extension/webdav.ts",
-    "build-ext-mcp": "vite build --config build/extension/mcp.ts && cd sfc-ext/sfc-ext-mcp && vite build"
+    "build-ext-mcp": "vite build --config build/extension/mcp.ts",
+    "copy-to-backend": "node --env-file .env scripts/copy-to-backend.js",
+    "build-and-copy-to-backend": "vite build && cd sfc-oauth && vite build && cd .. && node --env-file .env scripts/copy-to-backend.js"
   },
   "dependencies": {
     "@vueuse/core": "^14.2.1",

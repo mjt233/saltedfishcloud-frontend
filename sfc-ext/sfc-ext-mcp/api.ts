@@ -1,4 +1,4 @@
-import { type CommonRequest } from 'sfc-common/model'
+import { type CommonRequest, type IdType } from 'sfc-common/model'
 
 export const McpOauthApi = {
   prefix: 'mcp/oauth',
@@ -30,6 +30,56 @@ export const McpOauthApi = {
   getAppId(): CommonRequest<string> {
     return {
       url: `${this.prefix}/getAppId`
+    }
+  }
+}
+
+export const McpApiKeyApi = {
+  prefix: 'mcp/apiKey',
+
+  /**
+   * 查询当前登录用户的 MCP API Key 列表。
+   */
+  list(): CommonRequest {
+    return {
+      url: `${this.prefix}/list`
+    }
+  },
+
+  /**
+   * 生成新的 MCP API Key 原文。
+   * @param name API Key 名称
+   */
+  generate(name: string): CommonRequest {
+    return {
+      url: `${this.prefix}/generate`,
+      method: 'post',
+      params: { name }
+    }
+  },
+
+  /**
+   * 删除指定的 MCP API Key。
+   * @param id API Key 主键ID
+   */
+  delete(id: IdType): CommonRequest {
+    return {
+      url: `${this.prefix}/delete`,
+      method: 'post',
+      params: { id }
+    }
+  },
+
+  /**
+   * 重命名指定的 MCP API Key。
+   * @param id API Key 主键ID
+   * @param name 新名称
+   */
+  rename(id: IdType, name: string): CommonRequest {
+    return {
+      url: `${this.prefix}/rename`,
+      method: 'post',
+      params: { id, name }
     }
   }
 }
