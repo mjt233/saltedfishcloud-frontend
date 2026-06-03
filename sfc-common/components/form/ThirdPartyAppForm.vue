@@ -44,7 +44,6 @@
           />
     
           <v-switch v-model="formData.isEnabled" label="启用该应用" color="primary" />
-          <v-switch v-model="formData.allowPermanentApiTicket" label="允许签发无限期凭证（ApiTicket）" color="primary" />
         </v-expansion-panel-text>
       </v-expansion-panel>
       <v-expansion-panel>

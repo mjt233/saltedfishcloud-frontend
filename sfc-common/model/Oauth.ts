@@ -177,11 +177,6 @@ export interface ThirdPartyApp extends AuditModel {
   isEnabled: boolean
 
   /**
-   * 是否允许签发无限期凭证（ApiTicket）
-   */
-  allowPermanentApiTicket?: boolean
-
-  /**
    * 启用 OIDC 协议支持
    */
   oidcEnabled: boolean
