@@ -2,10 +2,12 @@
  * PXE 启动插件数据模型
  */
 
+import { AuditModel } from 'sfc-common/model'
+
 /**
  * 启动项类型
  */
-export type BootItemType = 'ISO' | 'DIRECTORY' | 'KERNEL_INITRD'
+export type BootItemType = 'ISO' | 'KERNEL_INITRD' | 'CUSTOM_IPXE_SCRIPT'
 
 /**
  * ISO 启动方式
@@ -15,9 +17,7 @@ export type IsoBootMethod = 'MEMDISK' | 'KERNEL' | 'WIMBOOT' | 'SANBOOT'
 /**
  * 启动项
  */
-export interface BootItem {
-  id: number
-  uid: number
+export interface BootItem extends AuditModel {
   displayName: string
   itemKey: string
   type: BootItemType
@@ -27,10 +27,9 @@ export interface BootItem {
   kernelParams?: string
   enabled: boolean
   sortOrder: number
+  customIpxeScript?: string
   description?: string
   isoBootMethod?: IsoBootMethod
-  createAt?: string
-  updateAt?: string
 }
 
 /**
@@ -47,6 +46,7 @@ export interface BootItemForm {
   enabled: boolean
   sortOrder: number
   description: string
+  customIpxeScript: string
   isoBootMethod: IsoBootMethod | ''
 }
 
@@ -90,6 +90,7 @@ export function createDefaultBootItemForm(): BootItemForm {
     enabled: true,
     sortOrder: 0,
     description: '',
+    customIpxeScript: '',
     isoBootMethod: 'KERNEL'
   }
 }

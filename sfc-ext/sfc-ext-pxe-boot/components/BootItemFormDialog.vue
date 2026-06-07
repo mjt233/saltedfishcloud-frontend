@@ -1,90 +1,113 @@
 <template>
   <VDialog
     :model-value="modelValue"
-    max-width="600px"
+    max-width="960px"
     @update:model-value="emit('update:modelValue', $event)"
   >
     <VCard>
       <VCardTitle>{{ editingItem ? '编辑启动项' : '添加启动项' }}</VCardTitle>
       <VCardText>
         <VForm ref="formRef">
-          <VTextField
-            v-model="form.displayName"
-            label="启动项名称"
-            :rules="[v => !!v || '请输入名称']"
-            required
-          />
-          <VTextField
-            v-model="form.description"
-            label="启动项描述"
-            rows="2"
-          />
-          <VTextField
-            v-model="form.itemKey"
-            label="唯一标识"
-            :rules="[v => !!v || '请输入标识']"
-            hint="用于 iPXE 脚本的标签，如 ubuntu-install"
-            persistent-hint
-          />
-          <VSelect
-            v-model="form.type"
-            label="启动类型"
-            :items="typeOptions"
-            item-title="label"
-            item-value="value"
-          />
-          <PathSelector
-            v-model="form.resourcePath"
-            select-file
-            editable
-            uid="0"
-            label="资源路径"
-            :rules="[v => !!v || '请输入路径']"
-            hint="网盘中的文件或目录路径"
-            persistent-hint
-          />
+          <VCard title="基础配置" class="mb-4">
+            <VCardText>
+              <VTextField
+                v-model="form.displayName"
+                label="启动项名称"
+                :rules="[v => !!v || '请输入名称']"
+                required
+              />
+              <VTextField
+                v-model="form.description"
+                label="iPXE 启动项菜单标题"
+                rows="2"
+              />
+              <VTextField
+                v-model="form.itemKey"
+                label="唯一标识(用于 iPXE 脚本的标签，如 ubuntu-install)"
+                :rules="[v => !!v || '请输入标识']"
+                persistent-hint
+              />
+              <PathSelector
+                v-model="form.resourcePath"
+                :select-file="form.type == 'ISO'"
+                editable
+                uid="0"
+                :label="form.type == 'ISO' ? '选择 ISO 文件路径' : '选择资源所在目录'"
+                :rules="[v => !!v || '请输入或选择路径']"
+                persistent-hint
+              />
+              <VSelect
+                v-model="form.type"
+                label="加载类型"
+                :items="typeOptions"
+                item-title="label"
+                item-value="value"
+              />
+              <VTextField
+                v-model.number="form.sortOrder"
+                label="排序"
+                type="number"
+              />
+              <VSwitch
+                v-model="form.enabled"
+                label="启用"
+              />
+            </VCardText>
+          </VCard>
 
           <!-- KERNEL_INITRD 特有字段 -->
-          <template v-if="form.type === 'KERNEL_INITRD'">
-            <VTextField
-              v-model="form.kernelFilename"
-              label="内核文件名"
-              hint="如 vmlinuz、bzImage"
-              persistent-hint
-            />
-            <VTextField
-              v-model="form.initrdFilename"
-              label="initrd 文件名"
-              hint="如 initrd.img、initramfs.img"
-              persistent-hint
-            />
-          </template>
+          <VCard v-if="form.type === 'KERNEL_INITRD'" title="kernel 与 initrd">
+            <VCardText>
+              
+              <VTextField
+                v-model="form.kernelFilename"
+                label="内核文件名(e.g. vmlinuz)"
+              />
+              <VTextField
+                v-model="form.initrdFilename"
+                label="initrd 文件名(e.g. initrd.img)"
+              />
+            </VCardText>
+          </VCard>
 
           <!-- ISO 特有字段 -->
-          <VSelect
-            v-if="form.type === 'ISO'"
-            v-model="form.isoBootMethod"
-            label="ISO 启动方式"
-            :items="isoBootMethodOptions"
-            item-title="label"
-            item-value="value"
-          />
+          <VCard v-if="form.type === 'ISO'" title="ISO 启动配置">
+            <VCardText>
+              <VSelect
+                v-if="form.type === 'ISO'"
+                v-model="form.isoBootMethod"
+                label="ISO 启动方式"
+                :items="isoBootMethodOptions"
+                item-title="label"
+                item-value="value"
+              />
+              <VTextField
+                v-if="form.isoBootMethod != 'SANBOOT'"
+                v-model="form.kernelParams"
+                label="内核参数"
+                hint="跟随在 iPXE 脚本的 kernel 后面"
+                persistent-hint
+              />
+            </VCardText>
+          </VCard>
 
-          <VTextField
-            v-model="form.kernelParams"
-            label="内核参数"
-            hint="额外的内核启动参数"
-            persistent-hint
-          />
-          <VTextField
-            v-model.number="form.sortOrder"
-            label="排序"
-            type="number"
-          />
-          <VSwitch
-            v-model="form.enabled"
-            label="启用"
-          />
+          <!-- 自定义字段 -->
+          <VCard v-if="form.type === 'CUSTOM_IPXE_SCRIPT'" title="自定义 iPXE 脚本">
+            <VCardText>
+              <VAlert variant="text">
+                脚本将嵌入在 iPXE 脚本的标签中
+                
+                <pre style="line-height: 14px;"><code class="ipxe-script">
+#!ipxe
+set base_url &lt;服务器地址&gt;
+:{{ form.itemKey }}
+set res_url &lt;启动项资源的http访问路径，支持iso内路径提取&gt;
+&lt;你的自定义脚本&gt;
+</code></pre>
+              </VAlert>
+              <CodeEditor v-model="form.customIpxeScript" hide-line-number language="text" />
+            </VCardText>
+          </VCard>
         </VForm>
       </VCardText>
       <VCardActions>
@@ -138,7 +161,7 @@ const form = ref<BootItemForm>(createDefaultBootItemForm())
 const typeOptions = [
   { label: '内核 + initrd', value: 'KERNEL_INITRD' },
   { label: 'ISO 镜像', value: 'ISO' },
-  { label: '目录', value: 'DIRECTORY' }
+  { label: '自定义 iPXE 脚本', value: 'CUSTOM_IPXE_SCRIPT' }
 ]
 
 /** ISO 启动方式选项列表 */
@@ -156,6 +179,7 @@ watch(
     if (item) {
       // 编辑模式：将现有数据映射到表单
       form.value = {
+        customIpxeScript: item.customIpxeScript || '',
         displayName: item.displayName,
         itemKey: item.itemKey,
         type: item.type,
@@ -183,6 +207,7 @@ const saveItem = async() => {
   try {
     if (props.editingItem) {
       // 更新已有启动项
+      console.log(form.value)
       await SfcUtils.request(PxeBootApi.updateItem(props.editingItem.id, form.value))
       SfcUtils.snackbar('更新成功')
     } else {
@@ -199,3 +224,12 @@ const saveItem = async() => {
   }
 }
 </script>
+
+
+<style>
+.ipxe-script {
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 12px !important;
+  line-height: 12px;
+}
+</style>
