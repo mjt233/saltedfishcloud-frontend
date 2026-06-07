@@ -22,6 +22,7 @@
     "build-ext-rtc": "vite build --config build/extension/rtc.ts",
     "build-ext-webdav": "vite build --config build/extension/webdav.ts",
     "build-ext-mcp": "vite build --config build/extension/mcp.ts",
+    "build-ext-pxe-boot": "vite build --config build/extension/pxe-boot.ts",
     "copy-to-backend": "node --env-file .env scripts/copy-to-backend.js",
     "build-and-copy-to-backend": "vite build && cd sfc-oauth && vite build && cd .. && node --env-file .env scripts/copy-to-backend.js"
   },
