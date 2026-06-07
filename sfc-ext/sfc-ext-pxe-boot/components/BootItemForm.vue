@@ -74,7 +74,7 @@
           item-value="value"
         />
         <VTextField
-          v-if="formData.isoBootMethod != 'SANBOOT' && formData.isoBootMethod != 'CUSTOM_IPXE_SCRIPT'"
+          v-if="!['SANBOOT', 'CUSTOM_IPXE_SCRIPT', 'WIMBOOT'].includes(formData.isoBootMethod)"
           v-model="formData.kernelParams"
           label="内核参数"
           hint="跟随在 iPXE 脚本的 kernel 后面"

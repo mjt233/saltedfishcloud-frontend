@@ -89,15 +89,6 @@ export namespace PxeBootApi {
   }
 
   /**
-   * 获取活跃会话
-   */
-  export function getActiveSessions(): CommonRequest<PxeSessionInfo[]> {
-    return {
-      url: `${prefix}/sessions`
-    }
-  }
-
-  /**
    * 预览 iPXE 菜单脚本
    */
   export function previewMenuScript(): CommonRequest<string> {

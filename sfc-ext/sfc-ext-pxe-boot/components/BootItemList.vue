@@ -150,7 +150,7 @@ const getTypeColor = (type: string) => {
   switch (type) {
   case 'KERNEL_INITRD': return 'blue'
   case 'ISO': return 'purple'
-  case 'DIRECTORY': return 'green'
+  case 'CUSTOM_IPXE_SCRIPT': return 'green'
   default: return 'grey'
   }
 }
@@ -163,7 +163,7 @@ const getTypeLabel = (type: string) => {
   switch (type) {
   case 'KERNEL_INITRD': return '内核'
   case 'ISO': return 'ISO'
-  case 'DIRECTORY': return '目录'
+  case 'CUSTOM_IPXE_SCRIPT': return '目录'
   default: return type
   }
 }

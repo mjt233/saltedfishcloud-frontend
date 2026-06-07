@@ -39,14 +39,6 @@
             {{ status?.proxyDhcpRunning ? '运行中' : '未启用' }}
           </VChip>
         </VCol>
-        <VCol cols="3">
-          <div class="text-caption text-grey">
-            活跃会话
-          </div>
-          <div class="text-h6">
-            {{ status?.activeSessions || 0 }}
-          </div>
-        </VCol>
       </VRow>
       <VAlert
         v-if="status?.lastError"
