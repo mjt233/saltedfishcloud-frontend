@@ -17,12 +17,7 @@
       @toggle="toggleItem"
     />
 
-    <!-- 添加/编辑对话框 -->
-    <BootItemFormDialog
-      v-model="dialogVisible"
-      :editing-item="editingItem"
-      @saved="loadItems"
-    />
+
   </div>
 </template>
 
@@ -33,16 +28,12 @@ import { PxeBootApi } from '../api'
 import { BootItem, PxeServiceStatus } from '../model'
 import PxeServiceStatusCard from './PxeServiceStatusCard.vue'
 import BootItemList from './BootItemList.vue'
-import BootItemFormDialog from './BootItemFormDialog.vue'
+import BootItemForm from './BootItemForm.vue'
 
 /** 当前 PXE 服务状态 */
 const status = ref<PxeServiceStatus | null>(null)
 /** 启动项列表 */
 const bootItems = ref<BootItem[]>([])
-/** 添加/编辑对话框是否可见 */
-const dialogVisible = ref(false)
-/** 当前正在编辑的启动项，null 表示新增模式 */
-const editingItem = ref<BootItem | null>(null)
 /** 服务启停按钮的加载状态 */
 const toggling = ref(false)
 
@@ -84,11 +75,48 @@ const toggleService = async() => {
 }
 
 /**
+ * 打开新增/编辑启动项的表单对话框
+ * @param item 待编辑的启动项，null 表示新增模式
+ */
+const openFormDialog = (item: BootItem | null) => {
+  const title = item ? '编辑启动项' : '添加启动项'
+  const inst = SfcUtils.openComponentDialog(BootItemForm, {
+    props: {
+      editingItem: item
+    },
+    title,
+    extraDialogOptions: {
+      maxWidth: '960px'
+    },
+    persistent: true,
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      inst.beginLoading()
+      try {
+        const valid = await form.validate()
+        if (!valid.valid) {
+          SfcUtils.snackbar(valid.errors.map(e => e.errorMessages).join('\n') || '表单验证失败')
+          return false
+        }
+        const subRes = await form.submit()
+        if (subRes.success) {
+          await loadItems()
+          return true
+        } else {
+          return false
+        }
+      } finally {
+        inst.closeLoading()
+      }
+    }
+  })
+}
+
+/**
  * 打开新增启动项对话框
  */
 const showAddDialog = () => {
-  editingItem.value = null
-  dialogVisible.value = true
+  openFormDialog(null)
 }
 
 /**
@@ -96,8 +124,7 @@ const showAddDialog = () => {
  * @param item 待编辑的启动项
  */
 const editItem = (item: BootItem) => {
-  editingItem.value = item
-  dialogVisible.value = true
+  openFormDialog(item)
 }
 
 /**
@@ -106,7 +133,7 @@ const editItem = (item: BootItem) => {
  */
 const deleteItem = async(item: BootItem) => {
   try {
-    await SfcUtils.confirm('确定删除启动项 "' + item.displayName + '"？', '')
+    await SfcUtils.confirm('确定删除启动项 "' + item.displayName + '"？', '删除确认')
     await SfcUtils.request(PxeBootApi.deleteItem(item.id))
     SfcUtils.snackbar('删除成功')
     await loadItems()
