@@ -53,7 +53,12 @@
               />
             </td>
             <td>
-              <VBtn icon size="small" @click="emit('edit', item)">
+              <VBtn
+                icon
+                size="small"
+                class="mr-2"
+                @click="emit('edit', item)"
+              >
                 <VIcon>mdi-pencil</VIcon>
               </VBtn>
               <VBtn
@@ -62,7 +67,9 @@
                 color="error"
                 @click="emit('delete', item)"
               >
-                <VIcon>mdi-delete</VIcon>
+                <VIcon color="white">
+                  mdi-delete
+                </VIcon>
               </VBtn>
             </td>
           </tr>
