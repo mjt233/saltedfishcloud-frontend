@@ -163,6 +163,13 @@ const scriptPreview = computed(() => {
   lines.push(`:${formData.itemKey || '<唯一标识>'}`)
   lines.push('set res_url <启动项资源的http访问路径，支持iso内路径提取>')
 
+  // 内核+initrd 模式，或 ISO 提取内核启动模式，预留 kernel_url 和 initrd_url 变量
+  const needKernelInitrdVars = formData.type === 'KERNEL_INITRD' || (formData.type === 'ISO' && formData.isoBootMethod === 'KERNEL')
+  if (needKernelInitrdVars) {
+    lines.push('set kernel_url <内核文件路径>')
+    lines.push('set initrd_url <initrd文件路径>')
+  }
+
   const isCustomScript = formData.isoBootMethod === 'CUSTOM_IPXE_SCRIPT' || formData.type === 'CUSTOM_IPXE_SCRIPT'
   const isSanboot = formData.type === 'ISO' && formData.isoBootMethod === 'SANBOOT'
 
