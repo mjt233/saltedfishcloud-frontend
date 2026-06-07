@@ -100,126 +100,102 @@
   </VDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 const SfcUtils = window.SfcUtils
 import { BootItem, BootItemForm, createDefaultBootItemForm } from '../model'
 import { PxeBootApi } from '../api'
 const PathSelector = window.Components.PathSelector
-export default defineComponent({
-  name: 'BootItemFormDialog',
-  components: {
-    PathSelector
-  },
-  props: {
-    /**
-     * 对话框是否可见，支持 v-model 绑定
-     */
-    modelValue: {
-      type: Boolean,
-      required: true
-    },
-    /**
-     * 当前编辑的启动项，为 null 时表示新增模式
-     */
-    editingItem: {
-      type: Object as PropType<BootItem | null>,
-      default: null
-    }
-  },
-  emits: {
-    /**
-     * 对话框可见性变更时触发（用于 v-model 双向绑定）
-     * @param val 新的可见状态
-     */
-    'update:modelValue': (val: boolean) => typeof val === 'boolean',
-    /**
-     * 启动项保存成功后触发，父组件可在此刷新列表
-     */
-    saved: () => true
-  },
-  setup(props, { emit }) {
-    /** 保存按钮的加载状态 */
-    const saving = ref(false)
-    /** 表单组件的引用 */
-    const formRef = ref<any>(null)
-    /** 当前表单的数据 */
-    const form = ref<BootItemForm>(createDefaultBootItemForm())
 
-    /** 启动类型选项列表 */
-    const typeOptions = [
-      { label: '内核 + initrd', value: 'KERNEL_INITRD' },
-      { label: 'ISO 镜像', value: 'ISO' },
-      { label: '目录', value: 'DIRECTORY' }
-    ]
+/** BootItemFormDialog 组件的 Props 定义 */
+interface Props {
+  /** 对话框是否可见，支持 v-model 绑定 */
+  modelValue: boolean
+  /** 当前编辑的启动项，为 null 时表示新增模式 */
+  editingItem?: BootItem | null
+}
 
-    /** ISO 启动方式选项列表 */
-    const isoBootMethodOptions = [
-      { label: '提取内核启动 (Linux)', value: 'KERNEL' },
-      { label: 'WIMBOOT (Windows PE)', value: 'WIMBOOT' },
-      { label: 'MEMDISK 整盘加载', value: 'MEMDISK' },
-      { label: 'SANBOOT', value: 'SANBOOT' }
-    ]
+const props = withDefaults(defineProps<Props>(), {
+  editingItem: null
+})
 
-    // 当 editingItem 变化时，将数据填充到表单
-    watch(
-      () => props.editingItem,
-      (item) => {
-        if (item) {
-          // 编辑模式：将现有数据映射到表单
-          form.value = {
-            displayName: item.displayName,
-            itemKey: item.itemKey,
-            type: item.type,
-            resourcePath: item.resourcePath,
-            kernelFilename: item.kernelFilename || 'vmlinuz',
-            initrdFilename: item.initrdFilename || 'initrd.img',
-            kernelParams: item.kernelParams || '',
-            enabled: item.enabled,
-            sortOrder: item.sortOrder,
-            description: item.description || '',
-            isoBootMethod: item.isoBootMethod || 'KERNEL'
-          }
-        } else {
-          // 新增模式：重置为默认值
-          form.value = createDefaultBootItemForm()
-        }
+/** 定义组件可触发的事件 */
+const emit = defineEmits<{
+  /** 对话框可见性变更时触发（用于 v-model 双向绑定） */
+  (e: 'update:modelValue', val: boolean): void
+  /** 启动项保存成功后触发，父组件可在此刷新列表 */
+  (e: 'saved'): void
+}>()
+
+/** 保存按钮的加载状态 */
+const saving = ref(false)
+/** 表单组件的引用 */
+const formRef = ref<any>(null)
+/** 当前表单的数据 */
+const form = ref<BootItemForm>(createDefaultBootItemForm())
+
+/** 启动类型选项列表 */
+const typeOptions = [
+  { label: '内核 + initrd', value: 'KERNEL_INITRD' },
+  { label: 'ISO 镜像', value: 'ISO' },
+  { label: '目录', value: 'DIRECTORY' }
+]
+
+/** ISO 启动方式选项列表 */
+const isoBootMethodOptions = [
+  { label: '提取内核启动 (Linux)', value: 'KERNEL' },
+  { label: 'WIMBOOT (Windows PE)', value: 'WIMBOOT' },
+  { label: 'MEMDISK 整盘加载', value: 'MEMDISK' },
+  { label: 'SANBOOT', value: 'SANBOOT' }
+]
+
+// 当 editingItem 变化时，将数据填充到表单
+watch(
+  () => props.editingItem,
+  (item) => {
+    if (item) {
+      // 编辑模式：将现有数据映射到表单
+      form.value = {
+        displayName: item.displayName,
+        itemKey: item.itemKey,
+        type: item.type,
+        resourcePath: item.resourcePath,
+        kernelFilename: item.kernelFilename || 'vmlinuz',
+        initrdFilename: item.initrdFilename || 'initrd.img',
+        kernelParams: item.kernelParams || '',
+        enabled: item.enabled,
+        sortOrder: item.sortOrder,
+        description: item.description || '',
+        isoBootMethod: item.isoBootMethod || 'KERNEL'
       }
-    )
-
-    /**
-     * 提交表单，根据 editingItem 是否存在决定执行新增或更新操作
-     */
-    const saveItem = async() => {
-      saving.value = true
-      try {
-        if (props.editingItem) {
-          // 更新已有启动项
-          await SfcUtils.request(PxeBootApi.updateItem(props.editingItem.id, form.value))
-          SfcUtils.snackbar('更新成功')
-        } else {
-          // 新增启动项
-          await SfcUtils.request(PxeBootApi.createItem(form.value))
-          SfcUtils.snackbar('创建成功')
-        }
-        emit('update:modelValue', false)
-        emit('saved')
-      } catch (e: any) {
-        SfcUtils.snackbar('保存失败: ' + (e.message || e))
-      } finally {
-        saving.value = false
-      }
-    }
-
-    return {
-      saving,
-      formRef,
-      form,
-      typeOptions,
-      isoBootMethodOptions,
-      saveItem,
-      emit
+    } else {
+      // 新增模式：重置为默认值
+      form.value = createDefaultBootItemForm()
     }
   }
-})
+)
+
+/**
+ * 提交表单，根据 editingItem 是否存在决定执行新增或更新操作
+ */
+const saveItem = async() => {
+  saving.value = true
+  try {
+    if (props.editingItem) {
+      // 更新已有启动项
+      await SfcUtils.request(PxeBootApi.updateItem(props.editingItem.id, form.value))
+      SfcUtils.snackbar('更新成功')
+    } else {
+      // 新增启动项
+      await SfcUtils.request(PxeBootApi.createItem(form.value))
+      SfcUtils.snackbar('创建成功')
+    }
+    emit('update:modelValue', false)
+    emit('saved')
+  } catch (e: any) {
+    SfcUtils.snackbar('保存失败: ' + (e.message || e))
+  } finally {
+    saving.value = false
+  }
+}
 </script>

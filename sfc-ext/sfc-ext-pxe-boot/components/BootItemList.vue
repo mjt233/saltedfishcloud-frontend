@@ -91,99 +91,75 @@
   </VDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 const SfcUtils = window.SfcUtils
 import { BootItem } from '../model'
 import { PxeBootApi } from '../api'
 
-export default defineComponent({
-  name: 'BootItemList',
-  props: {
-    /**
-     * 当前展示的启动项列表数据
-     */
-    bootItems: {
-      type: Array as PropType<BootItem[]>,
-      required: true
-    }
-  },
-  emits: {
-    /**
-     * 用户点击"添加启动项"按钮时触发
-     */
-    add: () => true,
-    /**
-     * 用户点击某条启动项的编辑按钮时触发
-     * @param item 待编辑的启动项
-     */
-    edit: (item: BootItem) => !!item,
-    /**
-     * 用户点击某条启动项的删除按钮时触发
-     * @param item 待删除的启动项
-     */
-    delete: (item: BootItem) => !!item,
-    /**
-     * 用户切换某条启动项的启用状态时触发
-     * @param item 被切换的启动项（已更新 enabled 字段）
-     */
-    toggle: (item: BootItem) => !!item
-  },
-  setup(_, { emit }) {
-    /** iPXE 菜单预览对话框是否可见 */
-    const previewVisible = ref(false)
-    /** 从服务端获取到的 iPXE 菜单脚本文本 */
-    const previewScript = ref('')
+/** BootItemList 组件的 Props 定义 */
+interface Props {
+  /** 当前展示的启动项列表数据 */
+  bootItems: BootItem[]
+}
 
-    /**
-     * 请求服务端获取 iPXE 菜单脚本预览并打开对话框
-     */
-    const handlePreview = async() => {
-      try {
-        const res = await SfcUtils.request(PxeBootApi.previewMenuScript())
-        previewScript.value = res.data.data || ''
-        previewVisible.value = true
-      } catch (e) {
-        SfcUtils.snackbar('获取预览失败')
-      }
-    }
+defineProps<Props>()
 
-    /**
-     * 根据启动项类型返回对应的 Vuetify 颜色
-     * @param type 启动项类型
-     */
-    const getTypeColor = (type: string) => {
-      switch (type) {
-      case 'KERNEL_INITRD': return 'blue'
-      case 'ISO': return 'purple'
-      case 'DIRECTORY': return 'green'
-      default: return 'grey'
-      }
-    }
+/** 定义组件可触发的事件 */
+const emit = defineEmits<{
+  /** 用户点击"添加启动项"按钮时触发 */
+  (e: 'add'): void
+  /** 用户点击某条启动项的编辑按钮时触发 */
+  (e: 'edit', item: BootItem): void
+  /** 用户点击某条启动项的删除按钮时触发 */
+  (e: 'delete', item: BootItem): void
+  /** 用户切换某条启动项的启用状态时触发 */
+  (e: 'toggle', item: BootItem): void
+}>()
 
-    /**
-     * 根据启动项类型返回对应的中文显示标签
-     * @param type 启动项类型
-     */
-    const getTypeLabel = (type: string) => {
-      switch (type) {
-      case 'KERNEL_INITRD': return '内核'
-      case 'ISO': return 'ISO'
-      case 'DIRECTORY': return '目录'
-      default: return type
-      }
-    }
+/** iPXE 菜单预览对话框是否可见 */
+const previewVisible = ref(false)
+/** 从服务端获取到的 iPXE 菜单脚本文本 */
+const previewScript = ref('')
 
-    return {
-      emit,
-      previewVisible,
-      previewScript,
-      handlePreview,
-      getTypeColor,
-      getTypeLabel
-    }
+/**
+ * 请求服务端获取 iPXE 菜单脚本预览并打开对话框
+ */
+const handlePreview = async() => {
+  try {
+    const res = await SfcUtils.request(PxeBootApi.previewMenuScript())
+    previewScript.value = res.data.data || ''
+    previewVisible.value = true
+  } catch (e) {
+    SfcUtils.snackbar('获取预览失败')
   }
-})
+}
+
+/**
+ * 根据启动项类型返回对应的 Vuetify 颜色
+ * @param type 启动项类型
+ */
+const getTypeColor = (type: string) => {
+  switch (type) {
+  case 'KERNEL_INITRD': return 'blue'
+  case 'ISO': return 'purple'
+  case 'DIRECTORY': return 'green'
+  default: return 'grey'
+  }
+}
+
+/**
+ * 根据启动项类型返回对应的中文显示标签
+ * @param type 启动项类型
+ */
+const getTypeLabel = (type: string) => {
+  switch (type) {
+  case 'KERNEL_INITRD': return '内核'
+  case 'ISO': return 'ISO'
+  case 'DIRECTORY': return '目录'
+  default: return type
+  }
+}
 </script>
 
 <style lang="scss" scoped>

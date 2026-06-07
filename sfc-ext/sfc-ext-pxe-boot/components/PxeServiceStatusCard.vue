@@ -60,27 +60,20 @@
   </VCard>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script setup lang="ts">
 import { PxeServiceStatus } from '../model'
 
-export default defineComponent({
-  name: 'PxeServiceStatusCard',
-  props: {
-    /**
-     * PXE 服务当前状态信息，为 null 表示尚未加载
-     */
-    status: {
-      type: Object as PropType<PxeServiceStatus | null>,
-      default: null
-    },
-    /**
-     * 服务启停按钮是否处于加载中状态
-     */
-    toggling: {
-      type: Boolean,
-      default: false
-    }
-  }
+/** PxeServiceStatusCard 组件的 Props 定义 */
+interface Props {
+  /** PXE 服务当前状态信息，为 null 表示尚未加载 */
+  status?: PxeServiceStatus | null
+  /** 服务启停按钮是否处于加载中状态 */
+  toggling?: boolean
+}
+
+/** 使用默认值定义 Props */
+withDefaults(defineProps<Props>(), {
+  status: null,
+  toggling: false
 })
 </script>
