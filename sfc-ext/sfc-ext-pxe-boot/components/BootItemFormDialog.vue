@@ -27,6 +27,13 @@
                 :rules="[v => !!v || '请输入标识']"
                 persistent-hint
               />
+              <VSelect
+                v-model="form.type"
+                label="启动项资源类型"
+                :items="typeOptions"
+                item-title="label"
+                item-value="value"
+              />
               <PathSelector
                 v-model="form.resourcePath"
                 :select-file="form.type == 'ISO'"
@@ -35,13 +42,6 @@
                 :label="form.type == 'ISO' ? '选择 ISO 文件路径' : '选择资源所在目录'"
                 :rules="[v => !!v || '请输入或选择路径']"
                 persistent-hint
-              />
-              <VSelect
-                v-model="form.type"
-                label="加载类型"
-                :items="typeOptions"
-                item-title="label"
-                item-value="value"
               />
               <VTextField
                 v-model.number="form.sortOrder"
@@ -71,7 +71,7 @@
           </VCard>
 
           <!-- ISO 特有字段 -->
-          <VCard v-if="form.type === 'ISO'" title="ISO 启动配置">
+          <VCard v-if="form.type === 'ISO'" title="ISO 启动配置" class="mb-4">
             <VCardText>
               <VSelect
                 v-if="form.type === 'ISO'"
@@ -82,7 +82,7 @@
                 item-value="value"
               />
               <VTextField
-                v-if="form.isoBootMethod != 'SANBOOT'"
+                v-if="form.isoBootMethod != 'SANBOOT' && form.isoBootMethod != 'CUSTOM_IPXE_SCRIPT'"
                 v-model="form.kernelParams"
                 label="内核参数"
                 hint="跟随在 iPXE 脚本的 kernel 后面"
@@ -92,7 +92,7 @@
           </VCard>
 
           <!-- 自定义字段 -->
-          <VCard v-if="form.type === 'CUSTOM_IPXE_SCRIPT'" title="自定义 iPXE 脚本">
+          <VCard v-if="form.type === 'CUSTOM_IPXE_SCRIPT' || form.isoBootMethod == 'CUSTOM_IPXE_SCRIPT'" title="自定义 iPXE 脚本">
             <VCardText>
               <VAlert variant="text">
                 脚本将嵌入在 iPXE 脚本的标签中
@@ -105,7 +105,7 @@ set res_url &lt;启动项资源的http访问路径，支持iso内路径提取&gt
 &lt;你的自定义脚本&gt;
 </code></pre>
               </VAlert>
-              <CodeEditor v-model="form.customIpxeScript" hide-line-number language="text" />
+              <CodeEditor v-model="form.customIpxeScript" language="text" />
             </VCardText>
           </VCard>
         </VForm>
@@ -159,8 +159,8 @@ const form = ref<BootItemForm>(createDefaultBootItemForm())
 
 /** 启动类型选项列表 */
 const typeOptions = [
-  { label: '内核 + initrd', value: 'KERNEL_INITRD' },
   { label: 'ISO 镜像', value: 'ISO' },
+  { label: '内核 + initrd', value: 'KERNEL_INITRD' },
   { label: '自定义 iPXE 脚本', value: 'CUSTOM_IPXE_SCRIPT' }
 ]
 
@@ -169,7 +169,8 @@ const isoBootMethodOptions = [
   { label: '提取内核启动 (Linux)', value: 'KERNEL' },
   { label: 'WIMBOOT (Windows PE)', value: 'WIMBOOT' },
   { label: 'MEMDISK 整盘加载', value: 'MEMDISK' },
-  { label: 'SANBOOT', value: 'SANBOOT' }
+  { label: 'SANBOOT', value: 'SANBOOT' },
+  { label: '自定义 iPXE 脚本', value: 'CUSTOM_IPXE_SCRIPT' }
 ]
 
 // 当 editingItem 变化时，将数据填充到表单

@@ -12,7 +12,7 @@ export type BootItemType = 'ISO' | 'KERNEL_INITRD' | 'CUSTOM_IPXE_SCRIPT'
 /**
  * ISO 启动方式
  */
-export type IsoBootMethod = 'MEMDISK' | 'KERNEL' | 'WIMBOOT' | 'SANBOOT'
+export type IsoBootMethod = 'MEMDISK' | 'KERNEL' | 'WIMBOOT' | 'SANBOOT' | 'CUSTOM_IPXE_SCRIPT'
 
 /**
  * 启动项
@@ -82,7 +82,7 @@ export function createDefaultBootItemForm(): BootItemForm {
   return {
     displayName: '',
     itemKey: '',
-    type: 'KERNEL_INITRD',
+    type: 'ISO',
     resourcePath: '',
     kernelFilename: 'vmlinuz',
     initrdFilename: 'initrd.img',
