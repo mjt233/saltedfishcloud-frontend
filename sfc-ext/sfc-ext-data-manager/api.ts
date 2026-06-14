@@ -51,7 +51,7 @@ export namespace DataManagerAPI {
   /**
    * 按ID查询失效数据详情
    */
-  export function detail(id: number): CommonRequest<InvalidDataRecord> {
+  export function detail(id: IdType): CommonRequest<InvalidDataRecord> {
     return {
       url: `${baseUrl}/detail/${id}`
     }
@@ -60,7 +60,7 @@ export namespace DataManagerAPI {
   /**
    * 发布为可认领
    */
-  export function publish(id: number): CommonRequest<void> {
+  export function publish(id: IdType): CommonRequest<void> {
     return {
       url: `${baseUrl}/publish/${id}`,
       method: 'post'
@@ -70,7 +70,7 @@ export namespace DataManagerAPI {
   /**
    * 取消发布
    */
-  export function unpublish(id: number): CommonRequest<void> {
+  export function unpublish(id: IdType): CommonRequest<void> {
     return {
       url: `${baseUrl}/unpublish/${id}`,
       method: 'post'
@@ -80,7 +80,7 @@ export namespace DataManagerAPI {
   /**
    * 批量快速修复
    */
-  export function quickFix(ids: number[]): CommonRequest<any> {
+  export function quickFix(ids: IdType[]): CommonRequest<any> {
     return useJsonBody({
       url: `${baseUrl}/quickFix`,
       method: 'post',
@@ -101,7 +101,7 @@ export namespace DataManagerAPI {
   /**
    * 批量丢弃
    */
-  export function discard(ids: number[]): CommonRequest<any> {
+  export function discard(ids: IdType[]): CommonRequest<any> {
     return useJsonBody({
       url: `${baseUrl}/discard`,
       method: 'post',
@@ -122,7 +122,7 @@ export namespace DataManagerAPI {
   /**
    * 标记处理完成
    */
-  export function markCompleted(id: number): CommonRequest<void> {
+  export function markCompleted(id: IdType): CommonRequest<void> {
     return {
       url: `${baseUrl}/markCompleted/${id}`,
       method: 'post'
@@ -132,7 +132,7 @@ export namespace DataManagerAPI {
   /**
    * 认领
    */
-  export function claim(param: ClaimParam, uid: number): CommonRequest<void> {
+  export function claim(param: ClaimParam, uid: IdType): CommonRequest<void> {
     return useJsonBody({
       url: `${baseUrl}/claim`,
       method: 'post',
@@ -144,7 +144,7 @@ export namespace DataManagerAPI {
   /**
    * 查询认领记录
    */
-  export function getClaims(invalidDataId: number): CommonRequest<ClaimRecord[]> {
+  export function getClaims(invalidDataId: IdType): CommonRequest<ClaimRecord[]> {
     return {
       url: `${baseUrl}/claims/${invalidDataId}`
     }
@@ -153,10 +153,20 @@ export namespace DataManagerAPI {
   /**
    * 查询我的认领记录
    */
-  export function myClaims(uid: number, page: number = 0, size: number = 10): CommonRequest<CommonPageInfo<ClaimRecord>> {
+  export function myClaims(uid: IdType, page: IdType = 0, size: IdType = 10): CommonRequest<CommonPageInfo<ClaimRecord>> {
     return {
       url: `${baseUrl}/myClaims`,
       params: { uid, page, size }
+    }
+  }
+
+  /**
+   * 获取失效数据下载链接
+   * @param id 失效数据记录ID
+   */
+  export function download(id: IdType): CommonRequest {
+    return {
+      url: `${baseUrl}/download/${id}`
     }
   }
 }

@@ -159,9 +159,13 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
    */
   const handleQuickFixAll = async() => {
     try {
-      const res = (await SfcUtils.request(DataManagerAPI.quickFixAll())).data.data
-      SfcUtils.snackbar(`已完成一键修复。成功：${res.success || 0}，失败：${res.failed || 0}`)
-      loadList()
+      await SfcUtils.loadingDialogTask({
+        msg: '正在修复数据，请稍候...',
+      }, async p => {
+        const res = (await SfcUtils.request(DataManagerAPI.quickFixAll())).data.data
+        SfcUtils.snackbar(`已完成一键修复。成功：${res.success || 0}，失败：${res.failed || 0}`)
+        loadList()
+      })
     } catch (e: any) {
       SfcUtils.alert(e.toString())
     }
@@ -197,9 +201,13 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
       } catch {
         return
       }
-      const res = (await SfcUtils.request(DataManagerAPI.discardAll())).data.data
-      SfcUtils.snackbar(`一键清理完成。成功：${res.success || 0}，失败：${res.failed || 0}`)
-      loadList()
+      await SfcUtils.loadingDialogTask({
+        msg: '正在清理数据，请稍候...',
+      }, async p => {
+        const res = (await SfcUtils.request(DataManagerAPI.discardAll())).data.data
+        SfcUtils.snackbar(`一键清理完成。成功：${res.success || 0}，失败：${res.failed || 0}`)
+        loadList()
+      })
     } catch (e: any) {
       SfcUtils.alert(e.toString())
     }

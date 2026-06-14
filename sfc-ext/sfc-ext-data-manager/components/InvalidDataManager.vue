@@ -99,6 +99,15 @@
 
           <template #item.actions="{ item }">
             <v-btn
+              v-if="item.status !== 'COMPLETED'"
+              size="small"
+              variant="text"
+              color="success"
+              @click="handleDownload(item)"
+            >
+              下载
+            </v-btn>
+            <v-btn
               size="small"
               variant="text"
               color="primary"
@@ -190,6 +199,7 @@ import { computed, onMounted, watch } from 'vue'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
+import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
 import type { InvalidDataRecord, FileMetadataDefine } from '../model'
 
@@ -246,6 +256,15 @@ const showDetail = (item: InvalidDataRecord) => {
       dense: true
     }
   })
+}
+
+/**
+ * 下载失效数据
+ * @param item 要下载的失效数据记录
+ */
+const handleDownload = (item: InvalidDataRecord) => {
+  const url = SfcUtils.getApiUrl(DataManagerAPI.download(item.id))
+  window.open(url, '_blank')
 }
 
 /** 获取当前选中的记录列表 */
