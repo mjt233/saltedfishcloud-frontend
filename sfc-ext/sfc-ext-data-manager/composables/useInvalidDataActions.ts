@@ -53,14 +53,16 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
         title: '数据检测任务',
         props: {
           taskId,
-          logCollapsed: false
+          logCollapsed: false,
+          'onTaskExit': () => {
+            loadList()
+          }
         },
         showConfirm: false,
         extraDialogOptions: {
           maxWidth: '810px'
         }
       })
-      loadList()
     } catch (err: any) {
       SfcUtils.alert(err.toString())
     }
@@ -79,7 +81,10 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
         title: '文件类型识别任务',
         props: {
           taskId,
-          logCollapsed: false
+          logCollapsed: false,
+          'onTaskExit': () => {
+            loadList()
+          }
         },
         showConfirm: false,
         extraDialogOptions: {
