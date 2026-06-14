@@ -1,6 +1,6 @@
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { DataManagerAPI } from '../api'
-import type { InvalidDataQuery, InvalidDataRecord, InvalidDataRecordStatus } from '../model'
+import type { FileTypeProviderInfo, InvalidDataQuery, InvalidDataRecord, InvalidDataRecordStatus } from '../model'
 
 const SfcUtils = window.SfcUtils
 
@@ -27,12 +27,30 @@ export const statusTitleMap: Record<InvalidDataRecordStatus, string> = {
 export const headers: any[] = [
   { title: '类型', key: 'type', value: (item: InvalidDataRecord) => item.type == 'INVALID_FILE_RECORD' ? '存储丢失' : '文件记录丢失' },
   { title: '存储模式', key: 'storeMode' },
+  { title: '文件名', key: 'fileName', value: (item: InvalidDataRecord) => {
+    if (item.storagePath) {
+      const parts = item.storagePath.split('/')
+      return parts[parts.length - 1]
+    } else {
+      return '(未知)'
+    }
+  }}, 
   { title: '状态', key: 'status', value: (item: InvalidDataRecord) => statusTitleMap[item.status] },
-  { title: '物理路径', key: 'storagePath' },
-  { title: '待识别文件类型', key: 'needIdentify' },
+  { title: '文件类型', key: 'fileType' },
   { title: '大小', key: 'fileSize' },
+  { title: '可能的拓展名', key: 'extension', value: (item: InvalidDataRecord) => {
+    if (!item.typeCheckResult) return '-'
+    try {
+      const result = JSON.parse(item.typeCheckResult)
+      return result.detail?.extension || '-'
+    } catch {
+      return '-'
+    }
+  }},
   { title: '操作', key: 'actions', sortable: false, align: 'end' }
 ]
+
+
 
 /**
  * 失效数据列表管理 composable
@@ -64,6 +82,9 @@ export function useInvalidDataList() {
   /** 文件类型识别器选项 */
   const providerOptions = ref<{ title: string, value: string }[]>([])
 
+  /** 完整的文件类型识别器列表，包含元数据定义等信息 */
+  const providers = ref<FileTypeProviderInfo[]>([])
+
   /**
    * 加载列表数据，由 v-data-table-server 的 @update:options 事件触发
    * @param options 表格分页选项，包含 page 和 itemsPerPage
@@ -92,12 +113,28 @@ export function useInvalidDataList() {
    */
   const loadProviders = async() => {
     try {
-      const providers = (await SfcUtils.request(DataManagerAPI.listProviders())).data.data
-      providerOptions.value = providers.map((p: any) => ({ title: p.typeName, value: p.typeId }))
+      const providerList = (await SfcUtils.request(DataManagerAPI.listProviders())).data.data
+      providers.value = providerList
+      providerOptions.value = providerList.map((p: FileTypeProviderInfo) => ({ title: p.typeName, value: p.typeId }))
     } catch (e) {
       console.warn(e)
     }
   }
+
+  /**
+   * 文件类型名称映射表
+   * key为文件类型值，value为对应的显示名称
+   */
+  const typesNameMap = computed(() => {
+    if (providerOptions.value == null || providerOptions.value.length === 0) {
+      return {}
+    } else {
+      return providerOptions.value.reduce((map, option) => {
+        map[option.value] = option.title
+        return map
+      }, {} as Record<string, string>)
+    }
+  })
 
   return {
     loading,
@@ -105,7 +142,9 @@ export function useInvalidDataList() {
     items,
     total,
     selected,
+    providers,
     providerOptions,
+    typesNameMap,
     loadList,
     loadProviders
   }

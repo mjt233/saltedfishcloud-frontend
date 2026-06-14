@@ -67,6 +67,7 @@
           items-per-page-text="每页大小"
           show-select
           hover
+          mobile-breakpoint="md"
           @update:options="loadList"
         >
           <template #item.storagePath="{ item }">
@@ -88,6 +89,11 @@
           <template #item.status=" { item }">
             <span :class="item.status == 'COMPLETED' ? 'text-success' : ''">
               {{ statusTitleMap[item.status] }}
+            </span>
+          </template>
+          <template #item.fileType="{ item }">
+            <span :class="item.fileType ? 'text-info' : 'text-muted'">
+              {{ item.fileType ? typesNameMap[item.fileType] : '未知' }}
             </span>
           </template>
 
@@ -185,7 +191,7 @@ import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
 import InvalidDataDetail from './InvalidDataDetail.vue'
-import type { InvalidDataRecord } from '../model'
+import type { InvalidDataRecord, FileMetadataDefine } from '../model'
 
 const SfcUtils = window.SfcUtils
 
@@ -196,7 +202,9 @@ const {
   items,
   total,
   selected,
+  providers,
   providerOptions,
+  typesNameMap,
   loadList,
   loadProviders
 } = useInvalidDataList()
@@ -221,14 +229,21 @@ const {
  * @param item 要查看详情的失效数据记录
  */
 const showDetail = (item: InvalidDataRecord) => {
+  // 根据记录的 fileType 查找对应的 provider，获取其元数据定义
+  const provider = providers.value.find(p => p.typeId === item.fileType)
+  const metadataDefines: FileMetadataDefine[] = provider?.metadataDefines ?? []
+
   SfcUtils.openComponentDialog(InvalidDataDetail, {
     title: '失效数据详情',
     props: {
-      item
+      item,
+      metadataDefines,
+      class: [ 'pl-2', 'pr-2', 'pt-2' ]
     },
     extraDialogOptions: {
       confirmText: '关闭',
-      showCancel: false
+      showCancel: false,
+      dense: true
     }
   })
 }
@@ -256,7 +271,7 @@ const handleBatchFix = () => handleQuickFix(selected.value)
 /** 批量丢弃 */
 const handleBatchDiscard = () => handleDiscard(selected.value)
 
-watch(() => query.status, () => {
+watch([() => query.status, () => query.fileType], () => {
   loadList()
 })
 

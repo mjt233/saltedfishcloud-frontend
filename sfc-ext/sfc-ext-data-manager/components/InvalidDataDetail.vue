@@ -1,61 +1,116 @@
 <template>
   <div>
-    <v-list density="compact">
-      <v-list-item title="ID" :subtitle="item.id" />
-      <v-list-item title="存储模式" :subtitle="item.storeMode" />
-      <v-list-item title="类型" :subtitle="item.type === 'INVALID_FILE_RECORD' ? '失效文件记录' : '失效物理存储'" />
-      <v-list-item title="状态" :subtitle="getStatusText(item.status)" />
-      <v-list-item title="物理路径" :subtitle="item.storagePath" />
-      <v-list-item title="网盘路径" :subtitle="item.diskPath || '-'" />
-      <v-list-item title="文件大小" :subtitle="StringFormatter.toSize(item.fileSize)" />
-      <v-list-item title="MD5" :subtitle="item.md5 || '-'" />
-      <v-list-item title="是否待识别" :subtitle="item.needIdentify ? '是' : '否'" />
-      <v-list-item title="文件类型" :subtitle="item.fileType || '-'" />
-      <v-list-item title="创建时间" :subtitle="formatDate(item.createAt)" />
-      <v-list-item title="最后修改时间" :subtitle="formatDate(item.lastModified)" />
-      <div v-if="item.metadata" class="mt-4">
-        <strong>元数据：</strong>
-        <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;">{{ item.metadata }}</pre>
-      </div>
-    </v-list>
+    <v-tabs v-model="activeTab" density="compact">
+      <v-tab value="basic">
+        基础信息
+      </v-tab>
+      <v-tab value="type" :disabled="!typeCheckDetail">
+        类型信息
+      </v-tab>
+    </v-tabs>
 
-    <div v-if="claims.length > 0" class="mt-4">
-      <div class="text-h6 mb-2">
-        认领记录
-      </div>
-      <v-table density="compact">
-        <thead>
-          <tr>
-            <th>认领人UID</th>
-            <th>目标UID</th>
-            <th>保存路径</th>
-            <th>文件名</th>
-            <th>时间</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="c in claims" :key="c.id">
-            <td>{{ c.targetUid }}</td>
-            <td>{{ c.targetUid === 0 ? '公共网盘' : c.targetUid }}</td>
-            <td>{{ c.savePath }}</td>
-            <td>{{ c.fileName }}</td>
-            <td>{{ formatDate(c.createAt) }}</td>
-          </tr>
-        </tbody>
-      </v-table>
-    </div>
+    <v-tabs-window v-model="activeTab">
+      <!-- 基础信息页签 -->
+      <v-tabs-window-item value="basic">
+        <v-list density="compact">
+          <v-list-item title="ID" :subtitle="item.id" />
+          <v-list-item title="存储模式" :subtitle="item.storeMode" />
+          <v-list-item title="类型" :subtitle="item.type === 'INVALID_FILE_RECORD' ? '失效文件记录' : '失效物理存储'" />
+          <v-list-item title="状态" :subtitle="getStatusText(item.status)" />
+          <v-list-item title="物理路径" :subtitle="item.storagePath" />
+          <v-list-item title="网盘路径" :subtitle="item.diskPath || '-'" />
+          <v-list-item title="文件大小" :subtitle="StringFormatter.toSize(item.fileSize)" />
+          <v-list-item title="MD5" :subtitle="item.md5 || '-'" />
+          <v-list-item title="是否待识别" :subtitle="item.needIdentify ? '是' : '否'" />
+          <v-list-item title="文件类型" :subtitle="item.fileType || '-'" />
+          <v-list-item title="创建时间" :subtitle="formatDate(item.createAt)" />
+          <v-list-item title="最后修改时间" :subtitle="formatDate(item.lastModified)" />
+        </v-list>
+
+        <!-- 认领记录 -->
+        <div v-if="claims.length > 0" class="mt-4">
+          <div class="text-h6 mb-2">
+            认领记录
+          </div>
+          <v-table density="compact">
+            <thead>
+              <tr>
+                <th>认领人UID</th>
+                <th>目标UID</th>
+                <th>保存路径</th>
+                <th>文件名</th>
+                <th>时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="c in claims" :key="c.id">
+                <td>{{ c.targetUid }}</td>
+                <td>{{ c.targetUid === 0 ? '公共网盘' : c.targetUid }}</td>
+                <td>{{ c.savePath }}</td>
+                <td>{{ c.fileName }}</td>
+                <td>{{ formatDate(c.createAt) }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </div>
+      </v-tabs-window-item>
+
+      <!-- 类型信息页签 -->
+      <v-tabs-window-item value="type">
+        <div v-if="typeCheckDetail">
+          <v-list density="compact">
+            <v-list-item title="类型名称" :subtitle="typeCheckDetail.typeName || '-'" />
+            <v-list-item title="类型标识" :subtitle="typeCheckDetail.typeId || '-'" />
+            <v-list-item title="提供者" :subtitle="typeCheckDetail.providerId || '-'" />
+            <v-list-item title="文件拓展名" :subtitle="typeCheckDetail.detail?.extension || '-'" />
+            <v-list-item title="MIME类型" :subtitle="typeCheckDetail.detail?.mimetype || '-'" />
+            <v-list-item title="提示信息" :subtitle="typeCheckDetail.detail?.message || '-'" />
+          </v-list>
+          <div v-if="typeCheckDetail.detail?.metadata && metadataDefines.length > 0" class="mt-2">
+            <strong>元数据</strong>
+            <v-table density="compact">
+              <thead>
+                <tr>
+                  <th>名称</th>
+                  <th>值</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="def in metadataDefines" :key="def.key">
+                  <td>{{ def.name }}</td>
+                  <td>{{ typeCheckDetail.detail.metadata[def.key] ?? '-' }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+          </div>
+        </div>
+      </v-tabs-window-item>
+    </v-tabs-window>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineComponent } from 'vue'
+import { ref, computed, onMounted, defineComponent } from 'vue'
 import type { PropType } from 'vue'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { DataManagerAPI } from '../api'
-import type { InvalidDataRecord, ClaimRecord } from '../model'
+import type { InvalidDataRecord, ClaimRecord, FileMetadataDefine, FileTypeCheckResult } from '../model'
 import { statusOptions } from '../composables/useInvalidDataList'
 
 const SfcUtils = window.SfcUtils
+
+/** 当前激活的页签，'basic' 为基础信息，'type' 为类型信息 */
+const activeTab = ref('basic')
+
+/** 解析后的类型检测结果 */
+const typeCheckDetail = computed(() => {
+  if (!props.item.typeCheckResult) return null
+  try {
+    return JSON.parse(props.item.typeCheckResult) as FileTypeCheckResult
+  } catch {
+    return null
+  }
+})
 
 /** 组件属性 */
 const props = defineProps({
@@ -65,6 +120,13 @@ const props = defineProps({
   item: {
     type: Object as PropType<InvalidDataRecord>,
     required: true
+  },
+  /**
+   * 文件类型的元数据定义列表，用于展示元数据的名称
+   */
+  metadataDefines: {
+    type: Array as PropType<FileMetadataDefine[]>,
+    default: () => []
   }
 })
 
