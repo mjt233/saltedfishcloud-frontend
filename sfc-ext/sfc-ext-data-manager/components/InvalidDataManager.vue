@@ -66,10 +66,25 @@
           :items-per-page-options="[10, 20, 50, 100]"
           items-per-page-text="每页大小"
           show-select
+          show-expand
           hover
           mobile-breakpoint="md"
           @update:options="loadList"
         >
+          <template #expanded-row="{ columns, item }">
+            <tr>
+              <td :colspan="columns.length">
+                <v-card class="mt-4 mb-4">
+                  <v-card-text>
+                    <InvalidDataDetail
+                      :item="item"
+                      :metadata-defines="getMetadataDefines(item)"
+                    />
+                  </v-card-text>
+                </v-card>
+              </td>
+            </tr>
+          </template>
           <template #item.storagePath="{ item }">
             <span class="text-truncate d-inline-block" style="max-width: 200px" :title="item.storagePath">
               {{ item.storagePath }}
@@ -107,14 +122,7 @@
             >
               下载
             </v-btn>
-            <v-btn
-              size="small"
-              variant="text"
-              color="primary"
-              @click="showDetail(item)"
-            >
-              详情
-            </v-btn>
+
             <v-btn
               v-if="item.status === 'PENDING' && item.type === 'INVALID_FILE_RECORD'"
               size="small"
@@ -256,6 +264,16 @@ const showDetail = (item: InvalidDataRecord) => {
       dense: true
     }
   })
+}
+
+/**
+ * 获取指定记录的元数据定义列表
+ * @param item 失效数据记录
+ * @returns 对应文件类型的元数据定义数组
+ */
+const getMetadataDefines = (item: InvalidDataRecord): FileMetadataDefine[] => {
+  const provider = providers.value.find(p => p.typeId === item.fileType)
+  return provider?.metadataDefines ?? []
 }
 
 /**

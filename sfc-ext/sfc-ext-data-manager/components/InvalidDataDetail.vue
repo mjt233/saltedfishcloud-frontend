@@ -7,6 +7,9 @@
       <v-tab value="type" :disabled="!typeCheckDetail">
         类型信息
       </v-tab>
+      <v-tab v-if="canPreview" value="preview">
+        预览
+      </v-tab>
     </v-tabs>
 
     <v-tabs-window v-model="activeTab">
@@ -85,6 +88,30 @@
           </div>
         </div>
       </v-tabs-window-item>
+      <!-- 预览页签 -->
+      <v-tabs-window-item v-if="canPreview" value="preview">
+        <div class="pa-4">
+          <template v-if="item.fileType == 'audio'">
+            <audio
+              autoplay
+              controls
+              :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))"
+              style="width: 320px"
+            />
+          </template>
+          <template v-else-if="item.fileType == 'video'">
+            <video
+              autoplay
+              controls
+              :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))"
+              style="height: 320px;"
+            />
+          </template>
+          <template v-else-if="item.fileType == 'image'">
+            <v-img :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))" contain style="height: 320px;" />
+          </template>
+        </div>
+      </v-tabs-window-item>
     </v-tabs-window>
   </div>
 </template>
@@ -101,6 +128,12 @@ const SfcUtils = window.SfcUtils
 
 /** 当前激活的页签，'basic' 为基础信息，'type' 为类型信息 */
 const activeTab = ref('basic')
+
+/** 是否支持预览 */
+const canPreview = computed(() => {
+  const previewableTypes = ['audio', 'video', 'image']
+  return props.item.fileType ? previewableTypes.includes(props.item.fileType) : false
+})
 
 /** 解析后的类型检测结果 */
 const typeCheckDetail = computed(() => {

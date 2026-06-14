@@ -1,6 +1,7 @@
 import { ref, reactive, computed } from 'vue'
 import { DataManagerAPI } from '../api'
 import type { FileTypeProviderInfo, InvalidDataQuery, InvalidDataRecord, InvalidDataRecordStatus } from '../model'
+import { IdType } from 'sfc-common/model'
 
 const SfcUtils = window.SfcUtils
 
@@ -14,6 +15,10 @@ export const statusOptions: { title: string, value: InvalidDataRecordStatus }[] 
   { title: '处理完成', value: 'COMPLETED' }
 ]
 
+/**
+ * 失效数据状态标题映射
+ * 将状态枚举值映射为中文显示名称
+ */
 export const statusTitleMap: Record<InvalidDataRecordStatus, string> = {
   PENDING: '待处理',
   PUBLISHED: '已发布',
@@ -77,7 +82,7 @@ export function useInvalidDataList() {
   const total = ref(0)
 
   /** 当前选中的记录ID列表 */
-  const selected = ref<number[]>([])
+  const selected = ref<IdType[]>([])
 
   /** 文件类型识别器选项 */
   const providerOptions = ref<{ title: string, value: string }[]>([])

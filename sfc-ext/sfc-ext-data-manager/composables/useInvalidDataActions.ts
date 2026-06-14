@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
 import { getContext } from 'sfc-common'
+import type { IdType } from 'sfc-common/model'
 import { DataManagerAPI } from '../api'
 import type { InvalidDataRecord, ClaimParam } from '../model'
 import InvalidDataClaimForm from '../components/form/InvalidDataClaimForm.vue'
@@ -15,7 +16,7 @@ export interface UseInvalidDataActionsOptions {
   /** 操作完成后刷新列表的回调 */
   loadList: () => Promise<void>
   /** 当前选中的记录ID列表 */
-  selected: Ref<number[]>
+  selected: Ref<IdType[]>
 }
 
 /**
@@ -143,7 +144,7 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
    * 批量快速修复指定ID的失效数据
    * @param ids 要修复的记录ID列表
    */
-  const handleQuickFix = async(ids: number[]) => {
+  const handleQuickFix = async(ids: IdType[]) => {
     try {
       const res = (await SfcUtils.request(DataManagerAPI.quickFix(ids))).data.data
       SfcUtils.snackbar(`修复成功：${res.success || 0}，失败：${res.failed || 0}`)
@@ -175,7 +176,7 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
    * 批量丢弃指定ID的失效数据（含二次确认）
    * @param ids 要丢弃的记录ID列表
    */
-  const handleDiscard = async(ids: number[]) => {
+  const handleDiscard = async(ids: IdType[]) => {
     try {
       try {
         await SfcUtils.confirm('确定要丢弃选中的数据吗？此操作不可逆！', '操作确认', { cancelToReject: true })
@@ -218,7 +219,7 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
    * @param item 失效数据记录
    */
   const openClaimDialog = (item: InvalidDataRecord) => {
-    const currentUid = context.session.value.user.id as number
+    const currentUid = context.session.value.user.id as IdType
 
     // 根据物理路径提取一个默认文件名
     const parts = item.storagePath?.split('/') || []
