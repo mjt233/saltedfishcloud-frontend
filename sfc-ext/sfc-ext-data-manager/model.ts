@@ -170,16 +170,16 @@ export interface FileTypeProviderInfo {
  * 用于查询失效数据列表时的筛选条件
  */
 export interface InvalidDataQuery {
-  /** 按状态筛选 */
-  status?: string
+  /** 按状态筛选（支持多选） */
+  status?: string[]
   /** 按所有者用户ID筛选 */
   ownerUid?: IdType
   /** 最小文件大小（字节） */
   minFileSize?: IdType
   /** 最大文件大小（字节） */
   maxFileSize?: IdType
-  /** 按文件类型筛选 */
-  fileType?: string
+  /** 按文件类型筛选（支持多选） */
+  fileType?: string[]
   /** 页码（从0开始） */
   page?: IdType
   /** 每页记录数 */

@@ -10,6 +10,7 @@
           :icon="action.showText ? undefined : action.icon"
           :class="{ 'mr-2': action.showText }"
           :variant="action.showText ? undefined : 'text'"
+          :style="{ color: action.color == 'error' ? 'white' : undefined }"
           @click="action.action"
         >
           <template v-if="action.showText">
@@ -23,26 +24,50 @@
       
       <v-card-text>
         <v-row>
-          <v-col cols="12" sm="4">
+          <v-col cols="12" sm="3">
             <v-select
               v-model="query.status"
               :items="statusOptions"
               label="状态"
-              class="mr-4"
               clearable
               hide-details
+              multiple
+              chips
             />
           </v-col>
-          <v-col cols="12" sm="4">
+          <v-col cols="12" sm="3">
             <v-select
               v-model="query.fileType"
               :items="providerOptions"
               label="文件类型"
               clearable
               hide-details
+              multiple
+              chips
             />
           </v-col>
-          <v-spacer />
+          <v-col cols="12" sm="3">
+            <v-text-field
+              v-model.number="query.minFileSize"
+              label="最小文件大小(MiB)"
+              type="number"
+              clearable
+              hide-details
+              :min="0"
+              suffix="MiB"
+            />
+          </v-col>
+          <v-col cols="12" sm="3">
+            <v-text-field
+              v-model.number="query.maxFileSize"
+              label="最大文件大小(MiB)"
+              type="number"
+              clearable
+              hide-details
+              :min="0"
+              suffix="MiB"
+            />
+          </v-col>
         </v-row>
 
         <v-data-table-server
@@ -411,7 +436,7 @@ const drawerMetadataDefines = computed((): FileMetadataDefine[] => {
   return getMetadataDefines(drawerItem.value)
 })
 
-watch([() => query.status, () => query.fileType], () => {
+watch([() => query.status, () => query.fileType, () => query.minFileSize, () => query.maxFileSize], () => {
   loadList()
 })
 

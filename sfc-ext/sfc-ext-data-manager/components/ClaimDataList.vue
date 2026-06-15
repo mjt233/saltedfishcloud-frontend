@@ -67,7 +67,7 @@ const formatDate = (d: string) => {
 const query = reactive<InvalidDataQuery & { page: number, size: number }>({
   page: 1,
   size: 10,
-  status: 'PUBLISHED' // 默认只查已发布的
+  status: ['PUBLISHED'] // 默认只查已发布的
 })
 
 const items = ref<InvalidDataRecord[]>([])

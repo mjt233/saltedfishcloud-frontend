@@ -67,12 +67,14 @@ export function useInvalidDataList() {
   /** 加载状态 */
   const loading = ref(false)
 
-  /** 查询参数（含分页） */
-  const query = reactive<InvalidDataQuery & { page: number, size: number }>({
+  /** 查询参数（含分页），minFileSize / maxFileSize 以 MiB 为单位，发送请求时转为字节 */
+  const query = reactive({
     page: 1,
     size: 10,
-    status: undefined,
-    fileType: undefined
+    status: undefined as string[] | undefined,
+    fileType: undefined as string[] | undefined,
+    minFileSize: undefined as number | undefined,
+    maxFileSize: undefined as number | undefined
   })
 
   /** 列表数据 */
@@ -94,6 +96,9 @@ export function useInvalidDataList() {
    * 加载列表数据，由 v-data-table-server 的 @update:options 事件触发
    * @param options 表格分页选项，包含 page 和 itemsPerPage
    */
+  /** MiB 转字节的乘数 */
+  const MIB_TO_BYTES = 1024 * 1024
+
   const loadList = async(options?: { page?: number, itemsPerPage?: number }) => {
     if (options) {
       query.page = options.page || 1
@@ -101,7 +106,12 @@ export function useInvalidDataList() {
     }
     loading.value = true
     try {
-      const q = { ...query }
+      const q: InvalidDataQuery & { page: number, size: number } = {
+        ...query,
+        // 将 MiB 转换为字节后再发送给后端
+        minFileSize: query.minFileSize != null ? Math.floor(query.minFileSize * MIB_TO_BYTES) : undefined,
+        maxFileSize: query.maxFileSize != null ? Math.floor(query.maxFileSize * MIB_TO_BYTES) : undefined
+      }
       q.page = q.page - 1
       const res = (await SfcUtils.request(DataManagerAPI.list(q))).data.data
       items.value = res.content
