@@ -1,34 +1,24 @@
 <template>
   <div class="invalid-data-manager">
     <v-card>
-      <v-card-title class="d-flex align-center">
+      <!-- 桌面端：横向按钮栏 -->
+      <v-card-title v-if="!isMobile" class="d-flex align-center">
         <v-btn
-          color="primary"
-          class="mr-2"
-          :loading="loading"
-          @click="handleDetect"
+          v-for="action in actionItems"
+          :key="action.id"
+          :color="action.color"
+          :icon="action.showText ? undefined : action.icon"
+          :class="{ 'mr-2': action.showText }"
+          :variant="action.showText ? undefined : 'text'"
+          @click="action.action"
         >
-          开始检测
+          <template v-if="action.showText">
+            <v-icon v-if="action.icon" start>
+              {{ action.icon }}
+            </v-icon>
+            {{ action.title }}
+          </template>
         </v-btn>
-        <v-btn
-          class="mr-2"
-          :loading="loading"
-          @click="handleIdentify"
-        >
-          识别文件类型
-        </v-btn>
-        <v-btn
-          color="error"
-          class="mr-2"
-          :loading="loading"
-          @click="handleDiscardAll"
-        >
-          清理可丢弃
-        </v-btn>
-        <v-btn color="info" :loading="loading" @click="handleQuickFixAll">
-          一键修复
-        </v-btn>
-        <v-btn icon="mdi-refresh" variant="text" @click="loadList" />
       </v-card-title>
       
       <v-card-text>
@@ -163,6 +153,38 @@
       </v-card-text>
     </v-card>
 
+    <!-- 移动端：右下角悬浮操作按钮 -->
+    <VFadeTransition>
+      <v-fab
+        v-if="isMobile"
+        class="mr-3"
+        color="primary"
+        location="right bottom"
+        size="large"
+        icon
+        app
+        appear
+      >
+        <v-icon>mdi-tools</v-icon>
+        <v-menu
+          activator="parent"
+          location="top"
+        >
+          <v-list density="comfortable">
+            <template v-for="action in actionItems" :key="action.id">
+              <v-divider v-if="action.id === 'discard-all'" />
+              <v-list-item
+                :prepend-icon="action.icon"
+                :title="action.title"
+                :disabled="loading"
+                @click="action.action"
+              />
+            </template>
+          </v-list>
+        </v-menu>
+      </v-fab>
+    </VFadeTransition>
+
     <!-- 详情侧边抽屉 -->
     <Teleport to="main">
       
@@ -213,6 +235,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Teleport, watch } from 'vue'
+import { useCheckIsMobile } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
@@ -222,6 +245,26 @@ import InvalidDataActions from './InvalidDataActions.vue'
 import type { InvalidDataRecord, FileMetadataDefine } from '../model'
 
 const SfcUtils = window.SfcUtils
+
+/** 是否为移动端窄屏 */
+const isMobile = useCheckIsMobile()
+
+/**
+ * 操作按钮配置列表，桌面端和移动端共用
+ * @property id - 唯一标识
+ * @property icon - 图标名称
+ * @property title - 按钮文本
+ * @property action - 点击回调
+ * @property color - 按钮颜色（仅桌面端生效）
+ * @property showText - 桌面端是否显示文本（false 时仅显示图标）
+ */
+const actionItems = computed(() => [
+  { id: 'detect', icon: 'mdi-radar', title: '开始检测', action: handleDetect, color: 'primary', showText: true },
+  { id: 'identify', icon: 'mdi-file-search-outline', title: '识别文件类型', action: handleIdentify, showText: true },
+  { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
+  { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
+  { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: loadList, showText: true }
+])
 
 /** 列表管理 */
 const {
