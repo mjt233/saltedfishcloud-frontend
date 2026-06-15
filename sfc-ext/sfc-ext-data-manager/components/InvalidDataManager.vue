@@ -66,29 +66,32 @@
           :items-per-page-options="[10, 20, 50, 100]"
           items-per-page-text="每页大小"
           show-select
-          show-expand
           hover
           mobile-breakpoint="md"
           @update:options="loadList"
+          @click:row="(_event: any, { item }: any) => openDrawer(item)"
         >
-          <template #expanded-row="{ columns, item }">
-            <tr>
-              <td :colspan="columns.length">
-                <v-card class="mt-4 mb-4">
-                  <v-card-text>
-                    <InvalidDataDetail
-                      :item="item"
-                      :metadata-defines="getMetadataDefines(item)"
-                    />
-                  </v-card-text>
-                </v-card>
-              </td>
-            </tr>
-          </template>
           <template #item.storagePath="{ item }">
-            <span class="text-truncate d-inline-block" style="max-width: 200px" :title="item.storagePath">
-              {{ item.storagePath }}
-            </span>
+            <v-tooltip location="top">
+              <template #activator="{ props: tooltipProps }">
+                <span
+                  v-bind="tooltipProps"
+                  class="text-truncate d-inline-block cursor-pointer"
+                  style="max-width: 180px"
+                >
+                  {{ truncateHash(item.storagePath) }}
+                </span>
+              </template>
+              <div class="d-flex align-center" style="max-width: 400px; word-break: break-all">
+                <span class="mr-2">{{ item.storagePath }}</span>
+                <v-btn
+                  icon="mdi-content-copy"
+                  size="x-small"
+                  variant="text"
+                  @click.stop="copyToClipboard(item.storagePath)"
+                />
+              </div>
+            </v-tooltip>
           </template>
 
           <template #item.needIdentify="{ item }">
@@ -101,10 +104,14 @@
             {{ StringFormatter.toSize(item.fileSize) }}
           </template>
 
-          <template #item.status=" { item }">
-            <span :class="item.status == 'COMPLETED' ? 'text-success' : ''">
+          <template #item.status="{ item }">
+            <v-chip
+              :color="statusChipColor[item.status]"
+              size="small"
+              variant="tonal"
+            >
               {{ statusTitleMap[item.status] }}
-            </span>
+            </v-chip>
           </template>
           <template #item.fileType="{ item }">
             <span :class="item.fileType ? 'text-info' : 'text-muted'">
@@ -113,70 +120,29 @@
           </template>
 
           <template #item.actions="{ item }">
-            <v-btn
-              v-if="item.status !== 'COMPLETED'"
-              size="small"
+            <InvalidDataActions
+              class="justify-end "
+              :item="item"
               variant="text"
-              color="success"
-              @click="handleDownload(item)"
+              show-discard-popover
+              @download="handleDownload(item)"
+              @fix="handleQuickFix([item.id])"
+              @claim="openClaimDialog(item)"
+              @publish="handlePublish(item)"
+              @unpublish="handleUnpublish(item)"
+              @complete="handleMarkCompleted(item)"
+              @discard="handleDiscard([item.id])"
             >
-              下载
-            </v-btn>
-
-            <v-btn
-              v-if="item.status === 'PENDING' && item.type === 'INVALID_FILE_RECORD'"
-              size="small"
-              variant="text"
-              color="success"
-              @click="handleQuickFix([item.id])"
-            >
-              修复
-            </v-btn>
-            <v-btn
-              v-if="item.status === 'PENDING' && item.type === 'INVALID_STORAGE'"
-              size="small"
-              variant="text"
-              color="primary"
-              @click="openClaimDialog(item)"
-            >
-              认领
-            </v-btn>
-            <v-btn
-              v-if="item.status === 'PENDING' && item.type === 'INVALID_STORAGE'"
-              size="small"
-              variant="text"
-              color="info"
-              @click="handlePublish(item)"
-            >
-              发布
-            </v-btn>
-            <v-btn
-              v-if="item.status === 'PUBLISHED'"
-              size="small"
-              variant="text"
-              color="warning"
-              @click="handleUnpublish(item)"
-            >
-              取消发布
-            </v-btn>
-            <v-btn
-              v-if="item.status === 'CLAIMED'"
-              size="small"
-              variant="text"
-              color="primary"
-              @click="handleMarkCompleted(item)"
-            >
-              完成
-            </v-btn>
-            <v-btn
-              v-if="canDiscard(item)"
-              size="small"
-              variant="text"
-              color="error"
-              @click="handleDiscard([item.id])"
-            >
-              丢弃
-            </v-btn>
+              <template #prepend>
+                <v-btn
+                  variant="text"
+                  size="small"
+                  prepend-icon="mdi-information"
+                >
+                  详情
+                </v-btn>
+              </template>
+            </InvalidDataActions>
           </template>
         </v-data-table-server>
         
@@ -197,19 +163,61 @@
       </v-card-text>
     </v-card>
 
-
-
+    <!-- 详情侧边抽屉 -->
+    <v-navigation-drawer
+      v-model="drawerVisible"
+      location="right"
+      temporary
+      width="560"
+      :scrim="true"
+      style="z-index: 9999;"
+    >
+      <v-card flat>
+        <v-card-title class="d-flex align-center justify-space-between">
+          <span>失效数据详情</span>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            size="small"
+            @click="drawerVisible = false"
+          />
+        </v-card-title>
+        <v-divider />
+        <v-card-text v-if="drawerItem">
+          <InvalidDataDetail
+            :item="drawerItem"
+            :metadata-defines="drawerMetadataDefines"
+          />
+        </v-card-text>
+        <v-divider />
+        <v-card-actions v-if="drawerItem" class="px-4 py-3 drawer-actions">
+          <InvalidDataActions
+            :item="drawerItem"
+            variant="tonal"
+            @download="handleDownload(getDrawerItem())"
+            @fix="withDrawerClose(() => handleQuickFix([getDrawerItem().id]))"
+            @claim="openClaimDialog(getDrawerItem())"
+            @publish="withDrawerClose(() => handlePublish(getDrawerItem()))"
+            @unpublish="withDrawerClose(() => handleUnpublish(getDrawerItem()))"
+            @complete="withDrawerClose(() => handleMarkCompleted(getDrawerItem()))"
+            @discard="withDrawerClose(() => handleDiscard([getDrawerItem().id]))"
+          />
+        </v-card-actions>
+      </v-card>
+    </v-navigation-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, Teleport, watch } from 'vue'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
 import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
+import InvalidDataActions from './InvalidDataActions.vue'
 import type { InvalidDataRecord, FileMetadataDefine } from '../model'
+import type { IdType } from 'sfc-common/model'
 
 const SfcUtils = window.SfcUtils
 
@@ -227,6 +235,14 @@ const {
   loadProviders
 } = useInvalidDataList()
 
+/** 详情抽屉是否可见 */
+const drawerVisible = ref(false)
+
+/** 当前查看详情的记录 */
+const drawerItem = ref<InvalidDataRecord | null>(null)
+
+
+
 /** 操作管理 */
 const {
   canDiscard,
@@ -243,31 +259,16 @@ const {
 } = useInvalidDataActions({ loading, loadList, selected })
 
 /**
- * 打开详情弹窗
+ * 打开详情抽屉
  * @param item 要查看详情的失效数据记录
  */
-const showDetail = (item: InvalidDataRecord) => {
-  // 根据记录的 fileType 查找对应的 provider，获取其元数据定义
-  const provider = providers.value.find(p => p.typeId === item.fileType)
-  const metadataDefines: FileMetadataDefine[] = provider?.metadataDefines ?? []
-
-  SfcUtils.openComponentDialog(InvalidDataDetail, {
-    title: '失效数据详情',
-    props: {
-      item,
-      metadataDefines,
-      class: [ 'pl-2', 'pr-2', 'pt-2' ]
-    },
-    extraDialogOptions: {
-      confirmText: '关闭',
-      showCancel: false,
-      dense: true
-    }
-  })
+const openDrawer = (item: InvalidDataRecord) => {
+  drawerItem.value = item
+  drawerVisible.value = true
 }
 
 /**
- * 获取指定记录的元数据定义列表
+ * 获取当前抽屉记录的元数据定义列表
  * @param item 失效数据记录
  * @returns 对应文件类型的元数据定义数组
  */
@@ -275,6 +276,23 @@ const getMetadataDefines = (item: InvalidDataRecord): FileMetadataDefine[] => {
   const provider = providers.value.find(p => p.typeId === item.fileType)
   return provider?.metadataDefines ?? []
 }
+
+/**
+ * 获取当前抽屉中的记录（非空），仅在 v-if="drawerItem" 后的安全上下文中调用
+ * @returns 当前抽屉记录
+ */
+const getDrawerItem = (): InvalidDataRecord => drawerItem.value!
+
+/**
+ * 抽屉操作完成后关闭抽屉的通用回调
+ * @param action 要执行的异步操作
+ */
+const withDrawerClose = (action: () => void) => {
+  action()
+  drawerVisible.value = false
+}
+
+
 
 /**
  * 下载失效数据
@@ -308,6 +326,46 @@ const handleBatchFix = () => handleQuickFix(selected.value)
 /** 批量丢弃 */
 const handleBatchDiscard = () => handleDiscard(selected.value)
 
+/** 状态标签颜色映射 */
+const statusChipColor: Record<string, string> = {
+  PENDING: 'warning',
+  PUBLISHED: 'info',
+  CLAIMED: 'primary',
+  COMPLETED: 'success'
+}
+
+/**
+ * 截断过长的路径/Hash字符串，仅显示首尾各8个字符
+ * @param str 原始字符串
+ * @returns 截断后的字符串，短于20字符的原样返回
+ */
+const truncateHash = (str: string): string => {
+  if (!str || str.length <= 20) return str
+  const parts = str.split('/')
+  const fileName = parts[parts.length - 1]
+  if (fileName.length <= 20) return '.../' + fileName
+  return fileName.substring(0, 8) + '...' + fileName.substring(fileName.length - 8)
+}
+
+/**
+ * 将文本复制到剪贴板
+ * @param text 要复制的文本
+ */
+const copyToClipboard = async(text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    SfcUtils.snackbar('已复制到剪贴板')
+  } catch {
+    SfcUtils.snackbar('复制失败')
+  }
+}
+
+/** 当前抽屉记录的元数据定义 */
+const drawerMetadataDefines = computed((): FileMetadataDefine[] => {
+  if (!drawerItem.value) return []
+  return getMetadataDefines(drawerItem.value)
+})
+
 watch([() => query.status, () => query.fileType], () => {
   loadList()
 })
@@ -326,3 +384,19 @@ export default defineComponent({
   name: 'InvalidDataManager'
 })
 </script>
+
+<style lang="scss" scoped>
+.invalid-data-manager {
+  :deep(.v-data-table tbody tr) {
+    cursor: pointer;
+  }
+}
+</style>
+
+<style lang="scss">
+.drawer-actions {
+  gap: 8px;
+}
+</style>
+
+

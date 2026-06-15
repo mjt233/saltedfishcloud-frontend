@@ -15,20 +15,60 @@
     <v-tabs-window v-model="activeTab">
       <!-- 基础信息页签 -->
       <v-tabs-window-item value="basic">
-        <v-list density="compact">
-          <v-list-item title="ID" :subtitle="item.id" />
-          <v-list-item title="存储模式" :subtitle="item.storeMode" />
-          <v-list-item title="类型" :subtitle="item.type === 'INVALID_FILE_RECORD' ? '失效文件记录' : '失效物理存储'" />
-          <v-list-item title="状态" :subtitle="getStatusText(item.status)" />
-          <v-list-item title="物理路径" :subtitle="item.storagePath" />
-          <v-list-item title="网盘路径" :subtitle="item.diskPath || '-'" />
-          <v-list-item title="文件大小" :subtitle="StringFormatter.toSize(item.fileSize)" />
-          <v-list-item title="MD5" :subtitle="item.md5 || '-'" />
-          <v-list-item title="是否待识别" :subtitle="item.needIdentify ? '是' : '否'" />
-          <v-list-item title="文件类型" :subtitle="item.fileType || '-'" />
-          <v-list-item title="创建时间" :subtitle="formatDate(item.createAt)" />
-          <v-list-item title="最后修改时间" :subtitle="formatDate(item.lastModified)" />
-        </v-list>
+        <!-- 基础信息 - 多列网格布局 -->
+        <v-row class="mt-1">
+          <!-- 左列：核心元数据 -->
+          <v-col cols="12" sm="6">
+            <v-list density="compact">
+              <v-list-item title="ID" :subtitle="item.id" />
+              <v-list-item title="类型" :subtitle="item.type === 'INVALID_FILE_RECORD' ? '失效文件记录' : '失效物理存储'" />
+              <v-list-item>
+                <v-list-item-title>状态</v-list-item-title>
+                <v-list-item-subtitle>
+                  <v-chip :color="statusChipColor[item.status]" size="x-small" variant="tonal">
+                    {{ getStatusText(item.status) }}
+                  </v-chip>
+                </v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item title="创建时间" :subtitle="formatDate(item.createAt)" />
+              <v-list-item title="最后修改时间" :subtitle="formatDate(item.lastModified)" />
+            </v-list>
+          </v-col>
+
+          <!-- 右列：文件属性 -->
+          <v-col cols="12" sm="6">
+            <v-list density="compact">
+              <v-list-item title="存储模式" :subtitle="item.storeMode" />
+              <v-list-item title="文件大小" :subtitle="StringFormatter.toSize(item.fileSize)" />
+              <v-list-item title="文件类型" :subtitle="item.fileType || '-'" />
+              <v-list-item title="MD5">
+                <template #subtitle>
+                  <span v-if="item.md5" :title="item.md5">{{ item.md5 }}</span>
+                  <span v-else class="text-disabled">-</span>
+                </template>
+              </v-list-item>
+              <v-list-item title="是否待识别" :subtitle="item.needIdentify ? '是' : '否'" />
+            </v-list>
+          </v-col>
+
+          <!-- 通栏：长文本路径 -->
+          <v-col cols="12">
+            <v-list density="compact">
+              <v-list-item>
+                <v-list-item-title>物理路径</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap" style="word-break: break-all">
+                  {{ item.storagePath || '-' }}
+                </v-list-item-subtitle>
+              </v-list-item>
+              <v-list-item>
+                <v-list-item-title>网盘路径</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap" style="word-break: break-all">
+                  {{ item.diskPath || '-' }}
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-col>
+        </v-row>
 
         <!-- 认领记录 -->
         <div v-if="claims.length > 0" class="mt-4">
@@ -93,22 +133,20 @@
         <div class="pa-4">
           <template v-if="item.fileType == 'audio'">
             <audio
-              autoplay
               controls
               :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))"
-              style="width: 320px"
+              style="width: 100%"
             />
           </template>
           <template v-else-if="item.fileType == 'video'">
             <video
-              autoplay
               controls
               :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))"
-              style="height: 320px;"
+              style="width: 100%"
             />
           </template>
           <template v-else-if="item.fileType == 'image'">
-            <v-img :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))" contain style="height: 320px;" />
+            <v-img :src="SfcUtils.getApiUrl(DataManagerAPI.download(item.id))" contain style="width: 100%" />
           </template>
         </div>
       </v-tabs-window-item>
@@ -128,6 +166,14 @@ const SfcUtils = window.SfcUtils
 
 /** 当前激活的页签，'basic' 为基础信息，'type' 为类型信息 */
 const activeTab = ref('basic')
+
+/** 状态标签颜色映射 */
+const statusChipColor: Record<string, string> = {
+  PENDING: 'warning',
+  PUBLISHED: 'info',
+  CLAIMED: 'primary',
+  COMPLETED: 'success'
+}
 
 /** 是否支持预览 */
 const canPreview = computed(() => {
