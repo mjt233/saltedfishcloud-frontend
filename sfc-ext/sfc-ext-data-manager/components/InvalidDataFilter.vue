@@ -187,7 +187,7 @@ const props = defineProps<{
 /** 组件事件 */
 const emit = defineEmits<{
   /** 用户点击"应用"或移除筛选芯片时触发，父组件应据此刷新列表 */
-  apply: [value: InvalidDataFilterValue]
+  (e: 'apply', value: InvalidDataFilterValue): void
 }>()
 
 /** ==================== 内部状态 ==================== */
