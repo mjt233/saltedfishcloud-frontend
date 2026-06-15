@@ -198,6 +198,7 @@
             <InvalidDataDetail
               :item="drawerItem"
               :metadata-defines="drawerMetadataDefines"
+              :drawer-visible="drawerVisible"
             />
           </v-card-text>
           <v-divider />

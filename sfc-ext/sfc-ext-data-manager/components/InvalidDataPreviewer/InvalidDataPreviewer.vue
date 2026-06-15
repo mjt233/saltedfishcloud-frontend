@@ -1,6 +1,11 @@
 <template>
   <!-- 根据文件类型渲染对应的预览组件 -->
-  <component :is="previewComponent" v-if="previewComponent" :item="item" />
+  <component
+    :is="previewComponent"
+    v-if="previewComponent"
+    :item="item"
+    :drawer-visible="drawerVisible"
+  />
 </template>
 
 <script setup lang="ts">
@@ -31,6 +36,13 @@ const props = defineProps({
   item: {
     type: Object as PropType<InvalidDataRecord>,
     required: true
+  },
+  /**
+   * 抽屉是否可见，用于在抽屉关闭时暂停媒体播放
+   */
+  drawerVisible: {
+    type: Boolean,
+    default: true
   }
 })
 

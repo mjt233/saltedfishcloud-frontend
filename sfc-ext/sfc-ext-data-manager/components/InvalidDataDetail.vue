@@ -130,7 +130,7 @@
       </v-tabs-window-item>
       <!-- 预览页签 -->
       <v-tabs-window-item value="preview">
-        <InvalidDataPreviewer :item="item" />
+        <InvalidDataPreviewer :item="item" :drawer-visible="drawerVisible" />
       </v-tabs-window-item>
     </v-tabs-window>
   </div>
@@ -189,6 +189,13 @@ const props = defineProps({
   metadataDefines: {
     type: Array as PropType<FileMetadataDefine[]>,
     default: () => []
+  },
+  /**
+   * 抽屉是否可见，用于在抽屉关闭时暂停或释放预览的资源
+   */
+  drawerVisible: {
+    type: Boolean,
+    default: true
   }
 })
 
