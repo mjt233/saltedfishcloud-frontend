@@ -23,52 +23,14 @@
       </v-card-title>
       
       <v-card-text>
-        <v-row>
-          <v-col cols="12" sm="3">
-            <v-select
-              v-model="query.status"
-              :items="statusOptions"
-              label="状态"
-              clearable
-              hide-details
-              multiple
-              chips
-            />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <v-select
-              v-model="query.fileType"
-              :items="providerOptions"
-              label="文件类型"
-              clearable
-              hide-details
-              multiple
-              chips
-            />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <v-text-field
-              v-model.number="query.minFileSize"
-              label="最小文件大小(MiB)"
-              type="number"
-              clearable
-              hide-details
-              :min="0"
-              suffix="MiB"
-            />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <v-text-field
-              v-model.number="query.maxFileSize"
-              label="最大文件大小(MiB)"
-              type="number"
-              clearable
-              hide-details
-              :min="0"
-              suffix="MiB"
-            />
-          </v-col>
-        </v-row>
+        <!-- 筛选组件：桌面端展开式面板，移动端底部弹出 -->
+        <InvalidDataFilter
+          :model-value="filterQueryProxy"
+          :status-options="statusOptions"
+          :provider-options="providerOptions"
+          :types-name-map="typesNameMap"
+          @apply="onFilterApply"
+        />
 
         <v-data-table-server
           v-model="selected"
@@ -259,7 +221,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Teleport, watch } from 'vue'
+import { computed, onMounted, ref, Teleport } from 'vue'
 import { useCheckIsMobile } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
@@ -267,7 +229,9 @@ import { useInvalidDataActions } from '../composables/useInvalidDataActions'
 import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
 import InvalidDataActions from './InvalidDataActions.vue'
+import InvalidDataFilter from './InvalidDataFilter.vue'
 import type { InvalidDataRecord, FileMetadataDefine } from '../model'
+import type { InvalidDataFilterValue } from '../model'
 
 const SfcUtils = window.SfcUtils
 
@@ -304,6 +268,17 @@ const {
   loadList,
   loadProviders
 } = useInvalidDataList()
+
+/**
+ * 筛选值代理，从 query 中提取筛选相关字段传给 InvalidDataFilter 组件
+ * 使用 :model-value 单向传递，避免 v-model 双向绑定覆盖 query 的分页字段
+ */
+const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
+  status: query.status,
+  fileType: query.fileType,
+  minFileSize: query.minFileSize,
+  maxFileSize: query.maxFileSize
+}))
 
 /** 详情抽屉是否可见 */
 const drawerVisible = ref(false)
@@ -436,9 +411,20 @@ const drawerMetadataDefines = computed((): FileMetadataDefine[] => {
   return getMetadataDefines(drawerItem.value)
 })
 
-watch([() => query.status, () => query.fileType, () => query.minFileSize, () => query.maxFileSize], () => {
+/**
+ * 筛选条件应用回调
+ * 由 InvalidDataFilter 组件在用户点击"应用"或移除筛选芯片时触发，
+ * 将筛选值同步到 query 并重新加载列表
+ * @param value 用户选定的筛选条件
+ */
+const onFilterApply = (value: InvalidDataFilterValue) => {
+  query.status = value.status
+  query.fileType = value.fileType
+  query.minFileSize = value.minFileSize
+  query.maxFileSize = value.maxFileSize
+  query.page = 1
   loadList()
-})
+}
 
 /** 初始化：加载识别器选项和列表数据 */
 onMounted(() => {
