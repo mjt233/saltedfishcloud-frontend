@@ -140,14 +140,20 @@
           </template>
         </v-card-text>
         <v-divider />
-        <v-card-actions class="pa-4 ga-3">
-          <v-btn variant="outlined" block @click="handleReset">
-            重置
-          </v-btn>
-          <v-btn color="primary" block @click="handleApply">
+        <div class="pa-4 ga-3">
+          <v-btn
+            variant="text"
+            color="primary"
+            block
+            @click="handleApply"
+          >
             应用
           </v-btn>
-        </v-card-actions>
+          <v-divider class="mt-2 mb-2" />
+          <v-btn variant="text" block @click="handleReset">
+            重置
+          </v-btn>
+        </div>
       </v-card>
     </v-bottom-sheet>
   </div>
