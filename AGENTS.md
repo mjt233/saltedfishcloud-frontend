@@ -5,7 +5,7 @@
 
 ## 前端组件与样式规范
 
-需要创建组件或改动组件样式时，请参考规范[前端样式说明](./docs/front-end-style.md)
+需要创建组件或改动组件样式时，请参考规范[Vue组件规范说明](./docs/vue-component-style.md) 与 [前端样式说明](./docs/front-end-style.md)
 
 ## 通用代码规范
 
