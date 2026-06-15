@@ -164,47 +164,50 @@
     </v-card>
 
     <!-- 详情侧边抽屉 -->
-    <v-navigation-drawer
-      v-model="drawerVisible"
-      location="right"
-      temporary
-      width="560"
-      :scrim="true"
-      style="z-index: 9999;"
-    >
-      <v-card flat>
-        <v-card-title class="d-flex align-center justify-space-between">
-          <span>失效数据详情</span>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            size="small"
-            @click="drawerVisible = false"
-          />
-        </v-card-title>
-        <v-divider />
-        <v-card-text v-if="drawerItem">
-          <InvalidDataDetail
-            :item="drawerItem"
-            :metadata-defines="drawerMetadataDefines"
-          />
-        </v-card-text>
-        <v-divider />
-        <v-card-actions v-if="drawerItem" class="px-4 py-3 drawer-actions">
-          <InvalidDataActions
-            :item="drawerItem"
-            variant="tonal"
-            @download="handleDownload(getDrawerItem())"
-            @fix="withDrawerClose(() => handleQuickFix([getDrawerItem().id]))"
-            @claim="openClaimDialog(getDrawerItem())"
-            @publish="withDrawerClose(() => handlePublish(getDrawerItem()))"
-            @unpublish="withDrawerClose(() => handleUnpublish(getDrawerItem()))"
-            @complete="withDrawerClose(() => handleMarkCompleted(getDrawerItem()))"
-            @discard="withDrawerClose(() => handleDiscard([getDrawerItem().id]))"
-          />
-        </v-card-actions>
-      </v-card>
-    </v-navigation-drawer>
+    <Teleport to="main">
+      
+      <v-navigation-drawer
+        v-model="drawerVisible"
+        location="right"
+        temporary
+        width="560"
+        :scrim="true"
+        style="z-index: 9999;"
+      >
+        <v-card flat>
+          <v-card-title class="d-flex align-center justify-space-between">
+            <span>失效数据详情</span>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              size="small"
+              @click="drawerVisible = false"
+            />
+          </v-card-title>
+          <v-divider />
+          <v-card-text v-if="drawerItem">
+            <InvalidDataDetail
+              :item="drawerItem"
+              :metadata-defines="drawerMetadataDefines"
+            />
+          </v-card-text>
+          <v-divider />
+          <v-card-actions v-if="drawerItem" class="px-4 py-3 drawer-actions">
+            <InvalidDataActions
+              :item="drawerItem"
+              variant="tonal"
+              @download="handleDownload(getDrawerItem())"
+              @fix="withDrawerClose(() => handleQuickFix([getDrawerItem().id]))"
+              @claim="openClaimDialog(getDrawerItem())"
+              @publish="withDrawerClose(() => handlePublish(getDrawerItem()))"
+              @unpublish="withDrawerClose(() => handleUnpublish(getDrawerItem()))"
+              @complete="withDrawerClose(() => handleMarkCompleted(getDrawerItem()))"
+              @discard="withDrawerClose(() => handleDiscard([getDrawerItem().id]))"
+            />
+          </v-card-actions>
+        </v-card>
+      </v-navigation-drawer>
+    </Teleport>
   </div>
 </template>
 
@@ -217,7 +220,6 @@ import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
 import InvalidDataActions from './InvalidDataActions.vue'
 import type { InvalidDataRecord, FileMetadataDefine } from '../model'
-import type { IdType } from 'sfc-common/model'
 
 const SfcUtils = window.SfcUtils
 
