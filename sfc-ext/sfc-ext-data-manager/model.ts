@@ -174,7 +174,7 @@ export interface FileTypeProviderInfo {
  */
 export interface InvalidDataFilterValue {
   /** 按状态筛选（支持多选），对应 {@link InvalidDataRecordStatus} */
-  status?: string[]
+  status?: InvalidDataRecordStatus[]
   /** 按文件类型筛选（支持多选），值为 {@link FileTypeProviderInfo.typeId} */
   fileType?: string[]
   /** 最小文件大小（MiB），UI 展示单位，发送请求时转为字节 */
