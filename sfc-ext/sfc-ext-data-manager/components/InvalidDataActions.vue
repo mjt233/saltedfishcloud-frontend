@@ -12,7 +12,7 @@
       下载
     </v-btn>
     <v-btn
-      v-if="item.status === 'PENDING' && item.type === 'INVALID_FILE_RECORD'"
+      v-if="item.status === 'PENDING' && item.type === 'FILE_RECORD'"
       size="small"
       :variant="variant"
       color="success"
@@ -21,7 +21,7 @@
       修复
     </v-btn>
     <v-btn
-      v-if="item.status === 'PENDING' && item.type === 'INVALID_STORAGE'"
+      v-if="item.status !== 'COMPLETED' && item.type === 'PHYSICAL_STORAGE'"
       size="small"
       :variant="variant"
       color="primary"
@@ -30,7 +30,7 @@
       认领
     </v-btn>
     <v-btn
-      v-if="item.status === 'PENDING' && item.type === 'INVALID_STORAGE'"
+      v-if="item.status === 'PENDING' && item.type === 'PHYSICAL_STORAGE'"
       size="small"
       :variant="variant"
       color="info"

@@ -1,8 +1,9 @@
 import type { Ref } from 'vue'
+import { computed, ref } from 'vue'
 import { getContext } from 'sfc-common'
 import type { IdType } from 'sfc-common/model'
 import { DataManagerAPI } from '../api'
-import type { InvalidDataRecord, ClaimParam } from '../model'
+import type { InvalidDataRecord, ClaimParam, FileTypeCheckResult } from '../model'
 import InvalidDataClaimForm from '../components/form/InvalidDataClaimForm.vue'
 
 const SfcUtils = window.SfcUtils
@@ -29,6 +30,24 @@ export interface UseInvalidDataActionsOptions {
 export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
   const { loading, loadList, selected } = options
   const context = getContext()
+
+  /** 当前用户是否为管理员 */
+  const isAdmin = computed(() => context.session.value.user.role === 'admin')
+
+  /** 当前用户的UID */
+  const currentUid = context.session.value.user.id as IdType
+
+  /**
+   * 上次认领时使用的保存位置（targetUid）
+   * 初始值为当前用户UID，认领成功后更新
+   */
+  const lastTargetUid = ref<IdType>(currentUid)
+
+  /**
+   * 上次认领时使用的保存路径
+   * 初始值为根路径 '/'，认领成功后更新
+   */
+  const lastSavePath = ref('/')
 
   /**
    * 判断某条记录是否可丢弃
@@ -219,17 +238,32 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
    * @param item 失效数据记录
    */
   const openClaimDialog = (item: InvalidDataRecord) => {
-    const currentUid = context.session.value.user.id as IdType
-
-    // 根据物理路径提取一个默认文件名
+    // 根据物理路径提取原始文件名
     const parts = item.storagePath?.split('/') || []
-    const defaultName = parts[parts.length - 1] || '未命名文件'
+    const rawName = parts[parts.length - 1] || '未命名文件'
+
+    // 尝试从类型检测结果中提取识别出的扩展名
+    let extension = ''
+    if (item.typeCheckResult) {
+      try {
+        const typeResult = JSON.parse(item.typeCheckResult) as FileTypeCheckResult | undefined
+        extension = typeResult?.detail?.extension || ''
+      } catch {
+        // 解析失败时不追加扩展名
+      }
+    }
+
+    // 默认文件名：原始文件名 + 识别出的扩展名（若原始文件名已含该扩展名则不重复追加）
+    let defaultName = rawName
+    if (extension && !rawName.endsWith('.' + extension)) {
+      defaultName = rawName + extension
+    }
 
     const initObject: ClaimParam = {
       invalidDataId: item.id,
-      targetUid: currentUid,
+      targetUid: lastTargetUid.value,
       fileName: defaultName,
-      savePath: '/'
+      savePath: lastSavePath.value
     }
 
     const inst = SfcUtils.openComponentDialog(InvalidDataClaimForm, {
@@ -237,7 +271,7 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
       props: {
         uid: currentUid,
         initObject,
-        showTargetUidSelector: true,
+        showTargetUidSelector: isAdmin.value,
         targetUidOptions: [
           { title: '我的私人网盘', value: currentUid },
           { title: '公共网盘', value: 0 }
@@ -247,8 +281,13 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
         confirmText: '提交认领'
       },
       async onConfirm() {
-        const ret = await inst.getInstAsForm().submit()
+        const form = inst.getInstAsForm()
+        const formData = form.getFormData() as ClaimParam
+        const ret = await form.submit()
         if (ret.success) {
+          // 认领成功后记录本次使用的保存位置和路径，供下次认领复用
+          lastTargetUid.value = formData.targetUid
+          lastSavePath.value = formData.savePath
           SfcUtils.snackbar('认领成功！')
           await loadList()
         }

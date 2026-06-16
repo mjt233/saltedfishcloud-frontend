@@ -7,6 +7,9 @@
       <v-tab value="type" :disabled="!typeCheckDetail">
         类型信息
       </v-tab>
+      <v-tab value="claims">
+        认领记录
+      </v-tab>
       <v-tab v-if="canPreview" value="preview">
         预览
       </v-tab>
@@ -21,7 +24,7 @@
           <v-col cols="12" sm="6">
             <v-list density="compact">
               <v-list-item title="ID" :subtitle="item.id" />
-              <v-list-item title="类型" :subtitle="item.type === 'INVALID_FILE_RECORD' ? '失效文件记录' : '失效物理存储'" />
+              <v-list-item title="类型" :subtitle="item.type === 'PHYSICAL_STORAGE' ? '文件记录丢失' : '物理存储丢失'" />
               <v-list-item>
                 <v-list-item-title>状态</v-list-item-title>
                 <v-list-item-subtitle>
@@ -70,32 +73,6 @@
           </v-col>
         </v-row>
 
-        <!-- 认领记录 -->
-        <div v-if="claims.length > 0" class="mt-4">
-          <div class="text-h6 mb-2">
-            认领记录
-          </div>
-          <v-table density="compact">
-            <thead>
-              <tr>
-                <th>认领人UID</th>
-                <th>目标UID</th>
-                <th>保存路径</th>
-                <th>文件名</th>
-                <th>时间</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="c in claims" :key="c.id">
-                <td>{{ c.targetUid }}</td>
-                <td>{{ c.targetUid === 0 ? '公共网盘' : c.targetUid }}</td>
-                <td>{{ c.savePath }}</td>
-                <td>{{ c.fileName }}</td>
-                <td>{{ formatDate(c.createAt) }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </div>
       </v-tabs-window-item>
 
       <!-- 类型信息页签 -->
@@ -126,6 +103,34 @@
               </tbody>
             </v-table>
           </div>
+        </div>
+      </v-tabs-window-item>
+      <!-- 认领记录页签 -->
+      <v-tabs-window-item value="claims">
+        <div v-if="claims.length > 0">
+          <v-table density="compact">
+            <thead>
+              <tr>
+                <th>认领人UID</th>
+                <th>目标UID</th>
+                <th>保存路径</th>
+                <th>文件名</th>
+                <th>时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="c in claims" :key="c.id">
+                <td>{{ c.targetUid }}</td>
+                <td>{{ c.targetUid === 0 ? '公共网盘' : c.targetUid }}</td>
+                <td>{{ c.savePath }}</td>
+                <td>{{ c.fileName }}</td>
+                <td>{{ formatDate(c.createAt) }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </div>
+        <div v-else class="text-center py-8 text-medium-emphasis">
+          暂无认领记录
         </div>
       </v-tabs-window-item>
       <!-- 预览页签 -->
@@ -261,7 +266,7 @@ watch(activeTab, async(newTab) => {
 /** 组件挂载后加载认领记录 */
 onMounted(async() => {
   const item = props.item
-  if (item.status === 'CLAIMED' || item.status === 'PUBLISHED' || item.status === 'COMPLETED') {
+  if (item.status !== 'COMPLETED' && item.type == 'PHYSICAL_STORAGE' && item.storeMode == 'UNIQUE') {
     try {
       claims.value = (await SfcUtils.request(DataManagerAPI.getClaims(item.id))).data.data
     } catch (err) {

@@ -13,7 +13,7 @@ export type InvalidDataRecordStatus = 'PENDING' | 'PUBLISHED' | 'CLAIMED' | 'COM
  * 文件类型识别结果详情
  */
 export interface FileTypeCheckResultDetail {
-  /** 文件可能的拓展名 */
+  /** 文件可能的拓展名(包含.) */
   extension: string
   /** 文件的MIME类型 */
   mimetype: string
@@ -36,10 +36,10 @@ export interface InvalidDataRecord {
   updateAt: string
   /**
    * 失效数据类型
-   * - `INVALID_FILE_RECORD`: 文件记录丢失，数据库中有记录但存储中无对应文件
-   * - `INVALID_STORAGE`: 存储丢失，存储中有文件但数据库中无对应记录
+   * - `FILE_RECORD`: 存储丢失，数据库中有记录但存储中无对应文件
+   * - `PHYSICAL_STORAGE`: 文件记录丢失，存储中有文件但数据库中无对应记录
    */
-  type: 'INVALID_FILE_RECORD' | 'INVALID_STORAGE'
+  type: 'FILE_RECORD' | 'PHYSICAL_STORAGE'
   /**
    * 文件存储模式
    * - `RAW`: 原始存储，文件按原始路径存储
