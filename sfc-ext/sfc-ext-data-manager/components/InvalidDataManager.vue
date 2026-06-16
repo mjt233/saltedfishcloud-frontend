@@ -1,144 +1,165 @@
 <template>
-  <div class="invalid-data-manager">
-    <v-card>
-      <!-- 桌面端：横向按钮栏 -->
-      <v-card-title v-if="!isMobile" class="d-flex align-center">
-        <v-btn
-          v-for="action in actionItems"
-          :key="action.id"
-          :color="action.color"
-          :icon="action.showText ? undefined : action.icon"
-          :class="{ 'mr-2': action.showText }"
-          :variant="action.showText ? undefined : 'text'"
-          :style="{ color: action.color == 'error' ? 'white' : undefined }"
-          @click="action.action"
-        >
-          <template v-if="action.showText">
-            <v-icon v-if="action.icon" start>
-              {{ action.icon }}
-            </v-icon>
-            {{ action.title }}
-          </template>
-        </v-btn>
-      </v-card-title>
-      
-      <v-card-text>
-        <!-- 筛选组件：桌面端展开式面板，移动端底部弹出 -->
-        <InvalidDataFilter
-          :model-value="filterQueryProxy"
-          :status-options="statusOptions"
-          :provider-options="providerOptions"
-          :types-name-map="typesNameMap"
-          @apply="onFilterApply"
-        />
-
-        <v-data-table-server
-          v-model="selected"
-          :headers="headers"
-          :items="items"
-          :items-length="total"
-          :loading="loading"
-          :page="query.page"
-          :items-per-page="query.size"
-          :items-per-page-options="[10, 20, 50, 100]"
-          items-per-page-text="每页大小"
-          show-select
-          hover
-          mobile-breakpoint="md"
-          @update:options="loadList"
-          @click:row="(_event: any, { item }: any) => openDrawer(item)"
-        >
-          <template #item.storagePath="{ item }">
-            <v-tooltip location="top">
-              <template #activator="{ props: tooltipProps }">
-                <span
-                  v-bind="tooltipProps"
-                  class="text-truncate d-inline-block cursor-pointer"
-                  style="max-width: 180px"
-                >
-                  {{ truncateHash(item.storagePath) }}
-                </span>
-              </template>
-              <div class="d-flex align-center" style="max-width: 400px; word-break: break-all">
-                <span class="mr-2">{{ item.storagePath }}</span>
-                <v-btn
-                  icon="mdi-content-copy"
-                  size="x-small"
-                  variant="text"
-                  @click.stop="copyToClipboard(item.storagePath)"
-                />
-              </div>
-            </v-tooltip>
-          </template>
-
-          <template #item.needIdentify="{ item }">
-            <span :class="item.needIdentify ? 'text-warning' : 'text-success'">
-              {{ item.needIdentify ? '是' : '无需识别' }}
-            </span>
-          </template>
-
-          <template #item.fileSize="{ item }">
-            {{ StringFormatter.toSize(item.fileSize) }}
-          </template>
-
-          <template #item.status="{ item }">
-            <v-chip
-              :color="statusChipColor[item.status]"
-              size="small"
-              variant="tonal"
-            >
-              {{ statusTitleMap[item.status] }}
-            </v-chip>
-          </template>
-          <template #item.fileType="{ item }">
-            <span :class="item.fileType ? 'text-info' : 'text-muted'">
-              {{ item.fileType ? typesNameMap[item.fileType] : '未知' }}
-            </span>
-          </template>
-
-          <template #item.actions="{ item }">
-            <InvalidDataActions
-              class="justify-end "
-              :item="item"
-              variant="text"
-              show-discard-popover
-              @download="handleDownload(item)"
-              @fix="handleQuickFix([item.id])"
-              @claim="openClaimDialog(item)"
-              @publish="handlePublish(item)"
-              @unpublish="handleUnpublish(item)"
-              @complete="handleMarkCompleted(item)"
-              @discard="handleDiscard([item.id])"
-            >
-              <template #prepend>
-                <v-btn
-                  variant="text"
-                  size="small"
-                  prepend-icon="mdi-information"
-                >
-                  详情
-                </v-btn>
-              </template>
-            </InvalidDataActions>
-          </template>
-        </v-data-table-server>
-        
-        <div v-if="selected.length > 0" class="d-flex mt-4">
-          <span class="mr-4 align-self-center">已选择 {{ selected.length }} 项</span>
+  <div ref="thisRef" class="invalid-data-manager">
+    <div class="d-flex">
+      <v-card ref="mainCardRef" style="flex: 1;">
+        <!-- 桌面端：横向按钮栏 -->
+        <v-card-title v-if="!isMobile" class="d-flex align-center">
           <v-btn
-            color="primary"
-            class="mr-2"
-            :disabled="!canBatchFix"
-            @click="handleBatchFix"
+            v-for="action in actionItems"
+            :key="action.id"
+            :color="action.color"
+            :icon="action.showText ? undefined : action.icon"
+            :class="{ 'mr-2': action.showText }"
+            :variant="action.showText ? undefined : 'text'"
+            :style="{ color: action.color == 'error' ? 'white' : undefined }"
+            @click="action.action"
           >
-            批量修复
+            <template v-if="action.showText">
+              <v-icon v-if="action.icon" start>
+                {{ action.icon }}
+              </v-icon>
+              {{ action.title }}
+            </template>
           </v-btn>
-          <v-btn color="error" :disabled="!canBatchDiscard" @click="handleBatchDiscard">
-            批量丢弃
-          </v-btn>
-        </div>
-      </v-card-text>
-    </v-card>
+        </v-card-title>
+      
+        <v-card-text>
+          <!-- 筛选组件：桌面端展开式面板，移动端底部弹出 -->
+          <InvalidDataFilter
+            :model-value="filterQueryProxy"
+            :status-options="statusOptions"
+            :provider-options="providerOptions"
+            :types-name-map="typesNameMap"
+            @apply="onFilterApply"
+          />
+          <v-data-table-server
+            ref="tableRef"
+            v-model="selected"
+            :height="managerHeight + 'px'"
+            :headers="headers"
+            :items="items"
+            :items-length="total"
+            :loading="loading"
+            :page="query.page"
+            :items-per-page="query.size"
+            :items-per-page-options="[10, 20, 50, 100]"
+            items-per-page-text="每页大小"
+            show-select
+            hover
+            mobile-breakpoint="md"
+            @update:options="loadList"
+            @click:row="tableRowClick"
+          >
+            <template #item.storagePath="{ item }">
+              <v-tooltip location="top">
+                <template #activator="{ props: tooltipProps }">
+                  <span
+                    v-bind="tooltipProps"
+                    class="text-truncate d-inline-block cursor-pointer"
+                    style="max-width: 180px"
+                  >
+                    {{ truncateHash(item.storagePath) }}
+                  </span>
+                </template>
+                <div class="d-flex align-center" style="max-width: 400px; word-break: break-all">
+                  <span class="mr-2">{{ item.storagePath }}</span>
+                  <v-btn
+                    icon="mdi-content-copy"
+                    size="x-small"
+                    variant="text"
+                    @click.stop="copyToClipboard(item.storagePath)"
+                  />
+                </div>
+              </v-tooltip>
+            </template>
+
+            <template #item.needIdentify="{ item }">
+              <span :class="item.needIdentify ? 'text-warning' : 'text-success'">
+                {{ item.needIdentify ? '是' : '无需识别' }}
+              </span>
+            </template>
+
+            <template #item.fileSize="{ item }">
+              {{ StringFormatter.toSize(item.fileSize) }}
+            </template>
+
+            <template #item.status="{ item }">
+              <v-chip
+                :color="statusChipColor[item.status]"
+                size="small"
+                variant="tonal"
+              >
+                {{ statusTitleMap[item.status] }}
+              </v-chip>
+            </template>
+            <template #item.fileType="{ item }">
+              <span :class="item.fileType ? 'text-info' : 'text-muted'">
+                {{ item.fileType ? typesNameMap[item.fileType] : '未知' }}
+              </span>
+            </template>
+
+            <template #item.actions="{ item }">
+              <InvalidDataActions
+                class="justify-end "
+                :item="item"
+                variant="text"
+                show-discard-popover
+                @download="handleDownload(item)"
+                @fix="handleQuickFix([item.id])"
+                @claim="openClaimDialog(item)"
+                @publish="handlePublish(item)"
+                @unpublish="handleUnpublish(item)"
+                @complete="handleMarkCompleted(item)"
+                @discard="handleDiscard([item.id])"
+              >
+                <template #prepend>
+                  <v-btn
+                    variant="text"
+                    size="small"
+                    prepend-icon="mdi-information"
+                  >
+                    详情
+                  </v-btn>
+                </template>
+              </InvalidDataActions>
+            </template>
+          </v-data-table-server>
+        
+          <div v-if="selected.length > 0" class="d-flex mt-4">
+            <span class="mr-4 align-self-center">已选择 {{ selected.length }} 项</span>
+            <v-btn
+              color="primary"
+              class="mr-2"
+              :disabled="!canBatchFix"
+              @click="handleBatchFix"
+            >
+              批量修复
+            </v-btn>
+            <v-btn color="error" :disabled="!canBatchDiscard" @click="handleBatchDiscard">
+              批量丢弃
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
+
+      <!-- 桌面端右侧卡片 -->
+      <v-card
+        v-if="drawerItem && !isMobile"
+        class="ml-4"
+        style="width: 480px;"
+        :style="{ maxHeight: mainCardHeight + 'px' }"
+        title="失效数据详情"
+      >
+        <v-card-text>
+          
+          <InvalidDataDetail
+            :item="drawerItem"
+            :metadata-defines="drawerMetadataDefines"
+            :drawer-visible="drawerVisible"
+          />
+        </v-card-text>
+      </v-card>
+    </div>
 
     <!-- 移动端：右下角悬浮操作按钮 -->
     <VFadeTransition>
@@ -234,6 +255,14 @@ import InvalidDataFilter from './InvalidDataFilter.vue'
 import type { InvalidDataRecord, FileMetadataDefine } from '../model'
 import type { InvalidDataFilterValue } from '../model'
 
+
+
+// 表格组件引用
+const tableRef = ref()
+// 当前组件根元素引用
+const thisRef = ref()
+// 主表格外的卡片引用
+const mainCardRef = ref()
 const SfcUtils = window.SfcUtils
 
 /** 是否为移动端窄屏 */
@@ -269,6 +298,15 @@ const {
   loadList,
   loadProviders
 } = useInvalidDataList()
+
+const { targetHeight: managerHeight, updateHeight: updateManagerHeight } = useAutoComputeHeight({
+  autoComputeHeight: true,
+  computeTarget: () => tableRef.value.$el as HTMLElement,
+  observeTarget: () => thisRef.value as HTMLElement,
+  offset: -108
+})
+// 右侧卡片与左侧卡片高度同步
+const mainCardHeight = useHeightSync(() => mainCardRef.value.$el)
 
 /**
  * 筛选值代理，从 query 中提取筛选相关字段传给 InvalidDataFilter 组件
@@ -393,6 +431,14 @@ const truncateHash = (str: string): string => {
   return fileName.substring(0, 8) + '...' + fileName.substring(fileName.length - 8)
 }
 
+const tableRowClick = (_event: any, { item }: any) => {
+  if (isMobile.value) {
+    openDrawer(item)
+  } else {
+    drawerItem.value = item
+  }
+}
+
 /**
  * 将文本复制到剪贴板
  * @param text 要复制的文本
@@ -436,6 +482,9 @@ onMounted(() => {
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useAutoComputeHeight } from 'sfc-common/composables/useAutoComputeHeight'
+import { useResizeObserver } from 'sfc-common/composables/useResizeObserver'
+import { useHeightSync } from '../composables/useHeightSync'
 
 export default defineComponent({
   name: 'InvalidDataManager'
