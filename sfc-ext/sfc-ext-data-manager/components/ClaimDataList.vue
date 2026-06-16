@@ -1,56 +1,46 @@
 <template>
   <div class="claim-data-list">
-    <v-card>
-      <v-card-title>
-        待认领数据
-        <v-spacer />
-        <v-btn icon="mdi-refresh" variant="text" @click="loadList" />
-      </v-card-title>
-      
-      <v-card-text>
-        <v-data-table-server
-          :headers="headers"
-          :items="items"
-          :items-length="total"
-          :loading="loading"
-          :page="query.page"
-          :items-per-page="query.size"
-          :items-per-page-options="[10, 20, 50, 100]"
-          items-per-page-text="每页大小"
-          hover
-          @update:options="loadList"
-        >
-          <template #item.storagePath="{ item }">
-            <span class="text-truncate d-inline-block" style="max-width: 250px" :title="item.storagePath">
-              {{ item.storagePath }}
-            </span>
-          </template>
+    <v-data-table-server
+      :headers="headers"
+      :items="items"
+      :items-length="total"
+      :loading="loading"
+      :page="query.page"
+      :items-per-page="query.size"
+      :items-per-page-options="[10, 20, 50, 100]"
+      items-per-page-text="每页大小"
+      hover
+      @update:options="loadList"
+    >
+      <template #item.fileSize="{ item }">
+        {{ StringFormatter.toSize(item.fileSize) }}
+      </template>
 
-          <template #item.fileSize="{ item }">
-            {{ StringFormatter.toSize(item.fileSize) }}
-          </template>
+      <template #item.fileType="{ item }">
+        <span :class="item.fileType ? 'text-info' : 'text-muted'">
+          {{ item.fileType ? typesNameMap[item.fileType] : '未知' }}
+        </span>
+      </template>
 
-          <template #item.lastModified="{ item }">
-            {{ formatDate(item.lastModified) }}
-          </template>
+      <template #item.lastModified="{ item }">
+        {{ formatDate(item.lastModified) }}
+      </template>
 
-          <template #item.actions="{ item }">
-            <v-btn size="small" color="primary" @click="openClaimDialog(item)">
-              认领
-            </v-btn>
-          </template>
-        </v-data-table-server>
-      </v-card-text>
-    </v-card>
-
+      <template #item.actions="{ item }">
+        <v-btn size="small" color="primary" @click="openClaimDialog(item)">
+          认领
+        </v-btn>
+      </template>
+    </v-data-table-server>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { getContext } from 'sfc-common'
+import { getContext, StringUtils } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { DataManagerAPI } from '../api'
+import { useInvalidDataList } from '../composables/useInvalidDataList'
 import type { InvalidDataQuery, InvalidDataRecord, ClaimParam } from '../model'
 import type { IdType } from 'sfc-common/model'
 import InvalidDataClaimForm from './form/InvalidDataClaimForm.vue'
@@ -59,6 +49,9 @@ const context = getContext()
 const SfcUtils = window.SfcUtils
 const loading = ref(false)
 const isAdmin = computed(() => context.session.value.user.role === 'admin')
+
+/** 从 composable 中获取文件类型名称映射和加载方法 */
+const { typesNameMap, loadProviders } = useInvalidDataList()
 
 /** 当前用户的UID */
 const currentUid = context.session.value.user.id as IdType
@@ -71,10 +64,10 @@ const lastSavePath = ref('/')
 
 const formatDate = (d: string) => {
   if (!d) return '-'
-  return new Date(d).toLocaleString()
+  return StringFormatter.toDate(d)
 }
 
-const query = reactive<InvalidDataQuery & { page: number, size: number }>({
+const query = reactive<InvalidDataQuery>({
   page: 1,
   size: 10,
   status: ['PUBLISHED'] // 默认只查已发布的
@@ -83,11 +76,14 @@ const query = reactive<InvalidDataQuery & { page: number, size: number }>({
 const items = ref<InvalidDataRecord[]>([])
 const total = ref(0)
 const headers: any[] = [
-  { title: 'ID', key: 'id' },
-  { title: '文件类型', key: 'fileType' },
-  { title: '物理路径提取', key: 'storagePath' },
-  { title: '大小', key: 'fileSize' },
-  { title: '最后修改时间', key: 'lastModified' },
+  { title: '文件名', key: 'storagePath', sortable: false, value: (item: InvalidDataRecord) => {
+    if (!item.storagePath) return '(未知)'
+    const parts = item.storagePath.split('/')
+    return parts[parts.length - 1]
+  }},
+  { title: '文件类型', key: 'fileType', sortable: false },
+  { title: '大小', key: 'fileSize', sortable: false },
+  { title: '最后修改时间', key: 'lastModified', sortable: false },
   { title: '操作', key: 'actions', sortable: false, align: 'end' }
 ]
 
@@ -103,8 +99,10 @@ const loadList = async(options?: { page?: number, itemsPerPage?: number }) => {
   }
   loading.value = true
   try {
-    const q = { ...query }
-    q.page = q.page - 1
+    const q = { ...query  } as InvalidDataQuery
+    if (q.page) {
+      q.page = Number(q.page) - 1
+    }
     const res = (await SfcUtils.request(DataManagerAPI.list(q))).data.data
     items.value = res.content
     total.value = parseInt(res.totalCount as any) || res.content.length
@@ -134,7 +132,7 @@ const openClaimDialog = (item: InvalidDataRecord) => {
   // 默认文件名：原始文件名 + 识别出的扩展名（若原始文件名已含该扩展名则不重复追加）
   let defaultName = rawName
   if (extension && !rawName.endsWith('.' + extension)) {
-    defaultName = rawName + '.' + extension
+    defaultName = rawName + extension
   }
 
   const initObject: ClaimParam = {
@@ -149,23 +147,23 @@ const openClaimDialog = (item: InvalidDataRecord) => {
     props: {
       uid: currentUid,
       initObject,
-      showTargetUidSelector: isAdmin.value,
-      targetUidOptions: [
-        { title: '我的私人网盘', value: currentUid },
-        { title: '公共网盘', value: 0 }
-      ]
+      showTargetUidSelector: isAdmin.value
     },
     extraDialogOptions: {
       confirmText: '提交认领'
     },
     async onConfirm() {
+      const form = inst.getInstAsForm()
+      const formData = form.getFormData() as ClaimParam
       const ret = await inst.getInstAsForm().submit()
       if (ret.success) {
         // 认领成功后记录本次使用的保存位置和路径，供下次认领复用
-        lastTargetUid.value = initObject.targetUid
-        lastSavePath.value = initObject.savePath
+        lastTargetUid.value = formData.targetUid
+        lastSavePath.value = formData.savePath
         SfcUtils.snackbar('认领成功！')
         await loadList()
+      } else {
+        SfcUtils.snackbar(ret.err)
       }
       return ret.success
     }
@@ -173,6 +171,7 @@ const openClaimDialog = (item: InvalidDataRecord) => {
 }
 
 onMounted(() => {
+  loadProviders()
   loadList()
 })
 </script>

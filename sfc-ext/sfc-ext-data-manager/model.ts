@@ -189,7 +189,7 @@ export interface InvalidDataFilterValue {
  */
 export interface InvalidDataQuery {
   /** 按状态筛选（支持多选） */
-  status?: string[]
+  status?: InvalidDataRecordStatus[]
   /** 按所有者用户ID筛选 */
   ownerUid?: IdType
   /** 最小文件大小（字节） */

@@ -30,7 +30,7 @@ export const statusTitleMap: Record<InvalidDataRecordStatus, string> = {
  * 失效数据表格列定义
  */
 export const headers: any[] = [
-  { title: '类型', key: 'type', value: (item: InvalidDataRecord) => item.type == 'INVALID_FILE_RECORD' ? '存储丢失' : '文件记录丢失' },
+  { title: '类型', key: 'type', value: (item: InvalidDataRecord) => item.type == 'FILE_RECORD' ? '存储丢失' : '文件记录丢失' },
   { title: '存储模式', key: 'storeMode' },
   { title: '文件名', key: 'fileName', value: (item: InvalidDataRecord) => {
     if (item.storagePath) {
@@ -71,7 +71,7 @@ export function useInvalidDataList() {
   const query = reactive({
     page: 1,
     size: 10,
-    status: undefined as string[] | undefined,
+    status: undefined as InvalidDataRecordStatus[] | undefined,
     fileType: undefined as string[] | undefined,
     minFileSize: undefined as number | undefined,
     maxFileSize: undefined as number | undefined
@@ -106,13 +106,15 @@ export function useInvalidDataList() {
     }
     loading.value = true
     try {
-      const q: InvalidDataQuery & { page: number, size: number } = {
+      const q: InvalidDataQuery = {
         ...query,
         // 将 MiB 转换为字节后再发送给后端
         minFileSize: query.minFileSize != null ? Math.floor(query.minFileSize * MIB_TO_BYTES) : undefined,
         maxFileSize: query.maxFileSize != null ? Math.floor(query.maxFileSize * MIB_TO_BYTES) : undefined
       }
-      q.page = q.page - 1
+      if (q.page) {
+        q.page = Number(q.page) - 1
+      }
       const res = (await SfcUtils.request(DataManagerAPI.list(q))).data.data
       items.value = res.content
       total.value = parseInt(res.totalCount as any) || res.content.length

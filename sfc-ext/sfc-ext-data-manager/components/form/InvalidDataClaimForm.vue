@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { CommonForm, Validators, defineForm } from 'sfc-common'
+import { CommonForm, IdType, Validators, defineForm, getContext } from 'sfc-common'
 import { DataManagerAPI } from '../../api'
 import type { ClaimParam } from '../../model'
 
@@ -86,8 +86,17 @@ const props = defineProps({
    * 目标网盘候选项
    */
   targetUidOptions: {
-    type: Array as PropType<{ title: string, value: number }[]>,
-    default: () => []
+    type: Array as PropType<{ title: string, value: IdType }[]>,
+    default: () => [
+      {
+        title: '我的网盘',
+        value: getContext().session.value.user.id
+      },
+      {
+        title: '公共网盘',
+        value: '0'
+      }
+    ]
   },
 
   /**
@@ -129,11 +138,13 @@ const loading = loadingManager.getLoadingRef()
 // 初始化表单数据
 Object.assign(formData, props.initObject)
 
+watch(() => formData.targetUid, () => formData.savePath = '/')
+
 defineExpose(formInst)
 </script>
 
 <script lang="ts">
-import { defineComponent, defineProps, Ref, ref, PropType } from 'vue'
+import { defineComponent, defineProps, Ref, ref, PropType, watch } from 'vue'
 
 export default defineComponent({
   name: 'InvalidDataClaimForm'

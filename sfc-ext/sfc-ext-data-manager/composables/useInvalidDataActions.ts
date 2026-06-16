@@ -271,11 +271,7 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
       props: {
         uid: currentUid,
         initObject,
-        showTargetUidSelector: isAdmin.value,
-        targetUidOptions: [
-          { title: '我的私人网盘', value: currentUid },
-          { title: '公共网盘', value: 0 }
-        ]
+        showTargetUidSelector: isAdmin.value
       },
       extraDialogOptions: {
         confirmText: '提交认领'
