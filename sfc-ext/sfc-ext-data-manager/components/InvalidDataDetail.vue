@@ -129,7 +129,7 @@
         </div>
       </v-tabs-window-item>
       <!-- 预览页签 -->
-      <v-tabs-window-item value="preview">
+      <v-tabs-window-item ref="previewTabRef" value="preview">
         <InvalidDataPreviewer :item="item" :drawer-visible="drawerVisible" />
       </v-tabs-window-item>
     </v-tabs-window>
@@ -137,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineComponent, watch } from 'vue'
+import { ref, computed, onMounted, defineComponent, watch, nextTick } from 'vue'
 import type { PropType } from 'vue'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import type { InvalidDataRecord, ClaimRecord, FileMetadataDefine, FileTypeCheckResult } from '../model'
@@ -149,6 +149,9 @@ const SfcUtils = window.SfcUtils
 
 /** 当前激活的页签，'basic' 为基础信息，'type' 为类型信息 */
 const activeTab = ref('basic')
+
+/** 预览页签的 DOM 引用，用于限定 media 元素查询范围 */
+const previewTabRef = ref<{ $el: HTMLElement }>()
 
 /** 状态标签颜色映射 */
 const statusChipColor: Record<string, string> = {
@@ -228,6 +231,31 @@ const getStatusText = (status: string) => {
 watch(() => props.item.id, () => {
   // 重置认领记录
   claims.value = []
+})
+
+/**
+ * 监听页签切换，当切换到预览页签时强制 audio/video 元素重建 controls。
+ * 根因：v-tabs-window-item 隐藏内容时 media 元素宽度塌陷，其 shadow DOM 中的
+ * controls 控制栏随之塌陷为一条竖线。切换回来后仅靠 reflow 无法恢复 shadow DOM
+ * 内部布局，必须移除再重新添加 controls 属性来触发 shadow DOM 重建。
+ */
+watch(activeTab, async(newTab) => {
+  if (newTab === 'preview') {
+    // 等待 v-tabs-window 的过渡动画完成
+    await SfcUtils.sleep(300)
+    // 仅在预览页签的 DOM 范围内查询 media 元素，避免影响页面其他区域
+    const container = previewTabRef.value?.$el
+    if (!container) return
+    const mediaElements = container.querySelectorAll<HTMLMediaElement>('audio, video')
+    mediaElements.forEach(el => {
+      // 先移除 controls 属性，销毁旧的 shadow DOM 控制栏
+      el.removeAttribute('controls')
+      // 强制同步 reflow，确保浏览器提交移除操作
+      void el.offsetHeight
+      // 重新添加 controls，浏览器会以当前正确宽度重建 shadow DOM 控制栏
+      el.setAttribute('controls', '')
+    })
+  }
 })
 
 /** 组件挂载后加载认领记录 */
