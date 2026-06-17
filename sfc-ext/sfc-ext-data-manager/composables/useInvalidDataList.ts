@@ -29,10 +29,13 @@ export const statusTitleMap: Record<InvalidDataRecordStatus, string> = {
 /**
  * 失效数据表格列定义
  */
+/** 后端支持排序的字段集合 */
+export const sortableFields = new Set(['fileSize', 'lastModified'])
+
 export const headers: any[] = [
-  { title: '类型', key: 'type', value: (item: InvalidDataRecord) => item.type == 'FILE_RECORD' ? '存储丢失' : '文件记录丢失' },
-  { title: '存储模式', key: 'storeMode' },
-  { title: '文件名', key: 'fileName', value: (item: InvalidDataRecord) => {
+  { title: '类型', key: 'type', sortable: false, minWidth: '120px', value: (item: InvalidDataRecord) => item.type == 'FILE_RECORD' ? '存储丢失' : '文件记录丢失' },
+  { title: '存储模式', key: 'storeMode', sortable: false },
+  { title: '文件名', key: 'fileName', maxWidth: '160px', sortable: false, value: (item: InvalidDataRecord) => {
     if (item.storagePath) {
       const parts = item.storagePath.split('/')
       return parts[parts.length - 1]
@@ -40,10 +43,11 @@ export const headers: any[] = [
       return '(未知)'
     }
   }}, 
-  { title: '状态', key: 'status', value: (item: InvalidDataRecord) => statusTitleMap[item.status] },
-  { title: '文件类型', key: 'fileType' },
-  { title: '大小', key: 'fileSize' },
-  { title: '可能的拓展名', key: 'extension', value: (item: InvalidDataRecord) => {
+  { title: '状态', key: 'status', sortable: false, value: (item: InvalidDataRecord) => statusTitleMap[item.status] },
+  { title: '文件类型', key: 'fileType', minWidth: '64px', sortable: false },
+  { title: '大小', key: 'fileSize', minWidth: '120px' },
+  { title: '最后修改时间', key: 'lastModified', minWidth: '160px' },
+  { title: '可能的拓展名', key: 'extension', minWidth: '120px', sortable: false, value: (item: InvalidDataRecord) => {
     if (!item.typeCheckResult) return '-'
     try {
       const result = JSON.parse(item.typeCheckResult)
@@ -74,7 +78,11 @@ export function useInvalidDataList() {
     status: undefined as InvalidDataRecordStatus[] | undefined,
     fileType: undefined as string[] | undefined,
     minFileSize: undefined as number | undefined,
-    maxFileSize: undefined as number | undefined
+    maxFileSize: undefined as number | undefined,
+    /** 当前排序字段（对应后端 sortBy），为空则不排序 */
+    sortBy: undefined as string | undefined,
+    /** 当前排序方向 */
+    sortOrder: undefined as 'ASC' | 'DESC' | undefined
   })
 
   /** 列表数据 */
@@ -99,10 +107,35 @@ export function useInvalidDataList() {
   /** MiB 转字节的乘数 */
   const MIB_TO_BYTES = 1024 * 1024
 
-  const loadList = async(options?: { page?: number, itemsPerPage?: number }) => {
+  /**
+   * 加载列表数据，由 v-data-table-server 的 @update:options 事件触发
+   * @param options 表格分页与排序选项
+   */
+  const loadList = async(options?: {
+    page?: number
+    itemsPerPage?: number
+    sortBy?: { key: string, order: string | boolean }[]
+  }) => {
     if (options) {
       query.page = options.page || 1
       query.size = options.itemsPerPage || 10
+      // 从 v-data-table-server 的排序事件中提取排序信息
+      if (options.sortBy && options.sortBy.length > 0) {
+        const sortItem = options.sortBy[0]
+        if (sortableFields.has(sortItem.key)) {
+          query.sortBy = sortItem.key
+          // Vuetify 中 order 为 'asc' | 'desc' 或 true(升序)，映射为后端的 ASC / DESC
+          query.sortOrder = sortItem.order === 'asc' || sortItem.order === true ? 'ASC' : 'DESC'
+        } else {
+          // 不支持的排序字段，清除排序
+          query.sortBy = undefined
+          query.sortOrder = undefined
+        }
+      } else {
+        // 无排序条件时清除
+        query.sortBy = undefined
+        query.sortOrder = undefined
+      }
     }
     loading.value = true
     try {

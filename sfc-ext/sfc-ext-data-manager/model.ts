@@ -198,6 +198,10 @@ export interface InvalidDataQuery {
   maxFileSize?: IdType
   /** 按文件类型筛选（支持多选） */
   fileType?: string[]
+  /** 排序字段，不传则不排序（支持 fileSize、lastModified） */
+  sortBy?: string
+  /** 排序方向（ASC、DESC，默认DESC） */
+  sortOrder?: 'ASC' | 'DESC'
   /** 页码（从0开始） */
   page?: IdType
   /** 每页记录数 */

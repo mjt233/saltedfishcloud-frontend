@@ -50,6 +50,15 @@
             @update:options="loadList"
             @click:row="tableRowClick"
           >
+            <template #item.fileName="{ value }">
+              <span
+                :title="value"
+                class="text-truncate d-inline-block"
+                style="max-width: 140px"
+              >
+                {{ value }}
+              </span>
+            </template>
             <template #item.storagePath="{ item }">
               <v-tooltip location="top">
                 <template #activator="{ props: tooltipProps }">
@@ -96,6 +105,10 @@
               <span :class="item.fileType ? 'text-info' : 'text-muted'">
                 {{ item.fileType ? typesNameMap[item.fileType] : '未知' }}
               </span>
+            </template>
+
+            <template #item.lastModified="{ item }">
+              {{ item.lastModified ? StringFormatter.toDate(item.lastModified) : '-' }}
             </template>
 
             <template #item.actions="{ item }">

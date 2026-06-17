@@ -12,6 +12,16 @@
       hover
       @update:options="loadList"
     >
+      <template #item.fileName="{ value }">
+
+        <span
+          :title="value"
+          class="text-truncate d-inline-block"
+          style="max-width: 140px"
+        >
+          {{ value }}
+        </span>
+      </template>
       <template #item.fileSize="{ item }">
         {{ StringFormatter.toSize(item.fileSize) }}
       </template>
@@ -70,20 +80,25 @@ const formatDate = (d: string) => {
 const query = reactive<InvalidDataQuery>({
   page: 1,
   size: 10,
-  status: ['PUBLISHED'] // 默认只查已发布的
+  status: ['PUBLISHED'], // 默认只查已发布的
+  sortBy: undefined,
+  sortOrder: undefined
 })
 
 const items = ref<InvalidDataRecord[]>([])
 const total = ref(0)
+/** 后端支持排序的字段集合 */
+const sortableFields = new Set(['fileSize', 'lastModified'])
+
 const headers: any[] = [
-  { title: '文件名', key: 'storagePath', sortable: false, value: (item: InvalidDataRecord) => {
+  { title: '文件名', key: 'fileName', sortable: false, maxWidth: '160px', value: (item: InvalidDataRecord) => {
     if (!item.storagePath) return '(未知)'
     const parts = item.storagePath.split('/')
     return parts[parts.length - 1]
   }},
   { title: '文件类型', key: 'fileType', sortable: false },
-  { title: '大小', key: 'fileSize', sortable: false },
-  { title: '最后修改时间', key: 'lastModified', sortable: false },
+  { title: '大小', key: 'fileSize' },
+  { title: '最后修改时间', key: 'lastModified' },
   { title: '操作', key: 'actions', sortable: false, align: 'end' }
 ]
 
@@ -91,15 +106,37 @@ const headers: any[] = [
  * 加载列表，由 v-data-table-server 的 @update:options 事件触发
  * @param options 表格分页选项，包含 page 和 itemsPerPage
  */
-const loadList = async(options?: { page?: number, itemsPerPage?: number }) => {
+/**
+ * 加载列表，由 v-data-table-server 的 @update:options 事件触发
+ * @param options 表格分页与排序选项
+ */
+const loadList = async(options?: {
+  page?: number
+  itemsPerPage?: number
+  sortBy?: { key: string, order: string | boolean }[]
+}) => {
   // 从表格事件中同步分页参数
   if (options) {
     query.page = options.page || 1
     query.size = options.itemsPerPage || 10
+    // 从 v-data-table-server 的排序事件中提取排序信息
+    if (options.sortBy && options.sortBy.length > 0) {
+      const sortItem = options.sortBy[0]
+      if (sortableFields.has(sortItem.key)) {
+        query.sortBy = sortItem.key
+        query.sortOrder = sortItem.order === 'asc' || sortItem.order === true ? 'ASC' : 'DESC'
+      } else {
+        query.sortBy = undefined
+        query.sortOrder = undefined
+      }
+    } else {
+      query.sortBy = undefined
+      query.sortOrder = undefined
+    }
   }
   loading.value = true
   try {
-    const q = { ...query  } as InvalidDataQuery
+    const q = { ...query } as InvalidDataQuery
     if (q.page) {
       q.page = Number(q.page) - 1
     }
