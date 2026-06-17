@@ -124,17 +124,7 @@
                 @unpublish="handleUnpublish(item)"
                 @complete="handleMarkCompleted(item)"
                 @discard="handleDiscard([item.id])"
-              >
-                <template #prepend>
-                  <v-btn
-                    variant="text"
-                    size="small"
-                    prepend-icon="mdi-information"
-                  >
-                    详情
-                  </v-btn>
-                </template>
-              </InvalidDataActions>
+              />
             </template>
           </v-data-table-server>
         

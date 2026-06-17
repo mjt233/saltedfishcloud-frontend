@@ -1,6 +1,18 @@
 <template>
   <div class="claim-data-list">
+    <div class="mb-4">
+      <InvalidDataFilter
+        :model-value="filterQueryProxy"
+        :status-options="[]"
+        :provider-options="providerOptions"
+        :types-name-map="typesNameMap"
+        :hide-fields="['status']"
+        @apply="onFilterApply"
+      />
+    </div>
     <v-data-table-server
+      no-data-text="暂无可认领数据"
+      mobile-breakpoint="md"
       :headers="headers"
       :items="items"
       :items-length="total"
@@ -11,6 +23,7 @@
       items-per-page-text="每页大小"
       hover
       @update:options="loadList"
+      @click:row="tableRowClick"
     >
       <template #item.fileName="{ value }">
 
@@ -37,31 +50,71 @@
       </template>
 
       <template #item.actions="{ item }">
-        <v-btn size="small" color="primary" @click="openClaimDialog(item)">
+        <v-btn size="small" color="primary" @click.stop="openClaimDialog(item)">
           认领
         </v-btn>
       </template>
     </v-data-table-server>
+    <v-navigation-drawer
+      v-model="isShowDetail"
+      location="right"
+      :width="480"
+    >
+      <div class="d-flex justify-space-between pa-2">
+        <span class="text-title-large">数据详情</span>
+        <v-btn
+          icon="mdi-close"
+          density="compact"
+          variant="text"
+          @click="isShowDetail = false"
+        />
+      </div>
+      <invalid-data-detail
+        v-if="curDetailItem"
+        :item="curDetailItem"
+        :drawer-visible="isShowDetail"
+        :metadata-defines="metadataDefines"
+      />
+      <div class="pl-4 pr-4">
+        <v-btn
+          v-if="$vuetify.display.mobile"
+          color="primary"
+          block
+          @click="curDetailItem && openClaimDialog(curDetailItem)"
+        >
+          认领
+        </v-btn>
+      </div>
+    </v-navigation-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, Ref, Teleport } from 'vue'
 import { getContext, StringUtils } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { DataManagerAPI } from '../api'
 import { useInvalidDataList } from '../composables/useInvalidDataList'
-import type { InvalidDataQuery, InvalidDataRecord, ClaimParam } from '../model'
+import type { InvalidDataQuery, InvalidDataRecord, ClaimParam, InvalidDataFilterValue, FileMetadataDefine } from '../model'
 import type { IdType } from 'sfc-common/model'
 import InvalidDataClaimForm from './form/InvalidDataClaimForm.vue'
+import InvalidDataFilter from './InvalidDataFilter.vue'
 
 const context = getContext()
 const SfcUtils = window.SfcUtils
 const loading = ref(false)
 const isAdmin = computed(() => context.session.value.user.role === 'admin')
+const isShowDetail = ref(false)
+const metadataDefines: Ref<FileMetadataDefine[]> = computed(() => {
+  const propvider = providers.value.find(p => p.typeId == curDetailItem.value?.fileType)
+  if (!propvider) {
+    return []
+  }
+  return propvider.metadataDefines
+})
 
-/** 从 composable 中获取文件类型名称映射和加载方法 */
-const { typesNameMap, loadProviders } = useInvalidDataList()
+/** 从 composable 中获取文件类型名称映射、识别器选项和加载方法 */
+const { typesNameMap, providers, providerOptions, loadProviders } = useInvalidDataList()
 
 /** 当前用户的UID */
 const currentUid = context.session.value.user.id as IdType
@@ -72,6 +125,8 @@ const lastTargetUid = ref<IdType>(currentUid)
 /** 上次认领时使用的保存路径，初始为根路径 */
 const lastSavePath = ref('/')
 
+const curDetailItem = ref<InvalidDataRecord>()
+
 const formatDate = (d: string) => {
   if (!d) return '-'
   return StringFormatter.toDate(d)
@@ -80,7 +135,10 @@ const formatDate = (d: string) => {
 const query = reactive<InvalidDataQuery>({
   page: 1,
   size: 10,
-  status: ['PUBLISHED'], // 默认只查已发布的
+  status: ['PUBLISHED'],
+  fileType: undefined,
+  minFileSize: undefined,
+  maxFileSize: undefined,
   sortBy: undefined,
   sortOrder: undefined
 })
@@ -103,9 +161,27 @@ const headers: any[] = [
 ]
 
 /**
- * 加载列表，由 v-data-table-server 的 @update:options 事件触发
- * @param options 表格分页选项，包含 page 和 itemsPerPage
+ * 筛选值代理，传给 InvalidDataFilter 组件，不含 status 字段
  */
+const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
+  fileType: query.fileType,
+  minFileSize: query.minFileSize != null ? Number(query.minFileSize) : undefined,
+  maxFileSize: query.maxFileSize != null ? Number(query.maxFileSize) : undefined
+}))
+
+/**
+ * 筛选条件应用回调
+ */
+const onFilterApply = (value: InvalidDataFilterValue) => {
+  query.fileType = value.fileType
+  query.minFileSize = value.minFileSize
+  query.maxFileSize = value.maxFileSize
+  query.page = 1
+  loadList()
+}
+
+const MIB_TO_BYTES = 1024 * 1024
+
 /**
  * 加载列表，由 v-data-table-server 的 @update:options 事件触发
  * @param options 表格分页与排序选项
@@ -115,11 +191,9 @@ const loadList = async(options?: {
   itemsPerPage?: number
   sortBy?: { key: string, order: string | boolean }[]
 }) => {
-  // 从表格事件中同步分页参数
   if (options) {
     query.page = options.page || 1
     query.size = options.itemsPerPage || 10
-    // 从 v-data-table-server 的排序事件中提取排序信息
     if (options.sortBy && options.sortBy.length > 0) {
       const sortItem = options.sortBy[0]
       if (sortableFields.has(sortItem.key)) {
@@ -136,7 +210,11 @@ const loadList = async(options?: {
   }
   loading.value = true
   try {
-    const q = { ...query } as InvalidDataQuery
+    const q: InvalidDataQuery = {
+      ...query,
+      minFileSize: query.minFileSize != null ? Math.floor(Number(query.minFileSize) * MIB_TO_BYTES) : undefined,
+      maxFileSize: query.maxFileSize != null ? Math.floor(Number(query.maxFileSize) * MIB_TO_BYTES) : undefined
+    }
     if (q.page) {
       q.page = Number(q.page) - 1
     }
@@ -149,6 +227,7 @@ const loadList = async(options?: {
     loading.value = false
   }
 }
+const display = useDisplay()
 
 const openClaimDialog = (item: InvalidDataRecord) => {
   // 根据物理路径提取原始文件名
@@ -198,6 +277,10 @@ const openClaimDialog = (item: InvalidDataRecord) => {
         lastTargetUid.value = formData.targetUid
         lastSavePath.value = formData.savePath
         SfcUtils.snackbar('认领成功！')
+        if (display.mobile) {
+          curDetailItem.value = undefined
+          isShowDetail.value = false
+        }
         await loadList()
       } else {
         SfcUtils.snackbar(ret.err)
@@ -205,6 +288,11 @@ const openClaimDialog = (item: InvalidDataRecord) => {
       return ret.success
     }
   })
+}
+
+function tableRowClick(e: Event, { item }: { item: InvalidDataRecord}) {
+  curDetailItem.value = item
+  isShowDetail.value = true
 }
 
 onMounted(() => {
@@ -215,6 +303,8 @@ onMounted(() => {
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import InvalidDataDetail from './InvalidDataDetail.vue'
+import { useDisplay } from 'vuetify'
 
 export default defineComponent({
   name: 'ClaimDataList'

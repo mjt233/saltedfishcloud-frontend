@@ -57,7 +57,7 @@ const props = defineProps({
    * 当前操作用户ID，用于发起认领请求时传递uid参数
    */
   uid: {
-    type: Number,
+    type: [Number, String] as PropType<IdType>,
     required: true
   },
 

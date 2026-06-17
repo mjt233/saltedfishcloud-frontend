@@ -4,13 +4,13 @@
       <v-tab value="basic">
         基础信息
       </v-tab>
-      <v-tab value="type" :disabled="!typeCheckDetail">
+      <v-tab value="type">
         类型信息
       </v-tab>
       <v-tab value="claims">
         认领记录
       </v-tab>
-      <v-tab v-if="canPreview" value="preview">
+      <v-tab value="preview">
         预览
       </v-tab>
     </v-tabs>
@@ -77,7 +77,10 @@
 
       <!-- 类型信息页签 -->
       <v-tabs-window-item value="type">
-        <div v-if="typeCheckDetail">
+        <div v-if="!typeCheckDetail" class="text-center py-8 text-medium-emphasis">
+          数据未识别或无法识别
+        </div>
+        <div v-else>
           <v-list density="compact">
             <v-list-item title="类型名称" :subtitle="typeCheckDetail.typeName || '-'" />
             <v-list-item title="类型标识" :subtitle="typeCheckDetail.typeId || '-'" />
@@ -135,7 +138,13 @@
       </v-tabs-window-item>
       <!-- 预览页签 -->
       <v-tabs-window-item ref="previewTabRef" value="preview">
-        <InvalidDataPreviewer :item="item" :drawer-visible="drawerVisible" />
+        <div v-if="!item.fileType" class="text-center py-8 text-medium-emphasis">
+          未识别的数据类型无法预览
+        </div>
+        <div v-else-if="!canPreview" class="text-center py-8 text-medium-emphasis">
+          该类型不支持预览
+        </div>
+        <InvalidDataPreviewer v-else :item="item" :drawer-visible="drawerVisible" />
       </v-tabs-window-item>
     </v-tabs-window>
   </div>

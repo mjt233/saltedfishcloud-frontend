@@ -50,7 +50,7 @@
                 v-if="field.type === 'select'"
                 cols="12"
                 sm="6"
-                lg="3"
+                md
               >
                 <v-select
                   :model-value="getDraftValue(field.key)"
@@ -67,7 +67,7 @@
                 v-else-if="field.type === 'number'"
                 cols="12"
                 sm="6"
-                lg="3"
+                md
               >
                 <v-text-field
                   :model-value="getDraftValue(field.key)"
@@ -182,6 +182,8 @@ const props = defineProps<{
   providerOptions: { title: string, value: string }[]
   /** 文件类型值到名称的映射表 */
   typesNameMap: Record<string, string>
+  /** 需要隐藏的筛选字段键名列表 */
+  hideFields?: Array<'status' | 'fileType' | 'minFileSize' | 'maxFileSize'>
 }>()
 
 /** 组件事件 */
@@ -256,34 +258,40 @@ interface FilterFieldDef {
  * 同一份配置同时驱动桌面面板和移动端 bottom sheet 的字段渲染，
  * 新增筛选字段时只需在此数组中添加即可
  */
-const filterFields = computed<FilterFieldDef[]>(() => [
-  {
-    key: 'status',
-    label: '状态',
-    type: 'select',
-    options: props.statusOptions
-  },
-  {
-    key: 'fileType',
-    label: '文件类型',
-    type: 'select',
-    options: props.providerOptions
-  },
-  {
-    key: 'minFileSize',
-    label: '最小文件大小',
-    type: 'number',
-    suffix: 'MiB',
-    min: 0
-  },
-  {
-    key: 'maxFileSize',
-    label: '最大文件大小',
-    type: 'number',
-    suffix: 'MiB',
-    min: 0
+const filterFields = computed<FilterFieldDef[]>(() => {
+  const allFields: FilterFieldDef[] = [
+    {
+      key: 'status',
+      label: '状态',
+      type: 'select',
+      options: props.statusOptions
+    },
+    {
+      key: 'fileType',
+      label: '文件类型',
+      type: 'select',
+      options: props.providerOptions
+    },
+    {
+      key: 'minFileSize',
+      label: '最小文件大小',
+      type: 'number',
+      suffix: 'MiB',
+      min: 0
+    },
+    {
+      key: 'maxFileSize',
+      label: '最大文件大小',
+      type: 'number',
+      suffix: 'MiB',
+      min: 0
+    }
+  ]
+  if (props.hideFields && props.hideFields.length > 0) {
+    return allFields.filter(f => !props.hideFields!.includes(f.key))
   }
-])
+  return allFields
+})
 
 /** ==================== 辅助方法 ==================== */
 
