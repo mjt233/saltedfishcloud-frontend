@@ -4,23 +4,49 @@
       <v-card ref="mainCardRef" style="flex: 1;">
         <!-- 桌面端：横向按钮栏 -->
         <v-card-title v-if="!isMobile" class="d-flex align-center">
-          <v-btn
-            v-for="action in actionItems"
-            :key="action.id"
-            :color="action.color"
-            :icon="action.showText ? undefined : action.icon"
-            :class="{ 'mr-2': action.showText }"
-            :variant="action.showText ? undefined : 'text'"
-            :style="{ color: action.color == 'error' ? 'white' : undefined }"
-            @click="action.action"
-          >
-            <template v-if="action.showText">
-              <v-icon v-if="action.icon" start>
-                {{ action.icon }}
-              </v-icon>
-              {{ action.title }}
-            </template>
-          </v-btn>
+          <VFadeTransition hide-on-leave>
+            <div v-if="selected.length == 0">
+              <v-btn
+                v-for="action in actionItems"
+                :key="action.id"
+                :color="action.color"
+                :icon="action.showText ? undefined : action.icon"
+                :class="{ 'mr-2': action.showText }"
+                :variant="action.showText ? undefined : 'text'"
+                :style="{ color: action.color == 'error' ? 'white' : undefined }"
+                @click="action.action"
+              >
+                <template v-if="action.showText">
+                  <v-icon v-if="action.icon" start>
+                    {{ action.icon }}
+                  </v-icon>
+                  {{ action.title }}
+                </template>
+              </v-btn>
+            </div>
+            <div v-else class="d-flex align-center">
+              <v-btn
+                color="primary"
+                class="mr-2"
+                :disabled="!canBatchFix"
+                @click="handleBatchFix"
+              >
+                批量修复
+              </v-btn>
+              <v-btn
+                color="error"
+                style="color: white;"
+                :disabled="!canBatchDiscard"
+                @click="handleBatchDiscard"
+              >
+                批量丢弃
+              </v-btn>
+              <span class="tip ml-2" style="font-size: 12px;">已选 {{ selected.length }} 项</span>
+            </div>
+          </VFadeTransition>
+          <VSpacer />
+          <span style="font-size: 16px;" class="d-flex align-center text-primary cursor-pointer" @click="showHelp">
+            <span>功能介绍</span> <VIcon icon="mdi-help-circle" /> </span>
         </v-card-title>
       
         <v-card-text>
@@ -127,21 +153,6 @@
               />
             </template>
           </v-data-table-server>
-        
-          <div v-if="selected.length > 0" class="d-flex mt-4">
-            <span class="mr-4 align-self-center">已选择 {{ selected.length }} 项</span>
-            <v-btn
-              color="primary"
-              class="mr-2"
-              :disabled="!canBatchFix"
-              @click="handleBatchFix"
-            >
-              批量修复
-            </v-btn>
-            <v-btn color="error" :disabled="!canBatchDiscard" @click="handleBatchDiscard">
-              批量丢弃
-            </v-btn>
-          </div>
         </v-card-text>
       </v-card>
 
@@ -352,6 +363,21 @@ const {
 const openDrawer = (item: InvalidDataRecord) => {
   drawerItem.value = item
   drawerVisible.value = true
+}
+
+async function showHelp() {
+  const content = (await import('../docs/help/invalid-data-manager.md?raw')).default
+  SfcUtils.openComponentDialog(window.Components.MarkdownView, {
+    props: {
+      content
+    },
+    extraDialogOptions: {
+      cancelText: '关闭',
+      maxWidth: '810px'
+    },
+    title: '失效数据管理帮助文档',
+    showConfirm: false
+  })
 }
 
 /**
