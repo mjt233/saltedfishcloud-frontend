@@ -53,8 +53,9 @@ const md = new MarkdownIt({
         console.error(err)
       }
     }
+    const headerClass = lang ? ' has-header' : ''
     const langLabel = lang ? `<div class="markdown-code-header"><span class="markdown-code-lang">${lang}</span></div>` : ''
-    return `<div class="markdown-code">${langLabel}<pre class="markdown-code-pre"><code>${result}</code></pre></div>`
+    return `<div class="markdown-code${headerClass}">${langLabel}<pre class="markdown-code-pre"><code>${result}</code></pre></div>`
   }
 }).use(MarkdownItTaskLists, {enabled: true})
 
@@ -239,7 +240,41 @@ const updateChapter = () => {
 }
 
 /**
- * 在 markdown DOM 完成渲染后补充图片点击行为和章节目录。
+ * 为代码块添加右上角复制按钮，点击后调用 SfcUtils.copyToClipboard 复制代码内容
+ */
+const addCopyButtons = () => {
+  const codeBlocks: NodeListOf<HTMLElement> = tempRoot.querySelectorAll('.markdown-code')
+  codeBlocks.forEach(block => {
+    // 避免重复添加
+    if (block.querySelector('.markdown-code-copy-btn')) {
+      return
+    }
+    const btn = document.createElement('button')
+    btn.className = 'markdown-code-copy-btn'
+    btn.textContent = '复制'
+    btn.title = '复制代码'
+    btn.onclick = async() => {
+      const codeEl = block.querySelector('pre.markdown-code-pre code')
+      if (!codeEl) {
+        return
+      }
+      const code = codeEl.textContent || ''
+      try {
+        await SfcUtils.copyToClipboard(code)
+        btn.textContent = '已复制!'
+        setTimeout(() => {
+          btn.textContent = '复制'
+        }, 1500)
+      } catch (err) {
+        console.error('复制代码失败', err)
+      }
+    }
+    block.appendChild(btn)
+  })
+}
+
+/**
+ * 在 markdown DOM 完成渲染后补充图片点击行为、复制按钮和章节目录。
  * 这里保留为挂载后执行，避免在首帧渲染阶段打断父容器对该组件内容高度的测量。
  */
 const updateRenderedContent = async() => {
@@ -250,6 +285,7 @@ const updateRenderedContent = async() => {
   tempRoot = rootRef.value
   await nextTick()
   addImgClickAction()
+  addCopyButtons()
   updateChapter()
 }
 
@@ -534,12 +570,47 @@ export default defineComponent({
 
   // ========== 代码块 ==========
   .markdown-code {
+    position: relative;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
     border-radius: 8px;
     margin-bottom: 0;
     overflow: hidden;
     border: 1px solid rgba(var(--v-theme-on-surface), .12);
     background-color: #282c34;
+
+    // 复制按钮
+    .markdown-code-copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 1;
+      padding: 2px 10px;
+      font-size: .75rem;
+      line-height: 1.5;
+      font-family: inherit;
+      color: rgba(255, 255, 255, .6);
+      background-color: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 4px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .2s ease, background-color .15s ease, color .15s ease;
+
+      &:hover {
+        color: rgba(255, 255, 255, .9);
+        background-color: rgba(255, 255, 255, .18);
+      }
+    }
+
+    // 有语言标签头部时，按钮位于头部内
+    &.has-header .markdown-code-copy-btn {
+      top: 6px;
+      right: 8px;
+    }
+
+    &:hover > .markdown-code-copy-btn {
+      opacity: 1;
+    }
 
     // 语言标签头部
     .markdown-code-header {
