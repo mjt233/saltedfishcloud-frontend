@@ -53,7 +53,8 @@ const md = new MarkdownIt({
         console.error(err)
       }
     }
-    return `<div class="markdown-code">${result}</div>`
+    const langLabel = lang ? `<div class="markdown-code-header"><span class="markdown-code-lang">${lang}</span></div>` : ''
+    return `<div class="markdown-code">${langLabel}<pre class="markdown-code-pre"><code>${result}</code></pre></div>`
   }
 }).use(MarkdownItTaskLists, {enabled: true})
 
@@ -288,69 +289,314 @@ export default defineComponent({
 
 <style lang="scss">
 .markdown {
-  padding: 6px;
+  padding: 8px;
+  font-size: .9375rem;
+  line-height: 1.7;
+  color: rgba(var(--v-theme-on-surface), .87);
+
   >* {
-    margin: 6px 0;
+    margin: 8px 0;
     margin-bottom: 16px;
   }
-  code {
-    font-family: Menlo,Monaco,Consolas,'Courier New',monospace;
-    font-size: .85em !important;
+
+  // 排除代码块和图片不受通用 margin 影响
+  > .markdown-code,
+  > .markdown-code-header {
+    margin: 0 0 16px 0;
+  }
+
+  // ========== 行内代码 ==========
+  // 只匹配不在 .markdown-code 内的 code（避免与代码块冲突）
+  > code,
+  > p code,
+  > li code,
+  > td code,
+  > th code,
+  > blockquote code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: .875em;
     color: rgb(var(--v-theme-primary));
-    background-color: rgba(var(--v-theme-background), .6);
-    border-radius: 3px;
+    background-color: rgba(var(--v-theme-primary), .08);
+    border-radius: 4px;
+    padding: 2px 6px;
+    word-break: break-word;
   }
 
-  h1,h2,h3,h4,h5,h6 {
-    margin: 18px 0 12px 0;
-    font-weight: 600;
-    padding-bottom: 0.3em;
+  // ========== 标题 ==========
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 500;
+    margin: 24px 0 12px 0;
+    padding-bottom: 0;
+    color: rgba(var(--v-theme-on-surface), .87);
+    line-height: 1.4;
   }
 
-  h1 { font-size: 2.25em; }
-  h2 { font-size: 1.75em; padding-bottom: 0.3em; }
-  h3 { font-size: 1.5em; }
-  h4 { font-size: 1.25em; }
-  h5 { font-size: 1em; }
+  h1 {
+    font-size: 2em;
+    font-weight: 400;
+    letter-spacing: -.015625em;
+    margin-top: 32px;
+  }
+  h2 {
+    font-size: 1.5em;
+    font-weight: 400;
+    letter-spacing: -.008333em;
+    padding-bottom: .4em;
+    border-bottom: 1px solid rgba(var(--v-theme-on-surface), .12);
+  }
+  h3 {
+    font-size: 1.25em;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  h4 {
+    font-size: 1.0625em;
+    font-weight: 500;
+    letter-spacing: .009375em;
+  }
+  h5 {
+    font-size: .9375em;
+    font-weight: 500;
+    letter-spacing: .00625em;
+  }
 
+  // ========== 分割线 ==========
   hr {
-    position: relative;
     border: 0;
-    width: calc(100% - 32px);
-    margin: 12px auto;
+    margin: 24px 0;
     height: 1px;
-    background-color: rgba(var(--v-theme-primary), .7);
+    background-color: rgba(var(--v-theme-on-surface), .12);
   }
 
+  // ========== 图片 ==========
   img {
     max-width: 100%;
+    border-radius: 12px;
     cursor: pointer;
-  }
+    transition: box-shadow .2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
 
-  blockquote {
-    position: relative;
-    padding-left: 12px;
-    margin: 18px 0;
-    background-color: rgb(var(--v-theme-primary), .1);
-    &::before{
-      content: '';
-      position: absolute;
-      left: 0px;
-      top: 0px;
-      height: 100%;
-      width: 3px;
-      background-color: rgb(var(--v-theme-primary));
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
     }
   }
 
+  // ========== 引用块 ==========
+  blockquote {
+    position: relative;
+    margin: 16px 0;
+    padding: 12px 16px 12px 20px;
+    background-color: rgba(var(--v-theme-primary), .05);
+    border-radius: 0 12px 12px 0;
+    border-left: 4px solid rgb(var(--v-theme-primary));
+
+    >* {
+      margin: 4px 0;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  // ========== 链接 ==========
+  a.link {
+    color: rgb(var(--v-theme-primary));
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s ease;
+
+    &:hover {
+      border-bottom-color: rgb(var(--v-theme-primary));
+    }
+  }
+
+  // ========== 无序/有序列表 ==========
+  ul, ol {
+    padding-left: 24px;
+    margin: 12px 0;
+
+    li {
+      margin: 4px 0;
+      line-height: 1.7;
+
+      &::marker {
+        color: rgb(var(--v-theme-primary));
+      }
+    }
+  }
+
+  // 无序列表圆点样式
+  ul {
+    list-style-type: disc;
+
+    ul {
+      list-style-type: circle;
+    }
+  }
+
+  // ========== 任务列表 ==========
+  .task-list-item {
+    list-style: none;
+    margin-left: -24px;
+    padding-left: 0;
+
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(var(--v-theme-on-surface), .54);
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 8px;
+      position: relative;
+      cursor: pointer;
+      transition: all .15s ease;
+      background-color: transparent;
+
+      &:checked {
+        background-color: rgb(var(--v-theme-primary));
+        border-color: rgb(var(--v-theme-primary));
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: 3px;
+          top: 0px;
+          width: 5px;
+          height: 10px;
+          border: solid rgb(var(--v-theme-on-primary));
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+        }
+      }
+
+      &:hover {
+        border-color: rgb(var(--v-theme-primary));
+      }
+    }
+  }
+
+  // ========== 表格 ==========
+  table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: separate;
+    margin: 16px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+    background-color: rgb(var(--v-theme-surface));
+  }
+
+  thead {
+    background-color: rgba(var(--v-theme-primary), .08);
+
+    th {
+      color: rgba(var(--v-theme-on-surface), .87);
+      font-weight: 600;
+      font-size: .8125em;
+      text-align: left;
+      padding: 14px 16px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      line-height: 1.5;
+      border-bottom: 1px solid rgba(var(--v-theme-on-surface), .12);
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background-color .15s ease;
+
+      &:nth-child(even) {
+        background-color: rgba(var(--v-theme-on-surface), .02);
+      }
+
+      &:hover {
+        background-color: rgba(var(--v-theme-primary), .05);
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      padding: 14px 16px;
+      font-size: .875em;
+      line-height: 1.5;
+      border-bottom: 1px solid rgba(var(--v-theme-on-surface), .08);
+      color: rgba(var(--v-theme-on-surface), .87);
+    }
+  }
+
+  // ========== 代码块 ==========
   .markdown-code {
-    font-family: Menlo,Monaco,Consolas,'Courier New',monospace;
-    background-color: rgb(30, 30, 30);
-    color: rgb(212, 212, 212);
-    border-radius: 6px;
-    padding: 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    border-radius: 8px;
     margin-bottom: 0;
-    overflow: auto;
+    overflow: hidden;
+    border: 1px solid rgba(var(--v-theme-on-surface), .12);
+    background-color: #282c34;
+
+    // 语言标签头部
+    .markdown-code-header {
+      display: flex;
+      align-items: center;
+      padding: 5px 14px;
+      background-color: rgba(255, 255, 255, .08);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+
+      .markdown-code-lang {
+        font-size: .75rem;
+        font-weight: 500;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, .5);
+      }
+    }
+
+    // 代码内容区
+    .markdown-code-pre {
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      background: transparent;
+      line-height: 1.6;
+
+      code {
+        font-family: inherit;
+        font-size: .9375em;
+        line-height: 1.6;
+        color: #abb2bf;
+        background: transparent !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        word-break: normal;
+      }
+    }
+  }
+
+  // 重置 highlight.js 全局背景设置，避免穿透产生色块
+  .hljs {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  // ========== 删除线/加粗/斜体 ==========
+  del {
+    color: rgba(var(--v-theme-on-surface), .38);
+  }
+
+  strong {
+    font-weight: 600;
+    color: rgba(var(--v-theme-on-surface), .95);
+  }
+
+  em {
+    font-style: italic;
   }
 }
 </style>
