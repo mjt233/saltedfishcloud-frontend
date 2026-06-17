@@ -86,9 +86,6 @@
             <v-btn size="small" @click="handleReset">
               重置
             </v-btn>
-            <v-btn color="primary" size="small" @click="handleApply">
-              应用
-            </v-btn>
           </div>
         </v-card-text>
       </v-card>
@@ -420,9 +417,30 @@ const syncDraftFromModel = () => {
 }
 
 /**
+ * 监听 draft 的变化，在非移动端编辑时立即应用
+ * 桌面端改动筛选条件后立即生效，无需点击应用按钮
+ */
+watch(
+  () => ({
+    status: draft.status,
+    fileType: draft.fileType,
+    minFileSize: draft.minFileSize,
+    maxFileSize: draft.maxFileSize
+  }),
+  () => {
+    // 仅在非移动端且面板打开时自动应用
+    if (!isMobile.value && panelExpanded.value) {
+      handleApply()
+    }
+  },
+  { deep: true }
+)
+
+/**
  * 应用当前 draft 中的筛选条件
- * 将 draft 值深拷贝后通过 apply 事件发送给父组件，
- * 同时更新 modelValue、关闭面板/bottom sheet
+ * 将 draft 值深拷贝后通过 apply 事件发送给父组件
+ * 桌面端：仅应用，保持面板打开
+ * 移动端：应用后关闭 bottom sheet
  */
 const handleApply = () => {
   const appliedValue: InvalidDataFilterValue = {
@@ -442,14 +460,15 @@ const handleApply = () => {
 
   emit('apply', appliedValue)
 
-  // 关闭面板
-  panelExpanded.value = false
-  bottomSheetVisible.value = false
+  // 仅移动端关闭面板，桌面端保持打开
+  if (isMobile.value) {
+    bottomSheetVisible.value = false
+  }
 }
 
 /**
  * 重置所有筛选条件为默认值
- * 清空 draft 并立即应用
+ * 清空 draft 并立即应用，然后关闭面板
  */
 const handleReset = () => {
   draft.status = undefined
