@@ -2,19 +2,6 @@
   <div class="invalid-data-filter">
     <!-- 筛选芯片栏：展示当前活跃的筛选条件，桌面端与移动端共用 -->
     <div class="d-flex align-center flex-wrap ga-2">
-      <v-chip
-        v-for="chip in activeFilterChips"
-        :key="chip.key"
-        closable
-        size="small"
-        variant="tonal"
-        @click:close="removeChipFilter(chip)"
-      >
-        {{ chip.label }}
-      </v-chip>
-
-      <v-spacer v-if="!isMobile" />
-
       <!-- 筛选触发按钮 -->
       <v-btn
         :color="activeFilterCount > 0 ? 'primary' : undefined"
@@ -38,6 +25,19 @@
         </v-icon>
         <span>筛选</span>
       </v-btn>
+      <v-chip
+        v-for="chip in activeFilterChips"
+        :key="chip.key"
+        closable
+        size="small"
+        variant="tonal"
+        @click:close="removeChipFilter(chip)"
+      >
+        {{ chip.label }}
+      </v-chip>
+
+      <v-spacer v-if="!isMobile" />
+
     </div>
 
     <!-- ========== 桌面端：可折叠筛选面板 ========== -->

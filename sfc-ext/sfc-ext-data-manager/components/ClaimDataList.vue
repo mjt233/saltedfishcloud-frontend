@@ -30,7 +30,7 @@
         <span
           :title="value"
           class="text-truncate d-inline-block"
-          style="max-width: 140px"
+          style="max-width: 180px"
         >
           {{ value }}
         </span>
@@ -149,7 +149,7 @@ const total = ref(0)
 const sortableFields = new Set(['fileSize', 'lastModified'])
 
 const headers: any[] = [
-  { title: '文件名', key: 'fileName', sortable: false, maxWidth: '160px', value: (item: InvalidDataRecord) => {
+  { title: '文件名', key: 'fileName', sortable: false, value: (item: InvalidDataRecord) => {
     if (!item.storagePath) return '(未知)'
     const parts = item.storagePath.split('/')
     return parts[parts.length - 1]

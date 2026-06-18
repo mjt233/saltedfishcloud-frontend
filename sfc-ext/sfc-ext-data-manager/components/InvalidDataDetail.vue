@@ -15,7 +15,7 @@
       </v-tab>
     </v-tabs>
 
-    <v-tabs-window v-model="activeTab">
+    <v-tabs-window v-model="activeTab" disabled>
       <!-- 基础信息页签 -->
       <v-tabs-window-item value="basic">
         <!-- 基础信息 - 多列网格布局 -->
