@@ -91,7 +91,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, Ref, Teleport } from 'vue'
-import { getContext, StringUtils } from 'sfc-common'
+import { getContext, StringUtils, useCheckIsMobile } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { DataManagerAPI } from '../api'
 import { useInvalidDataList } from '../composables/useInvalidDataList'
@@ -227,7 +227,7 @@ const loadList = async(options?: {
     loading.value = false
   }
 }
-const display = useDisplay()
+const isMobile = useCheckIsMobile()
 
 const openClaimDialog = (item: InvalidDataRecord) => {
   // 根据物理路径提取原始文件名
@@ -277,7 +277,7 @@ const openClaimDialog = (item: InvalidDataRecord) => {
         lastTargetUid.value = formData.targetUid
         lastSavePath.value = formData.savePath
         SfcUtils.snackbar('认领成功！')
-        if (display.mobile) {
+        if (isMobile.value) {
           curDetailItem.value = undefined
           isShowDetail.value = false
         }
@@ -304,7 +304,6 @@ onMounted(() => {
 <script lang="ts">
 import { defineComponent } from 'vue'
 import InvalidDataDetail from './InvalidDataDetail.vue'
-import { useDisplay } from 'vuetify'
 
 export default defineComponent({
   name: 'ClaimDataList'
