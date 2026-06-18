@@ -51,10 +51,8 @@
     <!-- 文本内容展示 -->
     <div v-else>
       <component
-        :is="CodeEditorComp"
-        :model-value="textContent"
-        :read-only="true"
-        :word-wrap="true"
+        :is="MarkdownView"
+        :content="mdContent"
         style="height: 60vh"
       />
     </div>
@@ -73,8 +71,7 @@ const TEXT_PREVIEW_SIZE_THRESHOLD = 2 * 1024 * 1024
 
 const SfcUtils = window.SfcUtils
 
-/** CodeEditor组件引用，通过window.Components全局注册 */
-const CodeEditorComp = window.Components.CodeEditor
+const MarkdownView = window.Components.MarkdownView
 
 /** 组件属性 */
 const props = defineProps({
@@ -104,6 +101,11 @@ const textLoadError = ref(false)
 
 /** 判断文件是否超过预览大小阈值 */
 const isLargeFile = computed(() => Number(props.item.fileSize || 0) > TEXT_PREVIEW_SIZE_THRESHOLD)
+
+/** 通过Markdown代码块显示的文本内容 */
+const mdContent = computed(() => {
+  return '```text\n' + textContent.value + '\n```'
+})
 
 /**
  * 加载文本文件内容用于预览
