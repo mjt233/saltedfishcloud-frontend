@@ -26,6 +26,8 @@ const tabs = computed(() => {
   }
 })
 
+const eventBus = useEventBus()
+
 watch(() => getContext().session.value.user.id, () => {
   console.log('change')
   if (ConditionFunction.hasLogin(getContext())) {
@@ -33,6 +35,10 @@ watch(() => getContext().session.value.user.id, () => {
   } else {
     curTab.value = 0
   }
+})
+
+watch(curTab, tab => {
+  eventBus.emit(EventNameConstants.DESKTOP_TAB_CHANGE, tab)
 })
 
 onMounted(() => {
@@ -50,6 +56,7 @@ import { ConditionFunction, getContext } from 'sfc-common/core'
 import { onMounted } from 'vue'
 import { EventNameConstants } from 'sfc-common/core/constans/EventName'
 import { watch } from 'vue'
+import { useEventBus } from 'sfc-common/composables'
 
 export default defineComponent({
   name: 'IndexDesktopView'

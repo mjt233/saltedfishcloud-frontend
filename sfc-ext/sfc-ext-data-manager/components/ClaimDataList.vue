@@ -55,43 +55,45 @@
         </v-btn>
       </template>
     </v-data-table-server>
-    <v-navigation-drawer
-      v-model="isShowDetail"
-      location="right"
-      :width="480"
-    >
-      <div class="d-flex justify-space-between pa-2">
-        <span class="text-title-large">数据详情</span>
-        <v-btn
-          icon="mdi-close"
-          density="compact"
-          variant="text"
-          @click="isShowDetail = false"
+    <Teleport to="main">
+      <v-navigation-drawer
+        v-model="isShowDetail"
+        location="right"
+        :width="480"
+      >
+        <div class="d-flex justify-space-between pa-2">
+          <span class="text-title-large">数据详情</span>
+          <v-btn
+            icon="mdi-close"
+            density="compact"
+            variant="text"
+            @click="isShowDetail = false"
+          />
+        </div>
+        <invalid-data-detail
+          v-if="curDetailItem"
+          :item="curDetailItem"
+          :drawer-visible="isShowDetail"
+          :metadata-defines="metadataDefines"
         />
-      </div>
-      <invalid-data-detail
-        v-if="curDetailItem"
-        :item="curDetailItem"
-        :drawer-visible="isShowDetail"
-        :metadata-defines="metadataDefines"
-      />
-      <div class="pl-4 pr-4">
-        <v-btn
-          v-if="$vuetify.display.mobile"
-          color="primary"
-          block
-          @click="curDetailItem && openClaimDialog(curDetailItem)"
-        >
-          认领
-        </v-btn>
-      </div>
-    </v-navigation-drawer>
+        <div class="pl-4 pr-4">
+          <v-btn
+            v-if="$vuetify.display.mobile"
+            color="primary"
+            block
+            @click="curDetailItem && openClaimDialog(curDetailItem)"
+          >
+            认领
+          </v-btn>
+        </div>
+      </v-navigation-drawer>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, Ref, Teleport } from 'vue'
-import { getContext, StringUtils, useCheckIsMobile } from 'sfc-common'
+import { getContext, StringUtils, useCheckIsMobile, useEventBus } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { DataManagerAPI } from '../api'
 import { useInvalidDataList } from '../composables/useInvalidDataList'
@@ -124,6 +126,13 @@ const lastTargetUid = ref<IdType>(currentUid)
 
 /** 上次认领时使用的保存路径，初始为根路径 */
 const lastSavePath = ref('/')
+
+/** 系统事件总线，当用户切换桌面时收起认领数据详情 */
+const eventBus = useEventBus()
+eventBus.on(EventNameConstants.DESKTOP_TAB_CHANGE, () => {
+  curDetailItem.value = undefined
+  isShowDetail.value = false
+})
 
 const curDetailItem = ref<InvalidDataRecord>()
 
@@ -304,6 +313,7 @@ onMounted(() => {
 <script lang="ts">
 import { defineComponent } from 'vue'
 import InvalidDataDetail from './InvalidDataDetail.vue'
+import { EventNameConstants } from 'sfc-common/core/constans/EventName'
 
 export default defineComponent({
   name: 'ClaimDataList'

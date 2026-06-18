@@ -15,4 +15,9 @@ export namespace EventNameConstants {
    * 系统配置项更新
    */
   export const SYS_CONFIG_CHANGE = 'sys-config-change'
+
+  /**
+   * 用户首页桌面页签切换更新
+   */
+  export const DESKTOP_TAB_CHANGE = 'desktop-tab-change'
 }
