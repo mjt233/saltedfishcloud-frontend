@@ -15,6 +15,14 @@ const props = defineProps({
   resourceParams: {
     type: Object as PropType<ResourceRequest>,
     default: undefined
+  },
+
+  /**
+   * 是否显示代码块行号
+   */
+  showLineNumbers: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -55,6 +63,24 @@ const md = new MarkdownIt({
     }
     const headerClass = lang ? ' has-header' : ''
     const langLabel = lang ? `<div class="markdown-code-header"><span class="markdown-code-lang">${lang}</span></div>` : ''
+
+    // 当开启行号时，将每行代码包裹在带行号的结构中
+    if (props.showLineNumbers) {
+      const lines = result.split('\n')
+      // highlight.js 结果末尾可能有空行，去掉
+      if (lines.length > 0 && lines[lines.length - 1] === '') {
+        lines.pop()
+      }
+      // 根据总行数的位数动态计算行号区域宽度，确保任意行数下分割线对齐
+      const maxDigits = String(lines.length).length
+      // 每个字符约 0.65em 宽，加上固定 padding 2em，再留 0.5em 余量，最小 3.5em
+      const lineNumberWidth = `${Math.max(3.5, maxDigits * 0.65 + 2)}em`
+      const numberedLines = lines.map((line, idx) =>
+        `<div class="code-line"><span class="line-number" style="width:${lineNumberWidth}">${idx + 1}</span><span class="line-content">${line}</span></div>`
+      ).join('')
+      return `<div class="markdown-code has-line-numbers${headerClass}">${langLabel}<pre class="markdown-code-pre"><code>${numberedLines}</code></pre></div>`
+    }
+
     return `<div class="markdown-code${headerClass}">${langLabel}<pre class="markdown-code-pre"><code>${result}</code></pre></div>`
   }
 }).use(MarkdownItTaskLists, {enabled: true})
@@ -258,7 +284,11 @@ const addCopyButtons = () => {
       if (!codeEl) {
         return
       }
-      const code = codeEl.textContent || ''
+      // 当存在行号时，仅提取每行代码内容，排除行号文本
+      const lineContents = codeEl.querySelectorAll('.line-content')
+      const code = lineContents.length > 0
+        ? Array.from(lineContents).map(el => el.textContent || '').join('\n')
+        : codeEl.textContent || ''
       try {
         await SfcUtils.copyToClipboard(code)
         btn.textContent = '已复制!'
@@ -626,6 +656,40 @@ export default defineComponent({
         letter-spacing: .04em;
         text-transform: uppercase;
         color: rgba(255, 255, 255, .5);
+      }
+    }
+
+    // 带行号的代码块布局
+    &.has-line-numbers {
+      .markdown-code-pre {
+        padding: 16px 16px 16px 0;
+
+        .code-line {
+          display: flex;
+          min-height: 1.6em;
+
+          &:hover {
+            background-color: rgba(255, 255, 255, .04);
+          }
+        }
+
+        .line-number {
+          display: block;
+          box-sizing: border-box;
+          padding: 0 12px 0 16px;
+          text-align: right;
+          color: rgba(255, 255, 255, .25);
+          user-select: none;
+          border-right: 1px solid rgba(255, 255, 255, .1);
+          margin-right: 16px;
+          flex-shrink: 0;
+        }
+
+        .line-content {
+          flex: 1;
+          min-width: 0;
+          padding-right: 16px;
+        }
       }
     }
 

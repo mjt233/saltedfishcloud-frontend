@@ -53,7 +53,8 @@
       <component
         :is="MarkdownView"
         :content="mdContent"
-        style="height: 60vh"
+        :show-line-numbers="true"
+        style="height: 60vh;overflow: auto;"
       />
     </div>
   </div>
