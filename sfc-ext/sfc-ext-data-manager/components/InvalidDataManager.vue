@@ -34,6 +34,20 @@
                 批量修复
               </v-btn>
               <v-btn
+                class="mr-2"
+                :disabled="!canBatchPublish"
+                @click="handleBatchPublish"
+              >
+                批量发布
+              </v-btn>
+              <v-btn
+                class="mr-2"
+                :disabled="!canBatchUnpublish"
+                @click="handleBatchUnpublish"
+              >
+                批量取消发布
+              </v-btn>
+              <v-btn
                 color="error"
                 style="color: white;"
                 :disabled="!canBatchDiscard"
@@ -146,8 +160,8 @@
                 @download="handleDownload(item)"
                 @fix="handleQuickFix([item.id])"
                 @claim="openClaimDialog(item)"
-                @publish="handlePublish(item)"
-                @unpublish="handleUnpublish(item)"
+                @publish="handlePublish([item.id])"
+                @unpublish="handleUnpublish([item.id])"
                 @complete="handleMarkCompleted(item)"
                 @discard="handleDiscard([item.id])"
               />
@@ -244,8 +258,8 @@
               @download="handleDownload(getDrawerItem())"
               @fix="withDrawerClose(() => handleQuickFix([getDrawerItem().id]))"
               @claim="openClaimDialog(getDrawerItem())"
-              @publish="withDrawerClose(() => handlePublish(getDrawerItem()))"
-              @unpublish="withDrawerClose(() => handleUnpublish(getDrawerItem()))"
+              @publish="withDrawerClose(() => handlePublish([getDrawerItem().id]))"
+              @unpublish="withDrawerClose(() => handleUnpublish([getDrawerItem().id]))"
               @complete="withDrawerClose(() => handleMarkCompleted(getDrawerItem()))"
               @discard="withDrawerClose(() => handleDiscard([getDrawerItem().id]))"
             />
@@ -433,8 +447,28 @@ const canBatchDiscard = computed(() => {
   return selected.value.length > 0 && getSelectedItems().every(canDiscard)
 })
 
+/** 是否可批量发布（所有选中项均为 PENDING 且类型为 PHYSICAL_STORAGE） */
+const canBatchPublish = computed(() => {
+  return selected.value.length > 0 && getSelectedItems().every(
+    item => item.status === 'PENDING' && item.type === 'PHYSICAL_STORAGE'
+  )
+})
+
+/** 是否可批量取消发布（所有选中项均为 PUBLISHED） */
+const canBatchUnpublish = computed(() => {
+  return selected.value.length > 0 && getSelectedItems().every(
+    item => item.status === 'PUBLISHED'
+  )
+})
+
 /** 批量修复 */
 const handleBatchFix = () => handleQuickFix(selected.value)
+
+/** 批量发布 */
+const handleBatchPublish = () => handlePublish(selected.value)
+
+/** 批量取消发布 */
+const handleBatchUnpublish = () => handleUnpublish(selected.value)
 
 /** 批量丢弃 */
 const handleBatchDiscard = () => handleDiscard(selected.value)

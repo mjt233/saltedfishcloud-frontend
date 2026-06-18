@@ -118,28 +118,30 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
   }
 
   /**
-   * 发布失效数据为可认领状态
-   * @param item 失效数据记录
+   * 批量发布失效数据为可认领状态
+   * @param ids 要发布的失效数据ID列表
    */
-  const handlePublish = async(item: InvalidDataRecord) => {
+  const handlePublish = async(ids: IdType[]) => {
     try {
-      await SfcUtils.request(DataManagerAPI.publish(item.id))
-      SfcUtils.snackbar('发布成功')
+      const res = (await SfcUtils.request(DataManagerAPI.publish(ids))).data.data
+      SfcUtils.snackbar(`发布成功：${res.success || 0}，失败：${res.failed || 0}`)
       loadList()
+      selected.value = []
     } catch (e: any) {
       SfcUtils.alert(e.toString())
     }
   }
 
   /**
-   * 取消发布
-   * @param item 失效数据记录
+   * 批量取消发布
+   * @param ids 要取消发布的失效数据ID列表
    */
-  const handleUnpublish = async(item: InvalidDataRecord) => {
+  const handleUnpublish = async(ids: IdType[]) => {
     try {
-      await SfcUtils.request(DataManagerAPI.unpublish(item.id))
-      SfcUtils.snackbar('取消发布成功')
+      const res = (await SfcUtils.request(DataManagerAPI.unpublish(ids))).data.data
+      SfcUtils.snackbar(`取消发布成功：${res.success || 0}，失败：${res.failed || 0}`)
       loadList()
+      selected.value = []
     } catch (e: any) {
       SfcUtils.alert(e.toString())
     }

@@ -58,23 +58,27 @@ export namespace DataManagerAPI {
   }
 
   /**
-   * 发布为可认领
+   * 批量发布为可认领
+   * @param ids 要发布的失效数据ID列表
    */
-  export function publish(id: IdType): CommonRequest<void> {
-    return {
-      url: `${baseUrl}/publish/${id}`,
-      method: 'post'
-    }
+  export function publish(ids: IdType[]): CommonRequest<any> {
+    return useJsonBody({
+      url: `${baseUrl}/publish`,
+      method: 'post',
+      data: ids
+    })
   }
 
   /**
-   * 取消发布
+   * 批量取消发布
+   * @param ids 要取消发布的失效数据ID列表
    */
-  export function unpublish(id: IdType): CommonRequest<void> {
-    return {
-      url: `${baseUrl}/unpublish/${id}`,
-      method: 'post'
-    }
+  export function unpublish(ids: IdType[]): CommonRequest<any> {
+    return useJsonBody({
+      url: `${baseUrl}/unpublish`,
+      method: 'post',
+      data: ids
+    })
   }
 
   /**
