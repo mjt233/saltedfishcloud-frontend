@@ -1,0 +1,1 @@
+docker run --rm -v "$(pwd)":/app -w /app node:24-bookworm sh -c "npm install -g npm@11.12.0 && npm install && npm run build"
