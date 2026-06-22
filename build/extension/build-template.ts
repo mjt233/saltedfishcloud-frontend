@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import { copyToBackendPlugin } from '../plugins/copy-to-backend-plugin'
+
 /**
  * 拓展声明配置
  */
@@ -22,6 +24,7 @@ export function defineExtension(conf: ExtensionConfig) {
     publicDir: `/sfc-ext/${extensionName}/public`,
     plugins: [
       vue(),
+      copyToBackendPlugin(extensionName),
       // vuetify({
       //   autoImport: true,
       // })
