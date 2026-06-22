@@ -28,6 +28,13 @@
               <v-btn
                 color="primary"
                 class="mr-2"
+                @click="handleBatchIdentify"
+              >
+                识别文件类型
+              </v-btn>
+              <v-btn
+                color="primary"
+                class="mr-2"
                 :disabled="!canBatchFix"
                 @click="handleBatchFix"
               >
@@ -460,6 +467,9 @@ const canBatchUnpublish = computed(() => {
     item => item.status === 'PUBLISHED'
   )
 })
+
+/** 批量识别文件类型 */
+const handleBatchIdentify = () => handleIdentify({ ids: selected.value })
 
 /** 批量修复 */
 const handleBatchFix = () => handleQuickFix(selected.value)

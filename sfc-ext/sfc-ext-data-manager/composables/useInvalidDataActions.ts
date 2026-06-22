@@ -1,10 +1,12 @@
 import type { Ref } from 'vue'
 import { computed, ref } from 'vue'
 import { getContext } from 'sfc-common'
-import type { IdType } from 'sfc-common/model'
+import type { CommonRequest, IdType, JsonResult } from 'sfc-common/model'
 import { DataManagerAPI } from '../api'
 import type { InvalidDataRecord, ClaimParam, FileTypeCheckResult } from '../model'
 import InvalidDataClaimForm from '../components/form/InvalidDataClaimForm.vue'
+import InvalidDataIdentifyForm from '../components/form/InvalidDataIdentifyForm.vue'
+import { AxiosResponse } from 'axios'
 
 const SfcUtils = window.SfcUtils
 
@@ -89,32 +91,46 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
   }
 
   /**
-   * 发起文件类型识别任务
+   * 打开文件识别对话框并发起识别任务
+   * @param options 识别选项（可选）
+   * @param options.ids 指定识别的失效数据ID列表，不指定则处理所有待处理待识别的记录
    */
-  const handleIdentify = async() => {
-    try {
-      const taskId = (await SfcUtils.request(DataManagerAPI.identify())).data.data
-      SfcUtils.snackbar('识别任务已发起')
-      // 打开异步任务信息对话框，展示识别进度
-      const SimpleAsyncTaskInfo = window.Components.SimpleAsyncTaskInfo
-      SfcUtils.openComponentDialog(SimpleAsyncTaskInfo, {
-        title: '文件类型识别任务',
-        props: {
-          taskId,
-          logCollapsed: false,
-          'onTaskExit': () => {
-            loadList()
-          }
-        },
-        showConfirm: false,
-        extraDialogOptions: {
-          maxWidth: '810px'
+  const handleIdentify = async(options?: { ids?: IdType[] }) => {
+    const selectedIds = options?.ids || []
+    const inst = SfcUtils.openComponentDialog(InvalidDataIdentifyForm, {
+      title: '识别文件类型',
+      props: {
+        selectedCount: selectedIds.length,
+        selectedIds
+      },
+      extraDialogOptions: {
+        confirmText: '开始识别'
+      },
+      async onConfirm() {
+        const form = inst.getInstAsForm()
+        const ret = await form.submit()
+        if (ret.success) {
+          const taskId = (ret.data as AxiosResponse<JsonResult<IdType>>).data.data
+          SfcUtils.snackbar('识别任务已发起')
+          const SimpleAsyncTaskInfo = window.Components.SimpleAsyncTaskInfo
+          SfcUtils.openComponentDialog(SimpleAsyncTaskInfo, {
+            title: '文件类型识别任务',
+            props: {
+              taskId,
+              logCollapsed: false,
+              'onTaskExit': () => {
+                loadList()
+              }
+            },
+            showConfirm: false,
+            extraDialogOptions: {
+              maxWidth: '810px'
+            }
+          })
         }
-      })
-      loadList()
-    } catch (err: any) {
-      SfcUtils.alert(err.toString())
-    }
+        return ret.success
+      }
+    })
   }
 
   /**

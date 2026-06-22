@@ -5,6 +5,16 @@ import type { ClaimParam, ClaimRecord, FileTypeProviderInfo, InvalidDataQuery, I
 
 const baseUrl = '/dataManager/invalidData'
 
+/**
+ * 文件识别任务发起参数
+ */
+export interface IdentifyParam {
+  /** 指定需要识别的失效数据ID列表，不指定则处理所有待处理待识别的记录 */
+  ids?: IdType[]
+  /** 是否重新识别，为true时即使记录无需识别也执行重新识别并覆盖原有结果 */
+  reIdentify?: boolean
+}
+
 export namespace DataManagerAPI {
   /**
    * 获取所有文件类型识别器
@@ -29,13 +39,15 @@ export namespace DataManagerAPI {
 
   /**
    * 发起文件识别任务
+   * @param param 识别参数（可选），包含ids和reIdentify
    * @returns 异步任务ID
    */
-  export function identify(): CommonRequest<IdType> {
-    return {
+  export function identify(param?: IdentifyParam): CommonRequest<IdType> {
+    return useJsonBody({
       url: `${baseUrl}/identify`,
-      method: 'post'
-    }
+      method: 'post',
+      data: param
+    })
   }
 
   /**
