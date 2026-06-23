@@ -227,7 +227,7 @@ const loadList = async(options?: {
     if (q.page) {
       q.page = Number(q.page) - 1
     }
-    const res = (await SfcUtils.request(DataManagerAPI.list(q))).data.data
+    const res = (await SfcUtils.request(DataManagerAPI.publishedList(q))).data.data
     items.value = res.content
     total.value = parseInt(res.totalCount as any) || res.content.length
   } catch (err) {

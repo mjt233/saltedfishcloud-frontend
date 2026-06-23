@@ -61,6 +61,16 @@ export namespace DataManagerAPI {
   }
 
   /**
+   * 查询已发布可认领的失效数据列表
+   */
+  export function publishedList(query: InvalidDataQuery): CommonRequest<CommonPageInfo<InvalidDataRecord>> {
+    return {
+      url: `${baseUrl}/publishedList`,
+      params: query
+    }
+  }
+
+  /**
    * 按ID查询失效数据详情
    */
   export function detail(id: IdType): CommonRequest<InvalidDataRecord> {
