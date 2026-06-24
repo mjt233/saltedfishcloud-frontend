@@ -8,15 +8,27 @@
  */
 
 /**
+ * 表格列定义，描述列头与对应的数据字段
+ */
+export interface ColumnDef {
+  /** 列头文本 */
+  header: string
+  /** 对应 FieldCompletionDef 中的字段名 */
+  field: 'label' | 'detail' | 'documentation' | 'description'
+}
+
+/**
  * 单个字段补全项的数据结构
  */
 export interface FieldCompletionDef {
-  /** 字段名，同时也是补全插入文本 */
+  /** 字段名 / 方法名，同时也是补全插入文本 */
   label: string
-  /** 字段类型注解（如 'String'、'Long'） */
+  /** 字段类型注解（如 'String'、'Long'）或方法返回类型 */
   detail: string
-  /** 字段的中文描述 */
+  /** 字段的中文描述 或 方法参数签名（视 columns 配置而定） */
   documentation: string
+  /** 方法 / 字段的补充说明（可选，用于需要额外说明列的场景，如 TypeUtils） */
+  description?: string
 }
 
 /**
@@ -31,7 +43,24 @@ export interface VariableDef {
   description: string
   /** 该变量的字段列表 */
   fields: FieldCompletionDef[]
+  /** 表格列定义，未设置时使用 DEFAULT_COLUMNS */
+  columns?: ColumnDef[]
 }
+
+/** 默认列定义：字段 / 类型 / 说明 */
+export const DEFAULT_COLUMNS: ColumnDef[] = [
+  { header: '字段', field: 'label' },
+  { header: '类型', field: 'detail' },
+  { header: '说明', field: 'documentation' }
+]
+
+/** TypeUtils 工具类列定义：方法名 / 参数 / 返回值 / 说明 */
+const TYPE_UTILS_COLUMNS: ColumnDef[] = [
+  { header: '方法名', field: 'label' },
+  { header: '参数', field: 'documentation' },
+  { header: '返回值', field: 'detail' },
+  { header: '说明', field: 'description' }
+]
 
 /**
  * record 变量（InvalidDataRecord）的字段补全项定义
@@ -80,6 +109,26 @@ const detailFields: FieldCompletionDef[] = [
 ]
 
 /**
+ * TypeUtils 全局工具类的方法补全项定义
+ * 对应后端 com.xiaotao.saltedfishcloud.utils.TypeUtils 的公开静态方法
+ */
+const typeUtilsMethods: FieldCompletionDef[] = [
+  { label: 'toLong', detail: 'Long', documentation: 'Object input', description: '将输入转为 Long，null 时返回 null' },
+  { label: 'toInt', detail: 'Integer', documentation: 'Object input', description: '将输入转为 Integer，null 时返回 null' },
+  { label: 'toBoolean', detail: 'Boolean', documentation: 'Object obj', description: '字符串或数字转 Boolean（>=1 为 true）' },
+  { label: 'toString', detail: 'String', documentation: 'Object input', description: '将输入转为字符串，null 时返回 null' },
+  { label: 'toNumber', detail: '<T> T', documentation: 'Class<T> target, Object input', description: '转为目标数字类型' },
+  { label: 'convert', detail: '<T> T', documentation: 'Class<T> targetType, Object input', description: '通用类型转换（数字/字符串/布尔/枚举/日期）' },
+  { label: 'getDate', detail: 'Date', documentation: 'String input, String pattern', description: '按格式解析日期字符串' },
+  { label: 'isNumber', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为数字类型' },
+  { label: 'isBoolean', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为 boolean 类型' },
+  { label: 'isString', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为 String 类型' },
+  { label: 'isDate', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为 Date 类型' },
+  { label: 'isEnum', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为枚举类型' },
+  { label: 'isSimpleType', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为简单类型（数字/字符串/布尔）' }
+]
+
+/**
  * 脚本内置变量描述列表，供 UI 展示变量参考信息
  */
 export const variables: VariableDef[] = [
@@ -100,6 +149,13 @@ export const variables: VariableDef[] = [
     type: 'FileTypeCheckResultDetail',
     description: '文件类型识别结果详情',
     fields: detailFields
+  },
+  {
+    name: 'TypeUtils',
+    type: 'TypeUtils',
+    description: '全局数据类型工具类，提供数字、字符串、布尔等类型之间的转换与判断方法',
+    fields: typeUtilsMethods,
+    columns: TYPE_UTILS_COLUMNS
   }
 ]
 
@@ -135,6 +191,9 @@ const resolveCompletionItems = (
   if (prefix === 'typeCheckResult.') {
     return toItems(typeCheckResultFields)
   }
+  if (prefix === 'TypeUtils.') {
+    return toItems(typeUtilsMethods)
+  }
   return undefined
 }
 
@@ -156,8 +215,8 @@ export const provideGroovyCompletions = (
   const lineContent = model.getLineContent(position.lineNumber)
   // 截取光标前的文本，匹配变量属性访问的前缀
   const textBefore = lineContent.substring(0, position.column - 1)
-  // 匹配 record.xxx 或 typeCheckResult.xxx.yyy 模式
-  const match = textBefore.match(/(typeCheckResult\.detail\.|typeCheckResult\.|record\.)$/)
+  // 匹配 record.xxx 或 typeCheckResult.xxx.yyy 或 TypeUtils.xxx 模式
+  const match = textBefore.match(/(typeCheckResult\.detail\.|typeCheckResult\.|TypeUtils\.|record\.)$/)
 
   if (match) {
     const prefix = match[1]
@@ -182,7 +241,7 @@ export const provideGroovyCompletions = (
       endColumn: position.column
     }
     // 仅当部分输入匹配变量名前缀时才提供变量补全
-    if ('record'.startsWith(partialWord) || 'typeCheckResult'.startsWith(partialWord)) {
+    if ('record'.startsWith(partialWord) || 'typeCheckResult'.startsWith(partialWord) || 'TypeUtils'.startsWith(partialWord)) {
       return [
         {
           label: 'record',
@@ -198,6 +257,14 @@ export const provideGroovyCompletions = (
           detail: 'FileTypeCheckResult',
           documentation: '文件类型识别结果对象（record.typeCheckResult 反序列化后的结构）',
           insertText: 'typeCheckResult',
+          range
+        },
+        {
+          label: 'TypeUtils',
+          kind: monaco.languages.CompletionItemKind.Variable,
+          detail: 'TypeUtils',
+          documentation: '全局数据类型工具类，提供数字、字符串、布尔等类型之间的转换与判断方法',
+          insertText: 'TypeUtils',
           range
         }
       ]

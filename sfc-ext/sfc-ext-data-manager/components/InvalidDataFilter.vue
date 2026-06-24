@@ -87,16 +87,19 @@
             <div class="text-caption text-medium-emphasis mb-1">
               Groovy 筛选脚本
             </div>
-            <div
-              class="script-preview"
-              @click="openScriptEditor"
-            >
-              <pre v-if="draft.filterScript" class="script-preview-code">{{ draft.filterScript }}</pre>
-              <span v-else class="text-medium-emphasis">点击编辑筛选脚本...</span>
-            </div>
-            <div class="text-caption text-medium-emphasis mt-1">
-              脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
-            </div>
+            <v-textarea
+              placeholder="点击编辑筛选脚本..."
+              :model-value="draft.filterScript"
+              auto-grow
+              :rows="1"
+              :max-rows="3"
+              hint="脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录"
+              persistent-hint
+              readonly
+              :variant="'solo'"
+              @update:focused="$event && openScriptEditor()"
+              @click.stop="openScriptEditor"
+            />
           </div>
           <div class="d-flex justify-end ga-2 mt-4">
             <v-btn size="small" @click="handleReset">
@@ -156,13 +159,11 @@
             <div class="text-caption text-medium-emphasis mb-1">
               Groovy 筛选脚本
             </div>
-            <div
-              class="script-preview"
+            <v-textarea
+              placeholder="点击编辑筛选脚本...123"
+              :model-value="draft.filterScript"
               @click="openScriptEditor"
-            >
-              <pre v-if="draft.filterScript" class="script-preview-code">{{ draft.filterScript }}</pre>
-              <span v-else class="text-medium-emphasis">点击编辑筛选脚本...</span>
-            </div>
+            />
             <div class="text-caption text-medium-emphasis mt-1">
               脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
             </div>

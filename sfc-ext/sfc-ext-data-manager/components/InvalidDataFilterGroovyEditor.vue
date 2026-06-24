@@ -32,14 +32,12 @@
               <v-table v-show="expandedVars[variable.name]" density="compact" size="small">
                 <thead>
                   <tr>
-                    <th class="text-caption font-weight-bold">
-                      字段
-                    </th>
-                    <th class="text-caption font-weight-bold">
-                      类型
-                    </th>
-                    <th class="text-caption font-weight-bold">
-                      说明
+                    <th
+                      v-for="col in (variable.columns || DEFAULT_COLUMNS)"
+                      :key="col.field"
+                      class="text-caption font-weight-bold"
+                    >
+                      {{ col.header }}
                     </th>
                   </tr>
                 </thead>
@@ -48,14 +46,12 @@
                     v-for="field in variable.fields"
                     :key="field.label"
                   >
-                    <td>
-                      <code class="text-primary">{{ field.label }}</code>
-                    </td>
-                    <td>
-                      <span class="text-caption">{{ field.detail }}</span>
-                    </td>
-                    <td>
-                      <span class="text-caption">{{ field.documentation }}</span>
+                    <td
+                      v-for="col in (variable.columns || DEFAULT_COLUMNS)"
+                      :key="col.field"
+                    >
+                      <code v-if="col.field === 'label'" class="text-primary">{{ field[col.field] }}</code>
+                      <span v-else class="text-caption">{{ field[col.field] ?? '-' }}</span>
                     </td>
                   </tr>
                 </tbody>
@@ -72,13 +68,14 @@
       v-bind="$attrs"
       language="groovy"
       :custom-completions="provideGroovyCompletions"
+      :placeholder="editorPlaceholder"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { provideGroovyCompletions, variables } from '../groovy-completions'
+import { provideGroovyCompletions, variables, DEFAULT_COLUMNS } from '../groovy-completions'
 import type { CodeEditorModel } from 'sfc-common/model/component/CodeEditorModel'
 
 /** 各变量字段表格的展开状态，key 为变量名，默认全部收起 */
@@ -92,6 +89,20 @@ const editorRef = ref<CodeEditorModel>()
  * @returns Monaco IStandaloneCodeEditor 实例
  */
 const getEditor = () => editorRef.value?.getEditor()
+
+const editorPlaceholder = `脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
+示例: 
+if (typeCheckResult == null || typeCheckResult.detail.extension != '.png') {
+    return false;
+}
+def width = TypeUtils.toLong(typeCheckResult.detail.metadata.width)
+
+if (width == null || width < 1024) {
+    return false
+}
+return true
+则表示筛选出所有识别格式为png、且图片宽度大于1024px的失效数据
+`
 
 defineExpose({ getEditor })
 </script>

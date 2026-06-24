@@ -94,13 +94,13 @@
             <v-table density="compact">
               <thead>
                 <tr>
-                  <th>名称</th>
+                  <th>键名（名称）</th>
                   <th>值</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="def in metadataDefines" :key="def.key">
-                  <td>{{ def.name }}</td>
+                  <td>{{ def.key }}（{{ def.name }}）</td>
                   <td>{{ typeCheckDetail.detail.metadata[def.key] ?? '-' }}</td>
                 </tr>
               </tbody>
