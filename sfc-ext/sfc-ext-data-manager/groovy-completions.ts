@@ -68,15 +68,15 @@ const TYPE_UTILS_COLUMNS: ColumnDef[] = [
  */
 const recordFields: FieldCompletionDef[] = [
   { label: 'id', detail: 'IdType', documentation: '记录唯一标识' },
-  { label: 'createAt', detail: 'String', documentation: '记录创建时间（ISO 8601格式）' },
-  { label: 'updateAt', detail: 'String', documentation: '记录最后更新时间（ISO 8601格式）' },
+  { label: 'createAt', detail: 'Date', documentation: '记录创建时间' },
+  { label: 'updateAt', detail: 'Date', documentation: '记录最后更新时间' },
   { label: 'type', detail: 'String', documentation: '失效数据类型：FILE_RECORD / PHYSICAL_STORAGE' },
   { label: 'storeMode', detail: 'String', documentation: '文件存储模式：RAW / UNIQUE' },
   { label: 'storagePath', detail: 'String', documentation: '文件在存储系统中的路径' },
   { label: 'ownerUid', detail: 'IdType', documentation: '文件所有者的用户ID' },
   { label: 'diskPath', detail: 'String | null', documentation: '文件在磁盘上的物理路径，可能为null' },
   { label: 'fileSize', detail: 'Long', documentation: '文件大小（字节）' },
-  { label: 'lastModified', detail: 'String', documentation: '文件最后修改时间（ISO 8601格式）' },
+  { label: 'lastModified', detail: 'Date', documentation: '文件在文件系统中的最后修改时间' },
   { label: 'needIdentify', detail: 'Boolean', documentation: '是否需要进行文件类型识别' },
   { label: 'fileType', detail: 'String | null', documentation: '文件MIME类型，未经识别时可能为null' },
   { label: 'metadata', detail: 'String | null', documentation: '文件元数据JSON字符串，可能为null' },
