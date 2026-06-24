@@ -185,7 +185,7 @@ export function useInvalidDataList() {
           total.value = parseInt(res.totalCount as any) || res.content.length
         } catch (listErr: any) {
           // code 8001 表示 filterId 已失效，需重新创建过滤并重试
-          if (listErr?.code === 8001) {
+          if (listErr?.response?.data?.businessCode === 8001) {
             filterId.value = undefined
             const filterResult = (await SfcUtils.request(DataManagerAPI.filter(q))).data.data
             filterId.value = filterResult.filterId
