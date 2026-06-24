@@ -192,7 +192,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useCheckIsMobile } from 'sfc-common'
 import type { InvalidDataFilterValue } from '../model'
-const CodeEditor = window.Components.CodeEditor
+import InvalidDataFilterGroovyEditor from './InvalidDataFilterGroovyEditor.vue'
 
 /** 是否为移动端窄屏 */
 const isMobile = useCheckIsMobile()
@@ -566,11 +566,9 @@ const removeChipFilter = (chip: ActiveChip) => {
  */
 const openScriptEditor = () => {
   const SfcUtils = window.SfcUtils
-  let editedScript = draft.filterScript || ''
-  const dialogInst = SfcUtils.openComponentDialog(CodeEditor, {
+  const dialogInst = SfcUtils.openComponentDialog(InvalidDataFilterGroovyEditor, {
     props: {
-      modelValue: editedScript,
-      language: 'groovy',
+      modelValue: draft.filterScript || '',
       style: { height: '60vh' }
     },
     title: '编辑 Groovy 筛选脚本',
@@ -578,10 +576,11 @@ const openScriptEditor = () => {
       maxWidth: '800px'
     },
     onConfirm() {
-      // 通过 dialogInst 获取 CodeEditor 组件实例，读取编辑器最新内容
-      const editorValue = (dialogInst.getComponentInstRef() as any).getEditor().getValue()
-      draft.filterScript = editorValue || undefined
-      handleApply()
+      const editor = (dialogInst.getComponentInstRef() as any)?.getEditor()
+      if (editor) {
+        draft.filterScript = editor.getValue() || undefined
+        handleApply()
+      }
       return true
     }
   })

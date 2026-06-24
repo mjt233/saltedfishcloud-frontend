@@ -54,6 +54,25 @@ const props = defineProps({
   autoToScrollBottom: {
     type: Boolean,
     default: false
+  },
+  /**
+   * 自定义代码补全提供函数。
+   * 当编辑器挂载时，会以该函数注册一个 Monaco CompletionItemProvider；
+   * 编辑器销毁时自动 dispose，不影响其他编辑器实例。
+   * @param model Monaco 文本模型
+   * @param position 当前光标位置
+   * @param context 补全上下文
+   * @param token 取消令牌
+   * @returns 补全项数组，若不提供补全则返回 undefined
+   */
+  customCompletions: {
+    type: Function as PropType<(
+      model: monaco.editor.ITextModel,
+      position: monaco.Position,
+      context: monaco.languages.CompletionContext,
+      token: monaco.CancellationToken
+    ) => monaco.languages.CompletionItem[] | undefined>,
+    default: undefined
   }
 })
 const emits = defineEmits<{
@@ -79,6 +98,8 @@ self.MonacoEnvironment = {
 }
 
 let editor: monaco.editor.IStandaloneCodeEditor
+/** 自定义补全提供器的 disposable，用于在组件销毁时释放 */
+let completionProviderDisposable: { dispose(): void } | undefined
 const containerHeight = ref('auto')
 
 /**
@@ -190,6 +211,18 @@ onMounted(async() => {
     readOnly: props.readOnly,
     wordWrap: props.wordWrap ? 'on' : 'off'
   })
+  // 注册自定义补全提供器（若调用方提供了 customCompletions）
+  if (props.customCompletions) {
+    completionProviderDisposable = monaco.languages.registerCompletionItemProvider(props.language, {
+      triggerCharacters: ['.'],
+      provideCompletionItems(model, position, context, token) {
+        const items = props.customCompletions!(model, position, context, token)
+        return {
+          suggestions: items ?? []
+        }
+      }
+    })
+  }
   // 触发update:modelValue，以及自动滚动到底部和自动拓展高度
   editor.onDidChangeModelContent(e => {
     emits('update:modelValue', editor.getValue())
@@ -217,6 +250,8 @@ onMounted(async() => {
 })
 
 onUnmounted(() => {
+  // 先释放自定义补全提供器，再销毁编辑器
+  completionProviderDisposable?.dispose()
   editor.dispose()
 })
 
