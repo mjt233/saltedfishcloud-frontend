@@ -77,6 +77,7 @@
             :status-options="statusOptions"
             :provider-options="providerOptions"
             :types-name-map="typesNameMap"
+            allow-groovy-script
             @apply="onFilterApply"
           />
           <v-data-table-server
@@ -317,7 +318,7 @@ const actionItems = computed(() => [
   { id: 'identify', icon: 'mdi-file-search-outline', title: '识别文件类型', action: handleIdentify, showText: true },
   { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
   { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
-  { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: loadList, showText: true }
+  { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: doLoadList, showText: true }
 ])
 
 /** 列表管理 */
@@ -351,7 +352,8 @@ const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
   status: query.status,
   fileType: query.fileType,
   minFileSize: query.minFileSize,
-  maxFileSize: query.maxFileSize
+  maxFileSize: query.maxFileSize,
+  filterScript: query.filterScript
 }))
 
 /** 详情抽屉是否可见 */
@@ -426,6 +428,7 @@ const withDrawerClose = (action: () => void) => {
   drawerVisible.value = false
 }
 
+const { isLoading, beginLoading, closeLoading } = useLoadingManager()
 
 
 /**
@@ -537,27 +540,37 @@ const drawerMetadataDefines = computed((): FileMetadataDefine[] => {
  * 将筛选值同步到 query 并重新加载列表
  * @param value 用户选定的筛选条件
  */
-const onFilterApply = (value: InvalidDataFilterValue) => {
+const onFilterApply = async(value: InvalidDataFilterValue) => {
   query.status = value.status
   query.fileType = value.fileType
   query.minFileSize = value.minFileSize
   query.maxFileSize = value.maxFileSize
+  query.filterScript = value.filterScript
   query.page = 1
-  loadList()
+  doLoadList()
+}
+
+const doLoadList = async() => {
+  beginLoading()
+  try {
+    await loadList()
+  } finally {
+    closeLoading()
+  }
 }
 
 /** 初始化：加载识别器选项和列表数据 */
 onMounted(() => {
   loadProviders()
-  loadList()
+  doLoadList()
 })
 </script>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useAutoComputeHeight } from 'sfc-common/composables/useAutoComputeHeight'
-import { useResizeObserver } from 'sfc-common/composables/useResizeObserver'
 import { useHeightSync } from '../composables/useHeightSync'
+import { useLoadingManager } from 'sfc-common'
 
 export default defineComponent({
   name: 'InvalidDataManager'

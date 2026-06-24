@@ -82,6 +82,22 @@
               </v-col>
             </template>
           </v-row>
+          <!-- Groovy 脚本筛选区域 -->
+          <div v-if="allowGroovyScript" class="mt-4">
+            <div class="text-caption text-medium-emphasis mb-1">
+              Groovy 筛选脚本
+            </div>
+            <div
+              class="script-preview"
+              @click="openScriptEditor"
+            >
+              <pre v-if="draft.filterScript" class="script-preview-code">{{ draft.filterScript }}</pre>
+              <span v-else class="text-medium-emphasis">点击编辑筛选脚本...</span>
+            </div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
+            </div>
+          </div>
           <div class="d-flex justify-end ga-2 mt-4">
             <v-btn size="small" @click="handleReset">
               重置
@@ -135,6 +151,22 @@
               />
             </div>
           </template>
+          <!-- Groovy 脚本筛选区域（移动端） -->
+          <div v-if="allowGroovyScript" class="mb-4">
+            <div class="text-caption text-medium-emphasis mb-1">
+              Groovy 筛选脚本
+            </div>
+            <div
+              class="script-preview"
+              @click="openScriptEditor"
+            >
+              <pre v-if="draft.filterScript" class="script-preview-code">{{ draft.filterScript }}</pre>
+              <span v-else class="text-medium-emphasis">点击编辑筛选脚本...</span>
+            </div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
+            </div>
+          </div>
         </v-card-text>
         <v-divider />
         <div class="pa-4 ga-3">
@@ -159,6 +191,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useCheckIsMobile } from 'sfc-common'
+import { CodeEditor } from 'sfc-common/components/common/Editor'
 import type { InvalidDataFilterValue } from '../model'
 
 /** 是否为移动端窄屏 */
@@ -181,6 +214,8 @@ const props = defineProps<{
   typesNameMap: Record<string, string>
   /** 需要隐藏的筛选字段键名列表 */
   hideFields?: Array<'status' | 'fileType' | 'minFileSize' | 'maxFileSize'>
+  /** 是否允许使用 Groovy 脚本筛选功能 */
+  allowGroovyScript?: boolean
 }>()
 
 /** 组件事件 */
@@ -200,7 +235,8 @@ const draft = reactive<InvalidDataFilterValue>({
   status: props.modelValue.status ? [...props.modelValue.status] : undefined,
   fileType: props.modelValue.fileType ? [...props.modelValue.fileType] : undefined,
   minFileSize: props.modelValue.minFileSize,
-  maxFileSize: props.modelValue.maxFileSize
+  maxFileSize: props.modelValue.maxFileSize,
+  filterScript: props.modelValue.filterScript
 })
 
 /** 桌面端筛选面板是否展开 */
@@ -227,6 +263,7 @@ watch(
       draft.fileType = newVal.fileType ? [...newVal.fileType] : undefined
       draft.minFileSize = newVal.minFileSize
       draft.maxFileSize = newVal.maxFileSize
+      draft.filterScript = newVal.filterScript
     }
   },
   { deep: true }
@@ -376,6 +413,15 @@ const activeFilterChips = computed<ActiveChip[]>(() => {
     })
   }
 
+  // Groovy 脚本筛选芯片
+  if (val.filterScript && val.filterScript.trim()) {
+    chips.push({
+      key: 'filterScript',
+      label: 'Groovy 脚本筛选',
+      filterKey: 'filterScript'
+    })
+  }
+
   return chips
 })
 
@@ -414,6 +460,7 @@ const syncDraftFromModel = () => {
   draft.fileType = val.fileType ? [...val.fileType] : undefined
   draft.minFileSize = val.minFileSize
   draft.maxFileSize = val.maxFileSize
+  draft.filterScript = val.filterScript
 }
 
 /**
@@ -447,7 +494,8 @@ const handleApply = () => {
     status: draft.status ? [...draft.status] : undefined,
     fileType: draft.fileType ? [...draft.fileType] : undefined,
     minFileSize: draft.minFileSize,
-    maxFileSize: draft.maxFileSize
+    maxFileSize: draft.maxFileSize,
+    filterScript: draft.filterScript || undefined
   }
 
   // 清理空数组为 undefined，避免传递空数组给后端
@@ -475,6 +523,7 @@ const handleReset = () => {
   draft.fileType = undefined
   draft.minFileSize = undefined
   draft.maxFileSize = undefined
+  draft.filterScript = undefined
 
   const resetValue: InvalidDataFilterValue = {}
   emit('apply', resetValue)
@@ -510,6 +559,33 @@ const removeChipFilter = (chip: ActiveChip) => {
   // 移除芯片后立即应用
   handleApply()
 }
+
+/**
+ * 打开代码编辑器对话框编辑 Groovy 筛选脚本
+ * 对话框确认后更新 draft 并立即触发筛选条件更新
+ */
+const openScriptEditor = () => {
+  const SfcUtils = window.SfcUtils
+  let editedScript = draft.filterScript || ''
+  const dialogInst = SfcUtils.openComponentDialog(CodeEditor, {
+    props: {
+      modelValue: editedScript,
+      language: 'groovy',
+      style: { height: '60vh' }
+    },
+    title: '编辑 Groovy 筛选脚本',
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    onConfirm() {
+      // 通过 dialogInst 获取 CodeEditor 组件实例，读取编辑器最新内容
+      const editorValue = (dialogInst.getComponentInstRef() as any).getEditor().getValue()
+      draft.filterScript = editorValue || undefined
+      handleApply()
+      return true
+    }
+  })
+}
 </script>
 
 <script lang="ts">
@@ -519,3 +595,28 @@ export default defineComponent({
   name: 'InvalidDataFilter'
 })
 </script>
+
+<style lang="scss" scoped>
+.script-preview {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  padding: 8px 12px;
+  min-height: 40px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  &:hover {
+    border-color: rgb(var(--v-theme-primary));
+  }
+}
+
+.script-preview-code {
+  margin: 0;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: calc(13px * 1.5 * 3);
+  overflow: hidden;
+}
+</style>

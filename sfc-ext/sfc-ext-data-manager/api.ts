@@ -1,7 +1,7 @@
 import { CommonRequest, useJsonBody } from 'sfc-common'
 import type { CommonPageInfo } from 'sfc-common/model'
 import type { IdType } from 'sfc-common/model'
-import type { ClaimParam, ClaimRecord, FileTypeProviderInfo, InvalidDataQuery, InvalidDataRecord } from './model'
+import type { ClaimParam, ClaimRecord, FileTypeProviderInfo, InvalidDataFilterResult, InvalidDataQuery, InvalidDataRecord } from './model'
 
 const baseUrl = '/dataManager/invalidData'
 
@@ -52,12 +52,27 @@ export namespace DataManagerAPI {
 
   /**
    * 查询失效数据列表
+   * @param query 查询参数
+   * @param filterId 脚本筛选缓存 ID，传此值时使用缓存中的筛选结果分页
    */
-  export function list(query: InvalidDataQuery): CommonRequest<CommonPageInfo<InvalidDataRecord>> {
+  export function list(query: InvalidDataQuery, filterId?: string): CommonRequest<CommonPageInfo<InvalidDataRecord>> {
     return {
       url: `${baseUrl}/list`,
-      params: query
+      params: filterId ? { ...query, filterId } : query
     }
+  }
+
+  /**
+   * 提交 Groovy 脚本筛选，执行全量查询 + 脚本筛选，缓存结果并返回 filterId。
+   * 后续可通过 `list(query, filterId)` 进行分页查询。
+   * @param query 查询参数（含 filterScript）
+   */
+  export function filter(query: InvalidDataQuery): CommonRequest<InvalidDataFilterResult> {
+    return useJsonBody({
+      url: `${baseUrl}/filter`,
+      method: 'post',
+      data: query
+    })
   }
 
   /**

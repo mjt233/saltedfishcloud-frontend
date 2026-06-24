@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { DataManagerAPI } from '../api'
 import type { FileTypeProviderInfo, InvalidDataQuery, InvalidDataRecord, InvalidDataRecordStatus } from '../model'
 import { IdType } from 'sfc-common/model'
@@ -82,8 +82,29 @@ export function useInvalidDataList() {
     /** 当前排序字段（对应后端 sortBy），为空则不排序 */
     sortBy: undefined as string | undefined,
     /** 当前排序方向 */
-    sortOrder: undefined as 'ASC' | 'DESC' | undefined
+    sortOrder: undefined as 'ASC' | 'DESC' | undefined,
+    /** Groovy 脚本筛选代码 */
+    filterScript: undefined as string | undefined
   })
+
+  /** 脚本筛选缓存 ID，由 filter 接口返回，后续 list 接口复用 */
+  const filterId = ref<string | undefined>()
+
+  /** 上一次提交筛选时的脚本内容，用于判断脚本是否变化 */
+  const lastFilterScript = ref<string | undefined>()
+
+  /**
+   * 当筛选脚本内容变化时，清除 filterId 缓存，
+   * 使下次 loadList 时重新调用 filter 接口获取新的 filterId
+   */
+  watch(
+    () => query.filterScript,
+    (newScript, oldScript) => {
+      if (newScript !== oldScript) {
+        filterId.value = undefined
+      }
+    }
+  )
 
   /** 列表数据 */
   const items = ref<InvalidDataRecord[]>([])
@@ -148,9 +169,41 @@ export function useInvalidDataList() {
       if (q.page) {
         q.page = Number(q.page) - 1
       }
-      const res = (await SfcUtils.request(DataManagerAPI.list(q))).data.data
-      items.value = res.content
-      total.value = parseInt(res.totalCount as any) || res.content.length
+
+      // 如果存在 Groovy 筛选脚本，优先调用 filter 接口获取 filterId
+      if (q.filterScript && q.filterScript.trim()) {
+        if (!filterId.value || lastFilterScript.value != q.filterScript) {
+          // 脚本内容变化或首次提交，重新调用 filter 接口
+          const filterResult = (await SfcUtils.request(DataManagerAPI.filter(q))).data.data
+          filterId.value = filterResult.filterId
+          lastFilterScript.value = q.filterScript
+        }
+        // 使用 filterId 调用 list 接口（此时 list 接口忽略 query 中的 filterScript）
+        try {
+          const res = (await SfcUtils.request(DataManagerAPI.list(q, filterId.value))).data.data
+          items.value = res.content
+          total.value = parseInt(res.totalCount as any) || res.content.length
+        } catch (listErr: any) {
+          // code 8001 表示 filterId 已失效，需重新创建过滤并重试
+          if (listErr?.code === 8001) {
+            filterId.value = undefined
+            const filterResult = (await SfcUtils.request(DataManagerAPI.filter(q))).data.data
+            filterId.value = filterResult.filterId
+            lastFilterScript.value = q.filterScript
+            const res = (await SfcUtils.request(DataManagerAPI.list(q, filterId.value))).data.data
+            items.value = res.content
+            total.value = parseInt(res.totalCount as any) || res.content.length
+          } else {
+            throw listErr
+          }
+        }
+      } else {
+        // 无脚本筛选时，直接调用 list 接口
+        filterId.value = undefined
+        const res = (await SfcUtils.request(DataManagerAPI.list(q))).data.data
+        items.value = res.content
+        total.value = parseInt(res.totalCount as any) || res.content.length
+      }
     } catch (err) {
       SfcUtils.snackbar('加载失败：' + err)
     } finally {

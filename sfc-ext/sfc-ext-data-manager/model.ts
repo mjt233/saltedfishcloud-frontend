@@ -181,6 +181,8 @@ export interface InvalidDataFilterValue {
   minFileSize?: number
   /** 最大文件大小（MiB），UI 展示单位，发送请求时转为字节 */
   maxFileSize?: number
+  /** Groovy 脚本筛选代码，脚本中可通过 `record` 变量访问每条记录，末行表达式为 true 时保留 */
+  filterScript?: string
 }
 
 /**
@@ -206,4 +208,17 @@ export interface InvalidDataQuery {
   page?: IdType
   /** 每页记录数 */
   size?: IdType
+  /** Groovy 脚本筛选代码，仅在 filter 接口中使用 */
+  filterScript?: string
+}
+
+/**
+ * 脚本筛选结果
+ * POST /filter 接口的返回值，包含筛选缓存 ID 和匹配总数
+ */
+export interface InvalidDataFilterResult {
+  /** 筛选结果缓存 ID，用于后续 list 接口分页查询 */
+  filterId: string
+  /** 筛选后匹配的记录总数 */
+  matchedCount: number
 }
