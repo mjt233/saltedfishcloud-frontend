@@ -55,6 +55,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  placeholder: {
+    type: String,
+    default: undefined
+  },
   /**
    * 自定义代码补全提供函数。
    * 当编辑器挂载时，会以该函数注册一个 Monaco CompletionItemProvider；
@@ -209,7 +213,8 @@ onMounted(async() => {
     automaticLayout: true,
     theme: getContext().theme.value == 'dark' ? 'vs-dark' : 'vs',
     readOnly: props.readOnly,
-    wordWrap: props.wordWrap ? 'on' : 'off'
+    wordWrap: props.wordWrap ? 'on' : 'off',
+    placeholder: props.placeholder
   })
   // 注册自定义补全提供器（若调用方提供了 customCompletions）
   if (props.customCompletions) {
