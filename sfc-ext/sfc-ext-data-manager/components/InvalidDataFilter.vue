@@ -191,8 +191,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useCheckIsMobile } from 'sfc-common'
-import { CodeEditor } from 'sfc-common/components/common/Editor'
 import type { InvalidDataFilterValue } from '../model'
+const CodeEditor = window.Components.CodeEditor
 
 /** 是否为移动端窄屏 */
 const isMobile = useCheckIsMobile()
