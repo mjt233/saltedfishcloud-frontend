@@ -8,7 +8,7 @@
 const editorRef = ref() as Ref<HTMLElement>
 const props = defineProps({
   language: {
-    type: String as PropType<'javascript' | 'ts' | 'json' | 'css' | 'html' | 'java' | 'markdown'>,
+    type: String,
     default: 'json'
   },
   useMiniMap: {
