@@ -3,6 +3,7 @@ import { h } from 'vue'
 import InvalidDataManager from './components/InvalidDataManager.vue'
 import ClaimDataList from './components/ClaimDataList.vue'
 import InvalidDataClaim from './components/InvalidDataClaim.vue'
+import { registerGroovyLanguage } from './groovy-language'
 
 window.bootContext.addProcessor({
   taskName: '注册数据管理(sfc-ext-data-manager)插件组件',
@@ -22,5 +23,9 @@ window.bootContext.addProcessor({
         ctx.currentComponent = h(ClaimDataList)
       }
     })
+
+    // 注册 Groovy 语言支持
+    const monaco = window.monaco
+    registerGroovyLanguage(monaco)
   }
 })
