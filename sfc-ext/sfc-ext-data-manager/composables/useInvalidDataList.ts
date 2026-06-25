@@ -94,15 +94,22 @@ export function useInvalidDataList() {
   const lastFilterScript = ref<string | undefined>()
 
   /**
-   * 当筛选脚本内容变化时，清除 filterId 缓存，
-   * 使下次 loadList 时重新调用 filter 接口获取新的 filterId
+   * 当筛选条件或排序字段变化时，清除 filterId 缓存，
+   * 使下次 loadList 时重新调用 filter 接口获取新的 filterId。
+   * 监听所有影响筛选/排序结果的字段（分页字段 page/size 不在此列）。
    */
   watch(
-    () => query.filterScript,
-    (newScript, oldScript) => {
-      if (newScript !== oldScript) {
-        filterId.value = undefined
-      }
+    [
+      () => query.filterScript,
+      () => query.status,
+      () => query.fileType,
+      () => query.minFileSize,
+      () => query.maxFileSize,
+      () => query.sortBy,
+      () => query.sortOrder
+    ],
+    () => {
+      filterId.value = undefined
     }
   )
 

@@ -220,7 +220,7 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
       } catch {
         return
       }
-      const res = (await SfcUtils.request(DataManagerAPI.discard(ids))).data.data
+      const res = await SfcUtils.loadingDialogTask({ msg: '正在清理数据，请稍候...' }, async() => (await SfcUtils.request(DataManagerAPI.discard(ids))).data.data)
       SfcUtils.snackbar(`丢弃完成。成功：${res.success || 0}，失败：${res.failed || 0}`)
       loadList()
       selected.value = []
