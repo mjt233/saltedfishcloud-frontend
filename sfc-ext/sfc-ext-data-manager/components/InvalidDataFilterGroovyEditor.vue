@@ -95,7 +95,7 @@ defineExpose({ getEditor })
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { CodeEditor } from 'sfc-common/components/common/Editor'
+const CodeEditor = window.Components.CodeEditor
 
 /**
  * Groovy 筛选脚本编辑器组件。
