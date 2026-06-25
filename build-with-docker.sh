@@ -1,1 +1,1 @@
-docker build --target output --output type=local,dest=dist .
+docker build --target output --output type=local,dest=. .

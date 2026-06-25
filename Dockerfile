@@ -31,6 +31,8 @@ COPY . .
 # 安装 sass-embedded 的平台二进制（npm ci --ignore-scripts 会跳过）
 RUN npm rebuild sass-embedded || true
 
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # 执行主应用 + OAuth 构建
 RUN npm run build
 
