@@ -5,7 +5,12 @@
 
 ## 前端组件与样式规范
 
-需要创建组件或改动组件样式时，请参考规范[前端样式说明](./docs/front-end-style.md)
+- 需要创建组件或改动组件样式时，请参考规范[Vue组件规范说明](./docs/vue-component-style.md) 与 [前端样式说明](./docs/front-end-style.md)
+- 尽可能使用以下组件实现一些通用的系统功能
+  | 组件名称 | 用途 |
+  | ------- | ----- |
+  | PathSelector | 选择网盘文件/目录路径 |
+  | ProxySelector | 代理配置选择 | 
 
 ## 通用代码规范
 

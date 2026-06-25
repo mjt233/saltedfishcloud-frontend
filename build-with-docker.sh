@@ -1,0 +1,1 @@
+docker build --target output --output type=local,dest=. .

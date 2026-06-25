@@ -1,27 +1,23 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-/**
- * 拓展声明配置
- */
-export interface ExtensionConfig {
-  /**
-   * 拓展名称
-   */
-  name: string
-}
+import { copyToBackendPlugin } from '../plugins/copy-to-backend-plugin'
 
 /**
- * 声明一个拓展
- * @param conf 拓展配置
+ * 声明一个拓展，插件名称由环境变量 VITE_EXT_NAME 指定（例如 demo）
  */
-export function defineExtension(conf: ExtensionConfig) {
-  const extensionName = conf.name
+export function defineExtension() {
+  const shortName = process.env.VITE_EXT_NAME
+  if (!shortName) {
+    throw new Error('环境变量 VITE_EXT_NAME 未设置，请指定插件名称')
+  }
+  const extensionName = `sfc-ext-${shortName}`
   return defineConfig({
     base: `/ext/${extensionName}/`,
     publicDir: `/sfc-ext/${extensionName}/public`,
     plugins: [
       vue(),
+      copyToBackendPlugin(extensionName),
       // vuetify({
       //   autoImport: true,
       // })

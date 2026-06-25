@@ -48,7 +48,7 @@
     </VCard>
 
     <!-- KERNEL_INITRD 特有字段 -->
-    <VCard v-if="formData.type === 'KERNEL_INITRD'" title="kernel 与 initrd">
+    <VCard v-if="formData.type === 'KERNEL_INITRD'" title="kernel 与 initrd" class="mb-4">
       <VCardText>
         
         <VTextField
@@ -84,17 +84,12 @@
     </VCard>
 
     <!-- 自定义字段 -->
-    <VCard v-if="formData.type === 'CUSTOM_IPXE_SCRIPT' || formData.isoBootMethod == 'CUSTOM_IPXE_SCRIPT'" title="自定义 iPXE 脚本">
+    <VCard title="自定义 iPXE 脚本">
       <VCardText>
         <VAlert variant="text">
           脚本将嵌入在 iPXE 脚本的标签中
           
-          <pre style="line-height: 14px;"><code class="ipxe-script">#!ipxe
-set base_url &lt;服务器地址&gt;
-:{{ formData.itemKey }}
-set res_url &lt;启动项资源的http访问路径，支持iso内路径提取&gt;
-&lt;你的自定义脚本&gt;
-</code></pre>
+          <pre style="line-height: 14px;"><code class="ipxe-script">{{ scriptPreview }}</code></pre>
         </VAlert>
         <CodeEditor v-model="formData.customIpxeScript" language="text" />
       </VCardText>
@@ -157,6 +152,43 @@ const createFormData = (item?: BootItem | null): BootItemFormType => ({
 
 /** 当前是否处于编辑模式 */
 const isEditing = computed(() => !!props.editingItem)
+
+/**
+ * iPXE 脚本预览内容
+ * 根据当前表单数据动态生成脚本模板展示
+ */
+const scriptPreview = computed(() => {
+  const lines: string[] = ['#!ipxe']
+  lines.push('set base_url <服务器地址>')
+  lines.push(`:${formData.itemKey || '<唯一标识>'}`)
+  lines.push('set res_url <启动项资源的http访问路径，支持iso内路径提取>')
+
+  // 内核+initrd 模式，或 ISO 提取内核启动模式，预留 kernel_url 和 initrd_url 变量
+  const needKernelInitrdVars = formData.type === 'KERNEL_INITRD' || (formData.type === 'ISO' && formData.isoBootMethod === 'KERNEL')
+  if (needKernelInitrdVars) {
+    lines.push('set kernel_url <内核文件路径>')
+    lines.push('set initrd_url <initrd文件路径>')
+  }
+
+  const isCustomScript = formData.isoBootMethod === 'CUSTOM_IPXE_SCRIPT' || formData.type === 'CUSTOM_IPXE_SCRIPT'
+  const isSanboot = formData.type === 'ISO' && formData.isoBootMethod === 'SANBOOT'
+
+  if (isSanboot) {
+    // SANBOOT 模式：自定义脚本在 sanboot（系统预设脚本）之前
+    lines.push('<你的自定义脚本>')
+    lines.push('sanboot ${res_url}')
+  } else if (!isCustomScript) {
+    // 非自定义脚本模式：系统预设脚本 → 自定义脚本 → boot
+    lines.push('<系统预设脚本>')
+    lines.push('<你的自定义脚本>')
+    lines.push('boot')
+  } else {
+    // 自定义脚本模式：仅显示自定义脚本
+    lines.push('<你的自定义脚本>')
+  }
+
+  return lines.join('\n')
+})
 
 const formInst = defineForm({
   actions: {
