@@ -639,7 +639,7 @@ onMounted(() => {
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { useAutoComputeHeight } from 'sfc-common/composables/useAutoComputeHeight'
+import { useAutoComputeHeight } from 'sfc-common'
 import { useHeightSync } from '../composables/useHeightSync'
 import { useLoadingManager } from 'sfc-common'
 

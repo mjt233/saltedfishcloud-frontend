@@ -153,7 +153,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, defineComponent, watch, nextTick } from 'vue'
 import type { PropType } from 'vue'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { StringFormatter } from 'sfc-common'
 import type { InvalidDataRecord, ClaimRecord, FileMetadataDefine, FileTypeCheckResult } from '../model'
 import { DataManagerAPI } from '../api'
 import { statusOptions } from '../composables/useInvalidDataList'

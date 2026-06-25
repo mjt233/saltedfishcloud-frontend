@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { StringFormatter } from 'sfc-common'
 import { DataManagerAPI } from '../api'
 import type { BatchClaimParam, ClaimPreviewItem } from '../model'
 

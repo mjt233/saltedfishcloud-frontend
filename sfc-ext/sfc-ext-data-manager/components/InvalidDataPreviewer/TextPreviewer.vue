@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { PropType } from 'vue'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { StringFormatter } from 'sfc-common'
 import { DataManagerAPI } from '../../api'
 import type { InvalidDataRecord } from '../../model'
 

@@ -94,7 +94,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, Ref, Teleport } from 'vue'
 import { getContext, StringUtils, useCheckIsMobile, useEventBus } from 'sfc-common'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { StringFormatter } from 'sfc-common'
 import { DataManagerAPI } from '../api'
 import { useInvalidDataList } from '../composables/useInvalidDataList'
 import type { InvalidDataQuery, InvalidDataRecord, ClaimParam, InvalidDataFilterValue, FileMetadataDefine } from '../model'
