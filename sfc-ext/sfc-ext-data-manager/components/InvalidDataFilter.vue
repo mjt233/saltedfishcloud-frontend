@@ -7,7 +7,6 @@
         :color="activeFilterCount > 0 ? 'primary' : undefined"
         :variant="activeFilterCount > 0 ? 'tonal' : 'text'"
         size="small"
-        class="ml-auto"
         @click="togglePanel"
       >
         <v-badge
@@ -160,13 +159,18 @@
               Groovy 筛选脚本
             </div>
             <v-textarea
-              placeholder="点击编辑筛选脚本...123"
+              placeholder="点击编辑筛选脚本..."
               :model-value="draft.filterScript"
-              @click="openScriptEditor"
+              auto-grow
+              :rows="1"
+              :max-rows="3"
+              hint="脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录"
+              persistent-hint
+              readonly
+              :variant="'solo'"
+              @update:focused="$event && openScriptEditor()"
+              @click.stop="openScriptEditor"
             />
-            <div class="text-caption text-medium-emphasis mt-1">
-              脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
-            </div>
           </div>
         </v-card-text>
         <v-divider />
@@ -570,11 +574,25 @@ const openScriptEditor = () => {
   const dialogInst = SfcUtils.openComponentDialog(InvalidDataFilterGroovyEditor, {
     props: {
       modelValue: draft.filterScript || '',
-      style: { height: '60vh' }
+      style: { height: '60vh' },
+      placeholder: `脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
+示例: 
+if (typeCheckResult == null || typeCheckResult.detail.extension != '.png') {
+    return false;
+}
+def width = TypeUtils.toLong(typeCheckResult.detail.metadata.width)
+
+if (width == null || width < 1024) {
+    return false
+}
+return true
+则表示筛选出所有识别格式为png、且图片宽度大于1024px的失效数据
+`
     },
     title: '编辑 Groovy 筛选脚本',
     extraDialogOptions: {
-      maxWidth: '800px'
+      maxWidth: '800px',
+      persistent: true
     },
     onConfirm() {
       const editor = (dialogInst.getComponentInstRef() as any)?.getEditor()

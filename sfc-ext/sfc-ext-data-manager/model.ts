@@ -222,3 +222,51 @@ export interface InvalidDataFilterResult {
   /** 筛选后匹配的记录总数 */
   matchedCount: number
 }
+
+/**
+ * 批量操作结果
+ */
+export interface BatchResult {
+  /** 成功处理的数量 */
+  successCount: number
+  /** 失败的数量 */
+  failCount: number
+}
+
+/**
+ * 批量认领请求参数
+ * 用于批量认领失效数据，组合了筛选条件与认领目标信息
+ */
+export interface BatchClaimParam {
+  /** 失效数据筛选条件 */
+  query: InvalidDataQuery
+  /** 认领到的目标用户网盘ID（0=公共网盘，>0=对应用户id的私人网盘） */
+  targetUid: IdType
+  /** 文件认领到的目录路径（不含文件名） */
+  savePath: string
+  /** 认领后的基础文件名（脚本未指定时使用） */
+  fileName: string
+  /** 保存路径 Groovy 处理脚本（选填）。返回值应为 Map: [path: '保存目录', name: '文件名'] */
+  script?: string
+}
+
+/**
+ * 批量认领预览结果项
+ * 展示一条失效数据认领后将保存到的路径与文件名
+ */
+export interface ClaimPreviewItem {
+  /** 失效数据记录ID */
+  invalidDataId: IdType
+  /** 原始物理存储文件名（取自 storagePath 最后一段） */
+  originalFileName: string
+  /** 解析后的保存目录路径 */
+  resolvedPath: string
+  /** 解析后的保存文件名 */
+  resolvedFileName: string
+  /** 文件类型标识（typeId，识别后填充） */
+  fileType: string
+  /** 文件大小（Byte） */
+  fileSize: IdType
+  /** 识别出的文件扩展名（可能为 null） */
+  extension: string | null
+}

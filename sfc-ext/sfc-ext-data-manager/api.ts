@@ -1,7 +1,7 @@
 import { CommonRequest, useJsonBody } from 'sfc-common'
 import type { CommonPageInfo } from 'sfc-common/model'
 import type { IdType } from 'sfc-common/model'
-import type { ClaimParam, ClaimRecord, FileTypeProviderInfo, InvalidDataFilterResult, InvalidDataQuery, InvalidDataRecord } from './model'
+import type { BatchClaimParam, BatchResult, ClaimParam, ClaimPreviewItem, ClaimRecord, FileTypeProviderInfo, InvalidDataFilterResult, InvalidDataQuery, InvalidDataRecord } from './model'
 
 const baseUrl = '/dataManager/invalidData'
 
@@ -209,5 +209,31 @@ export namespace DataManagerAPI {
     return {
       url: `${baseUrl}/download/${id}`
     }
+  }
+
+  /**
+   * 批量认领预览
+   * 查询匹配条件的可认领失效数据，解析每条记录认领后的保存路径与文件名
+   * @param param 批量认领参数（含筛选条件、保存路径、脚本等）
+   */
+  export function previewBatchClaim(param: BatchClaimParam): CommonRequest<ClaimPreviewItem[]> {
+    return useJsonBody({
+      url: `${baseUrl}/batchClaim/preview`,
+      method: 'post',
+      data: param
+    })
+  }
+
+  /**
+   * 批量认领失效数据
+   * 查询匹配条件的可认领失效数据，逐条解析保存路径与文件名后执行认领
+   * @param param 批量认领参数（含筛选条件、保存路径、脚本等）
+   */
+  export function executeBatchClaim(param: BatchClaimParam): CommonRequest<BatchResult> {
+    return useJsonBody({
+      url: `${baseUrl}/batchClaim`,
+      method: 'post',
+      data: param
+    })
   }
 }

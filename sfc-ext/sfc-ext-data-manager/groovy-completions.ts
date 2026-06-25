@@ -125,7 +125,10 @@ const typeUtilsMethods: FieldCompletionDef[] = [
   { label: 'isString', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为 String 类型' },
   { label: 'isDate', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为 Date 类型' },
   { label: 'isEnum', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为枚举类型' },
-  { label: 'isSimpleType', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为简单类型（数字/字符串/布尔）' }
+  { label: 'isSimpleType', detail: 'boolean', documentation: 'Class<?> type', description: '判断是否为简单类型（数字/字符串/布尔）' },
+  { label: 'toDate', detail: 'Date', documentation: 'String input, String pattern', description: '将字符串按指定日期模式解析为 Date，输入为空时返回 null' },
+  { label: 'dateToString', detail: 'String', documentation: 'Date date, String pattern', description: '将 Date 按指定日期模式格式化为字符串，输入为空时返回 null' },
+  { label: 'dateToString', detail: 'String', documentation: 'Date date', description: '将 Date 按 "yyyy-MM-dd HH:mm:ss" 格式化为字符串，输入为空时返回 null' }
 ]
 
 /**
@@ -141,7 +144,7 @@ export const variables: VariableDef[] = [
   {
     name: 'typeCheckResult',
     type: 'FileTypeCheckResult',
-    description: '文件类型识别结果对象（record.typeCheckResult 反序列化后的结构）',
+    description: '文件类型识别结果对象（record.typeCheckResult 反序列化后的结构）注意：未经过文件内容识别的记录，该变量为null',
     fields: typeCheckResultFields
   },
   {

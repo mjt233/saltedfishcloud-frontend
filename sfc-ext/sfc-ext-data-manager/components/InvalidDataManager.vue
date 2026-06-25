@@ -280,7 +280,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Teleport } from 'vue'
-import { useCheckIsMobile } from 'sfc-common'
+import { useCheckIsMobile, getContext } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
@@ -288,7 +288,9 @@ import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
 import InvalidDataActions from './InvalidDataActions.vue'
 import InvalidDataFilter from './InvalidDataFilter.vue'
-import type { InvalidDataRecord, FileMetadataDefine } from '../model'
+import BatchClaimDialog from './BatchClaimDialog.vue'
+import BatchClaimPreview from './BatchClaimPreview.vue'
+import type { InvalidDataRecord, FileMetadataDefine, BatchClaimParam, ClaimPreviewItem } from '../model'
 import type { InvalidDataFilterValue } from '../model'
 
 
@@ -316,6 +318,7 @@ const isMobile = useCheckIsMobile()
 const actionItems = computed(() => [
   { id: 'detect', icon: 'mdi-radar', title: '开始检测', action: handleDetect, color: 'primary', showText: true },
   { id: 'identify', icon: 'mdi-file-search-outline', title: '识别文件类型', action: handleIdentify, showText: true },
+  { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '批量认领', action: handleBatchClaim, showText: true },
   { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
   { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
   { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: doLoadList, showText: true }
@@ -486,6 +489,74 @@ const handleBatchUnpublish = () => handleUnpublish(selected.value)
 /** 批量丢弃 */
 const handleBatchDiscard = () => handleDiscard(selected.value)
 
+/**
+ * 打开批量认领配置对话框
+ * 用户配置筛选条件和保存路径后，点击"预览结果"打开预览对话框
+ */
+const handleBatchClaim = () => {
+  const inst = SfcUtils.openComponentDialog(BatchClaimDialog, {
+    title: '批量认领',
+    props: {
+      uid: getContext().session.value.user.id
+    },
+    extraDialogOptions: {
+      confirmText: '预览结果',
+      maxWidth: '900px',
+      persistent: true
+    },
+    async onConfirm() {
+      // 获取配置参数
+      const param = (inst.getComponentInstRef() as InstanceType<typeof BatchClaimDialog>)?.getBatchClaimParam()
+      if (!param) {
+        SfcUtils.snackbar('获取配置参数失败')
+        return false
+      }
+
+      // 先调用预览接口检查结果
+      let previewItems: ClaimPreviewItem[]
+      try {
+        const res = await SfcUtils.loadingDialogTask({ msg: '正在查询预览结果...' }, async() => SfcUtils.request(DataManagerAPI.previewBatchClaim(param)))
+        previewItems = res.data.data || []
+      } catch (e: unknown) {
+        const errMsg = e instanceof Error ? e.message : String(e)
+        SfcUtils.snackbar('预览请求失败：' + errMsg)
+        return false
+      }
+
+      // 预览结果为空时提示，不打开预览对话框
+      if (previewItems.length === 0) {
+        SfcUtils.alert('没有匹配的可认领数据，请调整筛选条件后重试。','提示')
+        return false
+      }
+
+      // 打开预览对话框
+      const previewInst = SfcUtils.openComponentDialog(BatchClaimPreview, {
+        title: '批量认领预览',
+        props: {
+          batchClaimParam: param,
+          previewItems
+        },
+        extraDialogOptions: {
+          confirmText: '执行认领',
+          maxWidth: '900px',
+          persistent: true
+        },
+        async onConfirm() {
+          const success = await (previewInst.getComponentInstRef() as InstanceType<typeof BatchClaimPreview>).execute()
+          if (success) {
+            doLoadList()
+            // 认领成功后关闭批量认领配置对话框
+            inst.close()
+          }
+          return success
+        }
+      })
+      // 返回 false 保持批量认领配置对话框不关闭
+      return false
+    }
+  })
+}
+
 /** 状态标签颜色映射 */
 const statusChipColor: Record<string, string> = {
   PENDING: 'warning',
@@ -507,7 +578,7 @@ const truncateHash = (str: string): string => {
   return fileName.substring(0, 8) + '...' + fileName.substring(fileName.length - 8)
 }
 
-const tableRowClick = (_event: any, { item }: any) => {
+const tableRowClick = (_event: Event, { item }: { item: InvalidDataRecord }) => {
   if (isMobile.value) {
     openDrawer(item)
   } else {

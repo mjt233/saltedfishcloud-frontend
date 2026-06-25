@@ -43,8 +43,8 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="field in variable.fields"
-                    :key="field.label"
+                    v-for="(field, idx) in variable.fields"
+                    :key="`${field.label}-${idx}`"
                   >
                     <td
                       v-for="col in (variable.columns || DEFAULT_COLUMNS)"
@@ -68,7 +68,6 @@
       v-bind="$attrs"
       language="groovy"
       :custom-completions="provideGroovyCompletions"
-      :placeholder="editorPlaceholder"
     />
   </div>
 </template>
@@ -90,19 +89,6 @@ const editorRef = ref<CodeEditorModel>()
  */
 const getEditor = () => editorRef.value?.getEditor()
 
-const editorPlaceholder = `脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
-示例: 
-if (typeCheckResult == null || typeCheckResult.detail.extension != '.png') {
-    return false;
-}
-def width = TypeUtils.toLong(typeCheckResult.detail.metadata.width)
-
-if (width == null || width < 1024) {
-    return false
-}
-return true
-则表示筛选出所有识别格式为png、且图片宽度大于1024px的失效数据
-`
 
 defineExpose({ getEditor })
 </script>
