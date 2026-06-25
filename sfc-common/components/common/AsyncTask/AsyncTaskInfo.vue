@@ -81,6 +81,45 @@
             </div>
           </FormCol>
         </FormRow>
+        <!-- 任务进度显示 -->
+        <template v-if="[0,1].includes(taskRecord.status)">
+          <FormRow>
+            <FormCol cols="12" top-label label="任务进度">
+              <div v-if="!prog || prog.record.total <= 0" class="d-flex align-center gap-2">
+                <VProgressCircular
+                  color="primary"
+                  :indeterminate="true"
+                  size="24"
+                  width="3"
+                />
+                <span class="tip">进度未知，等待中...</span>
+              </div>
+              <div v-else>
+                <VProgressLinear
+                  :model-value="prog?.record.loaded"
+                  :max="prog?.record.total"
+                  color="primary"
+                  height="20"
+                >
+                  <span
+                    class="tip"
+                    :style="{ color: (((prog?.record.loaded ?? 0) / prog.record.total) * 100) > 50 ? 'rgb(var(--v-theme-on-primary))' : '' }"
+                  >
+                    {{ (((prog?.record.loaded ?? 0) / prog.record.total) * 100).toFixed(1) }}%
+                  </span>
+                </VProgressLinear>
+                <div class="tip mt-1 d-flex align-center gap-2 flex-wrap">
+                  <span v-if="prog?.record.speed && prog?.record.speed > 0">
+                    速度：{{ prog.record.speed.toFixed(2) }}/s
+                  </span>
+                  <span v-if="avgSpeed > 0">
+                    平均速度：{{ avgSpeed.toFixed(2) }}/s
+                  </span>
+                </div>
+              </div>
+            </FormCol>
+          </FormRow>
+        </template>
       </FormGrid>
       <template v-if="![0,5].includes(taskRecord.status)">
         <VDivider style="margin: 6px 0 24px 0;" />
@@ -118,15 +157,54 @@ const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const createUser = ref({}) as Ref<BaseUserInfo>
 
+// 进度相关
+/** 用于平均速度统计的初始进度值 */
+let initialProgLoaded = 0
+/** 组件挂载时间 */
+let mountTime = 0
+/** 平均速度 */
+const avgSpeed = ref(0)
+
+/** 更新平均速度 */
+function updateAvgSpeed() {
+  if (!prog.value || !mountTime) return
+  const currentLoaded = prog.value.record.loaded ?? 0
+  const elapsedSeconds = (Date.now() - mountTime) / 1000
+  if (elapsedSeconds > 0) {
+    avgSpeed.value = (currentLoaded - initialProgLoaded) / elapsedSeconds
+  }
+}
+
+// 使用组合式函数获取任务进度
+const { prog, startUpdateProgress, stopUpdateProgress } = useTaskProg({
+  taskId: props.taskId,
+  onUpdate() {
+    if (!mountTime) {
+      mountTime = Date.now()
+    }
+    if (!initialProgLoaded && prog.value) {
+      initialProgLoaded = prog.value.record.loaded ?? 0
+    }
+    updateAvgSpeed()
+  }
+})
+
 // 使用组合式函数获取任务信息
 const taskRecord = useTaskRecord(props.taskId, {
   onTaskExit: (taskId) => {
+    // 任务完成时标记进度满
+    if (taskRecord.value?.status == 2 && prog.value) {
+      prog.value.record.loaded = prog.value.record.total
+    }
+    stopUpdateProgress()
     if (!isEmitTaskExited) {
       isEmitTaskExited = true
       emits('task-exit', taskRecord.value as AsyncTaskRecord)
     }
   },
   onLoaded(taskRecord) {
+    // 任务加载完成后开始更新进度
+    startUpdateProgress()
     if (!isShowLog.value && props.autoOpenLog) {
       console.log('自动加载日志')
       startLoadLog()
@@ -214,6 +292,7 @@ import CommonIcon from '../CommonIcon.vue'
 import CodeEditor from '../Editor/CodeEditor.vue'
 import { useTaskLogText } from './composables/useTaskLogText'
 import { useTaskRecord } from './composables/useTaskRecord'
+import { useTaskProg } from './composables/useTaskProg'
 import { AsyncTaskInfoEmits } from './asyncTaskInfoDefine'
 
 export default defineComponent({
