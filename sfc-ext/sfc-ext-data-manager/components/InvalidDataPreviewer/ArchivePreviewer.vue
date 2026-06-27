@@ -14,10 +14,8 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import API from 'sfc-common/api'
 import { getContext } from 'sfc-common'
 import type { ArchiveEngine, ArchiveResource } from 'sfc-common/model'
-import ArchiveResourceViewer from 'sfc-common/components/common/Archive/ArchiveResourceViewer.vue'
 import type { InvalidDataRecord, FileTypeCheckResult } from '../../model'
 
 const SfcUtils = window.SfcUtils
@@ -129,7 +127,7 @@ async function openArchiveViewer() {
       async() => {
         return (
           await SfcUtils.request(
-            API.archive.listResources({
+            archive.listResources({
               engineProviderId: engine.engineId,
               engineProperty: {
                 extension: `.${format}`
@@ -151,7 +149,7 @@ async function openArchiveViewer() {
   }
 
   // 5. 打开压缩包资源浏览对话框
-  SfcUtils.openComponentDialog(ArchiveResourceViewer, {
+  SfcUtils.openComponentDialog(window.Components.ArchiveResourceViewer, {
     title: `查看压缩包 - ${displayName}`,
     props: {
       archiveResourceList
@@ -167,6 +165,7 @@ async function openArchiveViewer() {
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { archive } from 'sfc-common/api/archive'
 
 export default defineComponent({
   name: 'ArchivePreviewer'

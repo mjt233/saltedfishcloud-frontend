@@ -1,0 +1,1 @@
+export { default as ArchiveResourceViewer } from './ArchiveResourceViewer.vue'
