@@ -210,7 +210,7 @@
       <!-- 桌面端右侧卡片 -->
       <v-card
         v-if="drawerItem && !isMobile"
-        class="ml-4"
+        class="ml-4 overflow-auto"
         style="width: 480px;"
         :style="{ maxHeight: mainCardHeight + 'px' }"
         title="失效数据详情"
