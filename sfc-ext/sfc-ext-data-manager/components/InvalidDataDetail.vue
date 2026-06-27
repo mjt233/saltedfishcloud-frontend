@@ -101,7 +101,19 @@
               <tbody>
                 <tr v-for="def in metadataDefines" :key="def.key">
                   <td>{{ def.key }}（{{ def.name }}）</td>
-                  <td>{{ typeCheckDetail.detail.metadata[def.key] ?? '-' }}</td>
+                  <td>
+                    <span v-if="def.viewTag == 'span'">
+                      {{ typeCheckDetail.detail.metadata[def.key] ?? '-' }}
+                    </span>
+                    <component 
+                      :is="def.viewTag"
+                      v-else
+                      :model-value="typeCheckDetail.detail.metadata[def.key]"
+                    >
+                      {{ typeCheckDetail.detail.metadata[def.key] ?? '-' }}
+                    </component>
+                    
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -177,7 +189,7 @@ const statusChipColor: Record<string, string> = {
 
 /** 是否支持预览 */
 const canPreview = computed(() => {
-  const previewableTypes = ['audio', 'video', 'image', 'text']
+  const previewableTypes = ['audio', 'video', 'image', 'text', 'archive']
   return props.item.fileType ? previewableTypes.includes(props.item.fileType) : false
 })
 

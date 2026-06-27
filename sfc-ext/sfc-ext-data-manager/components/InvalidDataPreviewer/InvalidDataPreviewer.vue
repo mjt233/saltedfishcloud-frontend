@@ -16,13 +16,15 @@ import AudioPreviewer from './AudioPreviewer.vue'
 import VideoPreviewer from './VideoPreviewer.vue'
 import ImagePreviewer from './ImagePreviewer.vue'
 import TextPreviewer from './TextPreviewer.vue'
+import ArchivePreviewer from './ArchivePreviewer.vue'
 
 /** 文件类型到预览组件的映射 */
 const previewerMap: Record<string, Component> = {
   audio: AudioPreviewer,
   video: VideoPreviewer,
   image: ImagePreviewer,
-  text: TextPreviewer
+  text: TextPreviewer,
+  archive: ArchivePreviewer
 }
 
 /** 支持预览的文件类型列表 */

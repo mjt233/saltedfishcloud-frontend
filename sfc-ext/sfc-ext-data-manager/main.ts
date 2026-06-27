@@ -4,6 +4,7 @@ import InvalidDataManager from './components/InvalidDataManager.vue'
 import ClaimDataList from './components/ClaimDataList.vue'
 import InvalidDataClaim from './components/InvalidDataClaim.vue'
 import { registerGroovyLanguage } from './groovy-language'
+import DataManagerKeyValue from './components/DataManagerKeyValue.vue'
 
 window.bootContext.addProcessor({
   taskName: '注册数据管理(sfc-ext-data-manager)插件组件',
@@ -12,6 +13,7 @@ window.bootContext.addProcessor({
     app.component(InvalidDataManager.name as string, InvalidDataManager)
     app.component(ClaimDataList.name as string, ClaimDataList)
     app.component(InvalidDataClaim.name as string, InvalidDataClaim)
+    app.component(DataManagerKeyValue.name as string, DataManagerKeyValue)
     
     // 给普通用户添加"认领数据"的入口，添加到百宝箱中
     MenuHelper.addMoreBoxMenu({

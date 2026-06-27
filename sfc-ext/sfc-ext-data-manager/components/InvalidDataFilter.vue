@@ -194,7 +194,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useCheckIsMobile } from 'sfc-common'
 import type { InvalidDataFilterValue } from '../model'
 import InvalidDataFilterGroovyEditor from './InvalidDataFilterGroovyEditor.vue'
@@ -221,6 +221,8 @@ const props = defineProps<{
   hideFields?: Array<'status' | 'fileType' | 'minFileSize' | 'maxFileSize'>
   /** 是否允许使用 Groovy 脚本筛选功能 */
   allowGroovyScript?: boolean
+  /** 桌面端是否默认展开筛选面板（移动端无效果） */
+  defaultExpanded?: boolean
 }>()
 
 /** 组件事件 */
@@ -569,6 +571,14 @@ const removeChipFilter = (chip: ActiveChip) => {
  * 打开代码编辑器对话框编辑 Groovy 筛选脚本
  * 对话框确认后更新 draft 并立即触发筛选条件更新
  */
+/** 初始化：如需默认展开，在桌面端展开筛选面板 */
+onMounted(() => {
+  if (props.defaultExpanded && !isMobile.value) {
+    panelExpanded.value = true
+    syncDraftFromModel()
+  }
+})
+
 const openScriptEditor = () => {
   const SfcUtils = window.SfcUtils
   const dialogInst = SfcUtils.openComponentDialog(InvalidDataFilterGroovyEditor, {

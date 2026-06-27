@@ -5,24 +5,53 @@
         <!-- 桌面端：横向按钮栏 -->
         <v-card-title v-if="!isMobile" class="d-flex align-center">
           <VFadeTransition hide-on-leave>
-            <div v-if="selected.length == 0">
-              <v-btn
-                v-for="action in actionItems"
-                :key="action.id"
-                :color="action.color"
-                :icon="action.showText ? undefined : action.icon"
-                :class="{ 'mr-2': action.showText }"
-                :variant="action.showText ? undefined : 'text'"
-                :style="{ color: action.color == 'error' ? 'white' : undefined }"
-                @click="action.action"
-              >
-                <template v-if="action.showText">
-                  <v-icon v-if="action.icon" start>
-                    {{ action.icon }}
-                  </v-icon>
-                  {{ action.title }}
-                </template>
-              </v-btn>
+            <div v-if="selected.length == 0" class="d-inline-flex align-center">
+              <template v-for="action in actionItems" :key="action.id">
+                <!-- 带子菜单的按钮组 -->
+                <v-menu v-if="action.children">
+                  <template #activator="{ props: activatorProps }">
+                    <v-btn
+                      v-bind="activatorProps"
+                      class="mr-2"
+                      variant="text"
+                    >
+                      <v-icon v-if="action.icon" start>
+                        {{ action.icon }}
+                      </v-icon>
+                      {{ action.title }}
+                      <v-icon end>
+                        mdi-menu-down
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list density="comfortable">
+                    <v-list-item
+                      v-for="child in action.children"
+                      :key="child.id"
+                      :prepend-icon="child.icon"
+                      :title="child.title"
+                      @click="child.action"
+                    />
+                  </v-list>
+                </v-menu>
+                <!-- 普通按钮 -->
+                <v-btn
+                  v-else
+                  :color="action.color"
+                  :icon="action.showText ? undefined : action.icon"
+                  :class="{ 'mr-2': action.showText }"
+                  :variant="action.showText ? undefined : 'text'"
+                  :style="{ color: action.color == 'error' ? 'white' : undefined }"
+                  @click="action.action"
+                >
+                  <template v-if="action.showText">
+                    <v-icon v-if="action.icon" start>
+                      {{ action.icon }}
+                    </v-icon>
+                    {{ action.title }}
+                  </template>
+                </v-btn>
+              </template>
             </div>
             <div v-else class="d-flex align-center">
               <v-btn
@@ -211,17 +240,45 @@
       >
         <v-icon>mdi-tools</v-icon>
         <v-menu
+          v-model="mobileMenuOpen"
           activator="parent"
           location="top"
+          :close-on-content-click="false"
         >
           <v-list density="comfortable">
             <template v-for="action in actionItems" :key="action.id">
               <v-divider v-if="action.id === 'discard-all'" />
+              <!-- 带子菜单的分组项 -->
+              <v-list-group v-if="action.children" :value="action.id">
+                <template #activator="{ props: activatorProps, isOpen }">
+                  <v-list-item
+                    v-bind="activatorProps"
+                    :prepend-icon="action.icon"
+                    :title="action.title"
+                  >
+                    <template #append>
+                      <v-icon>
+                        {{ isOpen ? 'mdi-menu-up' : 'mdi-menu-down' }}
+                      </v-icon>
+                    </template>
+                  </v-list-item>
+                </template>
+                <v-list-item
+                  v-for="child in action.children"
+                  :key="child.id"
+                  :prepend-icon="child.icon"
+                  :title="child.title"
+                  :disabled="loading"
+                  @click="child.action(); mobileMenuOpen = false"
+                />
+              </v-list-group>
+              <!-- 普通菜单项 -->
               <v-list-item
+                v-else
                 :prepend-icon="action.icon"
                 :title="action.title"
                 :disabled="loading"
-                @click="action.action"
+                @click="action.action(); mobileMenuOpen = false"
               />
             </template>
           </v-list>
@@ -280,7 +337,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Teleport } from 'vue'
-import { useCheckIsMobile, getContext } from 'sfc-common'
+import { useCheckIsMobile, getContext, JsonResult } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
@@ -290,7 +347,8 @@ import InvalidDataActions from './InvalidDataActions.vue'
 import InvalidDataFilter from './InvalidDataFilter.vue'
 import BatchClaimDialog from './BatchClaimDialog.vue'
 import BatchClaimPreview from './BatchClaimPreview.vue'
-import type { InvalidDataRecord, FileMetadataDefine, BatchClaimParam, ClaimPreviewItem } from '../model'
+import BatchByQueryForm from './form/BatchByQueryForm.vue'
+import type { InvalidDataRecord, FileMetadataDefine, BatchClaimParam, ClaimPreviewItem, BatchResult } from '../model'
 import type { InvalidDataFilterValue } from '../model'
 
 
@@ -314,11 +372,23 @@ const isMobile = useCheckIsMobile()
  * @property action - 点击回调
  * @property color - 按钮颜色（仅桌面端生效）
  * @property showText - 桌面端是否显示文本（false 时仅显示图标）
+ * @property children - 子菜单项列表，存在时该项渲染为下拉按钮组
  */
 const actionItems = computed(() => [
   { id: 'detect', icon: 'mdi-radar', title: '开始检测', action: handleDetect, color: 'primary', showText: true },
   { id: 'identify', icon: 'mdi-file-search-outline', title: '识别文件类型', action: handleIdentify, showText: true },
-  { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '批量认领', action: handleBatchClaim, showText: true },
+  {
+    id: 'by-query-group',
+    icon: 'mdi-filter-variant',
+    title: '按条件操作',
+    showText: true,
+    children: [
+      { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '按条件认领', action: handleBatchClaim },
+      { id: 'batch-publish-by-query', icon: 'mdi-publish', title: '按条件发布', action: handleBatchPublishByQuery },
+      { id: 'batch-unpublish-by-query', icon: 'mdi-cancel', title: '按条件取消发布', action: handleBatchUnpublishByQuery },
+      { id: 'batch-discard-by-query', icon: 'mdi-delete-outline', title: '按条件丢弃', action: handleBatchDiscardByQuery }
+    ]
+  },
   { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
   { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
   { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: doLoadList, showText: true }
@@ -361,6 +431,9 @@ const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
 
 /** 详情抽屉是否可见 */
 const drawerVisible = ref(false)
+
+/** 移动端悬浮按钮菜单是否展开 */
+const mobileMenuOpen = ref(false)
 
 /** 当前查看详情的记录 */
 const drawerItem = ref<InvalidDataRecord | null>(null)
@@ -557,6 +630,117 @@ const handleBatchClaim = () => {
   })
 }
 
+/** 从当前列表筛选条件中提取非 status 的字段，用于 BatchByQueryForm 的默认值 */
+const getQueryDefaultFilter = () => ({
+  fileType: query.fileType,
+  minFileSize: query.minFileSize,
+  maxFileSize: query.maxFileSize,
+  filterScript: query.filterScript
+})
+
+/**
+ * 打开按条件批量发布对话框
+ * 用户配置筛选条件后，点击确认直接执行批量发布操作
+ */
+const handleBatchPublishByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量发布',
+    props: {
+      operationType: 'publish',
+      defaultFilter: getQueryDefaultFilter()
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
+        if (batchResult) {
+          SfcUtils.snackbar(`发布成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
+        } else {
+          SfcUtils.snackbar('发布操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
+/**
+ * 打开按条件批量取消发布对话框
+ * 用户配置筛选条件后，点击确认直接执行批量取消发布操作
+ */
+const handleBatchUnpublishByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量取消发布',
+    props: {
+      operationType: 'unpublish',
+      defaultFilter: getQueryDefaultFilter()
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
+        if (batchResult) {
+          SfcUtils.snackbar(`取消发布成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
+        } else {
+          SfcUtils.snackbar('取消发布操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
+/**
+ * 打开按条件批量丢弃对话框
+ * 用户配置筛选条件后，点击确认先弹出二次确认，再执行批量丢弃操作
+ */
+const handleBatchDiscardByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量丢弃',
+    props: {
+      operationType: 'discard',
+      defaultFilter: getQueryDefaultFilter()
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      // 二次确认：丢弃操作不可逆
+      try {
+        await SfcUtils.confirm('确定要按当前筛选条件批量丢弃数据吗？此操作不可逆！', '操作确认', { cancelToReject: true })
+      } catch {
+        return false
+      }
+
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
+        if (batchResult) {
+          SfcUtils.snackbar(`丢弃完成。成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
+        } else {
+          SfcUtils.snackbar('丢弃操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
 /** 状态标签颜色映射 */
 const statusChipColor: Record<string, string> = {
   PENDING: 'warning',
@@ -642,6 +826,7 @@ import { defineComponent } from 'vue'
 import { useAutoComputeHeight } from 'sfc-common'
 import { useHeightSync } from '../composables/useHeightSync'
 import { useLoadingManager } from 'sfc-common'
+import { AxiosResponse } from 'axios'
 
 export default defineComponent({
   name: 'InvalidDataManager'
