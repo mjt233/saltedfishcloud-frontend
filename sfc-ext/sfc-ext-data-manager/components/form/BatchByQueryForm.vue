@@ -10,6 +10,7 @@
         :provider-options="providerOptions"
         :types-name-map="typesNameMap"
         allow-groovy-script
+        :default-expanded="true"
         @apply="onFilterApply"
       />
     </base-form>
@@ -28,22 +29,54 @@ const SfcUtils = window.SfcUtils
 const formRef = ref() as Ref<CommonForm>
 
 /**
- * 批量丢弃/发布表单组件 props
+ * 批量丢弃/发布/取消发布表单组件 props
  */
 const props = defineProps({
   /**
    * 操作类型
    * - `discard`: 按条件批量丢弃
    * - `publish`: 按条件批量发布为可认领
+   * - `unpublish`: 按条件批量取消发布
    */
   operationType: {
-    type: String as PropType<'discard' | 'publish'>,
+    type: String as PropType<'discard' | 'publish' | 'unpublish'>,
     required: true
+  },
+  /**
+   * 额外的默认筛选条件（不包含status）。
+   * 与操作类型预设的状态合并，预设的状态优先，不会被此值覆盖。
+   * 可传入 fileType、minFileSize、maxFileSize、filterScript 等。
+   */
+  defaultFilter: {
+    type: Object as PropType<Partial<Pick<InvalidDataFilterValue, 'fileType' | 'minFileSize' | 'maxFileSize' | 'filterScript'>>>,
+    default: () => ({})
   }
 })
 
 /** 操作对应的中文标题 */
-const operationTitle = computed(() => props.operationType === 'discard' ? '批量丢弃' : '批量发布')
+const operationTitle = computed(() => {
+  if (props.operationType === 'discard') {
+    return '批量丢弃'
+  }
+  if (props.operationType === 'publish') {
+    return '批量发布'
+  }
+  if (props.operationType === 'unpublish') {
+    return '批量取消发布'
+  }
+  return ''
+})
+
+/** 根据操作类型获取预设的默认状态 */
+const getPresetStatus = (): InvalidDataFilterValue['status'] => {
+  switch (props.operationType) {
+  case 'discard':
+  case 'publish':
+    return ['PENDING']
+  case 'unpublish':
+    return ['PUBLISHED']
+  }
+}
 
 /** 筛选组件所需的 provider 数据 */
 const {
@@ -51,6 +84,18 @@ const {
   typesNameMap,
   loadProviders
 } = useInvalidDataList()
+
+/**
+ * 构建初始筛选值：
+ * 预设的状态（由 operationType 决定）+ 外部传入的 defaultFilter 其他字段
+ */
+const buildInitialFilterValue = (): InvalidDataFilterValue => ({
+  status: getPresetStatus(),
+  fileType: props.defaultFilter.fileType,
+  minFileSize: props.defaultFilter.minFileSize,
+  maxFileSize: props.defaultFilter.maxFileSize,
+  filterScript: props.defaultFilter.filterScript
+})
 
 const formInst = defineForm({
   actions: {
@@ -68,16 +113,19 @@ const formInst = defineForm({
         maxFileSize: fv.maxFileSize != null ? Math.floor(fv.maxFileSize * 1024 * 1024) : undefined,
         filterScript: fv.filterScript
       }
-      if (props.operationType === 'discard') {
+      switch (props.operationType) {
+      case 'discard':
         return await SfcUtils.request(DataManagerAPI.discardByQuery(query))
-      } else {
+      case 'publish':
         return await SfcUtils.request(DataManagerAPI.publishByQuery(query))
+      case 'unpublish':
+        return await SfcUtils.request(DataManagerAPI.unpublishByQuery(query))
       }
     }
   },
   formData: {
     /** 当前筛选条件 */
-    filterValue: {} as InvalidDataFilterValue
+    filterValue: buildInitialFilterValue()
   },
   formRef,
   validators: {},
@@ -111,11 +159,15 @@ defineExpose(formInst)
 import { defineComponent } from 'vue'
 
 /**
- * 按条件批量丢弃/发布表单组件。
+ * 按条件批量丢弃/发布/取消发布表单组件。
  *
- * 整合了 `InvalidDataFilter` 筛选条件面板，
+ * 整合了 `InvalidDataFilter` 筛选条件面板（默认展开），
  * 根据 `operationType` 属性决定调用的后端 API，
  * 通过 `defineExpose` 暴露完整的表单实例供外部 `SfcUtils.openComponentDialog` 调用。
+ *
+ * 筛选条件的默认值规则：
+ * - `status` 由 operationType 预设（丢弃/发布=`['PENDING']`，取消发布=`['PUBLISHED']`）
+ * - 其他字段通过 `defaultFilter` prop 传入，不会被预设值覆盖
  */
 export default defineComponent({
   name: 'BatchByQueryForm'

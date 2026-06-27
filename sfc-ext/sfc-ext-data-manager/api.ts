@@ -187,6 +187,19 @@ export namespace DataManagerAPI {
   }
 
   /**
+   * 按条件批量取消发布
+   * 根据筛选条件匹配并取消发布失效数据
+   * @param query 筛选条件
+   */
+  export function unpublishByQuery(query: InvalidDataQuery): CommonRequest<BatchResult> {
+    return useJsonBody({
+      url: `${baseUrl}/unpublish/byQuery`,
+      method: 'post',
+      data: query
+    })
+  }
+
+  /**
    * 标记处理完成
    */
   export function markCompleted(id: IdType): CommonRequest<void> {

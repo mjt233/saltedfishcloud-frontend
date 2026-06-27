@@ -228,9 +228,9 @@ export interface InvalidDataFilterResult {
  */
 export interface BatchResult {
   /** 成功处理的数量 */
-  successCount: number
+  success: number
   /** 失败的数量 */
-  failCount: number
+  fail: number
 }
 
 /**

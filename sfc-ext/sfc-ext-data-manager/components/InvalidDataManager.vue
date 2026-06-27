@@ -280,7 +280,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Teleport } from 'vue'
-import { useCheckIsMobile, getContext } from 'sfc-common'
+import { useCheckIsMobile, getContext, JsonResult } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
@@ -291,7 +291,7 @@ import InvalidDataFilter from './InvalidDataFilter.vue'
 import BatchClaimDialog from './BatchClaimDialog.vue'
 import BatchClaimPreview from './BatchClaimPreview.vue'
 import BatchByQueryForm from './form/BatchByQueryForm.vue'
-import type { InvalidDataRecord, FileMetadataDefine, BatchClaimParam, ClaimPreviewItem } from '../model'
+import type { InvalidDataRecord, FileMetadataDefine, BatchClaimParam, ClaimPreviewItem, BatchResult } from '../model'
 import type { InvalidDataFilterValue } from '../model'
 
 
@@ -321,6 +321,7 @@ const actionItems = computed(() => [
   { id: 'identify', icon: 'mdi-file-search-outline', title: '识别文件类型', action: handleIdentify, showText: true },
   { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '批量认领', action: handleBatchClaim, showText: true },
   { id: 'batch-publish-by-query', icon: 'mdi-publish', title: '按条件发布', action: handleBatchPublishByQuery, showText: true },
+  { id: 'batch-unpublish-by-query', icon: 'mdi-unpublish', title: '按条件取消发布', action: handleBatchUnpublishByQuery, showText: true },
   { id: 'batch-discard-by-query', icon: 'mdi-delete-outline', title: '按条件丢弃', action: handleBatchDiscardByQuery, showText: true },
   { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
   { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
@@ -560,6 +561,14 @@ const handleBatchClaim = () => {
   })
 }
 
+/** 从当前列表筛选条件中提取非 status 的字段，用于 BatchByQueryForm 的默认值 */
+const getQueryDefaultFilter = () => ({
+  fileType: query.fileType,
+  minFileSize: query.minFileSize,
+  maxFileSize: query.maxFileSize,
+  filterScript: query.filterScript
+})
+
 /**
  * 打开按条件批量发布对话框
  * 用户配置筛选条件后，点击确认直接执行批量发布操作
@@ -568,7 +577,8 @@ const handleBatchPublishByQuery = () => {
   const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
     title: '按条件批量发布',
     props: {
-      operationType: 'publish'
+      operationType: 'publish',
+      defaultFilter: getQueryDefaultFilter()
     },
     extraDialogOptions: {
       maxWidth: '800px'
@@ -577,11 +587,43 @@ const handleBatchPublishByQuery = () => {
       const form = inst.getInstAsForm()
       const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
       if (ret.success) {
-        const batchResult = ret.data?.data?.data
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
         if (batchResult) {
-          SfcUtils.snackbar(`发布成功：${batchResult.successCount || 0}，失败：${batchResult.failCount || 0}`)
+          SfcUtils.snackbar(`发布成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
         } else {
           SfcUtils.snackbar('发布操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
+/**
+ * 打开按条件批量取消发布对话框
+ * 用户配置筛选条件后，点击确认直接执行批量取消发布操作
+ */
+const handleBatchUnpublishByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量取消发布',
+    props: {
+      operationType: 'unpublish',
+      defaultFilter: getQueryDefaultFilter()
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
+        if (batchResult) {
+          SfcUtils.snackbar(`取消发布成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
+        } else {
+          SfcUtils.snackbar('取消发布操作已完成')
         }
         doLoadList()
         return true
@@ -599,7 +641,8 @@ const handleBatchDiscardByQuery = () => {
   const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
     title: '按条件批量丢弃',
     props: {
-      operationType: 'discard'
+      operationType: 'discard',
+      defaultFilter: getQueryDefaultFilter()
     },
     extraDialogOptions: {
       maxWidth: '800px'
@@ -613,11 +656,11 @@ const handleBatchDiscardByQuery = () => {
       }
 
       const form = inst.getInstAsForm()
-      const ret = await form.submit({ showError: false })
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
       if (ret.success) {
-        const batchResult = ret.data?.data?.data
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
         if (batchResult) {
-          SfcUtils.snackbar(`丢弃完成。成功：${batchResult.successCount || 0}，失败：${batchResult.failCount || 0}`)
+          SfcUtils.snackbar(`丢弃完成。成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
         } else {
           SfcUtils.snackbar('丢弃操作已完成')
         }
@@ -714,6 +757,7 @@ import { defineComponent } from 'vue'
 import { useAutoComputeHeight } from 'sfc-common'
 import { useHeightSync } from '../composables/useHeightSync'
 import { useLoadingManager } from 'sfc-common'
+import { AxiosResponse } from 'axios'
 
 export default defineComponent({
   name: 'InvalidDataManager'
