@@ -161,6 +161,32 @@ export namespace DataManagerAPI {
   }
 
   /**
+   * 按条件批量丢弃
+   * 根据筛选条件匹配并丢弃失效数据
+   * @param query 筛选条件
+   */
+  export function discardByQuery(query: InvalidDataQuery): CommonRequest<BatchResult> {
+    return useJsonBody({
+      url: `${baseUrl}/discard/byQuery`,
+      method: 'post',
+      data: query
+    })
+  }
+
+  /**
+   * 按条件批量发布为可认领
+   * 根据筛选条件匹配并发布失效数据
+   * @param query 筛选条件
+   */
+  export function publishByQuery(query: InvalidDataQuery): CommonRequest<BatchResult> {
+    return useJsonBody({
+      url: `${baseUrl}/publish/byQuery`,
+      method: 'post',
+      data: query
+    })
+  }
+
+  /**
    * 标记处理完成
    */
   export function markCompleted(id: IdType): CommonRequest<void> {

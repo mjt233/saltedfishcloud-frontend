@@ -290,6 +290,7 @@ import InvalidDataActions from './InvalidDataActions.vue'
 import InvalidDataFilter from './InvalidDataFilter.vue'
 import BatchClaimDialog from './BatchClaimDialog.vue'
 import BatchClaimPreview from './BatchClaimPreview.vue'
+import BatchByQueryForm from './form/BatchByQueryForm.vue'
 import type { InvalidDataRecord, FileMetadataDefine, BatchClaimParam, ClaimPreviewItem } from '../model'
 import type { InvalidDataFilterValue } from '../model'
 
@@ -319,6 +320,8 @@ const actionItems = computed(() => [
   { id: 'detect', icon: 'mdi-radar', title: '开始检测', action: handleDetect, color: 'primary', showText: true },
   { id: 'identify', icon: 'mdi-file-search-outline', title: '识别文件类型', action: handleIdentify, showText: true },
   { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '批量认领', action: handleBatchClaim, showText: true },
+  { id: 'batch-publish-by-query', icon: 'mdi-publish', title: '按条件发布', action: handleBatchPublishByQuery, showText: true },
+  { id: 'batch-discard-by-query', icon: 'mdi-delete-outline', title: '按条件丢弃', action: handleBatchDiscardByQuery, showText: true },
   { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
   { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
   { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: doLoadList, showText: true }
@@ -552,6 +555,75 @@ const handleBatchClaim = () => {
         }
       })
       // 返回 false 保持批量认领配置对话框不关闭
+      return false
+    }
+  })
+}
+
+/**
+ * 打开按条件批量发布对话框
+ * 用户配置筛选条件后，点击确认直接执行批量发布操作
+ */
+const handleBatchPublishByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量发布',
+    props: {
+      operationType: 'publish'
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = ret.data?.data?.data
+        if (batchResult) {
+          SfcUtils.snackbar(`发布成功：${batchResult.successCount || 0}，失败：${batchResult.failCount || 0}`)
+        } else {
+          SfcUtils.snackbar('发布操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
+/**
+ * 打开按条件批量丢弃对话框
+ * 用户配置筛选条件后，点击确认先弹出二次确认，再执行批量丢弃操作
+ */
+const handleBatchDiscardByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量丢弃',
+    props: {
+      operationType: 'discard'
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      // 二次确认：丢弃操作不可逆
+      try {
+        await SfcUtils.confirm('确定要按当前筛选条件批量丢弃数据吗？此操作不可逆！', '操作确认', { cancelToReject: true })
+      } catch {
+        return false
+      }
+
+      const form = inst.getInstAsForm()
+      const ret = await form.submit({ showError: false })
+      if (ret.success) {
+        const batchResult = ret.data?.data?.data
+        if (batchResult) {
+          SfcUtils.snackbar(`丢弃完成。成功：${batchResult.successCount || 0}，失败：${batchResult.failCount || 0}`)
+        } else {
+          SfcUtils.snackbar('丢弃操作已完成')
+        }
+        doLoadList()
+        return true
+      }
       return false
     }
   })
