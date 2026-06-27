@@ -177,7 +177,7 @@ const statusChipColor: Record<string, string> = {
 
 /** 是否支持预览 */
 const canPreview = computed(() => {
-  const previewableTypes = ['audio', 'video', 'image', 'text']
+  const previewableTypes = ['audio', 'video', 'image', 'text', 'archive']
   return props.item.fileType ? previewableTypes.includes(props.item.fileType) : false
 })
 
