@@ -297,7 +297,7 @@
         :scrim="true"
         style="z-index: 9999;"
       >
-        <v-card flat>
+        <v-card flat class="overflow-auto">
           <v-card-title class="d-flex align-center justify-space-between">
             <span>失效数据详情</span>
             <v-btn
