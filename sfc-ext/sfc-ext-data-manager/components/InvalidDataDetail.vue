@@ -163,9 +163,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineComponent, watch, nextTick } from 'vue'
+import { ref, computed, defineComponent, watch } from 'vue'
 import type { PropType } from 'vue'
-import { StringFormatter } from 'sfc-common'
+import { IdType, StringFormatter } from 'sfc-common'
 import type { InvalidDataRecord, ClaimRecord, FileMetadataDefine, FileTypeCheckResult } from '../model'
 import { DataManagerAPI } from '../api'
 import { statusOptions } from '../composables/useInvalidDataList'
@@ -231,6 +231,9 @@ const props = defineProps({
 /** 当前记录的认领记录列表 */
 const claims = ref<ClaimRecord[]>([])
 
+/** 已加载认领数据的记录 ID，用于避免同记录重复加载 */
+let loadedClaimItemId: IdType | null = null
+
 /**
  * 格式化日期为本地化字符串
  * @param d ISO日期字符串
@@ -251,21 +254,50 @@ const getStatusText = (status: string) => {
 }
 
 /**
- * 监听 item 变化，重置认领记录
- * 当抽屉中切换查看不同记录时，需要清除上一条记录的数据。
+ * 加载认领记录（懒加载，仅在切换到认领页签时调用）
+ */
+const loadClaims = async() => {
+  const itemId = props.item.id
+  // 同记录已加载过，不再重复请求
+  if (loadedClaimItemId == itemId) {
+    return
+  }
+  const item = props.item
+  if (item.storeMode == 'UNIQUE' && item.type == 'PHYSICAL_STORAGE' && (item.status == 'COMPLETED' || item.status == 'CLAIMED')) {
+    try {
+      claims.value = (await SfcUtils.request(DataManagerAPI.getClaims(itemId))).data.data
+      loadedClaimItemId = itemId
+    } catch (err) {
+      console.error(err)
+    }
+  } else {
+    claims.value = []
+  }
+}
+
+/**
+ * 监听 item 变化，清除认领记录的加载状态
+ * 当抽屉中切换查看不同记录时，需要清除上一条记录的缓存，以便切换到认领页签时重新加载。
  */
 watch(() => props.item.id, () => {
-  // 重置认领记录
   claims.value = []
+  if (activeTab.value == 'claims') {
+    loadClaims()
+  }
 })
 
 /**
- * 监听页签切换，当切换到预览页签时强制 audio/video 元素重建 controls。
- * 根因：v-tabs-window-item 隐藏内容时 media 元素宽度塌陷，其 shadow DOM 中的
- * controls 控制栏随之塌陷为一条竖线。切换回来后仅靠 reflow 无法恢复 shadow DOM
- * 内部布局，必须移除再重新添加 controls 属性来触发 shadow DOM 重建。
+ * 监听页签切换：
+ * - 切换到认领页签时懒加载认领记录
+ * - 切换到预览页签时强制 audio/video 元素重建 controls
+ *   根因：v-tabs-window-item 隐藏内容时 media 元素宽度塌陷，其 shadow DOM 中的
+ *   controls 控制栏随之塌陷为一条竖线。切换回来后仅靠 reflow 无法恢复 shadow DOM
+ *   内部布局，必须移除再重新添加 controls 属性来触发 shadow DOM 重建。
  */
 watch(activeTab, async(newTab) => {
+  if (newTab === 'claims') {
+    loadClaims()
+  }
   if (newTab === 'preview') {
     // 等待 v-tabs-window 的过渡动画完成
     await SfcUtils.sleep(300)
@@ -281,18 +313,6 @@ watch(activeTab, async(newTab) => {
       // 重新添加 controls，浏览器会以当前正确宽度重建 shadow DOM 控制栏
       el.setAttribute('controls', '')
     })
-  }
-})
-
-/** 组件挂载后加载认领记录 */
-onMounted(async() => {
-  const item = props.item
-  if (item.status !== 'COMPLETED' && item.type == 'PHYSICAL_STORAGE' && item.storeMode == 'UNIQUE') {
-    try {
-      claims.value = (await SfcUtils.request(DataManagerAPI.getClaims(item.id))).data.data
-    } catch (err) {
-      console.error(err)
-    }
   }
 })
 </script>

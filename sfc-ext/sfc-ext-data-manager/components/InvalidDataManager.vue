@@ -213,10 +213,17 @@
         class="ml-4 overflow-auto"
         style="width: 480px;"
         :style="{ maxHeight: mainCardHeight + 'px' }"
-        title="失效数据详情"
       >
+        <v-card-title class="d-flex justify-space-between align-center">
+          失效数据详情
+          <v-btn
+            variant="text"
+            icon="mdi-close"
+            density="comfortable"
+            @click="drawerItem = null"
+          />
+        </v-card-title>
         <v-card-text>
-          
           <InvalidDataDetail
             :item="drawerItem"
             :metadata-defines="drawerMetadataDefines"
@@ -286,9 +293,8 @@
       </v-fab>
     </VFadeTransition>
 
-    <!-- 详情侧边抽屉 -->
+    <!-- 移动端抽屉 -->
     <Teleport to="main">
-      
       <v-navigation-drawer
         v-model="drawerVisible"
         location="right"
@@ -297,7 +303,7 @@
         :scrim="true"
         style="z-index: 9999;"
       >
-        <v-card flat class="overflow-auto">
+        <v-card v-if="isMobile" flat class="overflow-auto">
           <v-card-title class="d-flex align-center justify-space-between">
             <span>失效数据详情</span>
             <v-btn
