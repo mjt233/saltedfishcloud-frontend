@@ -3,6 +3,7 @@
     <!-- 筛选条件 -->
     <InvalidDataFilter
       :model-value="filterValue"
+      :type-options="typeOptions"
       :status-options="statusOptions"
       :provider-options="providerOptions"
       :types-name-map="typesNameMap"
@@ -57,7 +58,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive } from 'vue'
 import { getContext } from 'sfc-common'
-import { useInvalidDataList, statusOptions } from '../composables/useInvalidDataList'
+import { useInvalidDataList, statusOptions, typeOptions } from '../composables/useInvalidDataList'
 import InvalidDataFilter from './InvalidDataFilter.vue'
 import InvalidDataFilterGroovyEditor from './InvalidDataFilterGroovyEditor.vue'
 import type { IdType } from 'sfc-common/model'

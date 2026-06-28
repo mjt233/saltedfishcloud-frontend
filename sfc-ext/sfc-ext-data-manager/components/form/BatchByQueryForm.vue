@@ -6,6 +6,7 @@
       </p>
       <InvalidDataFilter
         :model-value="formData.filterValue"
+        :type-options="typeOptions"
         :status-options="statusOptions"
         :provider-options="providerOptions"
         :types-name-map="typesNameMap"
@@ -20,7 +21,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, Ref } from 'vue'
 import { CommonForm, defineForm } from 'sfc-common'
-import { useInvalidDataList, statusOptions } from '../../composables/useInvalidDataList'
+import { useInvalidDataList, statusOptions, typeOptions } from '../../composables/useInvalidDataList'
 import { DataManagerAPI } from '../../api'
 import InvalidDataFilter from '../InvalidDataFilter.vue'
 import type { InvalidDataFilterValue, InvalidDataQuery } from '../../model'

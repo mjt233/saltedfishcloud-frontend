@@ -103,6 +103,7 @@
           <!-- 筛选组件：桌面端展开式面板，移动端底部弹出 -->
           <InvalidDataFilter
             :model-value="filterQueryProxy"
+            :type-options="typeOptions"
             :status-options="statusOptions"
             :provider-options="providerOptions"
             :types-name-map="typesNameMap"
@@ -344,7 +345,7 @@
 import { computed, onMounted, ref, Teleport } from 'vue'
 import { useCheckIsMobile, getContext, JsonResult } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
-import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
+import { useInvalidDataList, statusOptions, typeOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
 import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
@@ -427,6 +428,7 @@ const mainCardHeight = useHeightSync(() => mainCardRef.value.$el)
  * 使用 :model-value 单向传递，避免 v-model 双向绑定覆盖 query 的分页字段
  */
 const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
+  type: query.type,
   status: query.status,
   fileType: query.fileType,
   minFileSize: query.minFileSize,
@@ -801,6 +803,7 @@ const drawerMetadataDefines = computed((): FileMetadataDefine[] => {
  * @param value 用户选定的筛选条件
  */
 const onFilterApply = async(value: InvalidDataFilterValue) => {
+  query.type = value.type
   query.status = value.status
   query.fileType = value.fileType
   query.minFileSize = value.minFileSize

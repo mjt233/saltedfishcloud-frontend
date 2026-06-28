@@ -3,6 +3,7 @@
     <div class="mb-4">
       <InvalidDataFilter
         :model-value="filterQueryProxy"
+        :type-options="typeOptions"
         :status-options="[]"
         :provider-options="providerOptions"
         :types-name-map="typesNameMap"
@@ -96,7 +97,7 @@ import { ref, reactive, onMounted, computed, Ref, Teleport } from 'vue'
 import { getContext, StringUtils, useCheckIsMobile, useEventBus } from 'sfc-common'
 import { StringFormatter } from 'sfc-common'
 import { DataManagerAPI } from '../api'
-import { useInvalidDataList } from '../composables/useInvalidDataList'
+import { useInvalidDataList, typeOptions } from '../composables/useInvalidDataList'
 import type { InvalidDataQuery, InvalidDataRecord, ClaimParam, InvalidDataFilterValue, FileMetadataDefine } from '../model'
 import type { IdType } from 'sfc-common/model'
 import InvalidDataClaimForm from './form/InvalidDataClaimForm.vue'

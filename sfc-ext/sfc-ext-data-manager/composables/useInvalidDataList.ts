@@ -1,6 +1,6 @@
 import { ref, reactive, computed, watch } from 'vue'
 import { DataManagerAPI } from '../api'
-import type { FileTypeProviderInfo, InvalidDataQuery, InvalidDataRecord, InvalidDataRecordStatus } from '../model'
+import type { FileTypeProviderInfo, InvalidDataQuery, InvalidDataRecord, InvalidDataRecordStatus, InvalidDataRecordType } from '../model'
 import { IdType } from 'sfc-common/model'
 
 const SfcUtils = window.SfcUtils
@@ -13,6 +13,14 @@ export const statusOptions: { title: string, value: InvalidDataRecordStatus }[] 
   { title: '已发布', value: 'PUBLISHED' },
   { title: '已认领', value: 'CLAIMED' },
   { title: '处理完成', value: 'COMPLETED' }
+]
+
+/**
+ * 失效数据类型选项
+ */
+export const typeOptions: { title: string, value: InvalidDataRecordType }[] = [
+  { title: '存储丢失', value: 'FILE_RECORD' },
+  { title: '文件记录丢失', value: 'PHYSICAL_STORAGE' }
 ]
 
 /**
@@ -75,6 +83,7 @@ export function useInvalidDataList() {
   const query = reactive({
     page: 1,
     size: 10,
+    type: undefined as InvalidDataRecordType[] | undefined,
     status: undefined as InvalidDataRecordStatus[] | undefined,
     fileType: undefined as string[] | undefined,
     minFileSize: undefined as number | undefined,
@@ -101,6 +110,7 @@ export function useInvalidDataList() {
   watch(
     [
       () => query.filterScript,
+      () => query.type,
       () => query.status,
       () => query.fileType,
       () => query.minFileSize,
@@ -169,6 +179,7 @@ export function useInvalidDataList() {
     try {
       const q: InvalidDataQuery = {
         ...query,
+        type: query.type && query.type.length > 0 ? query.type : undefined,
         // 将 MiB 转换为字节后再发送给后端
         minFileSize: query.minFileSize != null ? Math.floor(query.minFileSize * MIB_TO_BYTES) : undefined,
         maxFileSize: query.maxFileSize != null ? Math.floor(query.maxFileSize * MIB_TO_BYTES) : undefined

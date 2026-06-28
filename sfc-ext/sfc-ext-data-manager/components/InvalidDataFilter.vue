@@ -211,6 +211,8 @@ const isMobile = useCheckIsMobile()
 const props = defineProps<{
   /** 当前已应用的筛选值 */
   modelValue: InvalidDataFilterValue
+  /** 失效数据类型选项列表 */
+  typeOptions: { title: string, value: string }[]
   /** 状态选项列表 */
   statusOptions: { title: string, value: string }[]
   /** 文件类型识别器选项列表 */
@@ -218,7 +220,7 @@ const props = defineProps<{
   /** 文件类型值到名称的映射表 */
   typesNameMap: Record<string, string>
   /** 需要隐藏的筛选字段键名列表 */
-  hideFields?: Array<'status' | 'fileType' | 'minFileSize' | 'maxFileSize'>
+  hideFields?: Array<'type' | 'status' | 'fileType' | 'minFileSize' | 'maxFileSize'>
   /** 是否允许使用 Groovy 脚本筛选功能 */
   allowGroovyScript?: boolean
   /** 桌面端是否默认展开筛选面板（移动端无效果） */
@@ -239,6 +241,7 @@ const emit = defineEmits<{
  * 点击"应用"后才通过 emit 通知父组件
  */
 const draft = reactive<InvalidDataFilterValue>({
+  type: props.modelValue.type ? [...props.modelValue.type] : undefined,
   status: props.modelValue.status ? [...props.modelValue.status] : undefined,
   fileType: props.modelValue.fileType ? [...props.modelValue.fileType] : undefined,
   minFileSize: props.modelValue.minFileSize,
@@ -266,6 +269,7 @@ watch(
   (newVal) => {
     if (!isEditing.value) {
       // 深拷贝以避免引用污染
+      draft.type = newVal.type ? [...newVal.type] : undefined
       draft.status = newVal.status ? [...newVal.status] : undefined
       draft.fileType = newVal.fileType ? [...newVal.fileType] : undefined
       draft.minFileSize = newVal.minFileSize
@@ -281,7 +285,7 @@ watch(
 /** 单个筛选字段的定义 */
 interface FilterFieldDef {
   /** 字段键名，对应 InvalidDataFilterValue 的属性 */
-  key: 'status' | 'fileType' | 'minFileSize' | 'maxFileSize'
+  key: 'type' | 'status' | 'fileType' | 'minFileSize' | 'maxFileSize'
   /** 字段标签 */
   label: string
   /** 字段类型：select 为多选下拉，number 为数字输入 */
@@ -301,6 +305,12 @@ interface FilterFieldDef {
  */
 const filterFields = computed<FilterFieldDef[]>(() => {
   const allFields: FilterFieldDef[] = [
+    {
+      key: 'type',
+      label: '失效数据类型',
+      type: 'select',
+      options: props.typeOptions
+    },
     {
       key: 'status',
       label: '状态',
@@ -376,6 +386,19 @@ interface ActiveChip {
 const activeFilterChips = computed<ActiveChip[]>(() => {
   const chips: ActiveChip[] = []
   const val = props.modelValue
+
+  // 失效数据类型筛选芯片（每个选中类型一个芯片）
+  if (val.type && val.type.length > 0) {
+    for (const t of val.type) {
+      const option = props.typeOptions.find(o => o.value === t)
+      chips.push({
+        key: `type-${t}`,
+        label: `数据类型: ${option?.title ?? t}`,
+        filterKey: 'type',
+        value: t
+      })
+    }
+  }
 
   // 状态筛选芯片（每个选中状态一个芯片）
   if (val.status && val.status.length > 0) {
@@ -463,6 +486,7 @@ const togglePanel = () => {
  */
 const syncDraftFromModel = () => {
   const val = props.modelValue
+  draft.type = val.type ? [...val.type] : undefined
   draft.status = val.status ? [...val.status] : undefined
   draft.fileType = val.fileType ? [...val.fileType] : undefined
   draft.minFileSize = val.minFileSize
@@ -476,6 +500,7 @@ const syncDraftFromModel = () => {
  */
 watch(
   () => ({
+    type: draft.type,
     status: draft.status,
     fileType: draft.fileType,
     minFileSize: draft.minFileSize,
@@ -498,6 +523,7 @@ watch(
  */
 const handleApply = () => {
   const appliedValue: InvalidDataFilterValue = {
+    type: draft.type ? [...draft.type] : undefined,
     status: draft.status ? [...draft.status] : undefined,
     fileType: draft.fileType ? [...draft.fileType] : undefined,
     minFileSize: draft.minFileSize,
@@ -506,6 +532,9 @@ const handleApply = () => {
   }
 
   // 清理空数组为 undefined，避免传递空数组给后端
+  if (appliedValue.type && appliedValue.type.length === 0) {
+    appliedValue.type = undefined
+  }
   if (appliedValue.status && appliedValue.status.length === 0) {
     appliedValue.status = undefined
   }
@@ -526,6 +555,7 @@ const handleApply = () => {
  * 清空 draft 并立即应用，然后关闭面板
  */
 const handleReset = () => {
+  draft.type = undefined
   draft.status = undefined
   draft.fileType = undefined
   draft.minFileSize = undefined
