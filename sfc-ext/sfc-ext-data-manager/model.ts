@@ -1,4 +1,4 @@
-import type { IdType } from 'sfc-common/model'
+import type { AuditModel, IdType } from 'sfc-common/model'
 
 /**
  * 失效数据记录状态枚举
@@ -117,7 +117,7 @@ export interface ClaimParam {
  * 认领记录
  * 记录用户对失效数据的认领操作历史
  */
-export interface ClaimRecord {
+export interface ClaimRecord extends AuditModel {
   /** 认领记录唯一标识 */
   id: IdType
   /** 认领操作时间（ISO 8601格式） */

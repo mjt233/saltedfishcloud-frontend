@@ -122,27 +122,51 @@
       </v-tabs-window-item>
       <!-- 认领记录页签 -->
       <v-tabs-window-item value="claims">
-        <div v-if="claims.length > 0">
-          <v-table density="compact">
-            <thead>
-              <tr>
-                <th>认领人UID</th>
-                <th>目标UID</th>
-                <th>保存路径</th>
-                <th>文件名</th>
-                <th>时间</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="c in claims" :key="c.id">
-                <td>{{ c.targetUid }}</td>
-                <td>{{ c.targetUid === 0 ? '公共网盘' : c.targetUid }}</td>
-                <td>{{ c.savePath }}</td>
-                <td>{{ c.fileName }}</td>
-                <td>{{ formatDate(c.createAt) }}</td>
-              </tr>
-            </tbody>
-          </v-table>
+        <div v-if="claims.length > 0" class="pa-1">
+          <v-card
+            v-for="c in claims"
+            :key="c.id"
+            class="mb-2"
+          >
+            <v-card-text class="pa-3">
+              <div class="text-caption text-medium-emphasis mb-1">
+                认领人
+              </div>
+              <div class="text-body-2 mb-2">
+                <UserCard :uid="c.uid" :name="c.uid + ''" />
+              </div>
+              <div class="text-caption text-medium-emphasis mb-1">
+                目标
+              </div>
+              <div class="text-body-2 mb-2">
+                <template v-if="c.targetUid == 0">
+                  公共网盘
+                </template>
+                <UserCard v-else :name="c.targetUid + ''" :uid="c.targetUid" />
+              </div>
+              <v-divider class="mb-2" />
+              <div class="text-caption text-medium-emphasis mb-1">
+                保存路径
+              </div>
+              <div class="text-body-2 mb-2" style="word-break: break-all">
+                {{ c.savePath }}
+              </div>
+              <v-divider class="mb-2" />
+              <div class="text-caption text-medium-emphasis mb-1">
+                文件名
+              </div>
+              <div class="text-body-2 mb-2" style="word-break: break-all">
+                {{ c.fileName }}
+              </div>
+              <v-divider class="mb-2" />
+              <div class="text-caption text-medium-emphasis mb-1">
+                时间
+              </div>
+              <div class="text-body-2">
+                {{ formatDate(c.createAt) }}
+              </div>
+            </v-card-text>
+          </v-card>
         </div>
         <div v-else class="text-center py-8 text-medium-emphasis">
           暂无认领记录
@@ -170,6 +194,7 @@ import type { InvalidDataRecord, ClaimRecord, FileMetadataDefine, FileTypeCheckR
 import { DataManagerAPI } from '../api'
 import { statusOptions } from '../composables/useInvalidDataList'
 import { InvalidDataPreviewer } from './InvalidDataPreviewer'
+const UserCard = window.Components.UserCard
 
 const SfcUtils = window.SfcUtils
 
