@@ -252,6 +252,50 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
   }
 
   /**
+   * 将所有已认领的失效数据标记为已完成
+   */
+  const handleMarkClaimedCompleted = async() => {
+    try {
+      await SfcUtils.confirm('确定要将所有已认领的失效数据标记为已完成吗？', '操作确认', { cancelToReject: true })
+    } catch {
+      return
+    }
+    try {
+      await SfcUtils.loadingDialogTask({
+        msg: '正在处理...',
+      }, async() => {
+        await SfcUtils.request(DataManagerAPI.markClaimedCompleted())
+        SfcUtils.snackbar('已将所有已认领数据标记为已完成')
+        loadList()
+      })
+    } catch (e: any) {
+      SfcUtils.snackbar('操作失败：' + (e.message || e.toString()))
+    }
+  }
+
+  /**
+   * 清理所有已完成处理的失效数据记录
+   */
+  const handleCleanCompleted = async() => {
+    try {
+      await SfcUtils.confirm('确定要删除所有已完成处理的失效数据记录吗？此操作不可逆！', '操作确认', { cancelToReject: true })
+    } catch {
+      return
+    }
+    try {
+      await SfcUtils.loadingDialogTask({
+        msg: '正在清理...',
+      }, async() => {
+        await SfcUtils.request(DataManagerAPI.cleanCompleted())
+        SfcUtils.snackbar('已清理所有已完成记录')
+        loadList()
+      })
+    } catch (e: any) {
+      SfcUtils.snackbar('操作失败：' + (e.message || e.toString()))
+    }
+  }
+
+  /**
    * 打开认领对话框，提交认领请求
    * @param item 失效数据记录
    */
@@ -321,6 +365,8 @@ export function useInvalidDataActions(options: UseInvalidDataActionsOptions) {
     handleQuickFixAll,
     handleDiscard,
     handleDiscardAll,
+    handleMarkClaimedCompleted,
+    handleCleanCompleted,
     openClaimDialog
   }
 }

@@ -275,4 +275,24 @@ export namespace DataManagerAPI {
       data: param
     })
   }
+
+  /**
+   * 将所有已认领的失效数据标记为已完成
+   */
+  export function markClaimedCompleted(): CommonRequest<any> {
+    return {
+      url: `${baseUrl}/markClaimedCompleted`,
+      method: 'post'
+    }
+  }
+
+  /**
+   * 清理所有已完成处理的失效数据记录
+   */
+  export function cleanCompleted(): CommonRequest<any> {
+    return {
+      url: `${baseUrl}/cleanCompleted`,
+      method: 'post'
+    }
+  }
 }

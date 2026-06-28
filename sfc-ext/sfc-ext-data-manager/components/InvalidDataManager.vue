@@ -30,6 +30,7 @@
                       :key="child.id"
                       :prepend-icon="child.icon"
                       :title="child.title"
+                      :class="(child as any).class"
                       @click="child.action"
                     />
                   </v-list>
@@ -255,7 +256,7 @@
         >
           <v-list density="comfortable">
             <template v-for="action in actionItems" :key="action.id">
-              <v-divider v-if="action.id === 'discard-all'" />
+              <v-divider v-if="action.id === 'one-click-group'" />
               <!-- 带子菜单的分组项 -->
               <v-list-group v-if="action.children" :value="action.id">
                 <template #activator="{ props: activatorProps, isOpen }">
@@ -276,6 +277,7 @@
                   :key="child.id"
                   :prepend-icon="child.icon"
                   :title="child.title"
+                  :class="(child as any).class"
                   :disabled="loading"
                   @click="child.action(); mobileMenuOpen = false"
                 />
@@ -395,8 +397,18 @@ const actionItems = computed(() => [
       { id: 'batch-discard-by-query', icon: 'mdi-delete-outline', title: '按条件丢弃', action: handleBatchDiscardByQuery }
     ]
   },
-  { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
-  { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
+  {
+    id: 'one-click-group',
+    icon: 'mdi-auto-fix',
+    title: '一键操作',
+    showText: true,
+    children: [
+      { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll },
+      { id: 'mark-claimed-completed', icon: 'mdi-check-all', title: '完成所有已认领', action: handleMarkClaimedCompleted },
+      { id: 'clean-completed', icon: 'mdi-delete-sweep', title: '清理已完成记录', action: handleCleanCompleted },
+      { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, class: 'text-error' }
+    ]
+  },
   { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: doLoadList, showText: true }
 ])
 
@@ -459,6 +471,8 @@ const {
   handleQuickFixAll,
   handleDiscard,
   handleDiscardAll,
+  handleMarkClaimedCompleted,
+  handleCleanCompleted,
   openClaimDialog
 } = useInvalidDataActions({ loading, loadList, selected })
 
