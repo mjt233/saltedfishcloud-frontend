@@ -599,7 +599,8 @@ const handleBatchClaim = () => {
   const inst = SfcUtils.openComponentDialog(BatchClaimDialog, {
     title: '批量认领',
     props: {
-      uid: getContext().session.value.user.id
+      uid: getContext().session.value.user.id,
+      defaultFilter: getQueryDefaultFilter()
     },
     extraDialogOptions: {
       confirmText: '预览结果',
@@ -661,6 +662,7 @@ const handleBatchClaim = () => {
 
 /** 从当前列表筛选条件中提取非 status 的字段，用于 BatchByQueryForm 的默认值 */
 const getQueryDefaultFilter = () => ({
+  type: query.type,
   fileType: query.fileType,
   minFileSize: query.minFileSize,
   maxFileSize: query.maxFileSize,

@@ -594,6 +594,10 @@ onMounted(() => {
   if (props.defaultExpanded && !isMobile.value) {
     panelExpanded.value = true
     syncDraftFromModel()
+    // 如果存在 Groovy 脚本内容，同时展开脚本区域
+    if (props.modelValue.filterScript && props.modelValue.filterScript.trim()) {
+      groovyExpanded.value = true
+    }
   }
 })
 

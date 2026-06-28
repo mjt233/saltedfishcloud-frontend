@@ -47,10 +47,10 @@ const props = defineProps({
   /**
    * 额外的默认筛选条件（不包含status）。
    * 与操作类型预设的状态合并，预设的状态优先，不会被此值覆盖。
-   * 可传入 fileType、minFileSize、maxFileSize、filterScript 等。
+   * 可传入 type、fileType、minFileSize、maxFileSize、filterScript 等。
    */
   defaultFilter: {
-    type: Object as PropType<Partial<Pick<InvalidDataFilterValue, 'fileType' | 'minFileSize' | 'maxFileSize' | 'filterScript'>>>,
+    type: Object as PropType<Partial<Pick<InvalidDataFilterValue, 'type' | 'fileType' | 'minFileSize' | 'maxFileSize' | 'filterScript'>>>,
     default: () => ({})
   }
 })
@@ -98,6 +98,7 @@ const {
  */
 const buildInitialFilterValue = (): InvalidDataFilterValue => ({
   status: getPresetStatus(),
+  type: props.defaultFilter.type,
   fileType: props.defaultFilter.fileType,
   minFileSize: props.defaultFilter.minFileSize,
   maxFileSize: props.defaultFilter.maxFileSize,
@@ -114,6 +115,7 @@ const formInst = defineForm({
       const fv = formData.filterValue
       // 构造请求参数，文件大小从 MiB 转为字节
       const query: InvalidDataQuery = {
+        type: fv.type,
         status: fv.status,
         fileType: fv.fileType,
         minFileSize: fv.minFileSize != null ? Math.floor(fv.minFileSize * 1024 * 1024) : undefined,
@@ -150,6 +152,7 @@ const { formData, actions } = formInst
  */
 const onFilterApply = (value: InvalidDataFilterValue) => {
   formData.filterValue.status = value.status
+  formData.filterValue.type = value.type
   formData.filterValue.fileType = value.fileType
   formData.filterValue.minFileSize = value.minFileSize
   formData.filterValue.maxFileSize = value.maxFileSize
