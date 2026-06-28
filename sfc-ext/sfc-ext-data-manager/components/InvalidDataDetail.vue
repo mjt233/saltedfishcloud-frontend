@@ -165,6 +165,28 @@
               <div class="text-body-2">
                 {{ formatDate(c.createAt) }}
               </div>
+              <v-divider class="mb-2" />
+              <div class="text-caption text-medium-emphasis mb-1">
+                状态
+              </div>
+              <div class="text-body-2">
+                <v-chip
+                  v-if="c.isRevoked"
+                  color="error"
+                  size="x-small"
+                  variant="tonal"
+                >
+                  已撤回
+                </v-chip>
+                <v-chip
+                  v-else
+                  color="success"
+                  size="x-small"
+                  variant="tonal"
+                >
+                  正常
+                </v-chip>
+              </div>
             </v-card-text>
           </v-card>
         </div>

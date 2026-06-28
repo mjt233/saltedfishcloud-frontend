@@ -44,7 +44,7 @@
       <div v-show="panelExpanded" class="filter-panel mt-2 rounded-lg">
         <div class="pa-4">
           <!-- 筛选字段：3 列紧凑布局，修改后立即生效 -->
-          <v-row dense>
+          <v-row density="comfortable">
             <v-col
               v-for="field in filterFields"
               :key="field.key"

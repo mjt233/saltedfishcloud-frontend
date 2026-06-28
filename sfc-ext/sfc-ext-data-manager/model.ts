@@ -138,6 +138,8 @@ export interface ClaimRecord extends AuditModel {
   fileName: string
   /** 认领后的保存路径 */
   savePath: string
+  /** 是否已被管理员撤回 */
+  isRevoked?: boolean
 }
 
 /**

@@ -30,7 +30,7 @@ const SfcUtils = window.SfcUtils
 const formRef = ref() as Ref<CommonForm>
 
 /**
- * 批量丢弃/发布/取消发布表单组件 props
+ * 批量丢弃/发布/取消发布/撤回认领表单组件 props
  */
 const props = defineProps({
   /**
@@ -38,9 +38,10 @@ const props = defineProps({
    * - `discard`: 按条件批量丢弃
    * - `publish`: 按条件批量发布为可认领
    * - `unpublish`: 按条件批量取消发布
+   * - `revokeClaim`: 按条件批量撤回认领
    */
   operationType: {
-    type: String as PropType<'discard' | 'publish' | 'unpublish'>,
+    type: String as PropType<'discard' | 'publish' | 'unpublish' | 'revokeClaim'>,
     required: true
   },
   /**
@@ -65,6 +66,9 @@ const operationTitle = computed(() => {
   if (props.operationType === 'unpublish') {
     return '批量取消发布'
   }
+  if (props.operationType === 'revokeClaim') {
+    return '批量撤回认领'
+  }
   return ''
 })
 
@@ -76,6 +80,8 @@ const getPresetStatus = (): InvalidDataFilterValue['status'] => {
     return ['PENDING']
   case 'unpublish':
     return ['PUBLISHED']
+  case 'revokeClaim':
+    return ['CLAIMED']
   }
 }
 
@@ -121,6 +127,8 @@ const formInst = defineForm({
         return await SfcUtils.request(DataManagerAPI.publishByQuery(query))
       case 'unpublish':
         return await SfcUtils.request(DataManagerAPI.unpublishByQuery(query))
+      case 'revokeClaim':
+        return await SfcUtils.request(DataManagerAPI.batchRevokeClaimByQuery(query))
       }
     }
   },

@@ -393,6 +393,7 @@ const actionItems = computed(() => [
     showText: true,
     children: [
       { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '按条件认领', action: handleBatchClaim },
+      { id: 'batch-revoke-claim-by-query', icon: 'mdi-account-remove', title: '按条件撤回认领', action: handleBatchRevokeClaimByQuery },
       { id: 'batch-publish-by-query', icon: 'mdi-publish', title: '按条件发布', action: handleBatchPublishByQuery },
       { id: 'batch-unpublish-by-query', icon: 'mdi-cancel', title: '按条件取消发布', action: handleBatchUnpublishByQuery },
       { id: 'batch-discard-by-query', icon: 'mdi-delete-outline', title: '按条件丢弃', action: handleBatchDiscardByQuery }
@@ -760,6 +761,38 @@ const handleBatchDiscardByQuery = () => {
           SfcUtils.snackbar(`丢弃完成。成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
         } else {
           SfcUtils.snackbar('丢弃操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
+/**
+ * 打开按条件批量撤回认领对话框
+ * 用户配置筛选条件后，点击确认直接执行批量撤回认领操作
+ */
+const handleBatchRevokeClaimByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量撤回认领',
+    props: {
+      operationType: 'revokeClaim',
+      defaultFilter: getQueryDefaultFilter()
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
+        if (batchResult) {
+          SfcUtils.snackbar(`撤回认领成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
+        } else {
+          SfcUtils.snackbar('撤回认领操作已完成')
         }
         doLoadList()
         return true
