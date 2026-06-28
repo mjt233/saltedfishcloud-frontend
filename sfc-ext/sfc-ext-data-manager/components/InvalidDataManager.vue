@@ -111,6 +111,7 @@
             allow-groovy-script
             @apply="onFilterApply"
           />
+          <v-divider v-if="hasActiveFilters" class="mt-2" />
           <v-data-table-server
             ref="tableRef"
             v-model="selected"
@@ -447,6 +448,12 @@ const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
   maxFileSize: query.maxFileSize,
   filterScript: query.filterScript
 }))
+
+/** 是否存在活跃的筛选条件，用于控制分隔线显示 */
+const hasActiveFilters = computed(() => {
+  const q = filterQueryProxy.value
+  return !!(q.type?.length || q.status?.length || q.fileType?.length || q.minFileSize != null || q.maxFileSize != null || q.filterScript)
+})
 
 /** 详情抽屉是否可见 */
 const drawerVisible = ref(false)

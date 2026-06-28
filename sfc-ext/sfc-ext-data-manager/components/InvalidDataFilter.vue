@@ -41,72 +41,77 @@
 
     <!-- ========== 桌面端：可折叠筛选面板 ========== -->
     <v-expand-transition v-if="!isMobile">
-      <v-card v-show="panelExpanded" class="mt-2">
-        <v-card-text>
-          <v-row>
-            <template v-for="field in filterFields" :key="field.key">
-              <v-col
+      <div v-show="panelExpanded" class="filter-panel mt-2 rounded-lg">
+        <div class="pa-4">
+          <!-- 筛选字段：3 列紧凑布局，修改后立即生效 -->
+          <v-row dense>
+            <v-col
+              v-for="field in filterFields"
+              :key="field.key"
+              cols="4"
+            >
+              <v-select
                 v-if="field.type === 'select'"
-                cols="12"
-                sm="6"
-                md
-              >
-                <v-select
-                  :model-value="getDraftValue(field.key)"
-                  :items="field.options"
-                  :label="field.label"
-                  clearable
-                  hide-details
-                  multiple
-                  chips
-                  @update:model-value="(v: any) => setDraftValue(field.key, v)"
-                />
-              </v-col>
-              <v-col
+                :model-value="getDraftValue(field.key)"
+                :items="field.options"
+                :label="field.label"
+                clearable
+                hide-details
+                multiple
+                chips
+                @update:model-value="(v: any) => { setDraftValue(field.key, v); handleApply() }"
+              />
+              <v-text-field
                 v-else-if="field.type === 'number'"
-                cols="12"
-                sm="6"
-                md
-              >
-                <v-text-field
-                  :model-value="getDraftValue(field.key)"
-                  :label="field.label"
-                  type="number"
-                  clearable
-                  hide-details
-                  :min="field.min"
-                  :suffix="field.suffix"
-                  @update:model-value="(v: any) => setDraftValue(field.key, v != null && v !== '' ? Number(v) : undefined)"
-                />
-              </v-col>
-            </template>
+                :model-value="getDraftValue(field.key)"
+                :label="field.label"
+                type="number"
+                clearable
+                hide-details
+                :min="field.min"
+                :suffix="field.suffix"
+                @update:model-value="(v: any) => { setDraftValue(field.key, v != null && v !== '' ? Number(v) : undefined); handleApply() }"
+              />
+            </v-col>
           </v-row>
-          <!-- Groovy 脚本筛选区域 -->
-          <div v-if="allowGroovyScript" class="mt-4">
-            <div class="text-caption text-medium-emphasis mb-1">
+          <!-- Groovy 脚本筛选区域（可折叠） -->
+          <div v-if="allowGroovyScript" class="mt-3">
+            <v-btn
+              variant="text"
+              size="small"
+              class="px-1"
+              :prepend-icon="groovyExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+              @click="groovyExpanded = !groovyExpanded"
+            >
               Groovy 筛选脚本
-            </div>
-            <v-textarea
-              placeholder="点击编辑筛选脚本..."
-              :model-value="draft.filterScript"
-              auto-grow
-              :rows="1"
-              :max-rows="3"
-              hint="脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录"
-              persistent-hint
-              readonly
-              :variant="'solo'"
-              @update:focused="$event && openScriptEditor()"
-              @click.stop="openScriptEditor"
-            />
+            </v-btn>
+            <v-expand-transition>
+              <div v-show="groovyExpanded">
+                <v-textarea
+                  placeholder="点击编辑筛选脚本..."
+                  :model-value="draft.filterScript"
+                  auto-grow
+                  :rows="1"
+                  :max-rows="3"
+                  hint="脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录"
+                  persistent-hint
+                  readonly
+                  :variant="'solo'"
+                  class="mt-1"
+                  @update:focused="$event && openScriptEditor()"
+                  @click.stop="openScriptEditor"
+                />
+              </div>
+            </v-expand-transition>
           </div>
-          <div class="d-flex justify-end ga-2 mt-4">
-            <v-btn size="small" @click="handleReset">
+          <!-- 操作按钮（仅重置） -->
+          <div class="d-flex justify-end ga-2 mt-3">
+            <v-btn size="small" variant="text" @click="handleReset">
               重置
             </v-btn>
           </div>
-        </v-card-text>
-      </v-card>
+        </div>
+      </div>
     </v-expand-transition>
 
     <!-- ========== 移动端：底部弹出面板 ========== -->
@@ -254,6 +259,9 @@ const panelExpanded = ref(false)
 
 /** 移动端底部弹出面板是否可见 */
 const bottomSheetVisible = ref(false)
+
+/** 桌面端 Groovy 脚本区域是否展开 */
+const groovyExpanded = ref(false)
 
 /** 用户是否正在编辑筛选条件（面板打开中），用于阻止外部 modelValue 变化覆盖 draft */
 const isEditing = computed(() =>
@@ -495,27 +503,6 @@ const syncDraftFromModel = () => {
 }
 
 /**
- * 监听 draft 的变化，在非移动端编辑时立即应用
- * 桌面端改动筛选条件后立即生效，无需点击应用按钮
- */
-watch(
-  () => ({
-    type: draft.type,
-    status: draft.status,
-    fileType: draft.fileType,
-    minFileSize: draft.minFileSize,
-    maxFileSize: draft.maxFileSize
-  }),
-  () => {
-    // 仅在非移动端且面板打开时自动应用
-    if (!isMobile.value && panelExpanded.value) {
-      handleApply()
-    }
-  },
-  { deep: true }
-)
-
-/**
  * 应用当前 draft 中的筛选条件
  * 将 draft 值深拷贝后通过 apply 事件发送给父组件
  * 桌面端：仅应用，保持面板打开
@@ -565,9 +552,10 @@ const handleReset = () => {
   const resetValue: InvalidDataFilterValue = {}
   emit('apply', resetValue)
 
-  // 关闭面板
-  panelExpanded.value = false
-  bottomSheetVisible.value = false
+  // 移动端关闭面板，桌面端保持打开
+  if (isMobile.value) {
+    bottomSheetVisible.value = false
+  }
 }
 
 /**
@@ -655,6 +643,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.filter-panel {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  background: rgb(var(--v-theme-surface-bright));
+}
+
 .script-preview {
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   border-radius: 4px;
