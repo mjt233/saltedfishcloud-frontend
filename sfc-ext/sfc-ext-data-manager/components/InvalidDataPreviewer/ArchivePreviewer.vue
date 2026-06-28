@@ -156,9 +156,9 @@ async function openArchiveViewer() {
     },
     extraDialogOptions: {
       maxWidth: '1200px',
-      confirmText: '关闭',
-      cancelText: ''
-    }
+      cancelText: '关闭'
+    },
+    showConfirm: false
   })
 }
 </script>

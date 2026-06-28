@@ -301,7 +301,6 @@
         temporary
         width="560"
         :scrim="true"
-        style="z-index: 9999;"
       >
         <v-card v-if="isMobile" flat class="overflow-auto">
           <v-card-title class="d-flex align-center justify-space-between">
