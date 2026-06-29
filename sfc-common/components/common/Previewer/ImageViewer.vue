@@ -106,39 +106,42 @@
       </div>
     </div>
 
-    <!-- 左侧缩略图侧栏（纵向虚拟滚动，仅渲染可视区域，支持大量图片） -->
+    <!-- 右侧缩略图侧栏（纵向虚拟滚动，仅渲染可视区域，支持大量图片） -->
     <div
       ref="sidebarRef"
       class="thumbnail-sidebar"
       :class="{'hide-list': !isUiVisible || zoomManager.isOverflowing.value}"
     >
-      <VVirtualScroll
-        ref="barRef"
-        :items="fileList"
-        :item-key="itemKey"
-        :height="sidebarHeight"
-        :item-height="THUMB_ITEM_HEIGHT"
-      >
-        <template #default="{ item, index }">
-          <div
-            class="thumbnail-item"
-            :class="{'active': index === activeIdx}"
-            @click="selectImage(index)"
-          >
-            <file-icon
-              class="thumb-img"
-              :md5="item.md5"
-              :file-name="item.name"
-              :dir="false"
-              :show-thumb="true"
-              :custom-thumbnail-url="thumbnailUrlGenerator && thumbnailUrlGenerator(item)"
-            />
-            <div class="thumbnail-title text-truncate">
-              {{ item.name }}
+      <!-- 内层容器：固定宽度，隐藏时向右滑出；外层负责收缩宽度释放空间 -->
+      <div class="thumbnail-sidebar-inner">
+        <VVirtualScroll
+          ref="barRef"
+          :items="fileList"
+          :item-key="itemKey"
+          :height="sidebarHeight"
+          :item-height="THUMB_ITEM_HEIGHT"
+        >
+          <template #default="{ item, index }">
+            <div
+              class="thumbnail-item"
+              :class="{'active': index === activeIdx}"
+              @click="selectImage(index)"
+            >
+              <file-icon
+                class="thumb-img"
+                :md5="item.md5"
+                :file-name="item.name"
+                :dir="false"
+                :show-thumb="true"
+                :custom-thumbnail-url="thumbnailUrlGenerator && thumbnailUrlGenerator(item)"
+              />
+              <div class="thumbnail-title text-truncate">
+                {{ item.name }}
+              </div>
             </div>
-          </div>
-        </template>
-      </VVirtualScroll>
+          </template>
+        </VVirtualScroll>
+      </div>
     </div>
   </div>
 </template>
@@ -499,21 +502,34 @@ export default { name: 'ImageViewer' }
     }
   }
 
-  // 左侧缩略图侧栏（纵向虚拟滚动）
+  // 右侧缩略图侧栏（纵向虚拟滚动）
   .thumbnail-sidebar {
+    --sidebar-width: 120px;
     position: relative;
     flex-shrink: 0;
-    width: 120px;
+    width: var(--sidebar-width);
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 6;
     overflow: hidden;
-    transition: all 0.3s ease-out;
+    // 隐藏时收缩宽度以释放 flex 空间，使主图可利用该区域
+    transition: width 0.3s ease-out;
 
     &.hide-list {
-      transform: translateX(-100%);
-      opacity: 0;
+      width: 0;
       pointer-events: none;
+    }
+
+    // 内层容器：固定宽度，隐藏时向右滑出（侧栏位于右侧，应向右过渡）
+    .thumbnail-sidebar-inner {
+      width: var(--sidebar-width);
+      height: 100%;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    &.hide-list .thumbnail-sidebar-inner {
+      transform: translateX(100%);
+      opacity: 0;
     }
 
     .thumbnail-item {
@@ -569,7 +585,7 @@ export default { name: 'ImageViewer' }
 
     // 平板宽度收窄侧栏
     @media screen and (max-width: 1024px) {
-      width: 96px;
+      --sidebar-width: 96px;
 
       .thumbnail-item {
         .thumb-img {
@@ -581,7 +597,7 @@ export default { name: 'ImageViewer' }
 
     // 手机宽度进一步收窄并隐藏文件名
     @media screen and (max-width: 640px) {
-      width: 72px;
+      --sidebar-width: 72px;
 
       .thumbnail-item {
         height: 80px;
