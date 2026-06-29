@@ -30,6 +30,7 @@
                       :key="child.id"
                       :prepend-icon="child.icon"
                       :title="child.title"
+                      :class="(child as any).class"
                       @click="child.action"
                     />
                   </v-list>
@@ -103,12 +104,14 @@
           <!-- 筛选组件：桌面端展开式面板，移动端底部弹出 -->
           <InvalidDataFilter
             :model-value="filterQueryProxy"
+            :type-options="typeOptions"
             :status-options="statusOptions"
             :provider-options="providerOptions"
             :types-name-map="typesNameMap"
             allow-groovy-script
             @apply="onFilterApply"
           />
+          <v-divider v-if="hasActiveFilters" class="mt-2" />
           <v-data-table-server
             ref="tableRef"
             v-model="selected"
@@ -210,13 +213,20 @@
       <!-- 桌面端右侧卡片 -->
       <v-card
         v-if="drawerItem && !isMobile"
-        class="ml-4"
+        class="ml-4 overflow-auto"
         style="width: 480px;"
         :style="{ maxHeight: mainCardHeight + 'px' }"
-        title="失效数据详情"
       >
+        <v-card-title class="d-flex justify-space-between align-center">
+          失效数据详情
+          <v-btn
+            variant="text"
+            icon="mdi-close"
+            density="comfortable"
+            @click="drawerItem = null"
+          />
+        </v-card-title>
         <v-card-text>
-          
           <InvalidDataDetail
             :item="drawerItem"
             :metadata-defines="drawerMetadataDefines"
@@ -247,7 +257,7 @@
         >
           <v-list density="comfortable">
             <template v-for="action in actionItems" :key="action.id">
-              <v-divider v-if="action.id === 'discard-all'" />
+              <v-divider v-if="action.id === 'one-click-group'" />
               <!-- 带子菜单的分组项 -->
               <v-list-group v-if="action.children" :value="action.id">
                 <template #activator="{ props: activatorProps, isOpen }">
@@ -268,6 +278,7 @@
                   :key="child.id"
                   :prepend-icon="child.icon"
                   :title="child.title"
+                  :class="(child as any).class"
                   :disabled="loading"
                   @click="child.action(); mobileMenuOpen = false"
                 />
@@ -286,18 +297,16 @@
       </v-fab>
     </VFadeTransition>
 
-    <!-- 详情侧边抽屉 -->
+    <!-- 移动端抽屉 -->
     <Teleport to="main">
-      
       <v-navigation-drawer
         v-model="drawerVisible"
         location="right"
         temporary
         width="560"
         :scrim="true"
-        style="z-index: 9999;"
       >
-        <v-card flat>
+        <v-card v-if="isMobile" flat class="overflow-auto">
           <v-card-title class="d-flex align-center justify-space-between">
             <span>失效数据详情</span>
             <v-btn
@@ -339,7 +348,7 @@
 import { computed, onMounted, ref, Teleport } from 'vue'
 import { useCheckIsMobile, getContext, JsonResult } from 'sfc-common'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
-import { useInvalidDataList, statusOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
+import { useInvalidDataList, statusOptions, typeOptions, headers, statusTitleMap } from '../composables/useInvalidDataList'
 import { useInvalidDataActions } from '../composables/useInvalidDataActions'
 import { DataManagerAPI } from '../api'
 import InvalidDataDetail from './InvalidDataDetail.vue'
@@ -384,13 +393,24 @@ const actionItems = computed(() => [
     showText: true,
     children: [
       { id: 'batch-claim', icon: 'mdi-account-multiple-plus', title: '按条件认领', action: handleBatchClaim },
+      { id: 'batch-revoke-claim-by-query', icon: 'mdi-account-remove', title: '按条件撤回认领', action: handleBatchRevokeClaimByQuery },
       { id: 'batch-publish-by-query', icon: 'mdi-publish', title: '按条件发布', action: handleBatchPublishByQuery },
       { id: 'batch-unpublish-by-query', icon: 'mdi-cancel', title: '按条件取消发布', action: handleBatchUnpublishByQuery },
       { id: 'batch-discard-by-query', icon: 'mdi-delete-outline', title: '按条件丢弃', action: handleBatchDiscardByQuery }
     ]
   },
-  { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll, showText: true },
-  { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, color: 'error', showText: true },
+  {
+    id: 'one-click-group',
+    icon: 'mdi-auto-fix',
+    title: '一键操作',
+    showText: true,
+    children: [
+      { id: 'quick-fix-all', icon: 'mdi-auto-fix', title: '一键修复', action: handleQuickFixAll },
+      { id: 'mark-claimed-completed', icon: 'mdi-check-all', title: '完成所有已认领', action: handleMarkClaimedCompleted },
+      { id: 'clean-completed', icon: 'mdi-delete-sweep', title: '清理已完成记录', action: handleCleanCompleted },
+      { id: 'discard-all', icon: 'mdi-delete-sweep-outline', title: '丢弃全部', action: handleDiscardAll, class: 'text-error' }
+    ]
+  },
   { id: 'refresh', icon: 'mdi-refresh', title: '刷新', action: doLoadList, showText: true }
 ])
 
@@ -422,12 +442,19 @@ const mainCardHeight = useHeightSync(() => mainCardRef.value.$el)
  * 使用 :model-value 单向传递，避免 v-model 双向绑定覆盖 query 的分页字段
  */
 const filterQueryProxy = computed<InvalidDataFilterValue>(() => ({
+  type: query.type,
   status: query.status,
   fileType: query.fileType,
   minFileSize: query.minFileSize,
   maxFileSize: query.maxFileSize,
   filterScript: query.filterScript
 }))
+
+/** 是否存在活跃的筛选条件，用于控制分隔线显示 */
+const hasActiveFilters = computed(() => {
+  const q = filterQueryProxy.value
+  return !!(q.type?.length || q.status?.length || q.fileType?.length || q.minFileSize != null || q.maxFileSize != null || q.filterScript)
+})
 
 /** 详情抽屉是否可见 */
 const drawerVisible = ref(false)
@@ -452,6 +479,8 @@ const {
   handleQuickFixAll,
   handleDiscard,
   handleDiscardAll,
+  handleMarkClaimedCompleted,
+  handleCleanCompleted,
   openClaimDialog
 } = useInvalidDataActions({ loading, loadList, selected })
 
@@ -570,7 +599,8 @@ const handleBatchClaim = () => {
   const inst = SfcUtils.openComponentDialog(BatchClaimDialog, {
     title: '批量认领',
     props: {
-      uid: getContext().session.value.user.id
+      uid: getContext().session.value.user.id,
+      defaultFilter: getQueryDefaultFilter()
     },
     extraDialogOptions: {
       confirmText: '预览结果',
@@ -632,6 +662,7 @@ const handleBatchClaim = () => {
 
 /** 从当前列表筛选条件中提取非 status 的字段，用于 BatchByQueryForm 的默认值 */
 const getQueryDefaultFilter = () => ({
+  type: query.type,
   fileType: query.fileType,
   minFileSize: query.minFileSize,
   maxFileSize: query.maxFileSize,
@@ -741,6 +772,38 @@ const handleBatchDiscardByQuery = () => {
   })
 }
 
+/**
+ * 打开按条件批量撤回认领对话框
+ * 用户配置筛选条件后，点击确认直接执行批量撤回认领操作
+ */
+const handleBatchRevokeClaimByQuery = () => {
+  const inst = SfcUtils.openComponentDialog(BatchByQueryForm, {
+    title: '按条件批量撤回认领',
+    props: {
+      operationType: 'revokeClaim',
+      defaultFilter: getQueryDefaultFilter()
+    },
+    extraDialogOptions: {
+      maxWidth: '800px'
+    },
+    async onConfirm() {
+      const form = inst.getInstAsForm()
+      const ret = await SfcUtils.loadingDialogTask({msg: '执行中...'}, async() => await form.submit({ showError: false }))
+      if (ret.success) {
+        const batchResult = (ret.data as AxiosResponse<JsonResult<BatchResult>>).data.data
+        if (batchResult) {
+          SfcUtils.snackbar(`撤回认领成功：${batchResult.success || 0}，失败：${batchResult.fail || 0}`)
+        } else {
+          SfcUtils.snackbar('撤回认领操作已完成')
+        }
+        doLoadList()
+        return true
+      }
+      return false
+    }
+  })
+}
+
 /** 状态标签颜色映射 */
 const statusChipColor: Record<string, string> = {
   PENDING: 'warning',
@@ -796,6 +859,7 @@ const drawerMetadataDefines = computed((): FileMetadataDefine[] => {
  * @param value 用户选定的筛选条件
  */
 const onFilterApply = async(value: InvalidDataFilterValue) => {
+  query.type = value.type
   query.status = value.status
   query.fileType = value.fileType
   query.minFileSize = value.minFileSize

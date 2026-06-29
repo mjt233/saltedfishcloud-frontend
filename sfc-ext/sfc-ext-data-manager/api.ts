@@ -200,6 +200,19 @@ export namespace DataManagerAPI {
   }
 
   /**
+   * 按条件批量撤回认领
+   * 根据筛选条件匹配并撤回已认领的失效数据
+   * @param query 筛选条件
+   */
+  export function batchRevokeClaimByQuery(query: InvalidDataQuery): CommonRequest<BatchResult> {
+    return useJsonBody({
+      url: `${baseUrl}/batchRevokeClaim/byQuery`,
+      method: 'post',
+      data: query
+    })
+  }
+
+  /**
    * 标记处理完成
    */
   export function markCompleted(id: IdType): CommonRequest<void> {
@@ -274,5 +287,25 @@ export namespace DataManagerAPI {
       method: 'post',
       data: param
     })
+  }
+
+  /**
+   * 将所有已认领的失效数据标记为已完成
+   */
+  export function markClaimedCompleted(): CommonRequest<any> {
+    return {
+      url: `${baseUrl}/markClaimedCompleted`,
+      method: 'post'
+    }
+  }
+
+  /**
+   * 清理所有已完成处理的失效数据记录
+   */
+  export function cleanCompleted(): CommonRequest<any> {
+    return {
+      url: `${baseUrl}/cleanCompleted`,
+      method: 'post'
+    }
   }
 }

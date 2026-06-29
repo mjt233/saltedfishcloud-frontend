@@ -3,6 +3,7 @@
     <!-- 筛选条件 -->
     <InvalidDataFilter
       :model-value="filterValue"
+      :type-options="typeOptions"
       :status-options="statusOptions"
       :provider-options="providerOptions"
       :types-name-map="typesNameMap"
@@ -57,7 +58,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive } from 'vue'
 import { getContext } from 'sfc-common'
-import { useInvalidDataList, statusOptions } from '../composables/useInvalidDataList'
+import { useInvalidDataList, statusOptions, typeOptions } from '../composables/useInvalidDataList'
 import InvalidDataFilter from './InvalidDataFilter.vue'
 import InvalidDataFilterGroovyEditor from './InvalidDataFilterGroovyEditor.vue'
 import type { IdType } from 'sfc-common/model'
@@ -69,6 +70,8 @@ const PathSelector = window.Components.PathSelector
 const props = defineProps<{
 /** 当前操作用户ID */
   uid: IdType
+/** 额外的默认筛选条件（不包含status），可传入 type、fileType、minFileSize、maxFileSize、filterScript 等 */
+  defaultFilter?: Partial<Pick<InvalidDataFilterValue, 'type' | 'fileType' | 'minFileSize' | 'maxFileSize' | 'filterScript'>>
 }>()
 
 /** 筛选组件所需的 provider 数据 */
@@ -80,7 +83,12 @@ const {
 
 /** 当前筛选条件 */
 const filterValue = reactive<InvalidDataFilterValue>({
-  status: ['PENDING', 'PUBLISHED']
+  status: ['PENDING', 'PUBLISHED'],
+  type: props.defaultFilter?.type,
+  fileType: props.defaultFilter?.fileType,
+  minFileSize: props.defaultFilter?.minFileSize,
+  maxFileSize: props.defaultFilter?.maxFileSize,
+  filterScript: props.defaultFilter?.filterScript
 })
 
 /** 目标网盘候选项 */
@@ -111,6 +119,7 @@ const formData = reactive({
  */
 const onFilterApply = (value: InvalidDataFilterValue) => {
   filterValue.status = value.status
+  filterValue.type = value.type
   filterValue.fileType = value.fileType
   filterValue.minFileSize = value.minFileSize
   filterValue.maxFileSize = value.maxFileSize
@@ -158,6 +167,7 @@ const openScriptEditor = () => {
 const getBatchClaimParam = (): BatchClaimParam => {
   // 构造筛选查询参数（文件大小从 MiB 转为字节）
   const query: BatchClaimParam['query'] = {
+    type: filterValue.type,
     status: filterValue.status,
     fileType: filterValue.fileType,
     minFileSize: filterValue.minFileSize != null ? filterValue.minFileSize * 1024 * 1024 : undefined,

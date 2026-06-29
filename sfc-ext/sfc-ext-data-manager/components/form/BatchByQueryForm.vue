@@ -6,6 +6,7 @@
       </p>
       <InvalidDataFilter
         :model-value="formData.filterValue"
+        :type-options="typeOptions"
         :status-options="statusOptions"
         :provider-options="providerOptions"
         :types-name-map="typesNameMap"
@@ -20,7 +21,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, Ref } from 'vue'
 import { CommonForm, defineForm } from 'sfc-common'
-import { useInvalidDataList, statusOptions } from '../../composables/useInvalidDataList'
+import { useInvalidDataList, statusOptions, typeOptions } from '../../composables/useInvalidDataList'
 import { DataManagerAPI } from '../../api'
 import InvalidDataFilter from '../InvalidDataFilter.vue'
 import type { InvalidDataFilterValue, InvalidDataQuery } from '../../model'
@@ -29,7 +30,7 @@ const SfcUtils = window.SfcUtils
 const formRef = ref() as Ref<CommonForm>
 
 /**
- * 批量丢弃/发布/取消发布表单组件 props
+ * 批量丢弃/发布/取消发布/撤回认领表单组件 props
  */
 const props = defineProps({
   /**
@@ -37,18 +38,19 @@ const props = defineProps({
    * - `discard`: 按条件批量丢弃
    * - `publish`: 按条件批量发布为可认领
    * - `unpublish`: 按条件批量取消发布
+   * - `revokeClaim`: 按条件批量撤回认领
    */
   operationType: {
-    type: String as PropType<'discard' | 'publish' | 'unpublish'>,
+    type: String as PropType<'discard' | 'publish' | 'unpublish' | 'revokeClaim'>,
     required: true
   },
   /**
    * 额外的默认筛选条件（不包含status）。
    * 与操作类型预设的状态合并，预设的状态优先，不会被此值覆盖。
-   * 可传入 fileType、minFileSize、maxFileSize、filterScript 等。
+   * 可传入 type、fileType、minFileSize、maxFileSize、filterScript 等。
    */
   defaultFilter: {
-    type: Object as PropType<Partial<Pick<InvalidDataFilterValue, 'fileType' | 'minFileSize' | 'maxFileSize' | 'filterScript'>>>,
+    type: Object as PropType<Partial<Pick<InvalidDataFilterValue, 'type' | 'fileType' | 'minFileSize' | 'maxFileSize' | 'filterScript'>>>,
     default: () => ({})
   }
 })
@@ -64,6 +66,9 @@ const operationTitle = computed(() => {
   if (props.operationType === 'unpublish') {
     return '批量取消发布'
   }
+  if (props.operationType === 'revokeClaim') {
+    return '批量撤回认领'
+  }
   return ''
 })
 
@@ -75,6 +80,8 @@ const getPresetStatus = (): InvalidDataFilterValue['status'] => {
     return ['PENDING']
   case 'unpublish':
     return ['PUBLISHED']
+  case 'revokeClaim':
+    return ['CLAIMED']
   }
 }
 
@@ -91,6 +98,7 @@ const {
  */
 const buildInitialFilterValue = (): InvalidDataFilterValue => ({
   status: getPresetStatus(),
+  type: props.defaultFilter.type,
   fileType: props.defaultFilter.fileType,
   minFileSize: props.defaultFilter.minFileSize,
   maxFileSize: props.defaultFilter.maxFileSize,
@@ -107,6 +115,7 @@ const formInst = defineForm({
       const fv = formData.filterValue
       // 构造请求参数，文件大小从 MiB 转为字节
       const query: InvalidDataQuery = {
+        type: fv.type,
         status: fv.status,
         fileType: fv.fileType,
         minFileSize: fv.minFileSize != null ? Math.floor(fv.minFileSize * 1024 * 1024) : undefined,
@@ -120,6 +129,8 @@ const formInst = defineForm({
         return await SfcUtils.request(DataManagerAPI.publishByQuery(query))
       case 'unpublish':
         return await SfcUtils.request(DataManagerAPI.unpublishByQuery(query))
+      case 'revokeClaim':
+        return await SfcUtils.request(DataManagerAPI.batchRevokeClaimByQuery(query))
       }
     }
   },
@@ -141,6 +152,7 @@ const { formData, actions } = formInst
  */
 const onFilterApply = (value: InvalidDataFilterValue) => {
   formData.filterValue.status = value.status
+  formData.filterValue.type = value.type
   formData.filterValue.fileType = value.fileType
   formData.filterValue.minFileSize = value.minFileSize
   formData.filterValue.maxFileSize = value.maxFileSize

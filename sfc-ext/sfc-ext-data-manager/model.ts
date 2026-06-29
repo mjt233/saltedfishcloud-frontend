@@ -1,4 +1,4 @@
-import type { IdType } from 'sfc-common/model'
+import type { AuditModel, IdType } from 'sfc-common/model'
 
 /**
  * 失效数据记录状态枚举
@@ -24,6 +24,12 @@ export interface FileTypeCheckResultDetail {
 }
 
 /**
+ * 失效数据类型
+ * - `FILE_RECORD`: 存储丢失，数据库中有记录但存储中无对应文件
+ * - `PHYSICAL_STORAGE`: 文件记录丢失，存储中有文件但数据库中无对应记录
+ */
+export type InvalidDataRecordType = 'FILE_RECORD' | 'PHYSICAL_STORAGE'
+/**
  * 失效数据记录
  * 表示一条存储系统中检测到的失效数据条目，包含文件元数据、存储信息及处理状态
  */
@@ -39,7 +45,7 @@ export interface InvalidDataRecord {
    * - `FILE_RECORD`: 存储丢失，数据库中有记录但存储中无对应文件
    * - `PHYSICAL_STORAGE`: 文件记录丢失，存储中有文件但数据库中无对应记录
    */
-  type: 'FILE_RECORD' | 'PHYSICAL_STORAGE'
+  type: InvalidDataRecordType
   /**
    * 文件存储模式
    * - `RAW`: 原始存储，文件按原始路径存储
@@ -117,7 +123,7 @@ export interface ClaimParam {
  * 认领记录
  * 记录用户对失效数据的认领操作历史
  */
-export interface ClaimRecord {
+export interface ClaimRecord extends AuditModel {
   /** 认领记录唯一标识 */
   id: IdType
   /** 认领操作时间（ISO 8601格式） */
@@ -132,6 +138,8 @@ export interface ClaimRecord {
   fileName: string
   /** 认领后的保存路径 */
   savePath: string
+  /** 是否已被管理员撤回 */
+  isRevoked?: boolean
 }
 
 /**
@@ -173,6 +181,8 @@ export interface FileTypeProviderInfo {
  * 且文件大小以 MiB 为单位（UI 展示用），在发送请求时由 composable 转为字节。
  */
 export interface InvalidDataFilterValue {
+  /** 按失效数据类型筛选（支持多选），对应 {@link InvalidDataRecordType} */
+  type?: InvalidDataRecordType[]
   /** 按状态筛选（支持多选），对应 {@link InvalidDataRecordStatus} */
   status?: InvalidDataRecordStatus[]
   /** 按文件类型筛选（支持多选），值为 {@link FileTypeProviderInfo.typeId} */
@@ -190,6 +200,8 @@ export interface InvalidDataFilterValue {
  * 用于查询失效数据列表时的筛选条件
  */
 export interface InvalidDataQuery {
+  /** 按失效数据类型筛选 */
+  type?: InvalidDataRecordType[]
   /** 按状态筛选（支持多选） */
   status?: InvalidDataRecordStatus[]
   /** 按所有者用户ID筛选 */

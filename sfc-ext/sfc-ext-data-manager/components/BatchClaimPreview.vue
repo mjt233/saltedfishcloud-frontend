@@ -57,7 +57,7 @@ const execute = async(): Promise<boolean> => {
   try {
     const res = await SfcUtils.loadingDialogTask({ msg: '正在执行批量认领...' }, async() => SfcUtils.request(DataManagerAPI.executeBatchClaim(props.batchClaimParam)))
     const result = res.data.data
-    SfcUtils.snackbar(`批量认领完成：成功 ${result.successCount} 条，失败 ${result.failCount} 条`)
+    SfcUtils.snackbar(`批量认领完成：成功 ${result.success} 条，失败 ${result.fail} 条`)
     return true
   } catch (e: unknown) {
     const errMsg = e instanceof Error ? e.message : String(e)
