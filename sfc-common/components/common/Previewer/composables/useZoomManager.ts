@@ -76,7 +76,7 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     const { clientHeight: containerHeight, clientWidth: containerWidth } = containerRef.value
     
     // 全屏模式下不要留出底部工具栏空间
-    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 0)
+    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 70, 0)
     
     const imgWidth = parseFloat(width), imgHeight = parseFloat(height)
     showPosition.top = (usableHeight - imgHeight) / 2 + 'px'
@@ -93,7 +93,7 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     const { clientHeight: containerHeight, clientWidth: containerWidth } = containerRef.value
 
     // 全屏模式下不要留出底部工具栏空间
-    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 100)
+    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 70, 100)
 
     const xRatio = containerWidth / imgWidth * 100
     const yRatio = usableHeight / imgHeight * 100

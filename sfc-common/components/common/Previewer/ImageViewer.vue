@@ -268,8 +268,9 @@ const mouseScrollHandler = (e: WheelEvent) => {
  * 滚动缩略图侧栏使当前预览项居中可见。
  * 使用虚拟滚动后仅渲染可视区域，按 index * itemHeight 计算 scrollTop，
  * 无需访问每个 item 的 DOM，避免大量节点时的卡顿。
+ * @param smooth 是否使用平滑滚动动画。初始化定位时应为 false，避免沿途缩略图被加载导致服务器压力。
  */
-const scrollToActiveThumb = () => {
+const scrollToActiveThumb = (smooth = true) => {
   const inst = barRef.value
   if (!inst) return
   // VVirtualScroll 的滚动容器为其根 $el
@@ -280,16 +281,22 @@ const scrollToActiveThumb = () => {
   const centerOffset = (scrollEl.clientHeight - THUMB_ITEM_HEIGHT) / 2
   scrollEl.scrollTo({
     top: Math.max(0, targetTop - centerOffset),
-    behavior: 'smooth'
+    behavior: smooth ? 'smooth' : undefined
   })
 }
+
+// 标记组件是否已完成初始化（首次 activeIdx 定位），
+// 初始化完成前 watch 回调不触发滚动动画，由 onMounted 中的 scrollToActiveThumb(false) 统一处理
+let initialized = false
 
 watch(() => activeIdx.value, async() => {
   noTransition.value = true
   showMainImg.value = false
   await nextTick()
   showMainImg.value = true
-  setTimeout(scrollToActiveThumb, 50)
+  if (initialized) {
+    setTimeout(() => scrollToActiveThumb(true), 50)
+  }
 }, { immediate: true })
 
 
@@ -308,13 +315,16 @@ const handleFullscreenChange = () => {
   }, 200)
 }
 
-onMounted(() => {
+onMounted(async() => {
   activeIdx.value = props.imageIndex
   document.addEventListener('fullscreenchange', handleFullscreenChange)
-  // 等待侧栏高度测量与虚拟滚动挂载后，显式滚动到初始预览项
-  nextTick(() => {
-    scrollToActiveThumb()
-  })
+  // 等待侧栏高度测量与虚拟滚动挂载后，显式滚动到初始预览项（无动画，避免沿途缩略图被加载）
+  await nextTick()
+  // 标记初始化完成，后续 activeIdx 变更走平滑滚动动画
+  setTimeout(() => {
+    scrollToActiveThumb(false)
+    initialized = true
+  }, 200)
 })
 
 onUnmounted(() => {
