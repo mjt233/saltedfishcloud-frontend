@@ -203,6 +203,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useCheckIsMobile } from 'sfc-common'
 import type { InvalidDataFilterValue } from '../model'
 import InvalidDataFilterGroovyEditor from './InvalidDataFilterGroovyEditor.vue'
+import { GroovyFilterExample } from '../codeExample/invalidDataScriptExample'
 
 /** 是否为移动端窄屏 */
 const isMobile = useCheckIsMobile()
@@ -606,6 +607,7 @@ const openScriptEditor = () => {
   const dialogInst = SfcUtils.openComponentDialog(InvalidDataFilterGroovyEditor, {
     props: {
       modelValue: draft.filterScript || '',
+      codeExamples: GroovyFilterExample,
       style: { height: '60vh' },
       placeholder: `脚本中通过 record 访问每条记录，末行表达式为 true 时保留该记录
 示例: 

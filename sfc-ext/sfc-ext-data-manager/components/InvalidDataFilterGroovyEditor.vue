@@ -62,6 +62,30 @@
       </v-expansion-panel>
     </v-expansion-panels>
 
+    <!-- 代码样例快捷插入 -->
+    <div v-if="codeExamples && codeExamples.length > 0" class="d-flex flex-wrap ga-1 mb-2">
+      <v-tooltip
+        v-for="example in codeExamples"
+        :key="example.id"
+        location="top"
+      >
+        <template #activator="{ props: tooltipProps }">
+          <v-chip
+            title="点击自动插入代码"
+            v-bind="tooltipProps"
+            size="small"
+            variant="tonal"
+            color="primary"
+            prepend-icon="mdi-code-tags"
+            @click="insertExample(example.content)"
+          >
+            {{ example.label }}
+          </v-chip>
+        </template>
+        <pre class="ma-0 text-caption" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; max-width: 500px;"><code>{{ example.content }}</code></pre>
+      </v-tooltip>
+    </div>
+
     <!-- 代码编辑器 -->
     <CodeEditor
       ref="editorRef"
@@ -76,6 +100,7 @@
 import { reactive, ref } from 'vue'
 import { provideGroovyCompletions, variables, DEFAULT_COLUMNS } from '../groovy-completions'
 import type { CodeEditorModel } from 'sfc-common/model/component/CodeEditorModel'
+import type { CodeExample } from '../codeExample/type'
 
 /** 各变量字段表格的展开状态，key 为变量名，默认全部收起 */
 const expandedVars = reactive<Record<string, boolean>>({})
@@ -83,12 +108,27 @@ const expandedVars = reactive<Record<string, boolean>>({})
 /** 编辑器组件实例引用 */
 const editorRef = ref<CodeEditorModel>()
 
+const props = defineProps<{
+  /**
+   * 可快捷插入的代码样例数组。
+   * 提供后会在编辑器上方渲染一排快捷插入按钮，点击后将样例代码插入到编辑器当前光标处。
+   */
+  codeExamples?: CodeExample[]
+}>()
+
 /**
  * 获取 Monaco 编辑器实例
  * @returns Monaco IStandaloneCodeEditor 实例
  */
 const getEditor = () => editorRef.value?.getEditor()
 
+/**
+ * 将指定的代码内容插入到编辑器当前光标位置
+ * @param content 待插入的代码内容
+ */
+const insertExample = (content: string) => {
+  editorRef.value?.insertText(content)
+}
 
 defineExpose({ getEditor })
 </script>
