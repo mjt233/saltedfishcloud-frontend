@@ -8,6 +8,7 @@
       :provider-options="providerOptions"
       :types-name-map="typesNameMap"
       allow-groovy-script
+      default-expanded
       @apply="onFilterApply"
     />
 
