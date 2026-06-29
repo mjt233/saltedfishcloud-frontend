@@ -40,14 +40,14 @@ const fetchContent = async(url: string) => {
  */
 const fetchPluginAutoLoadResource = async(): Promise<ExtensionInfo[]> => {
   return [
-    {
-      name: 'autoLoad.js',
-      type: 'static',
-      resource: {
-        js: [SfcUtils.getApiUrl(API.sys.getMergeAutoLoadResource('js'))],
-        css: [SfcUtils.getApiUrl(API.sys.getMergeAutoLoadResource('css'))]
-      }
-    }
+    // {
+    //   name: 'autoLoad.js',
+    //   type: 'static',
+    //   resource: {
+    //     js: [SfcUtils.getApiUrl(API.sys.getMergeAutoLoadResource('js'))],
+    //     css: [SfcUtils.getApiUrl(API.sys.getMergeAutoLoadResource('css'))]
+    //   }
+    // }
   ]
   // return (await SfcUtils.request(API.sys.listPluginAutoLoadList())).data.data.map(plugin => {
   //   return {
