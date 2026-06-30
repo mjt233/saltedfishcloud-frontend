@@ -14,9 +14,10 @@ export interface Comment extends AuditModel {
   replyId: IdType
 
   /**
-   * 发送者ip地址
+   * 发送者ip地址。如果为 null 则表示管理员未开启IP地址显示。
+   * 可能包含遮掩字符*（管理员配置）
    */
-  ip: string
+  ip: string | null
 
   /**
    * 评论内容
