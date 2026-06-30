@@ -8,8 +8,10 @@
         {{ comment.username || '[游客]' }}
       </div>
       <div>{{ comment.content }}</div>
-      <div v-if="comment.ip" class="tip footer">
-        ip {{ comment.ip || 'null' }} 发布于 {{ date }}
+      <div class="tip footer">
+        <template v-if="comment.ip">
+          ip {{ comment.ip || 'null' }}
+        </template> 发布于 {{ date }}
       </div>
     </div>
   </div>
