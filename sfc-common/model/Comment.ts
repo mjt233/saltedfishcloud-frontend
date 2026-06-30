@@ -9,9 +9,15 @@ export interface Comment extends AuditModel {
   topicId: IdType
 
   /**
-   * 回复id
+   * 根评论ID。回复的 replyId 始终指向话题下的根评论ID；
+   * 话题下的评论（非回复）的 replyId 为 null。
    */
   replyId: IdType
+
+  /**
+   * 被回复人的用户ID（仅回复有效，根评论为 null）
+   */
+  replyUid?: IdType | null
 
   /**
    * 发送者ip地址。如果为 null 则表示管理员未开启IP地址显示。
@@ -32,12 +38,12 @@ export interface Comment extends AuditModel {
   username?: string
 
   /**
-   * 回复列表
+   * 根评论的回复数量（仅 listByTopicId 查询根评论时有值）
    */
-  replies?: Comment[]
+  replyCount?: number
 
   /**
-   * 被回复评论的发送者用户名
+   * 被回复人用户名（仅回复有值，通过 replyUid 解析）
    */
   replyUsername?: string
 }
