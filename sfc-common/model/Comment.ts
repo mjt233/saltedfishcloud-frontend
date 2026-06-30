@@ -30,4 +30,14 @@ export interface Comment extends AuditModel {
   isDelete: number
 
   username?: string
+
+  /**
+   * 回复列表
+   */
+  replies?: Comment[]
+
+  /**
+   * 被回复评论的发送者用户名
+   */
+  replyUsername?: string
 }

@@ -20,14 +20,17 @@ const comment = {
     }
   },
   /**
-   * 发送系统留言
+   * 发送公共留言
    * @param content 内容
+   * @param replyId 回复的评论id（可选）
    */
-  sendAnonymousComment(content: string): CommonRequest {
+  sendPublicComment(content: string, replyId?: IdType): CommonRequest {
     return useJsonBody({
-      url: `${this.prefix}/sendAnonymousComment`,
+      url: `${this.prefix}/sendPublicComment`,
       data: {
-        content
+        content,
+        replyId: replyId ?? null,
+        topicId: 0
       },
       method: 'post'
     })
