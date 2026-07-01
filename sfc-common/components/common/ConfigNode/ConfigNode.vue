@@ -36,6 +36,19 @@
           @update:model-value="nodeValue = $event;updateValue(nodeValue)"
         />
       </template>
+      <template v-if="node.inputType == 'textarea'">
+        <v-textarea
+          variant="solo"
+          :rules="validators"
+          :model-value="nodeValue"
+          :readonly="node.readonly || readOnly"
+          :placeholder="node.describe"
+          :hide-details="dense"
+          :label="useInnerLabel ? (node.title || node.name) : undefined"
+          :class="{'no-margin no-padding': dense && !useVuetifyNativeLayout, 'config-simple-input': !useVuetifyNativeLayout}"
+          @update:model-value="nodeValue = $event;updateValue(nodeValue)"
+        />
+      </template>
       <template v-if="node.inputType == 'select'">
         <form-select
           v-model="nodeValue"
