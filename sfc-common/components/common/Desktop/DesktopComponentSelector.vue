@@ -27,6 +27,13 @@
 </template>
 
 <script setup lang="ts">
+const props = defineProps({
+  /** 桌面所属用户ID，0表示公共桌面，非0表示我的桌面 */
+  uid: {
+    type: [String, Number],
+    default: 0
+  }
+})
 const loadingManager = new LoadingManager()
 const loading = loadingManager.getLoadingRef()
 const emits = defineEmits(['select'])
@@ -34,7 +41,17 @@ const componentList = ref([]) as Ref<DesktopComponent[]>
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
     const ret = (await SfcUtils.request(API.desktop.listAllComponent())).data.data
-    componentList.value = ret
+    // 根据 scope 字段过滤：uid=0（公共桌面）只显示 scope 为 'public' 或 'all' 的组件；
+    // uid!=0（我的桌面）只显示 scope 为 'private' 或 'all' 的组件；scope 为 null/undefined 时视为 'all'
+    const isPublic = props.uid === 0 || props.uid === '0'
+    componentList.value = ret.filter((item: DesktopComponent) => {
+      const scope = item.scope ?? 'all'
+      if (isPublic) {
+        return scope === 'public' || scope === 'all'
+      } else {
+        return scope === 'private' || scope === 'all'
+      }
+    })
   }
 },false,loadingManager)
 onMounted(actions.loadList)

@@ -1,5 +1,6 @@
 import { AuditModel, ConfigNodeModel, IdType } from './Common'
 
+export type DesktopComponentScope = 'private' | 'public' | 'all' | null
 export interface DesktopComponent extends AuditModel {
 
   /** 组件描述标题 */
@@ -18,7 +19,16 @@ export interface DesktopComponent extends AuditModel {
   icon: string
  
   /** 显示顺序 */
-  showOrder: number 
+  showOrder: number
+
+  /**
+   * 该桌面组件的生效范围
+   * - 'public': 仅公共桌面（uid=0）可用
+   * - 'private': 仅我的桌面（uid≠0）可用
+   * - 'all': 两者皆可用
+   * - null/undefined: 视为 'all'
+   */
+  scope?: DesktopComponentScope
 }
 
 export interface DesktopComponentConfig extends AuditModel {
