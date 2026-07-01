@@ -5,22 +5,41 @@
     <!-- 评论列表 -->
     <div class="message-area">
       <VList v-if="commentList.length > 0" class="comment-list">
-        <VListItem
-          v-for="comment in commentList"
-          :key="comment.id"
-          class="comment-item"
-        >
-          <!-- 根评论 -->
-          <CommentMessage :comment="comment" :can-send="canSend" @reply="handleReply" />
+        <VInfiniteScroll @load="onInfiniteLoad">
+          <VListItem
+            v-for="comment in commentList"
+            :key="comment.id"
+            class="comment-item"
+          >
+            <!-- 根评论 -->
+            <CommentMessage :comment="comment" :can-send="canSend" @reply="handleReply" />
 
-          <!-- 回复区域 -->
-          <CommentReply
-            :ref="(el: any) => setReplyRef(comment.id, el)"
-            :root-comment="comment"
-            :can-send="canSend"
-            @reply="handleReply"
-          />
-        </VListItem>
+            <!-- 回复区域 -->
+            <CommentReply
+              :ref="(el: any) => setReplyRef(comment.id, el)"
+              :root-comment="comment"
+              :can-send="canSend"
+              @reply="handleReply"
+            />
+          </VListItem>
+
+          <!-- 底部加载/空状态由 VInfiniteScroll 自动管理 -->
+          <template #loading>
+            <div class="text-center pa-2">
+              <VProgressCircular
+                indeterminate
+                size="20"
+                width="2"
+                color="primary"
+              />
+            </div>
+          </template>
+          <template #empty>
+            <div class="text-center text-caption text-medium-emphasis pa-2">
+              没有更多了~
+            </div>
+          </template>
+        </VInfiniteScroll>
       </VList>
 
       <!-- 空状态 -->
@@ -113,6 +132,37 @@ const commentList = ref<CommentVo[]>([])
 /** CommentReply 组件引用映射（key 为根评论 id） */
 const replyRefs = new Map<IdType, any>()
 
+// ---- 滚动加载分页状态 ----
+/** 当前已加载的页码（0-based），-1 表示尚未加载过 */
+const currentPage = ref(-1)
+/** 总页数 */
+const totalPage = ref(0)
+/** VInfiniteScroll 组件引用，用于发送后重置加载状态 */
+const infiniteScrollRef = ref<any>(null)
+
+/**
+ * VInfiniteScroll 滚动加载回调
+ * @param done 完成回调，传入 'ok' | 'empty' | 'error'
+ */
+async function onInfiniteLoad({ done }: { done: (status: 'ok' | 'empty' | 'error') => void }) {
+  if (currentPage.value >= totalPage.value - 1) {
+    done('empty')
+    return
+  }
+  try {
+    const nextPage = currentPage.value + 1
+    const res = (await SfcUtils.request(API.comment.listByTopicId(props.topicId, nextPage))).data.data
+    res.content.forEach(e => {
+      commentList.value.push(e)
+    })
+    currentPage.value = nextPage
+    totalPage.value = res.totalPage
+    done('ok')
+  } catch {
+    done('error')
+  }
+}
+
 /**
  * 设置 CommentReply 组件引用
  * @param id 根评论 id
@@ -141,12 +191,16 @@ const cancelReply = () => {
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadData(page?: number, append?: boolean) {
-    const list = (await SfcUtils.request(API.comment.listByTopicId(props.topicId, page))).data.data.content
+    const res = (await SfcUtils.request(API.comment.listByTopicId(props.topicId, page))).data.data
+    const list = res.content
     if (append) {
       list.forEach(e => {
         commentList.value.push(e)
       })
     }
+    // 更新分页状态
+    currentPage.value = page ?? 0
+    totalPage.value = res.totalPage
     return list
   },
   async send() {
@@ -195,6 +249,7 @@ const keyupHandler = (e: KeyboardEvent) => {
     actions.send()
   }
 }
+
 onMounted(() => {
   actions.loadData(0, true)
 })

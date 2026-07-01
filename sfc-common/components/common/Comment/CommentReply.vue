@@ -2,7 +2,7 @@
   <!-- 回复区域 -->
   <div class="replies-section">
     <!-- 未展开：显示提示 -->
-    <div v-if="!state.expanded" class="reply-toggle-area">
+    <div v-if="!state.expanded && rootComment.replyCount != 0" class="reply-toggle-area">
       <VBtn
         variant="text"
         density="compact"
