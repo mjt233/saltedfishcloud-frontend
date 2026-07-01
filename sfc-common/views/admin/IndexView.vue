@@ -223,13 +223,13 @@ const initMenu = async() => {
           id: g.name,
           title: g.title,
           action(ctx) {
-            ctx.component = h(ConfigNodeGroupVue, reactive({
-              items: g.nodes,
-              onNodeChange(changeInfo: NameValueType) {
+            ctx.component = h(AdminConfigNodeGroup, {
+              items: g.nodes ?? [],
+              onChange(changeInfo: NameValueType) {
                 nodeMap[changeInfo.name].value = changeInfo.value
                 updateHideConfirm()
               }
-            }))
+            })
           }
         })
       })
@@ -423,7 +423,7 @@ import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import API from 'sfc-common/api'
-import ConfigNodeGroupVue from 'sfc-common/components/common/ConfigNode/ConfigNodeGroup.vue'
+import AdminConfigNodeGroup from 'sfc-common/components/common/Admin/AdminConfigNodeGroup.vue'
 import { ConfigNodeModel, NameValueType } from 'sfc-common/model'
 import ConfigNodeChangeListVue from 'sfc-common/components/common/ConfigNode/ConfigNodeChangeList.vue'
 import { EventNameConstants } from 'sfc-common/core/constans/EventName'
