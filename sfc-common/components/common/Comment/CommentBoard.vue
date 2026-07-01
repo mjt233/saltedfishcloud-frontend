@@ -5,13 +5,22 @@
     <!-- 评论列表 -->
     <div class="message-area">
       <VList v-if="commentList.length > 0" class="comment-list">
-        <CommentReply
+        <VListItem
           v-for="comment in commentList"
           :key="comment.id"
-          :root-comment="comment"
-          :can-send="canSend"
-          @reply="handleReply"
-        />
+          class="comment-item"
+        >
+          <!-- 根评论 -->
+          <CommentMessage :comment="comment" :can-send="canSend" @reply="handleReply" />
+
+          <!-- 回复区域 -->
+          <CommentReply
+            v-if="comment.replyCount && comment.replyCount > 0"
+            :root-comment="comment"
+            :can-send="canSend"
+            @reply="handleReply"
+          />
+        </VListItem>
       </VList>
 
       <!-- 空状态 -->
@@ -170,6 +179,8 @@ import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
+import CommentMessage from './CommentMessage.vue'
+import CommentReply from './CommentReply.vue'
 
 export default defineComponent({
   name: 'CommentBoard'
@@ -190,6 +201,11 @@ export default defineComponent({
 .comment-list {
   background: transparent !important;
   padding: 0;
+}
+
+.comment-item {
+  padding: 0;
+  border-bottom: none;
 }
 
 .send-area {
