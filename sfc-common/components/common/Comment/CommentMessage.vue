@@ -1,38 +1,83 @@
 <template>
-  <div>
-    <div class="comment-msg d-flex">
-      <div class="d-flex justify-center">
-        <div><UserAvatar style="margin: 3px 6px" :uid="comment.uid" /></div>
+  <VCard
+    class="comment-card"
+    variant="text"
+    :ripple="false"
+  >
+    <div class="comment-body d-flex">
+      <!-- 头像区域 -->
+      <div class="avatar-col">
+        <UserAvatar :uid="comment.uid" :size="36" />
       </div>
-      <div style="padding: 3px;width: 100%">
-        <div class="tip">
-          {{ comment.username || '[游客]' }}
+
+      <!-- 内容区域 -->
+      <div class="content-col">
+        <!-- 用户名 + 元信息 -->
+        <div class="d-flex align-center flex-wrap ga-1 mb-1">
+          <span class="text-body-2 font-weight-medium text-high-emphasis">
+            {{ comment.username || '[游客]' }}
+          </span>
+          <span v-if="comment.ip" class="text-caption text-medium-emphasis">
+            · {{ comment.ip }}
+          </span>
+          <span class="text-caption text-medium-emphasis">· {{ date }}</span>
         </div>
-        <div class="content-area">
-          <template v-if="comment.replyUsername">
-            <span class="reply-tip">回复 @{{ comment.replyUsername }}：</span>
-          </template>
-          <!-- 内容超长时截断显示 -->
+
+        <!-- 回复提示 -->
+        <div v-if="comment.replyUsername" class="text-caption text-medium-emphasis mb-1">
+          <VIcon size="14" class="mr-1" color="medium-emphasis">
+            mdi-reply
+          </VIcon>
+          回复 @{{ comment.replyUsername }}
+        </div>
+
+        <!-- 评论正文（含截断） -->
+        <div class="comment-text text-body-2">
           <template v-if="isLongContent && !expanded">
             <span>{{ truncatedContent }}...</span>
-            <a class="expand-btn" @click="expanded = true">展开</a>
+            <VBtn
+              variant="text"
+              density="compact"
+              color="primary"
+              class="expand-btn"
+              @click="expanded = true"
+            >
+              展开
+            </VBtn>
           </template>
-          <!-- 正常显示或已展开 -->
           <template v-else>
-            <span>{{ comment.content }}</span>
-            <a v-if="isLongContent" class="expand-btn" @click="expanded = false">收起</a>
+            <span style="white-space: pre-wrap; word-break: break-word;">{{ comment.content }}</span>
+            <VBtn
+              v-if="isLongContent"
+              variant="text"
+              density="compact"
+              color="primary"
+              class="expand-btn"
+              @click="expanded = false"
+            >
+              收起
+            </VBtn>
           </template>
         </div>
-        <div class="tip footer">
-          <template v-if="comment.ip">
-            ip {{ comment.ip || 'null' }}
-          </template>
-          发布于 {{ date }}
-          <a class="reply-btn" @click="$emit('reply', comment)">回复</a>
+
+        <!-- 操作栏 -->
+        <div class="d-flex align-center mt-1">
+          <VBtn
+            variant="text"
+            density="compact"
+            color="primary"
+            class="reply-btn"
+            @click="$emit('reply', comment)"
+          >
+            <VIcon size="16" class="mr-1">
+              mdi-reply
+            </VIcon>
+            回复
+          </VBtn>
         </div>
       </div>
     </div>
-  </div>
+  </VCard>
 </template>
 
 <script setup lang="ts">
@@ -73,28 +118,46 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.comment-msg {
-  padding: 6px 0 3px 0;
-  margin: 3px;
-  border-top: 1px solid rgba(var(--v-theme-on-surface), .2);
+.comment-card {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: transparent !important;
 }
-.footer {
-  text-align: right;
+
+.comment-body {
+  gap: 8px;
 }
-.reply-tip {
-  font-size: 12px;
-  color: rgba(var(--v-theme-on-surface), .5);
+
+.avatar-col {
+  flex-shrink: 0;
+  padding-top: 2px;
 }
-.reply-btn {
-  cursor: pointer;
-  font-size: 12px;
-  color: rgb(var(--v-theme-primary));
-  margin-left: 8px;
+
+.content-col {
+  flex: 1;
+  min-width: 0;
 }
+
+.comment-text {
+  line-height: 1.6;
+}
+
 .expand-btn {
-  cursor: pointer;
+  min-width: 32px;
+  height: 20px;
   font-size: 12px;
-  color: rgb(var(--v-theme-primary));
-  margin-left: 4px;
+  margin-left: 2px;
+}
+
+.reply-btn {
+  min-width: 48px;
+  height: 28px;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.reply-btn:hover {
+  opacity: 1;
 }
 </style>
