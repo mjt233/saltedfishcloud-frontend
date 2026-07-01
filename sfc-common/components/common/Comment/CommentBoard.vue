@@ -3,9 +3,9 @@
     <LoadingMask :loading="loading" />
 
     <!-- 评论列表 -->
-    <div class="message-area">
+    <div ref="messageAreaRef" class="message-area">
       <VList v-if="commentList.length > 0" class="comment-list">
-        <VInfiniteScroll @load="onInfiniteLoad">
+        <VInfiniteScroll ref="infiniteScrollRef" @load="onInfiniteLoad">
           <VListItem
             v-for="comment in commentList"
             :key="comment.id"
@@ -128,6 +128,8 @@ const replyTo = ref<CommentVo | null>(null)
 
 /** 评论列表 */
 const commentList = ref<CommentVo[]>([])
+/** 消息区域滚动容器 */
+const messageAreaRef = ref<HTMLElement | null>(null)
 
 /** CommentReply 组件引用映射（key 为根评论 id） */
 const replyRefs = new Map<IdType, any>()
@@ -230,12 +232,20 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       replyTo.value = null
       SfcUtils.snackbar('发送成功(*^▽^*)')
 
+      // 重置 VInfiniteScroll 内部状态，使其能再次触发 load 事件
+      infiniteScrollRef.value?.reset()
+
       // 如果是对已有根评论的回复，展开该评论的回复并跳转到最后一页
       if (targetRootId) {
         const replyComp = replyRefs.get(targetRootId)
         if (replyComp) {
           await replyComp.loadLastPage()
         }
+      } else {
+        // 发送新评论（非回复），滚动到顶部
+        nextTick(() => {
+          messageAreaRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
+        })
       }
     } catch (err) {
       SfcUtils.alert((err && err.toString) ? err.toString() : '未知错误')
@@ -261,7 +271,7 @@ import { CommentVo, IdType, SendCommentParam } from 'sfc-common/model'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted } from 'vue'
+import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick } from 'vue'
 import CommentMessage from './CommentMessage.vue'
 import CommentReply from './CommentReply.vue'
 
