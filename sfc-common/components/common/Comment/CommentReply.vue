@@ -3,7 +3,18 @@
   <div class="replies-section">
     <!-- 未展开：显示提示 -->
     <div v-if="!state.expanded && rootComment.replyCount != 0" class="reply-toggle-area">
+      
+      <!-- 加载中 -->
+      <div v-if="state.loading" class="text-center pa-3">
+        <VProgressCircular
+          indeterminate
+          size="24"
+          width="2"
+          color="primary"
+        />
+      </div>
       <VBtn
+        v-else
         variant="text"
         density="compact"
         prepend-icon="mdi-comment-text-outline"
@@ -12,93 +23,83 @@
       >
         共{{ rootComment.replyCount }}条回复, 点击查看
       </VBtn>
+
     </div>
 
     <!-- 已展开（带过渡动画） -->
     <VExpandTransition>
       <div v-show="state.expanded" class="replies-expanded-wrapper">
-        <!-- 加载中 -->
-        <div v-if="state.loading" class="text-center pa-3">
-          <VProgressCircular
-            indeterminate
-            size="24"
-            width="2"
-            color="primary"
-          />
-        </div>
 
         <!-- 回复列表 + 分页 -->
-        <template v-else>
-          <VCard class="replies-card">
-            <CommentMessage
-              v-for="reply in state.replies"
-              :key="reply.id"
-              :comment="reply"
-              :can-send="canSend"
-              @reply="handleReply"
-            />
+        <VCard class="replies-card">
+          <CommentMessage
+            v-for="reply in state.replies"
+            :key="reply.id"
+            :comment="reply"
+            :can-send="canSend"
+            @reply="handleReply"
+          />
 
-            <!-- 分页栏 -->
-            <div v-if="state.totalPage > 1" class="reply-pagination">
-              <span class="text-caption text-medium-emphasis mr-2">
-                共{{ state.totalPage }}页
-              </span>
-              <VBtn
-                v-if="state.currentPage > 0"
-                variant="text"
-                density="compact"
-                color="primary"
-                style="padding: 0;"
-                @click="loadReplies(state.currentPage - 1)"
-              >
-                上一页
-              </VBtn>
-              <VBtn
-                v-for="p in visiblePages"
-                :key="p"
-                variant="text"
-                style="min-width: 0;padding: 0 3px"
-                density="compact"
-                :color="p === state.currentPage ? 'primary' : 'default'"
-                :class="{ 'font-weight-bold': p === state.currentPage }"
-                @click="loadReplies(p)"
-              >
-                {{ p + 1 }}
-              </VBtn>
-              <VBtn
-                v-if="state.currentPage < state.totalPage - 1"
-                variant="text"
-                density="compact"
-                color="primary"
-                style="padding: 0;"
-                @click="loadReplies(state.currentPage + 1)"
-              >
-                下一页
-              </VBtn>
-              <VBtn
-                variant="text"
-                density="compact"
-                color="default"
-                class="ml-2"
-                @click="collapseReplies"
-              >
-                收起
-              </VBtn>
-            </div>
+          <!-- 分页栏 -->
+          <div v-if="state.totalPage > 1" class="reply-pagination">
+            <span class="text-caption text-medium-emphasis mr-2">
+              共{{ state.totalPage }}页
+            </span>
+            <VBtn
+              v-if="state.currentPage > 0"
+              variant="text"
+              density="compact"
+              color="primary"
+              style="padding: 0;"
+              @click="loadReplies(state.currentPage - 1)"
+            >
+              上一页
+            </VBtn>
+            <VBtn
+              v-for="p in visiblePages"
+              :key="p"
+              variant="text"
+              style="min-width: 0;padding: 0 3px"
+              density="compact"
+              :color="p === state.currentPage ? 'primary' : 'default'"
+              :class="{ 'font-weight-bold': p === state.currentPage }"
+              @click="loadReplies(p)"
+            >
+              {{ p + 1 }}
+            </VBtn>
+            <VBtn
+              v-if="state.currentPage < state.totalPage - 1"
+              variant="text"
+              density="compact"
+              color="primary"
+              style="padding: 0;"
+              @click="loadReplies(state.currentPage + 1)"
+            >
+              下一页
+            </VBtn>
+            <VBtn
+              variant="text"
+              density="compact"
+              color="default"
+              class="ml-2"
+              @click="collapseReplies"
+            >
+              收起
+            </VBtn>
+          </div>
 
-            <!-- 仅一页时只显示收起 -->
-            <div v-else class="text-center pa-1">
-              <VBtn
-                variant="text"
-                density="compact"
-                color="default"
-                @click="collapseReplies"
-              >
-                收起
-              </VBtn>
-            </div>
-          </VCard>
-        </template>
+          <!-- 仅一页时只显示收起 -->
+          <div v-else class="text-center pa-1">
+            <VBtn
+              variant="text"
+              density="compact"
+              color="default"
+              @click="collapseReplies"
+            >
+              收起
+            </VBtn>
+          </div>
+        </VCard>
       </div>
     </VExpandTransition>
   </div>
@@ -106,7 +107,7 @@
 
 <script setup lang="ts">
 import { CommentVo } from 'sfc-common/model'
-import { PropType, computed, reactive } from 'vue'
+import { PropType, computed, nextTick, reactive } from 'vue'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 
@@ -173,12 +174,13 @@ const visiblePages = computed(() => {
  */
 async function loadReplies(page: number = 0) {
   state.loading = true
-  state.expanded = true
   try {
     const res = (await SfcUtils.request(API.comment.listByCommentId(props.rootComment.id, page, REPLY_PAGE_SIZE))).data.data
     state.replies = res.content
     state.currentPage = page
     state.totalPage = res.totalPage
+    await nextTick()
+    state.expanded = true
   } catch (err) {
     SfcUtils.alert((err && err.toString) ? err.toString() : '加载回复失败')
     state.expanded = false
