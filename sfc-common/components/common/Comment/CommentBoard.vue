@@ -15,7 +15,7 @@
 
           <!-- 回复区域 -->
           <CommentReply
-            v-if="comment.replyCount && comment.replyCount > 0"
+            :ref="(el: any) => setReplyRef(comment.id, el)"
             :root-comment="comment"
             :can-send="canSend"
             @reply="handleReply"
@@ -110,6 +110,22 @@ const replyTo = ref<CommentVo | null>(null)
 /** 评论列表 */
 const commentList = ref<CommentVo[]>([])
 
+/** CommentReply 组件引用映射（key 为根评论 id） */
+const replyRefs = new Map<IdType, any>()
+
+/**
+ * 设置 CommentReply 组件引用
+ * @param id 根评论 id
+ * @param el 组件实例
+ */
+const setReplyRef = (id: IdType, el: any) => {
+  if (el) {
+    replyRefs.set(id, el)
+  } else {
+    replyRefs.delete(id)
+  }
+}
+
 /**
  * 设置回复目标
  * @param comment 被回复的评论
@@ -150,11 +166,23 @@ const actions = MethodInterceptor.createAsyncActionProxy({
         await SfcUtils.request(API.comment.sendComment(param))
       }
       
+      // 记录发送前回复的目标根评论 id，用于发送后展开回复
+      // replyTo.value.replyId 指向根评论 id（如果是对根评论的回复，则 replyId 为 null，此时用 replyTo.value.id）
+      const targetRootId = replyTo.value?.replyId || replyTo.value?.id
+
       // 重新加载评论列表
       commentList.value = await this.loadData(0, false)
       content.value = ''
       replyTo.value = null
       SfcUtils.snackbar('发送成功(*^▽^*)')
+
+      // 如果是对已有根评论的回复，展开该评论的回复并跳转到最后一页
+      if (targetRootId) {
+        const replyComp = replyRefs.get(targetRootId)
+        if (replyComp) {
+          await replyComp.loadLastPage()
+        }
+      }
     } catch (err) {
       SfcUtils.alert((err && err.toString) ? err.toString() : '未知错误')
     }

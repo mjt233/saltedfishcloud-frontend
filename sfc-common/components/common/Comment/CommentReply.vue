@@ -1,6 +1,6 @@
 <template>
   <!-- 回复区域 -->
-  <div v-if="rootComment.replyCount && rootComment.replyCount > 0" class="replies-section">
+  <div class="replies-section">
     <!-- 未展开：显示提示 -->
     <div v-if="!state.expanded" class="reply-toggle-area">
       <VBtn
@@ -14,91 +14,93 @@
       </VBtn>
     </div>
 
-    <!-- 已展开 -->
-    <template v-else>
-      <!-- 加载中 -->
-      <div v-if="state.loading" class="text-center pa-3">
-        <VProgressCircular
-          indeterminate
-          size="24"
-          width="2"
-          color="primary"
-        />
-      </div>
-
-      <!-- 回复列表 + 分页 -->
-      <template v-else>
-        <VCard class="replies-card">
-          <CommentMessage
-            v-for="reply in state.replies"
-            :key="reply.id"
-            :comment="reply"
-            :can-send="canSend"
-            @reply="handleReply"
+    <!-- 已展开（带过渡动画） -->
+    <VExpandTransition>
+      <div v-show="state.expanded" class="replies-expanded-wrapper">
+        <!-- 加载中 -->
+        <div v-if="state.loading" class="text-center pa-3">
+          <VProgressCircular
+            indeterminate
+            size="24"
+            width="2"
+            color="primary"
           />
+        </div>
 
-          <!-- 分页栏 -->
-          <div v-if="state.totalPage > 1" class="reply-pagination">
-            <span class="text-caption text-medium-emphasis mr-2">
-              共{{ state.totalPage }}页
-            </span>
-            <VBtn
-              v-if="state.currentPage > 0"
-              variant="text"
-              density="compact"
-              color="primary"
-              style="padding: 0;"
-              @click="loadReplies(state.currentPage - 1)"
-            >
-              上一页
-            </VBtn>
-            <VBtn
-              v-for="p in visiblePages"
-              :key="p"
-              variant="text"
-              style="min-width: 0;padding: 0 3px"
-              density="compact"
-              :color="p === state.currentPage ? 'primary' : 'default'"
-              :class="{ 'font-weight-bold': p === state.currentPage }"
-              @click="loadReplies(p)"
-            >
-              {{ p + 1 }}
-            </VBtn>
-            <VBtn
-              v-if="state.currentPage < state.totalPage - 1"
-              variant="text"
-              density="compact"
-              color="primary"
-              style="padding: 0;"
-              @click="loadReplies(state.currentPage + 1)"
-            >
-              下一页
-            </VBtn>
-            <VBtn
-              variant="text"
-              density="compact"
-              color="default"
-              class="ml-2"
-              @click="collapseReplies"
-            >
-              收起
-            </VBtn>
-          </div>
+        <!-- 回复列表 + 分页 -->
+        <template v-else>
+          <VCard class="replies-card">
+            <CommentMessage
+              v-for="reply in state.replies"
+              :key="reply.id"
+              :comment="reply"
+              :can-send="canSend"
+              @reply="handleReply"
+            />
 
-          <!-- 仅一页时只显示收起 -->
-          <div v-else class="text-center pa-1">
-            <VBtn
-              variant="text"
-              density="compact"
-              color="default"
-              @click="collapseReplies"
-            >
-              收起
-            </VBtn>
-          </div>
-        </VCard>
-      </template>
-    </template>
+            <!-- 分页栏 -->
+            <div v-if="state.totalPage > 1" class="reply-pagination">
+              <span class="text-caption text-medium-emphasis mr-2">
+                共{{ state.totalPage }}页
+              </span>
+              <VBtn
+                v-if="state.currentPage > 0"
+                variant="text"
+                density="compact"
+                color="primary"
+                style="padding: 0;"
+                @click="loadReplies(state.currentPage - 1)"
+              >
+                上一页
+              </VBtn>
+              <VBtn
+                v-for="p in visiblePages"
+                :key="p"
+                variant="text"
+                style="min-width: 0;padding: 0 3px"
+                density="compact"
+                :color="p === state.currentPage ? 'primary' : 'default'"
+                :class="{ 'font-weight-bold': p === state.currentPage }"
+                @click="loadReplies(p)"
+              >
+                {{ p + 1 }}
+              </VBtn>
+              <VBtn
+                v-if="state.currentPage < state.totalPage - 1"
+                variant="text"
+                density="compact"
+                color="primary"
+                style="padding: 0;"
+                @click="loadReplies(state.currentPage + 1)"
+              >
+                下一页
+              </VBtn>
+              <VBtn
+                variant="text"
+                density="compact"
+                color="default"
+                class="ml-2"
+                @click="collapseReplies"
+              >
+                收起
+              </VBtn>
+            </div>
+
+            <!-- 仅一页时只显示收起 -->
+            <div v-else class="text-center pa-1">
+              <VBtn
+                variant="text"
+                density="compact"
+                color="default"
+                @click="collapseReplies"
+              >
+                收起
+              </VBtn>
+            </div>
+          </VCard>
+        </template>
+      </div>
+    </VExpandTransition>
   </div>
 </template>
 
@@ -190,10 +192,31 @@ function collapseReplies() {
   state.expanded = false
 }
 
+/**
+ * 加载最后一页回复（发送回复后调用，确保能看到刚发送的回复）
+ */
+async function loadLastPage() {
+  state.expanded = true
+  // 先获取总页数
+  try {
+    const res = (await SfcUtils.request(API.comment.listByCommentId(props.rootComment.id, 0, REPLY_PAGE_SIZE))).data.data
+    const lastPage = Math.max(0, res.totalPage - 1)
+    await loadReplies(lastPage)
+  } catch (err) {
+    SfcUtils.alert((err && err.toString) ? err.toString() : '加载回复失败')
+  }
+}
+
 /** 转发回复事件 */
 function handleReply(comment: CommentVo) {
   emit('reply', comment)
 }
+
+defineExpose({
+  loadReplies,
+  loadLastPage,
+  collapseReplies
+})
 </script>
 
 <script lang="ts">
