@@ -37,6 +37,7 @@
               v-for="reply in state.replies"
               :key="reply.id"
               :comment="reply"
+              :can-send="canSend"
               @reply="handleReply"
             />
 
@@ -107,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { Comment, IdType } from 'sfc-common/model'
+import { CommentVo, IdType } from 'sfc-common/model'
 import { PropType, computed, reactive } from 'vue'
 import API from 'sfc-common/api'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
@@ -120,7 +121,7 @@ interface ReplyState {
   /** 是否已展开 */
   expanded: boolean
   /** 回复列表 */
-  replies: Comment[]
+  replies: CommentVo[]
   /** 当前页码（0-based） */
   currentPage: number
   /** 总页数 */
@@ -132,13 +133,18 @@ interface ReplyState {
 const props = defineProps({
   /** 根评论数据 */
   rootComment: {
-    type: Object as PropType<Comment>,
+    type: Object as PropType<CommentVo>,
     required: true
+  },
+  /** 是否允许回复 */
+  canSend: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits<{
-  (e: 'reply', comment: Comment): void
+  (e: 'reply', comment: CommentVo): void
 }>()
 
 /** 回复区域状态 */
@@ -190,7 +196,7 @@ function collapseReplies() {
 }
 
 /** 转发回复事件 */
-function handleReply(comment: Comment) {
+function handleReply(comment: CommentVo) {
   emit('reply', comment)
 }
 </script>

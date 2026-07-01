@@ -67,6 +67,7 @@
             density="compact"
             color="primary"
             class="reply-btn"
+            :disabled="!canSend"
             @click="$emit('reply', comment)"
           >
             <VIcon size="16" class="mr-1">
@@ -81,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { Comment } from 'sfc-common/model'
+import { CommentVo } from 'sfc-common/model'
 import { StringFormatter } from 'sfc-common/utils/StringFormatter'
 import { PropType, computed, ref } from 'vue'
 
@@ -90,12 +91,17 @@ const TRUNCATE_LENGTH = 200
 
 const props = defineProps({
   comment: {
-    type: Object as PropType<Comment>,
+    type: Object as PropType<CommentVo>,
     default() { return {} }
+  },
+  /** 是否允许回复 */
+  canSend: {
+    type: Boolean,
+    default: false
   }
 })
 const emit = defineEmits<{
-  (e: 'reply', comment: Comment): void
+  (e: 'reply', comment: CommentVo): void
 }>()
 const date = computed(() => StringFormatter.toDate(props.comment.createAt))
 

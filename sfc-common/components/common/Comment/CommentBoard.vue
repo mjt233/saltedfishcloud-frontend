@@ -9,6 +9,7 @@
           v-for="comment in commentList"
           :key="comment.id"
           :root-comment="comment"
+          :can-send="canSend"
           @reply="handleReply"
         />
       </VList>
@@ -38,6 +39,7 @@
             density="compact"
             color="default"
             class="ml-1"
+            :disabled="!canSend"
             @click="cancelReply"
           >
             取消
@@ -51,6 +53,7 @@
           v-model="content"
           class="comment-input"
           placeholder="友善留言，Ctrl+Enter发送哦~"
+          :disabled="!canSend"
           @keyup="keyupHandler"
         />
         <VBtn
@@ -58,7 +61,7 @@
           color="primary"
           variant="flat"
           class="send-btn flex-shrink-0"
-          :disabled="!content?.trim()"
+          :disabled="!canSend || !content?.trim()"
           @click="actions.send"
         />
       </div>
@@ -93,16 +96,16 @@ const props = defineProps({
 const loadingManager = new LoadingManager()
 const content = ref('')
 const loading = loadingManager.getLoadingRef()
-const replyTo = ref<Comment | null>(null)
+const replyTo = ref<CommentVo | null>(null)
 
 /** 评论列表 */
-const commentList = ref<Comment[]>([])
+const commentList = ref<CommentVo[]>([])
 
 /**
  * 设置回复目标
  * @param comment 被回复的评论
  */
-const handleReply = (comment: Comment) => {
+const handleReply = (comment: CommentVo) => {
   replyTo.value = comment
 }
 
@@ -127,7 +130,17 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       return
     }
     try {
-      await SfcUtils.request(API.comment.sendPublicComment(content.value, replyTo.value?.id))
+      const param: SendCommentParam = {
+        content: content.value,
+        replyId: replyTo.value?.id,
+        topicId: props.topicId
+      }
+      if (props.topicId == 0) {
+        await SfcUtils.request(API.comment.sendPublicComment(param))
+      } else {
+        await SfcUtils.request(API.comment.sendComment(param))
+      }
+      
       // 重新加载评论列表
       commentList.value = await this.loadData(0, false)
       content.value = ''
@@ -141,7 +154,7 @@ const actions = MethodInterceptor.createAsyncActionProxy({
 
 /** 键盘事件处理：Ctrl+Enter发送 */
 const keyupHandler = (e: KeyboardEvent) => {
-  if (e.ctrlKey && e.key == 'Enter' && !loading.value) {
+  if (e.ctrlKey && e.key == 'Enter' && !loading.value && props.canSend) {
     actions.send()
   }
 }
@@ -152,7 +165,7 @@ onMounted(() => {
 
 <script lang="ts">
 import API from 'sfc-common/api'
-import { Comment, IdType } from 'sfc-common/model'
+import { CommentVo, IdType, SendCommentParam } from 'sfc-common/model'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
