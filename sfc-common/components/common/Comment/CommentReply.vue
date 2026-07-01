@@ -1,79 +1,139 @@
 <template>
-  <div class="comment-reply d-flex pa-2">
-    <!-- 头像 -->
-    <div class="reply-avatar flex-shrink-0">
-      <UserAvatar :uid="comment.uid" :size="28" />
-    </div>
+  <VListItem class="comment-item">
+    <!-- 根评论 -->
+    <CommentMessage :comment="rootComment" @reply="handleReply" />
 
-    <!-- 内容 -->
-    <div class="reply-body flex-grow-1 min-w-0 ml-2">
-      <!-- 用户名 -->
-      <div class="text-caption text-medium-emphasis mb-1">
-        {{ comment.username || '[游客]' }}
-        <span v-if="comment.replyUsername" class="reply-tag">
-          回复 @{{ comment.replyUsername }}
-        </span>
-      </div>
-
-      <!-- 正文（含截断） -->
-      <div class="reply-content text-body-2">
-        <template v-if="isLongContent && !expanded">
-          <span>{{ truncatedContent }}...</span>
-          <VBtn
-            variant="text"
-            density="compact"
-            color="primary"
-            class="expand-btn"
-            @click="expanded = true"
-          >
-            展开
-          </VBtn>
-        </template>
-        <template v-else>
-          <span>{{ comment.content }}</span>
-          <VBtn
-            v-if="isLongContent"
-            variant="text"
-            density="compact"
-            color="primary"
-            class="expand-btn"
-            @click="expanded = false"
-          >
-            收起
-          </VBtn>
-        </template>
-      </div>
-
-      <!-- 底部操作 -->
-      <div class="d-flex align-center mt-1 ga-2">
-        <span class="text-caption text-medium-emphasis">{{ date }}</span>
+    <!-- 回复区域 -->
+    <div v-if="rootComment.replyCount && rootComment.replyCount > 0" class="replies-section">
+      <!-- 未展开：显示提示 -->
+      <div v-if="!state.expanded" class="reply-toggle-area">
         <VBtn
           variant="text"
           density="compact"
-          color="primary"
-          class="reply-action-btn"
-          @click="$emit('reply', comment)"
+          prepend-icon="mdi-comment-text-outline"
+          class="tip"
+          @click="loadReplies(0)"
         >
-          回复
+          共{{ rootComment.replyCount }}条回复, 点击查看
         </VBtn>
       </div>
+
+      <!-- 已展开 -->
+      <template v-else>
+        <!-- 加载中 -->
+        <div v-if="state.loading" class="text-center pa-3">
+          <VProgressCircular
+            indeterminate
+            size="24"
+            width="2"
+            color="primary"
+          />
+        </div>
+
+        <!-- 回复列表 + 分页 -->
+        <template v-else>
+          <VCard class="replies-card">
+            <CommentMessage
+              v-for="reply in state.replies"
+              :key="reply.id"
+              :comment="reply"
+              @reply="handleReply"
+            />
+
+            <!-- 分页栏 -->
+            <div v-if="state.totalPage > 1" class="reply-pagination">
+              <span class="text-caption text-medium-emphasis mr-2">
+                共{{ state.totalPage }}页
+              </span>
+              <VBtn
+                v-if="state.currentPage > 0"
+                variant="text"
+                density="compact"
+                color="primary"
+                style="padding: 0;"
+                @click="loadReplies(state.currentPage - 1)"
+              >
+                上一页
+              </VBtn>
+              <VBtn
+                v-for="p in visiblePages"
+                :key="p"
+                variant="text"
+                style="min-width: 0;padding: 0 3px"
+                density="compact"
+                :color="p === state.currentPage ? 'primary' : 'default'"
+                :class="{ 'font-weight-bold': p === state.currentPage }"
+                @click="loadReplies(p)"
+              >
+                {{ p + 1 }}
+              </VBtn>
+              <VBtn
+                v-if="state.currentPage < state.totalPage - 1"
+                variant="text"
+                density="compact"
+                color="primary"
+                style="padding: 0;"
+                @click="loadReplies(state.currentPage + 1)"
+              >
+                下一页
+              </VBtn>
+              <VBtn
+                variant="text"
+                density="compact"
+                color="default"
+                class="ml-2"
+                @click="collapseReplies"
+              >
+                收起
+              </VBtn>
+            </div>
+
+            <!-- 仅一页时只显示收起 -->
+            <div v-else class="text-center pa-1">
+              <VBtn
+                variant="text"
+                density="compact"
+                color="default"
+                @click="collapseReplies"
+              >
+                收起
+              </VBtn>
+            </div>
+          </VCard>
+        </template>
+      </template>
     </div>
-  </div>
+  </VListItem>
 </template>
 
 <script setup lang="ts">
-import { Comment } from 'sfc-common/model'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
-import { PropType, computed, ref } from 'vue'
+import { Comment, IdType } from 'sfc-common/model'
+import { PropType, computed, reactive } from 'vue'
+import API from 'sfc-common/api'
+import SfcUtils from 'sfc-common/utils/SfcUtils'
 
-/** 回复内容截断阈值（字符数） */
-const TRUNCATE_LENGTH = 200
+/** 每页回复数量 */
+const REPLY_PAGE_SIZE = 10
+
+/** 回复区域的状态 */
+interface ReplyState {
+  /** 是否已展开 */
+  expanded: boolean
+  /** 回复列表 */
+  replies: Comment[]
+  /** 当前页码（0-based） */
+  currentPage: number
+  /** 总页数 */
+  totalPage: number
+  /** 是否正在加载 */
+  loading: boolean
+}
 
 const props = defineProps({
-  /** 评论数据 */
-  comment: {
+  /** 根评论数据 */
+  rootComment: {
     type: Object as PropType<Comment>,
-    default() { return {} }
+    required: true
   }
 })
 
@@ -81,17 +141,58 @@ const emit = defineEmits<{
   (e: 'reply', comment: Comment): void
 }>()
 
-/** 格式化日期 */
-const date = computed(() => StringFormatter.toDate(props.comment.createAt))
+/** 回复区域状态 */
+const state = reactive<ReplyState>({
+  expanded: false,
+  replies: [],
+  currentPage: 0,
+  totalPage: 0,
+  loading: false
+})
 
-/** 当前回复是否已展开（仅长回复有效） */
-const expanded = ref(false)
+/** 可见页码列表（滑动窗口，最多5页） */
+const visiblePages = computed(() => {
+  const total = state.totalPage
+  if (total === 0) return []
+  const current = state.currentPage
+  if (total <= 5) {
+    return Array.from({ length: total }, (_, i) => i)
+  }
+  let start = Math.max(0, current - 2)
+  const end = Math.min(total, start + 5)
+  start = Math.max(0, end - 5)
+  return Array.from({ length: end - start }, (_, i) => start + i)
+})
 
-/** 回复内容是否超过截断阈值 */
-const isLongContent = computed(() => (props.comment.content?.length ?? 0) > TRUNCATE_LENGTH)
+/**
+ * 加载回复列表（分页）
+ * @param page 页码（0-based）
+ */
+async function loadReplies(page: number = 0) {
+  state.loading = true
+  state.expanded = true
+  try {
+    const res = (await SfcUtils.request(API.comment.listByCommentId(props.rootComment.id, page, REPLY_PAGE_SIZE))).data.data
+    state.replies = res.content
+    state.currentPage = page
+    state.totalPage = res.totalPage
+  } catch (err) {
+    SfcUtils.alert((err && err.toString) ? err.toString() : '加载回复失败')
+    state.expanded = false
+  } finally {
+    state.loading = false
+  }
+}
 
-/** 截断后的回复内容 */
-const truncatedContent = computed(() => (props.comment.content ?? '').substring(0, TRUNCATE_LENGTH))
+/** 折叠回复列表 */
+function collapseReplies() {
+  state.expanded = false
+}
+
+/** 转发回复事件 */
+function handleReply(comment: Comment) {
+  emit('reply', comment)
+}
 </script>
 
 <script lang="ts">
@@ -103,39 +204,30 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.comment-reply {
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-}
-
-.comment-reply:last-child {
+.comment-item {
+  padding: 0;
   border-bottom: none;
 }
 
-.reply-avatar {
-  padding-top: 2px;
+.replies-section {
+  margin: 4px 4px 4px 24px;
 }
 
-.reply-tag {
-  font-size: 12px;
-  color: rgba(var(--v-theme-on-surface), 0.5);
+.reply-toggle-area {
+  padding: 2px 0;
 }
 
-.reply-content {
-  white-space: pre-wrap;
-  word-break: break-word;
-  line-height: 1.5;
+.replies-card {
+  border-radius: 8px;
+  padding: 4px 8px;
 }
 
-.expand-btn {
-  min-width: 28px;
-  height: 18px;
-  font-size: 11px;
-  margin-left: 2px;
-}
-
-.reply-action-btn {
-  min-width: 32px;
-  height: 24px;
-  font-size: 12px;
+.reply-pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 </style>
