@@ -171,11 +171,32 @@ const setReplyRef = (id: IdType, el: any) => {
  * 设置内联回复目标
  * @param comment 被回复的评论（可能是根评论或嵌套回复）
  */
-const handleReply = (comment: CommentVo) => {
+async function handleReply(comment: CommentVo) {
   // 计算根评论 ID：如果是嵌套回复，replyId 指向根评论；如果本身就是根评论，用其 id
   const rootId = comment.replyId || comment.id
   activeReplyRootId.value = rootId
   replyTarget.value = comment
+
+  // 等待 DOM 更新 + VSlideYTransition 动画完成
+  await nextTick()
+  await SfcUtils.sleep(150)
+
+  // 如果内联输入框不在可视区域内，滚动 messageArea 使其可见
+  const rootEl = document.getElementById(`comment-${rootId}`)
+  if (rootEl) {
+    const inputArea = rootEl.querySelector('.inline-reply-area') as HTMLElement | null
+    const container = messageAreaRef.value
+    if (inputArea && container) {
+      const containerRect = container.getBoundingClientRect()
+      const inputRect = inputArea.getBoundingClientRect()
+      // 判断输入框底部是否在容器可视区域之外
+      if (inputRect.bottom > containerRect.bottom) {
+        // 滚动使输入框出现在容器底部
+        const scrollDelta = inputRect.bottom - containerRect.bottom + 16 // 16px 留白
+        container.scrollBy({ top: scrollDelta, behavior: 'smooth' })
+      }
+    }
+  }
 }
 
 /** 取消内联回复（由 CommentReply 触发） */
