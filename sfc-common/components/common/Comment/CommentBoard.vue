@@ -8,6 +8,7 @@
         <VInfiniteScroll ref="infiniteScrollRef" @load="onInfiniteLoad">
           <VListItem
             v-for="comment in commentList"
+            :id="'comment-' + comment.id"
             :key="comment.id"
             class="comment-item"
           >
@@ -19,7 +20,12 @@
               :ref="(el: any) => setReplyRef(comment.id, el)"
               :root-comment="comment"
               :can-send="canSend"
+              :is-active-reply="activeReplyRootId === comment.id"
+              :reply-target="replyTarget"
+              :topic-id="topicId"
               @reply="handleReply"
+              @cancel-reply="handleCancelReply"
+              @reply-sent="handleReplySent"
             />
           </VListItem>
 
@@ -55,27 +61,7 @@
 
     <!-- 发送区域 -->
     <div ref="sendArea" class="send-area">
-      <!-- 回复指示 -->
-      <VSlideYTransition>
-        <div v-if="replyTo" class="reply-indicator">
-          <VIcon size="16" class="mr-1">
-            mdi-reply
-          </VIcon>
-          <span>回复 @{{ replyTo.username || '[游客]' }}</span>
-          <VBtn
-            variant="text"
-            density="compact"
-            color="default"
-            class="ml-1"
-            :disabled="!canSend"
-            @click="cancelReply"
-          >
-            取消
-          </VBtn>
-        </div>
-      </VSlideYTransition>
-
-      <!-- 输入框 -->
+      <!-- 输入框（仅用于发送新根评论） -->
       <div class="d-flex align-end ga-2">
         <SimpleTextarea
           v-model="content"
@@ -124,7 +110,10 @@ const props = defineProps({
 const loadingManager = new LoadingManager()
 const content = ref('')
 const loading = loadingManager.getLoadingRef()
-const replyTo = ref<CommentVo | null>(null)
+/** 当前活跃的回复目标根评论 ID（为 null 时表示不在内联回复状态） */
+const activeReplyRootId = ref<IdType | null>(null)
+/** 当前回复目标评论（用户点击"回复"的那条） */
+const replyTarget = ref<CommentVo | null>(null)
 
 /** 评论列表 */
 const commentList = ref<CommentVo[]>([])
@@ -179,16 +168,43 @@ const setReplyRef = (id: IdType, el: any) => {
 }
 
 /**
- * 设置回复目标
- * @param comment 被回复的评论
+ * 设置内联回复目标
+ * @param comment 被回复的评论（可能是根评论或嵌套回复）
  */
 const handleReply = (comment: CommentVo) => {
-  replyTo.value = comment
+  // 计算根评论 ID：如果是嵌套回复，replyId 指向根评论；如果本身就是根评论，用其 id
+  const rootId = comment.replyId || comment.id
+  activeReplyRootId.value = rootId
+  replyTarget.value = comment
 }
 
-/** 取消回复 */
-const cancelReply = () => {
-  replyTo.value = null
+/** 取消内联回复（由 CommentReply 触发） */
+const handleCancelReply = () => {
+  activeReplyRootId.value = null
+  replyTarget.value = null
+}
+
+/**
+ * 内联回复发送成功后的处理（由 CommentReply 触发）
+ * 刷新根评论列表，滚动到目标评论位置，重置无限滚动
+ */
+async function handleReplySent() {
+  const targetRootId = activeReplyRootId.value
+  activeReplyRootId.value = null
+  replyTarget.value = null
+  // 刷新根评论列表
+  await actions.loadData(0, false)
+  // 重置无限滚动
+  infiniteScrollRef.value?.reset()
+  // 滚动到刚回复的根评论位置
+  if (targetRootId) {
+    nextTick(() => {
+      const targetEl = document.getElementById(`comment-${targetRootId}`)
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    })
+  }
 }
 
 const actions = MethodInterceptor.createAsyncActionProxy({
@@ -211,9 +227,9 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       return
     }
     try {
+      // 全局输入框仅用于发送新根评论，replyId 为空
       const param: SendCommentParam = {
         content: content.value,
-        replyId: replyTo.value?.id,
         topicId: props.topicId
       }
       if (props.topicId == 0) {
@@ -221,32 +237,19 @@ const actions = MethodInterceptor.createAsyncActionProxy({
       } else {
         await SfcUtils.request(API.comment.sendComment(param))
       }
-      
-      // 记录发送前回复的目标根评论 id，用于发送后展开回复
-      // replyTo.value.replyId 指向根评论 id（如果是对根评论的回复，则 replyId 为 null，此时用 replyTo.value.id）
-      const targetRootId = replyTo.value?.replyId || replyTo.value?.id
 
       // 重新加载评论列表
       commentList.value = await this.loadData(0, false)
       content.value = ''
-      replyTo.value = null
       SfcUtils.snackbar('发送成功(*^▽^*)')
 
       // 重置 VInfiniteScroll 内部状态，使其能再次触发 load 事件
       infiniteScrollRef.value?.reset()
 
-      // 如果是对已有根评论的回复，展开该评论的回复并跳转到最后一页
-      if (targetRootId) {
-        const replyComp = replyRefs.get(targetRootId)
-        if (replyComp) {
-          await replyComp.loadLastPage()
-        }
-      } else {
-        // 发送新评论（非回复），滚动到顶部
-        nextTick(() => {
-          messageAreaRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
-        })
-      }
+      // 发送新根评论后滚动到顶部
+      nextTick(() => {
+        messageAreaRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
+      })
     } catch (err) {
       SfcUtils.alert((err && err.toString) ? err.toString() : '未知错误')
     }
