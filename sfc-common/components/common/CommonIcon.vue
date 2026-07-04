@@ -40,7 +40,7 @@ const isUrl = computed(() => {
   if(!props.icon || props.icon.startsWith('mdi-')) {
     return false
   }
-  return props.icon.startsWith('http') || props.icon.startsWith('data:')
+  return props.icon.startsWith('http') || props.icon.startsWith('data:') || props.icon.startsWith('/')
 })
 </script>
 

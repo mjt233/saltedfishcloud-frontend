@@ -8,6 +8,7 @@
       :provider-options="providerOptions"
       :types-name-map="typesNameMap"
       allow-groovy-script
+      default-expanded
       @apply="onFilterApply"
     />
 
@@ -63,6 +64,7 @@ import InvalidDataFilter from './InvalidDataFilter.vue'
 import InvalidDataFilterGroovyEditor from './InvalidDataFilterGroovyEditor.vue'
 import type { IdType } from 'sfc-common/model'
 import type { InvalidDataFilterValue, BatchClaimParam } from '../model'
+import { GroovyClaimExample } from '../codeExample/invalidDataScriptExample'
 
 const SfcUtils = window.SfcUtils
 const PathSelector = window.Components.PathSelector
@@ -134,6 +136,7 @@ const openScriptEditor = () => {
   const dialogInst = SfcUtils.openComponentDialog(InvalidDataFilterGroovyEditor, {
     props: {
       modelValue: formData.script || '',
+      codeExamples: GroovyClaimExample,
       style: { height: '60vh' },
       placeholder: `脚本返回值应为 Map: [path: '保存目录', name: '文件名']。
       path 为空时使用上方保存目录，name 为空时使用失效数据本身的文件名。

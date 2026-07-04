@@ -140,6 +140,7 @@ const addComponent = () => {
   const inst = SfcUtils.openComponentDialog(DesktopComponentSelector, {
     title: '选择组件',
     props: {
+      uid: props.uid,
       async onSelect(e: DesktopComponent) {
         inst.doCancel()
         await SfcUtils.sleep(150)
