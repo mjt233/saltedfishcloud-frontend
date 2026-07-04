@@ -68,24 +68,12 @@
 
     <!-- 发送区域 -->
     <div ref="sendArea" class="send-area">
-      <!-- 输入框（仅用于发送新根评论） -->
-      <div class="d-flex align-end ga-2">
-        <SimpleTextarea
-          v-model="content"
-          class="comment-input"
-          placeholder="友善留言，Ctrl+Enter发送哦~"
-          :disabled="!canSend"
-          @keyup="keyupHandler"
-        />
-        <VBtn
-          icon="mdi-send"
-          color="primary"
-          variant="flat"
-          class="send-btn flex-shrink-0"
-          :disabled="!canSend || !content?.trim()"
-          @click="actions.send"
-        />
-      </div>
+      <CommentEditor
+        v-model="content"
+        placeholder="友善留言，Ctrl+Enter发送哦~"
+        :disabled="!canSend"
+        @send="actions.send"
+      />
     </div>
   </VCard>
 </template>
@@ -284,13 +272,6 @@ const actions = MethodInterceptor.createAsyncActionProxy({
   }
 }, false, loadingManager)
 
-/** 键盘事件处理：Ctrl+Enter发送 */
-const keyupHandler = (e: KeyboardEvent) => {
-  if (e.ctrlKey && e.key == 'Enter' && !loading.value && props.canSend) {
-    actions.send()
-  }
-}
-
 onMounted(() => {
   actions.loadData(0, true)
 })
@@ -303,6 +284,7 @@ import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { MethodInterceptor } from 'sfc-common/utils/MethodInterceptor'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import { defineComponent, defineProps, defineEmits, Ref, ref, PropType, onMounted, nextTick } from 'vue'
+import CommentEditor from './CommentEditor.vue'
 import CommentMessage from './CommentMessage.vue'
 import CommentReply from './CommentReply.vue'
 
@@ -346,13 +328,5 @@ export default defineComponent({
   margin-bottom: 4px;
   background: rgba(var(--v-theme-primary), 0.05);
   border-radius: 6px;
-}
-
-.comment-input {
-  min-height: 36px;
-}
-
-.send-btn {
-  margin-bottom: 2px;
 }
 </style>

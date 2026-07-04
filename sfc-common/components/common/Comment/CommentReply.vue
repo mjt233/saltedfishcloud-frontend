@@ -118,23 +118,11 @@
         </div>
 
         <!-- 输入框 -->
-        <div class="d-flex align-end ga-2">
-          <SimpleTextarea
-            v-model="replyContent"
-            class="reply-input"
-            placeholder="请输入回复内容"
-            @keyup="replyKeyupHandler"
-          />
-          <VBtn
-            icon="mdi-send"
-            color="primary"
-            variant="flat"
-            size="small"
-            class="reply-send-btn flex-shrink-0"
-            :disabled="!replyContent?.trim()"
-            @click="sendReply"
-          />
-        </div>
+        <CommentEditor
+          v-model="replyContent"
+          placeholder="请输入回复内容"
+          @send="sendReply"
+        />
       </div>
     </VSlideYTransition>
   </div>
@@ -283,12 +271,6 @@ function cancelReply() {
   emit('cancel-reply')
 }
 
-/** 内联输入框键盘事件：Ctrl+Enter发送 */
-const replyKeyupHandler = (e: KeyboardEvent) => {
-  if (e.ctrlKey && e.key == 'Enter') {
-    sendReply()
-  }
-}
 /** 折叠回复列表 */
 function collapseReplies() {
   state.expanded = false
@@ -323,6 +305,7 @@ defineExpose({
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import CommentEditor from './CommentEditor.vue'
 import CommentMessage from './CommentMessage.vue'
 
 export default defineComponent({
@@ -361,13 +344,7 @@ export default defineComponent({
   border-radius: 6px;
 }
 
-.inline-reply-area .reply-input {
-  min-height: 36px;
-}
 
-.inline-reply-area .reply-send-btn {
-  margin-bottom: 2px;
-}
 .reply-action-text {
   cursor: pointer;
   transition: all .2s;
