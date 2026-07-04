@@ -105,7 +105,7 @@
           <VIcon size="16" class="mr-1">
             mdi-reply
           </VIcon>
-          <span>回复 @{{ replyTarget?.username || '[游客]' }}</span>
+          <span>回复 {{ replyTarget?.replyId ? (' @' + (replyTarget?.username || '[游客]')) : replyTarget?.username }}</span>
           <VBtn
             variant="text"
             density="compact"
@@ -122,7 +122,7 @@
           <SimpleTextarea
             v-model="replyContent"
             class="reply-input"
-            :placeholder="`回复 @${replyTarget?.username || '[游客]'}...`"
+            placeholder="请输入回复内容"
             @keyup="replyKeyupHandler"
           />
           <VBtn
@@ -258,7 +258,9 @@ async function sendReply() {
     const param: SendCommentParam = {
       content: replyContent.value,
       replyId: props.rootComment.id,
-      topicId: props.topicId
+      topicId: props.topicId,
+      // 仅当回复目标是一条回复消息（而非根评论）时，设置 atUid 为被回复人的 uid
+      ...(props.replyTarget?.replyId ? { atUid: props.replyTarget.uid } : {})
     }
     if (props.topicId == 0) {
       await SfcUtils.request(API.comment.sendPublicComment(param))

@@ -18,6 +18,13 @@ export interface SendCommentParam {
    * 回复的根评论ID（为空则表示顶级评论）
    */
   replyId?: IdType
+
+  /**
+   * 被回复人的用户ID。<br>
+   * 对评论的回复发送回复消息时，表示该条回复具体是回复哪个回复消息的发送人。<br>
+   * 为空时表示直接回复根评论（而非回复某条回复消息）。
+   */
+  atUid?: IdType
 }
 
 /**
@@ -45,6 +52,13 @@ export interface Comment extends AuditModel {
    * 对于话题下的根评论，replyUid 为 null。
    */
   replyUid: IdType | null
+
+  /**
+   * 被回复的回复消息发送人用户ID。<br>
+   * 对根评论的回复进行回复时，表示该条回复具体是回复哪条回复消息的发送人。<br>
+   * 直接回复根评论时该字段为 null。
+   */
+  atUid: IdType | null
 
   /**
    * 评论发送人ip地址
@@ -85,6 +99,13 @@ export interface CommentVo extends AuditModel {
   replyUid: IdType | null
 
   /**
+   * 被回复的回复消息发送人用户ID。<br>
+   * 对根评论的回复进行回复时，表示该条回复具体是回复哪条回复消息的发送人。<br>
+   * 直接回复根评论时该字段为 null。
+   */
+  atUid: IdType | null
+
+  /**
    * 发送者ip地址。如果为 null 则表示管理员未开启IP地址显示。
    * 可能包含遮掩字符*（管理员配置）
    */
@@ -114,4 +135,10 @@ export interface CommentVo extends AuditModel {
    * 被回复评论的发送者用户名（仅 listByCommentId 查询回复时有值，通过 replyUid JOIN user 解析）
    */
   replyUsername: string | null
+
+  /**
+   * 被回复的回复消息发送人用户名（仅 listByCommentId 查询回复时有值，通过 atUid JOIN user 解析）<br>
+   * 直接回复根评论时该字段为 null。
+   */
+  atUsername: string | null
 }
