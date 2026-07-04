@@ -1,6 +1,6 @@
 <template>
   <!-- 回复区域 -->
-  <div class="replies-section">
+  <div class="mb-2">
     <!-- 未展开：显示提示 -->
     <div v-if="!state.expanded && rootComment.replyCount != 0" class="reply-toggle-area">
       
@@ -13,16 +13,14 @@
           color="primary"
         />
       </div>
-      <VBtn
-        v-else
-        variant="text"
-        density="compact"
-        prepend-icon="mdi-comment-text-outline"
-        class="tip"
-        @click="loadReplies(0)"
-      >
-        共{{ rootComment.replyCount }}条回复, 点击查看
-      </VBtn>
+      <template v-else>
+        <span
+          prepend-icon="mdi-comment-text-outline"
+          class="tip"
+        >
+          共{{ rootComment.replyCount }}条回复, <span class="cursor-pointer reply-action-text" @click="loadReplies(0)">点击查看</span>
+        </span>
+      </template>
 
     </div>
 
@@ -31,12 +29,13 @@
       <div v-show="state.expanded" class="replies-expanded-wrapper">
 
         <!-- 回复列表 + 分页 -->
-        <VCard class="replies-card">
+        <div>
           <CommentMessage
             v-for="reply in state.replies"
             :key="reply.id"
             :comment="reply"
             :can-send="canSend"
+            is-reply
             @reply="handleReply"
           />
 
@@ -77,29 +76,24 @@
             >
               下一页
             </VBtn>
-            <VBtn
-              variant="text"
-              density="compact"
-              color="default"
-              class="ml-2"
+            <span
+              class="ml-2 reply-action-text"
               @click="collapseReplies"
             >
               收起
-            </VBtn>
+            </span>
           </div>
 
           <!-- 仅一页时只显示收起 -->
-          <div v-else class="text-center pa-1">
-            <VBtn
-              variant="text"
-              density="compact"
-              color="default"
+          <div v-else>
+            <span
+              class="reply-action-text"
               @click="collapseReplies"
             >
               收起
-            </VBtn>
+            </span>
           </div>
-        </VCard>
+        </div>
       </div>
     </VExpandTransition>
 
@@ -327,6 +321,7 @@ defineExpose({
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import CommentMessage from './CommentMessage.vue'
 
 export default defineComponent({
   name: 'CommentReply'
@@ -334,17 +329,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.replies-section {
-  margin: 4px 4px 4px 24px;
-}
 
 .reply-toggle-area {
   padding: 2px 0;
-}
-
-.replies-card {
-  border-radius: 8px;
-  padding: 4px 8px;
 }
 
 .reply-pagination {
@@ -378,5 +365,12 @@ export default defineComponent({
 
 .inline-reply-area .reply-send-btn {
   margin-bottom: 2px;
+}
+.reply-action-text {
+  cursor: pointer;
+  transition: all .2s;
+}
+.reply-action-text:hover {
+  color: rgba(var(--v-theme-primary), .7)
 }
 </style>

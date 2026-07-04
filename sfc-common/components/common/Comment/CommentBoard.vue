@@ -13,20 +13,27 @@
             class="comment-item"
           >
             <!-- 根评论 -->
-            <CommentMessage :comment="comment" :can-send="canSend" @reply="handleReply" />
-
-            <!-- 回复区域 -->
-            <CommentReply
-              :ref="(el: any) => setReplyRef(comment.id, el)"
-              :root-comment="comment"
+            <CommentMessage
+              :comment="comment"
               :can-send="canSend"
-              :is-active-reply="activeReplyRootId === comment.id"
-              :reply-target="replyTarget"
-              :topic-id="topicId"
+              class="mt-3"
               @reply="handleReply"
-              @cancel-reply="handleCancelReply"
-              @reply-sent="handleReplySent"
-            />
+            >
+              <!-- 回复区域 -->
+              <CommentReply
+                :ref="(el: any) => setReplyRef(comment.id, el)"
+                class="mt-2"
+                :root-comment="comment"
+                :can-send="canSend"
+                :is-active-reply="activeReplyRootId === comment.id"
+                :reply-target="replyTarget"
+                :topic-id="topicId"
+                @reply="handleReply"
+                @cancel-reply="handleCancelReply"
+                @reply-sent="handleReplySent"
+              />
+            </CommentMessage>
+
           </VListItem>
 
           <!-- 底部加载/空状态由 VInfiniteScroll 自动管理 -->
