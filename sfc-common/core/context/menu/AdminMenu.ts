@@ -8,6 +8,7 @@ import MonitorView from 'sfc-common/views/admin/MonitorView.vue'
 import ThirdPlatformLoginConfigView from 'sfc-common/views/admin/ThirdPlatformLoginConfigView.vue'
 import { ChildrenType } from 'sfc-common/utils/SfcUtils/common/DyncMount'
 import ThirdPartyAppConfigView from 'sfc-common/views/admin/ThirdPartyAppConfigView.vue'
+import OidcScopeModuleView from 'sfc-common/views/admin/OidcScopeModuleView.vue'
 
 const cache = {} as {[k:string]: ChildrenType}
 export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
@@ -68,6 +69,13 @@ export function getDefaultAdminMenu(): MenuGroup<AdminContext>[] {
           title: 'OAuth 应用',
           action(ctx) {
             ctx.component = h(ThirdPartyAppConfigView, { adminContext: ctx  })
+          },
+        },
+        {
+          id: 'third-platform-oidc-scope',
+          title: 'OIDC 权限',
+          action(ctx) {
+            ctx.component = h(OidcScopeModuleView)
           },
         }
       ]

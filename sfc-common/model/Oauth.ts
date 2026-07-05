@@ -292,6 +292,8 @@ export interface OidcScopeInfo {
   description: string
   /** scope 图标 */
   icon: string
+  /** 是否为危险权限 */
+  isDanger?: boolean
 }
 
 /**
