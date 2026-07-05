@@ -1,5 +1,5 @@
 import { PageableRequest } from './../model/ApiRequest'
-import { BindUserParam, ThirdPartyApp, ThirdPartyAppAuthorization, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
+import { BindUserParam, OidcScopeModuleVO, ThirdPartyApp, ThirdPartyAppAuthorization, ThirdPartyAppKeyVo, ThirdPartyAppUserAuthorizationVo, ThirdPartyPlatformUser, UserAuthorizeResult } from './../model/Oauth'
 import { CommonPageInfo, CommonRequest, ConfigNodeModel, IdType, JsonResult, UserPrincipal } from 'sfc-common/model'
 import { ThirdPartyAuthPlatform, ThirdPartyPlatformCallbackResult } from 'sfc-common/model/Oauth'
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
@@ -205,6 +205,14 @@ export default {
         appId, uid
       },
       method: 'post'
+    }
+  },
+  /**
+   * 获取系统中所有已注册的 OIDC scope 模块及其 scope 列表
+   */
+  listScopeModules(): CommonRequest<OidcScopeModuleVO[]> {
+    return {
+      url: `${this.prefix}/listModules`
     }
   }
 }
