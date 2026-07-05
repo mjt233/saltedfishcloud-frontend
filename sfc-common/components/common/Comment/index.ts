@@ -1,2 +1,7 @@
 export { default as CommentBoard } from './CommentBoard.vue'
+export { default as CommentEditor } from './CommentEditor.vue'
 export { default as CommentMessage } from './CommentMessage.vue'
+export { default as CommentReply } from './CommentReply.vue'
+export { default as EmojiPicker } from './EmojiPicker.vue'
+export { default as PublicCommentBoard } from './PublicCommentBoard.vue'
+export { builtinCategories, type EmojiCategory, type EmojiItem, type EmojiItemType } from './emoji-data'

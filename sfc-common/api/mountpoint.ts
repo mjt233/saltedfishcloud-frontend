@@ -1,11 +1,11 @@
 import { useJsonBody } from 'sfc-common/utils/FormUtils/CommonFormUtils'
-import { CommonRequest, MountPoint, DiskFileSystemDescribe, IdType, MountPointSyncFileRecordParam } from 'sfc-common/model'
+import { CommonRequest, MountPoint, StorageMetadata, IdType, MountPointSyncFileRecordParam } from 'sfc-common/model'
 
 const mountPoint = {
   prefix: 'mountPoint',
-  listAvailableFileSystem(): CommonRequest<DiskFileSystemDescribe[]> {
+  listAvailableStorage(): CommonRequest<StorageMetadata[]> {
     return {
-      url: `${this.prefix}/listAvailableFileSystem`
+      url: `${this.prefix}/listAvailableStorage`
     }
   },
   saveMountPoint(mountPoint: MountPoint) {

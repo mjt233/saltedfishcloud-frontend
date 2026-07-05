@@ -7,13 +7,8 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
   const rotateDeg = ref(0)
   const { width: containerWidth, height: containerHeight } = useElementSize(containerRef)
 
-  watch([containerWidth, containerHeight], async() => {
-    if (containerWidth.value && containerHeight.value && imgRef.value?.image) {
-      await nextTick()
-      setAdaptSize()
-      setCenter()
-    }
-  })
+  // 标记是否正在因 UI 显隐变化而触发 resize，避免循环闪烁
+  let suppressResize = false
 
   const showSize = computed(() => {
     return {
@@ -26,9 +21,30 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     if (isFullscreen?.value) return false
     const h = parseFloat(showSize.value.height) || 0
     const top = parseFloat(showPosition.top) || 0
-    const bottomBarHeight = 160
-    
+    // 底部工具栏实际高度约 70px（50px 工具栏 + 20px 安全区内边距），
+    // 仅当主图底部真正接近工具栏时才隐藏工具栏
+    const bottomBarHeight = 70
+
     return top + h > containerHeight.value - bottomBarHeight + 5
+  })
+
+  watch([containerWidth, containerHeight], async() => {
+    if (suppressResize) return
+    if (containerWidth.value && containerHeight.value && imgRef.value?.image) {
+      await nextTick()
+      setAdaptSize()
+      setCenter()
+    }
+  })
+
+  // isOverflowing 变化时（工具栏/侧栏显隐），抑制容器尺寸变化触发的自适应，
+  // 防止图片被重置导致闪烁循环
+  watch(isOverflowing, () => {
+    suppressResize = true
+    // 等过渡动画完成后恢复
+    setTimeout(() => {
+      suppressResize = false
+    }, 350)
   })
 
   /**
@@ -60,7 +76,7 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     const { clientHeight: containerHeight, clientWidth: containerWidth } = containerRef.value
     
     // 全屏模式下不要留出底部工具栏空间
-    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 0)
+    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 70, 0)
     
     const imgWidth = parseFloat(width), imgHeight = parseFloat(height)
     showPosition.top = (usableHeight - imgHeight) / 2 + 'px'
@@ -77,7 +93,7 @@ export function useZoomManager(containerRef: Ref<HTMLElement | undefined>, imgRe
     const { clientHeight: containerHeight, clientWidth: containerWidth } = containerRef.value
 
     // 全屏模式下不要留出底部工具栏空间
-    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 160, 100)
+    const usableHeight = isFullscreen?.value ? containerHeight : Math.max(containerHeight - 70, 100)
 
     const xRatio = containerWidth / imgWidth * 100
     const yRatio = usableHeight / imgHeight * 100

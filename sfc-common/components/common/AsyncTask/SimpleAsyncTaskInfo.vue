@@ -10,7 +10,7 @@
       />
       <span>任务名称：{{ taskRecord?.name }}</span>
     </div>
-    <div v-if="showProgress" class="mt-1 mb-2">
+    <div v-if="showProgress && [0,1].includes(taskRecord?.status || 0)" class="mt-1 mb-2">
       <VProgressCircular
         v-if="!prog || prog.record.total <= 0"
         color="primary"

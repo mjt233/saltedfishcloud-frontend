@@ -1,0 +1,6 @@
+export { default as InvalidDataPreviewer } from './InvalidDataPreviewer.vue'
+export { default as AudioPreviewer } from './AudioPreviewer.vue'
+export { default as VideoPreviewer } from './VideoPreviewer.vue'
+export { default as ImagePreviewer } from './ImagePreviewer.vue'
+export { default as TextPreviewer } from './TextPreviewer.vue'
+export { default as ArchivePreviewer } from './ArchivePreviewer.vue'

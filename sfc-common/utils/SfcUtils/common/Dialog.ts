@@ -329,8 +329,8 @@ export interface OpenComponentDialogOption {
   props?: any
   showConfirm?: boolean
   showCancel?: boolean
-  onConfirm?: () => boolean | Promise<boolean>
-  onCancel?: () => boolean | Promise<boolean>
+  onConfirm?: (model: DialogModel) => boolean | Promise<boolean>
+  onCancel?: (model: DialogModel) => boolean | Promise<boolean>
   onMounted?(): void
   title?: string
   dense?: boolean

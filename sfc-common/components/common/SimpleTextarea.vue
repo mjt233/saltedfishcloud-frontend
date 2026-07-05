@@ -1,5 +1,10 @@
 <template>
-  <textarea class="simple-textarea" :value="modelValue" @input="input" />
+  <textarea
+    class="simple-textarea"
+    :value="modelValue"
+    :disabled="disabled"
+    @input="input"
+  />
 </template>
 
 <script setup lang="ts">
@@ -7,6 +12,11 @@ const props = defineProps({
   modelValue: {
     type: String,
     default: ''
+  },
+  /** 是否禁用输入 */
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 const emits = defineEmits(['update:modelValue', 'change'])

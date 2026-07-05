@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="config-describe tip">
-        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.title" />
+        <multi-line-text v-if="showDescribe && node.inputType != 'switch'" :text="node.describe" />
         <v-switch
           v-if="node.inputType == 'switch'"
           color="primary"
@@ -32,6 +32,19 @@
           :hide-details="dense"
           :label="useInnerLabel ? (node.title || node.name) : undefined"
           :type="node.mask ? 'password': 'text'"
+          :class="{'no-margin no-padding': dense && !useVuetifyNativeLayout, 'config-simple-input': !useVuetifyNativeLayout}"
+          @update:model-value="nodeValue = $event;updateValue(nodeValue)"
+        />
+      </template>
+      <template v-if="node.inputType == 'textarea'">
+        <v-textarea
+          variant="solo"
+          :rules="validators"
+          :model-value="nodeValue"
+          :readonly="node.readonly || readOnly"
+          :placeholder="node.describe"
+          :hide-details="dense"
+          :label="useInnerLabel ? (node.title || node.name) : undefined"
           :class="{'no-margin no-padding': dense && !useVuetifyNativeLayout, 'config-simple-input': !useVuetifyNativeLayout}"
           @update:model-value="nodeValue = $event;updateValue(nodeValue)"
         />

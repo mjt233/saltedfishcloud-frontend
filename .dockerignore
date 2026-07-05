@@ -1,0 +1,27 @@
+# 依赖与构建产物（容器内会重新安装和构建）
+node_modules
+dist
+dist-ssr
+
+# 版本控制
+.git
+.github
+
+# IDE / 编辑器
+.vscode
+.idea
+.DS_Store
+
+# 日志
+logs
+*.log
+npm-debug.log*
+
+# 本地配置
+*.local
+.env
+
+# 其他不需要的文件
+logo.psd
+img/
+docs/

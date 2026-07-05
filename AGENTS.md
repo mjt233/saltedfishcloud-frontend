@@ -5,13 +5,19 @@
 
 ## 前端组件与样式规范
 
-需要创建组件或改动组件样式时，请参考规范[前端样式说明](./docs/front-end-style.md)
+- 需要创建组件或改动组件样式时，请参考规范[Vue组件规范说明](./docs/vue-component-style.md) 与 [前端样式说明](./docs/front-end-style.md)
+- 尽可能使用以下组件实现一些通用的系统功能
+  | 组件名称 | 用途 |
+  | ------- | ----- |
+  | PathSelector | 选择网盘文件/目录路径 |
+  | ProxySelector | 代理配置选择 | 
 
 ## 通用代码规范
 
 - 需要通过对话框打开组件时，使用`SfcUtils.openComponentDialog`
 - 所有类/对象、类/对象的字段、方法/函数、interface、type、Vue组件的props和watch都需要有详细的jsdoc注释
 - 生成的代码中，每个关键步骤需要有行内注释，新生成的函数需要有jsdoc注释
+- 涉及异步的函数优先使用async / await
 
 
 ## 工作流与验证机制

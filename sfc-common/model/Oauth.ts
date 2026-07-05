@@ -175,6 +175,31 @@ export interface ThirdPartyApp extends AuditModel {
    * 是否已启用
    */
   isEnabled: boolean
+
+  /**
+   * 启用 OIDC 协议支持
+   */
+  oidcEnabled: boolean
+
+  /**
+   * OIDC客户端类型(机密应用/公共应用)
+   */
+  oidcClientType: 'CONFIDENTIAL' | 'PUBLIC'
+
+  /**
+   * 是否要求使用PKCE
+   */
+  requirePkce: boolean
+
+  /**
+   * OIDC Token 端点客户端认证方式
+   * 
+   * - CLIENT_SECRET_BASIC: 使用 HTTP Basic 认证，将 client_id 和 client_secret 编码后放入 Authorization 请求头。
+   * - CLIENT_SECRET_POST: 将 client_id 和 client_secret 作为请求体参数发送。
+   * - NONE: 不使用客户端认证方法，适用于公共客户端（如单页应用）或不需要客户端认证的场景，一般结合 PKCE 使用。
+   */
+  oidcTokenEndpointAuthMethod: 'CLIENT_SECRET_BASIC' | 'CLIENT_SECRET_POST' | 'NONE'
+
 }
 
 /**

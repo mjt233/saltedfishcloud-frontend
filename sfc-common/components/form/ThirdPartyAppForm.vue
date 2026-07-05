@@ -1,56 +1,77 @@
 <template>
   <base-form ref="formRef" :model-value="formData" :submit-action="actions.submit">
     <loading-mask :loading="loadingRef" type="circular" />
-    <v-row>
-      <v-col class="d-flex align-center justify-center" cols="2">
-        <div>
-          <img
-            v-if="formData.icon"
-            width="64px"
-            height="64px"
-            :src="formData.icon"
-            style="border-radius: 50%;cursor: pointer;"
-            title="修改图标"
-            @click="selectIcon"
-          >
-          <div v-else class="empty-icon tip" @click="selectIcon">
-            图标<common-icon icon="mdi-upload" />
-          </div>
-        </div>
-      </v-col>
-      <v-col>
-        <text-input v-model="formData.name" label="应用名称" :rules="validators.name" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <text-input v-model="formData.callbackUrl" label="回调URL" :rules="validators.callbackUrl" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <text-input v-model="formData.email" label="联系邮箱" :rules="validators.email" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-textarea
-          v-model="formData.describeContent"
-          label="应用介绍"
-          variant="underlined"
-          color="primary"
-          max-rows="7"
-          rows="1"
-          auto-grow
-          :rules="validators.describeContent"
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-checkbox-btn v-model="formData.isEnabled" label="启用该应用" color="primary" />
-      </v-col>
-    </v-row>
+    <v-expansion-panels model-value="base" eager>
+      <v-expansion-panel value="base" title="基础配置">
+        <v-expansion-panel-text>
+          <v-row>
+            <v-col class="d-flex align-center justify-center" cols="2">
+              <div>
+                <img
+                  v-if="formData.icon"
+                  width="64px"
+                  height="64px"
+                  :src="formData.icon"
+                  style="border-radius: 50%;cursor: pointer;"
+                  title="修改图标"
+                  @click="selectIcon"
+                >
+                <div v-else class="empty-icon tip" @click="selectIcon">
+                  图标<common-icon icon="mdi-upload" />
+                </div>
+              </div>
+            </v-col>
+            <v-col>
+              <v-text-field v-model="formData.name" label="应用名称" :rules="validators.name" />
+            </v-col>
+          </v-row>
+          <v-text-field
+            v-model="formData.callbackUrl"
+            label="回调URL"
+            :rules="validators.callbackUrl"
+            placeholder="允许为空，为空时允许转跳到指定任意回调"
+          />
+          <v-text-field v-model="formData.email" label="联系邮箱" :rules="validators.email" />
+          <v-textarea
+            v-model="formData.describeContent"
+            label="应用介绍"
+            variant="underlined"
+            color="primary"
+            max-rows="7"
+            rows="1"
+            auto-grow
+            :rules="validators.describeContent"
+          />
+    
+          <v-switch v-model="formData.isEnabled" label="启用该应用" color="primary" />
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+      <v-expansion-panel>
+        <v-expansion-panel-title>
+          OIDC 配置
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <v-switch v-model="formData.oidcEnabled" label="启用 OIDC 功能" color="primary" />
+          <v-select
+            v-model="formData.oidcClientType"
+            label="OIDC 客户端类型"
+            :items="[{ title: '私密', value: 'CONFIDENTIAL' }, { title: '公共', value: 'PUBLIC' }]"
+            color="primary"
+          />
+          <v-select
+            v-model="formData.oidcTokenEndpointAuthMethod"
+            label="OIDC Token Endpoint认证方法"
+            :items="[
+              { title: '客户端密钥基本认证（CLIENT_SECRET_BASIC）', value: 'CLIENT_SECRET_BASIC' },
+              { title: '客户端密钥POST认证（CLIENT_SECRET_POST）', value: 'CLIENT_SECRET_POST' },
+              { title: '无认证（NONE）', value: 'NONE' }
+            ]"
+            color="primary"
+          />
+          <v-switch v-model="formData.requirePkce" label="使用 PKCE" color="primary" />
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
   </base-form>
 </template>
 
@@ -73,7 +94,11 @@ const formInst = defineForm({
     }
   },
   formData: reactive({
-    isEnabled: true
+    isEnabled: true,
+    oidcEnabled: true,
+    oidcClientType: 'CONFIDENTIAL',
+    requirePkce: false,
+    oidcTokenEndpointAuthMethod: 'CLIENT_SECRET_BASIC'
   }) as ThirdPartyApp,
   formRef: formRef,
   validators: {
@@ -81,8 +106,7 @@ const formInst = defineForm({
       Validators.notNull('应用名称不能为空')
     ],
     callbackUrl: [
-      Validators.notNull('回调URL不能为空'),
-      Validators.isUrl(),
+      (val: FormFieldType) => !val || Validators.isUrl()(val),
       Validators.maxLen(null, 1024)
     ],
     email: [
@@ -146,6 +170,7 @@ import { LoadingMask, TextInput } from '../common'
 import CommonIcon from '../common/CommonIcon.vue'
 import SfcUtils from 'sfc-common/utils/SfcUtils'
 import API from 'sfc-common/api'
+import { VExpansionPanel } from 'vuetify/components'
 
 export default defineComponent({
   name: 'ThirdPartyAppForm'
