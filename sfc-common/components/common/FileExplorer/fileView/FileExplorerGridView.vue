@@ -1,7 +1,7 @@
 <!-- 注：该组件大部分代码由AI生成 -->
 <template>
   <div ref="thisRef" style="position: relative;">
-    <LoadingMask :loading="isLoading" />
+    <LoadingMask :loading="isLoading" z-index="1" />
     <VVirtualScroll
       v-if="fileList.length"
       ref="fileItemContainerRef"
