@@ -11,7 +11,7 @@
     <v-list-item-title class="text-subtitle-1 font-weight-bold mb-1">
       {{ item.name || '未知文件' }}
     </v-list-item-title>
-    
+
     <v-list-item-subtitle class="text-caption text-truncate mb-1">
       <a
         :href="item.url"
@@ -20,11 +20,11 @@
         @click.stop
       >{{ item.url }}</a>
     </v-list-item-subtitle>
-    
+
     <v-list-item-subtitle class="d-flex align-center mt-1">
       <!-- 非进行中状态显示文件大小和状态标签 -->
       <template v-if="!isInProgress">
-        <span class="mr-4 text-grey">大小：{{ StringFormatter.toSize(item.size) }}</span>
+        <span class="mr-4 text-grey">大小：{{ formatSize(item.size) }}</span>
         <v-chip
           size="small"
           :color="statusColor"
@@ -46,8 +46,8 @@
       >
         <template #default>
           <div class="progress-bar-content d-flex justify-space-between align-center pl-2 pr-2">
-            <span v-if="item.size > 0" class="progress-bar-left">{{ StringFormatter.toSize(item.size) }}</span>
-            <span class="progress-bar-center">{{ StringFormatter.toSize(item.speed) }}/s</span>
+            <span v-if="item.size > 0" class="progress-bar-left">{{ formatSize(item.size) }}</span>
+            <span class="progress-bar-center">{{ formatSize(item.speed) }}/s</span>
           </div>
         </template>
       </v-progress-linear>
@@ -73,13 +73,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, PropType } from 'vue'
-import { DownloadTaskInfo } from 'sfc-common/model'
-import { FileIcon } from 'sfc-common/components'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
+import { computed, PropType } from 'vue'
+import type { DownloadTaskInfo } from '../model'
+
+const SfcUtils = window.SfcUtils
+const FileIcon = window.Components?.FileIcon
 
 /**
- * 下载任务列表项组件
+ * 格式化文件大小
+ */
+const formatSize = (size: number) => {
+  if (size === 0) return '未知'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let idx = 0
+  let s = size
+  while (s >= 1024 && idx < units.length - 1) {
+    s /= 1024
+    idx++
+  }
+  return `${s.toFixed(idx > 0 ? 2 : 0)} ${units[idx]}`
+}
+
+/**
+ * 下载任务列表项组件 Props
  */
 const props = defineProps({
   item: {
@@ -94,12 +110,10 @@ const emit = defineEmits(['cancel'])
  * 是否进行中
  */
 const isInProgress = computed(() => {
-  // 也可以通过 asyncTaskRecord.status: 0-等待 1-运行 2-成功 3-失败 4-取消
   const recordStatus = props.item.asyncTaskRecord?.status
   if (recordStatus === 0 || recordStatus === 1) {
     return true
   }
-
   return false
 })
 
@@ -142,12 +156,6 @@ const statusColor = computed(() => {
 const onCancel = () => {
   emit('cancel', props.item.id)
 }
-</script>
-
-<script lang="ts">
-export default defineComponent({
-  name: 'DownloadTaskManagerItem'
-})
 </script>
 
 <style scoped>

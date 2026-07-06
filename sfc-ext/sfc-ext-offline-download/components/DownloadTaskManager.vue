@@ -52,7 +52,9 @@
         <v-skeleton-loader v-for="i in 3" :key="i" type="list-item-avatar-two-line" />
       </template>
       <template v-else-if="taskList.length === 0">
-        <empty-tip />
+        <div class="d-flex justify-center align-center py-8 text-grey">
+          暂无下载任务
+        </div>
       </template>
       <v-virtual-scroll
         v-else
@@ -86,32 +88,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted, PropType, defineComponent } from 'vue'
-import { IdType, DownloadTaskInfo } from 'sfc-common/model'
-import { TaskType } from 'sfc-common/api/task'
-import { getContext } from 'sfc-common/core/context'
-import { useCheckIsMobile } from 'sfc-common/composables/useCheckIsMobile'
-import { useAutoComputeHeight } from 'sfc-common/composables/useAutoComputeHeight'
-import SfcUtils from 'sfc-common/utils/SfcUtils'
-import API from 'sfc-common/api'
-import { EmptyTip } from 'sfc-common/components'
-import { DownloadTaskService } from 'sfc-common/core/serivce/DownloadTaskService'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import type { DownloadTaskInfo } from '../model.ts'
+import type { TaskType } from '../api.ts'
+import { downloadApi } from '../api.ts'
 import DownloadTaskManagerItem from './DownloadTaskManagerItem.vue'
+
+const SfcUtils = window.SfcUtils
 
 /**
  * 下载任务管理组件 Props
  */
 const props = defineProps({
   uid: {
-    type: [String, Number] as PropType<IdType>,
+    type: [String, Number],
     default: undefined
   }
 })
-const thisRef = ref<HTMLElement>()
-const isMobile = useCheckIsMobile()
-const ctx = getContext()
-const isAdmin = computed(() => ctx.session.value.user?.role === 'admin')
 
+const thisRef = ref<HTMLElement>()
+const isMobile = ref(false)
+const isAdmin = ref(false)
 const activeTab = ref<'my' | 'public'>('my')
 const statusFilter = ref<TaskType>('ALL')
 
@@ -124,33 +121,35 @@ const statusOptions: { value: TaskType, label: string }[] = [
 
 const taskList = ref<DownloadTaskInfo[]>([])
 const listLoading = ref(false)
-
 const taskListContainerRef = ref<HTMLElement>()
-const { targetHeight } = useAutoComputeHeight({
-  autoComputeHeight: true,
-  computeTarget: () => taskListContainerRef.value as HTMLElement,
-  observeTarget: () => thisRef.value as HTMLElement,
-  offset: -16
-})
+const targetHeight = ref(600)
 
-let autoRefreshTimer: any = null
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
+
+/**
+ * 获取当前登录用户信息
+ */
+const getSessionUser = () => {
+  try {
+    const ctx = window.context
+    return ctx?.session?.value?.user ?? null
+  } catch {
+    return null
+  }
+}
 
 /**
  * 获取当前查询的 uid
  */
 const getQueryUid = () => {
   if (activeTab.value === 'public') {
-    // 即使被认为是 public，如果是管理员，公共区域一般 uid 为 0
     return 0
   }
-  // 优先使用 props.uid 指定的用户，如果没有，则使用当前登录用户的 id
-  return props.uid ?? ctx.session.value.user?.id
+  return props.uid ?? getSessionUser()?.id
 }
 
 /**
  * 判断任务是否处于进行中状态
- * @param task 下载任务
- * @returns 是否进行中（0:等待中, 1:进行中）
  */
 const isTaskInProgress = (task: DownloadTaskInfo): boolean => {
   return task.asyncTaskRecord?.status === 0 || task.asyncTaskRecord?.status === 1
@@ -158,14 +157,14 @@ const isTaskInProgress = (task: DownloadTaskInfo): boolean => {
 
 /**
  * 请求任务列表，并按当前筛选条件进行排序
- * @returns 处理后的任务列表
  */
 const fetchTaskList = async(): Promise<DownloadTaskInfo[]> => {
-  const uid = getQueryUid()
-  const res = await SfcUtils.request(API.task.download.getTaskList(uid as IdType, statusFilter.value, 1, 300))
-  let list = res.data.data.content || []
+  const uid = getQueryUid() as number | string
+  const res = await SfcUtils.request(downloadApi.getTaskList(uid, statusFilter.value, 1, 300))
+  const data = res.data as { data: { content: DownloadTaskInfo[] } }
+  let list = data.data.content || []
 
-  // 如果是全部筛选，则把“进行中”任务排到前面
+  // 如果是全部筛选，则把"进行中"任务排到前面
   if (statusFilter.value === 'ALL') {
     list = list.slice().sort((a: DownloadTaskInfo, b: DownloadTaskInfo) => {
       const ia = isTaskInProgress(a) ? 0 : 1
@@ -208,7 +207,7 @@ const autoLoadList = async() => {
   try {
     isAutoLoading = true
     taskList.value = await fetchTaskList()
-  } catch (err) {
+  } catch {
     // 忽略后台加载错误
   } finally {
     isAutoLoading = false
@@ -217,19 +216,18 @@ const autoLoadList = async() => {
 
 /**
  * 取消任务
- * @param taskId 任务id
  */
 const onCancelTask = async(taskId: string) => {
   try {
-    await SfcUtils.loadingDialogTask({ msg: '正在取消任务...'},
+    await SfcUtils.loadingDialogTask({ msg: '正在取消任务...' },
       async() => {
         const uid = getQueryUid()
-        await SfcUtils.request(API.task.download.interruptTask(uid as IdType, taskId))
+        await SfcUtils.request(downloadApi.interruptTask(uid as number | string, taskId))
         await SfcUtils.sleep(500)
         SfcUtils.snackbar('已取消任务')
         loadList()
       })
-  } catch (err) {
+  } catch {
     SfcUtils.snackbar('取消任务失败')
   }
 }
@@ -239,10 +237,16 @@ const onCancelTask = async(taskId: string) => {
  */
 const openCreate = () => {
   const uid = getQueryUid()
-  DownloadTaskService.openCreateTask(uid as IdType, '/', false, loadList)
+  // 使用 DownloadTaskService 打开创建对话框
+  const downloadSvc = (window as { DownloadTaskService?: typeof import('./DownloadTaskService.ts').DownloadTaskService }).DownloadTaskService
+  if (downloadSvc) {
+    downloadSvc.openCreateTask(uid as number | string, '/', false, loadList)
+  }
 }
 
 onMounted(() => {
+  const user = getSessionUser()
+  isAdmin.value = user?.role === 'admin'
   if (!isAdmin.value) {
     activeTab.value = 'my'
   }
@@ -254,12 +258,6 @@ onUnmounted(() => {
   if (autoRefreshTimer) {
     clearInterval(autoRefreshTimer)
   }
-})
-</script>
-
-<script lang="ts">
-export default defineComponent({
-  name: 'DownloadTaskManager'
 })
 </script>
 

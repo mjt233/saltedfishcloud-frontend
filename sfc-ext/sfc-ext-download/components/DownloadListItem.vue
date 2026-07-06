@@ -51,16 +51,37 @@
 </template>
 
 <script setup lang="ts">
-import FileIcon from '../FileIcon.vue'
+import type { PropType } from 'vue'
+import type { DownloadTaskInfo } from '../model'
+
+const FileIcon = window.Components?.FileIcon
+
 const props = defineProps({
   downloadTask: {
     type: Object as PropType<DownloadTaskInfo>,
-    default: () => {}
+    default: () => ({})
   }
 })
-const formatSize = StringFormatter.toSize
-const formatDate = StringFormatter.toDate
-const getStateText = (e: number) => {
+
+const formatSize = (size: number) => {
+  if (size === 0) return '未知'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let idx = 0
+  let s = size
+  while (s >= 1024 && idx < units.length - 1) {
+    s /= 1024
+    idx++
+  }
+  return `${s.toFixed(idx > 0 ? 2 : 0)} ${units[idx]}`
+}
+
+const formatDate = (date: Date | string) => {
+  if (!date) return ''
+  const d = new Date(date)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+const getStateText = (e?: number) => {
   if (e == 0) {
     return '等待中'
   } else if (e == 1) {
@@ -73,20 +94,11 @@ const getStateText = (e: number) => {
     return `未知-${e}`
   }
 }
+
 const emits = defineEmits(['cancel'])
 </script>
 
-<script lang="ts">
-import { DownloadTaskInfo } from 'sfc-common/model/DownloadTask'
-import { defineComponent, defineProps, defineEmits, PropType } from 'vue'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
-
-export default defineComponent({
-  name: 'DownloadListItem'
-})
-</script>
-
-<style lang="scss" scoped>
+<style scoped>
 .details>* {
   line-height: 24px;
 }
