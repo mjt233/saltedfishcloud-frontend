@@ -8,7 +8,6 @@
  * - 主菜单导航入口
  * - 文件列表快捷操作入口
  */
-import { type App } from 'vue'
 import type { ToRefs } from 'vue'
 import type { AppContext } from 'sfc-common'
 import DownloadTaskManager from './components/DownloadTaskManager.vue'
