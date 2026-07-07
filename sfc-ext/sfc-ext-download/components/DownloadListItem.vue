@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 import type { DownloadTaskInfo } from '../model'
+import { StringFormatter } from 'sfc-common'
 
 const FileIcon = window.Components?.FileIcon
 
@@ -65,14 +66,7 @@ const props = defineProps({
 
 const formatSize = (size: number) => {
   if (size === 0) return '未知'
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  let idx = 0
-  let s = size
-  while (s >= 1024 && idx < units.length - 1) {
-    s /= 1024
-    idx++
-  }
-  return `${s.toFixed(idx > 0 ? 2 : 0)} ${units[idx]}`
+  return StringFormatter.toSize(size)
 }
 
 const formatDate = (date: Date | string) => {
