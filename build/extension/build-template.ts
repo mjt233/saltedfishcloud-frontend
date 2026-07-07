@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import { copyToBackendPlugin } from '../plugins/copy-to-backend-plugin'
+import { externalLibPath } from './external-lib-paths.js'
 
 /**
  * 声明一个拓展，插件名称由环境变量 VITE_EXT_NAME 指定（例如 demo）
@@ -53,14 +54,7 @@ export function defineExtension() {
         formats: ['umd']
       },
       rollupOptions: {
-        // 确保外部化处理那些你不想打包进库的依赖
-        external: [
-          // 公共库
-          'vue', 'dplayer', 'vuetify', 'vuetify/components', 'qs', 'monaco-editor',
-
-          // 咸鱼云前端核心模块
-          'sfc-common', 'sfc-common/components', 'sfc-common/utils/SfcUtils/index.js', 'sfc-common/utils/SfcUtils'
-        ],
+        external: externalLibPath,
         output: {
           // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
           globals: {

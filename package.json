@@ -9,7 +9,7 @@
     "build-oauth": "cd sfc-oauth && vite build",
     "dev": "vite --host",
     "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "node scripts/typecheck.ts",
     "deploy": "git checkout deploy && git merge develop --no-ff && git push && git push origin && git push github && git checkout develop",
     "build-ext": "node scripts/build-ext.mjs",
     "build-ext-all": "node scripts/build-ext.mjs --all",

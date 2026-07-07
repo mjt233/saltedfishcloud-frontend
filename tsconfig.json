@@ -14,6 +14,7 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "skipLibCheck": true,
+    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
       "sfc-oauth/*": ["./sfc-oauth/*"],
