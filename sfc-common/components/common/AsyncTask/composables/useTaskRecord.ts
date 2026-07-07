@@ -77,6 +77,13 @@ export function useTaskRecord(taskId: IdType, options: UseTaskRecordOptions = {}
   const init = async() => {
     await loadData()
     onLoaded?.(taskRecord.value || null)
+
+    // 如果任务已经处于终态（非等待中状态），直接触发退出回调
+    // 否则由 waitTaskExitLoop 在状态变更后触发
+    if (!needWaiting() && taskRecord.value && onTaskExit && !isUnmounted) {
+      onTaskExit(taskId, taskRecord.value)
+    }
+
     await waitTaskExitLoop()
   }
 
