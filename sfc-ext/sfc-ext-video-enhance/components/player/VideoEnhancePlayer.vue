@@ -323,10 +323,54 @@ export default defineComponent({
   pointer-events: none;
   z-index: 1000;
 }
+
+/* 非全屏：限制 DPlayer 容器最大高度，避免竖屏视频导致容器过高出现滚动条 */
+.player-root .dplayer {
+  max-height: 80vh !important;
+  height: auto !important;
+}
+
+/* 非全屏：强制视频以 contain 方式适配容器，保证竖屏视频整体可见且不拉伸 */
+.player-root .dplayer-video {
+  max-height: 80vh !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* 浏览器原生全屏：解除高度限制，让视频铺满屏幕并保持完整展示 */
+.player-root .dplayer:fullscreen,
+.player-root .dplayer:fullscreen .dplayer-video {
+  max-height: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+.player-root .dplayer:-webkit-full-screen,
+.player-root .dplayer:-webkit-full-screen .dplayer-video {
+  max-height: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* 网页全屏（dplayer-fulled）：解除高度限制，让视频铺满可用区域 */
+.player-root .dplayer.dplayer-fulled,
+.player-root .dplayer.dplayer-fulled .dplayer-video {
+  max-height: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
 </style>
 
 <style scoped lang="scss">
 .player-root {
   position: relative;
+  max-height: 80vh;
+}
+.player {
+  width: 100%;
+  max-height: 80vh;
 }
 </style>

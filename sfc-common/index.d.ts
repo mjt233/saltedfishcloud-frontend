@@ -18,6 +18,7 @@ import * as echarts from 'echarts'
 import * as qs from 'qs'
 import { getContext } from 'sfc-common/core/context'
 import { FileAttributeExtension } from 'sfc-common/core/context/fileAttributeExtension'
+import * as VuetifyComponent from 'vuetify/components'
 
 declare global {
   interface Window {
@@ -37,6 +38,7 @@ declare global {
     StringFormatter: typeof StringFormatter,
     StringUtils: typeof StringUtils,
     SfcCommon: typeof SfcCommon
+    VuetifyComponent: typeof VuetifyComponent
     monaco: typeof monaco
     echarts: typeof echarts,
     qs: typeof qs,

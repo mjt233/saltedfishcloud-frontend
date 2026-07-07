@@ -1,5 +1,5 @@
 import { AuditModel, IdType } from './Common'
-const AsyncTaskRecordStatusDict = {
+const AsyncTaskRecordStatusDict: Record<number, string> = {
   0: '等待中',
   1: '执行中',
   2: '执行成功',

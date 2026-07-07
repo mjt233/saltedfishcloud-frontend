@@ -6,14 +6,8 @@ import IndexDesktopView from 'sfc-common/views/common/IndexDesktopView.vue'
 const commonRoute: VueRouter.RouteRecordRaw  =  {
   path: '/',
   component: Index,
+  name: 'common',
   children: [
-    {
-      path: '/download-task',
-      component: () => import('sfc-common/components/common/DownloadTask/Manager/DownloadTaskManager.vue'),
-      meta: {
-        allowNoLogin: false
-      }
-    },
     {
       path: '/',
       component: IndexDesktopView,

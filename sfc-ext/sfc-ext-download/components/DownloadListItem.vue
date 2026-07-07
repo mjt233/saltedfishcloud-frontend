@@ -51,42 +51,42 @@
 </template>
 
 <script setup lang="ts">
-import FileIcon from '../FileIcon.vue'
+import type { PropType } from 'vue'
+import type { DownloadTaskInfo } from '../model'
+import { StringFormatter } from 'sfc-common'
+import { AsyncTaskRecordStatusDict } from 'sfc-common/model/AsyncTaskRecord'
+
+const FileIcon = window.Components?.FileIcon
+
 const props = defineProps({
   downloadTask: {
     type: Object as PropType<DownloadTaskInfo>,
-    default: () => {}
+    default: () => ({})
   }
 })
-const formatSize = StringFormatter.toSize
-const formatDate = StringFormatter.toDate
-const getStateText = (e: number) => {
-  if (e == 0) {
-    return '等待中'
-  } else if (e == 1) {
-    return '下载中'
-  } else if (e == 2) {
-    return '完成'
-  } else if (e == 3) {
-    return '失败'
-  } else {
-    return `未知-${e}`
-  }
+
+const formatSize = (size: number) => {
+  if (size === 0) return '未知'
+  return StringFormatter.toSize(size)
 }
+
+const formatDate = (date: Date | string) => {
+  if (!date) return ''
+  const d = new Date(date)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+const getStateText = (e?: number) => {
+  if (e === undefined) {
+    return '未知'
+  }
+  return AsyncTaskRecordStatusDict[e] || '未知'
+}
+
 const emits = defineEmits(['cancel'])
 </script>
 
-<script lang="ts">
-import { DownloadTaskInfo } from 'sfc-common/model/DownloadTask'
-import { defineComponent, defineProps, defineEmits, PropType } from 'vue'
-import { StringFormatter } from 'sfc-common/utils/StringFormatter'
-
-export default defineComponent({
-  name: 'DownloadListItem'
-})
-</script>
-
-<style lang="scss" scoped>
+<style scoped>
 .details>* {
   line-height: 24px;
 }

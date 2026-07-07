@@ -1,12 +1,12 @@
-import { IdType } from '..'
-import { AsyncTaskRecord } from './AsyncTaskRecord'
-
+/**
+ * 下载任务信息
+ */
 export interface DownloadTaskInfo {
   /** 任务id */
   id: string
 
   /** 任务所属用户id */
-  uid: IdType
+  uid: number | string
 
   /** 下载url */
   url: string
@@ -43,4 +43,27 @@ export interface DownloadTaskInfo {
 
   /** 关联的异步任务信息 */
   asyncTaskRecord: AsyncTaskRecord
+}
+
+/**
+ * 异步任务记录
+ */
+export interface AsyncTaskRecord {
+  id: string
+  status: number
+  progress: number
+  message: string
+  createdAt: Date | string
+  finishAt?: Date | string
+}
+
+/**
+ * 代理信息
+ */
+export interface ProxyInfo {
+  name: string
+  type: string
+  host: string
+  port: number
+  [key: string]: unknown
 }

@@ -281,6 +281,38 @@ export interface ThirdPartyAppUserAuthorizationVo {
 }
 
 /**
+ * OIDC scope 信息
+ */
+export interface OidcScopeInfo {
+  /** scope 唯一标识，例如 "profile"、"storage_read" */
+  id: string
+  /** scope 显示名称 */
+  name: string
+  /** scope 描述 */
+  description: string
+  /** scope 图标 */
+  icon: string
+  /** 是否为危险权限 */
+  isDanger?: boolean
+}
+
+/**
+ * OIDC scope 模块视图对象
+ */
+export interface OidcScopeModuleVO {
+  /** 模块唯一标识 */
+  moduleId: string
+  /** 模块显示名称 */
+  moduleName: string
+  /** 模块描述 */
+  description: string
+  /** 模块图标 */
+  icon: string
+  /** 该模块提供的所有 scope */
+  scopes: OidcScopeInfo[]
+}
+
+/**
  * 用户授权结果
  */
 export interface UserAuthorizeResult {

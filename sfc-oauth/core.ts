@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse }  from 'axios'
 import { ApiRequest, IdType } from 'sfc-common'
 import sys from 'sfc-common/api/sys'
 import user from 'sfc-common/api/user'
+import oauth from 'sfc-common/api/oauth'
 import { LoadingManager } from 'sfc-common/utils/LoadingManager'
 import { createApp, Ref, ref } from 'vue'
 import { AuthorityItem } from './model'
@@ -97,42 +98,38 @@ export function useMessage() {
   }
 }
 
-const buildinAuthorityList = [
-  {
-    name: 'OpenID 身份标识',
-    code: 'openid',
-    icon: 'mdi-identifier',
-    describe: '您的唯一用户标识（sub）'
-  },
-  {
-    name: '用户基本信息',
-    code: 'profile',
-    icon: 'mdi-account-circle',
-    describe: '您的用户名、邮箱与头像'
-  },
-  {
-    name: '网盘读取权限',
-    code: 'storage_read',
-    icon: 'mdi-database',
-    describe: '读取您的私人网盘文件与文件列表'
-  },
-  {
-    name: '网盘写入权限',
-    code: 'storage_write',
-    icon: 'mdi-database',
-    describe: '对您的私人网盘文件进行写入、删除、重命名、移动操作',
-    isDanger: true
-  }
-] as AuthorityItem[]
+const OPENID_ITEM: AuthorityItem = {
+  name: 'OpenID 身份标识',
+  code: 'openid',
+  icon: 'mdi-identifier',
+  describe: '您的唯一用户标识（sub）'
+}
 
 /**
  * 获取授权范围中，系统的有效权限列表
- * @param scope 请求授权范围
+ * @param scope 请求授权范围（空格分隔的 scope 字符串）
  */
 export async function getAuthorityList(scope: string) {
   const requireAuthoritySet = new Set(scope.split(' ').filter(e => e.length))
-  const serverAuthorityList = buildinAuthorityList
-  return serverAuthorityList.filter(e => requireAuthoritySet.has(e.code))
+  const res = await request(oauth.listScopeModules())
+  const scopeModules = res.data.data
+
+  // 拍平所有模块的 scope 构建 AuthorityItem 列表
+  const items: AuthorityItem[] = scopeModules.flatMap(m =>
+    m.scopes.map(s => ({
+      code: s.id,
+      name: s.name,
+      icon: s.icon,
+      describe: s.description
+    }))
+  )
+
+  // openid 为标准 OIDC scope，后端模块中可能不存在，由前端补充兜底
+  if (!items.some(e => e.code === 'openid')) {
+    items.push(OPENID_ITEM)
+  }
+
+  return items.filter(e => requireAuthoritySet.has(e.code))
 }
 
 export {

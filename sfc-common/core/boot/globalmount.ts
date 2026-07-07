@@ -15,6 +15,7 @@ import * as monaco from 'monaco-editor'
 import qs from 'qs'
 // import * as SfcCommon from 'sfc-common'
 import * as echarts from 'echarts'
+import * as VuetifyComponent from 'vuetify/components'
 
 
 /**
@@ -38,6 +39,7 @@ function mountGlobalAttr() {
   window.StringUtils = StringUtils
   window.Components = components
   // window.SfcCommon = SfcCommon
+  window.VuetifyComponent = VuetifyComponent
   window.echarts = echarts
   window.qs = qs
   window.monaco = monaco
