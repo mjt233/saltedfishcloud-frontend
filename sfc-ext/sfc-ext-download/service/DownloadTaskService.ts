@@ -1,18 +1,8 @@
 import { h } from 'vue'
-import DownloadTaskView from './DownloadTaskView.vue'
-import CreateDownloadForm from './CreateDownloadForm.vue'
+import DownloadTaskView from '../components/DownloadTaskView.vue'
+import CreateDownloadForm from '../components/CreateDownloadForm.vue'
 import { VBtn } from 'vuetify/components'
-
-
-const SfcUtils = window.SfcUtils
-
-/**
- * 打开组件对话框的返回值接口
- */
-interface DialogInstance {
-  doConfirm(): void
-  getComponentInstRef<T = Record<string, unknown>>(): T
-}
+import SfcUtils from 'sfc-common/utils/SfcUtils/index.js'
 
 /**
  * 下载任务服务 - 提供打开下载任务视图和创建下载任务对话框的功能
@@ -81,7 +71,7 @@ export namespace DownloadTaskService {
         }
         return false
       },
-      footer: !canOpenView ? () => '' : () => h(window.VuetifyComponent.VBtn, {
+      footer: !canOpenView ? () => '' : () => h(VBtn, {
         color: 'primary' as string,
         onClick: () => {
           openTaskView(uid, path, false)

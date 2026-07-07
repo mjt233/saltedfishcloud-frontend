@@ -93,7 +93,7 @@ import type { DownloadTaskInfo } from '../model'
 import type { TaskType } from '../api'
 import { downloadApi } from '../api'
 import DownloadTaskManagerItem from './DownloadTaskManagerItem.vue'
-import { DownloadTaskService } from './DownloadTaskService'
+import { DownloadTaskService } from '../service/DownloadTaskService'
 import { useAutoComputeHeight } from 'sfc-common'
 
 const SfcUtils = window.SfcUtils

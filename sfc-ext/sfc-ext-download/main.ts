@@ -12,7 +12,7 @@ import type { ToRefs } from 'vue'
 import type { AppContext } from 'sfc-common'
 import DownloadTaskManager from './components/DownloadTaskManager.vue'
 import CreateDownloadForm from './components/CreateDownloadForm.vue'
-import { DownloadTaskService } from './components/DownloadTaskService.js'
+import { DownloadTaskService } from './service/DownloadTaskService.js'
 
 const bootContext = window.bootContext
 

@@ -54,7 +54,13 @@ export function defineExtension() {
       },
       rollupOptions: {
         // 确保外部化处理那些你不想打包进库的依赖
-        external: ['vue', 'dplayer', 'vuetify', 'sfc-common', 'monaco-editor', 'qs', 'sfc-common/components'],
+        external: [
+          // 公共库
+          'vue', 'dplayer', 'vuetify', 'vuetify/components', 'qs', 'monaco-editor',
+
+          // 咸鱼云前端核心模块
+          'sfc-common', 'sfc-common/components', 'sfc-common/utils/SfcUtils/index.js', 'sfc-common/utils/SfcUtils'
+        ],
         output: {
           // 在 UMD 构建模式下为这些外部化的依赖提供一个全局变量
           globals: {
@@ -63,7 +69,10 @@ export function defineExtension() {
             vuetify: 'Vuetify',
             'sfc-common': 'SfcCommon',
             qs: 'qs',
-            'sfc-common/components': 'Components'
+            'sfc-common/components': 'Components',
+            'vuetify/components': 'VuetifyComponent',
+            'sfc-common/utils/SfcUtils/index.js': 'SfcUtils',
+            'sfc-common/utils/SfcUtils': 'SfcUtils'
           }
         }
       },
