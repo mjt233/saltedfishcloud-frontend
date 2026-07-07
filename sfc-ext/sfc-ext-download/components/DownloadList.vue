@@ -4,32 +4,27 @@
       <download-list-item :download-task="item" @cancel="emits('cancel', item.id)" />
     </li>
   </ul>
-  <empty-tip v-else />
+  <div v-else class="d-flex justify-center align-center py-8 text-grey">
+    暂无下载任务
+  </div>
 </template>
 
 <script setup lang="ts">
-import { EmptyTip,DownloadListItem } from 'sfc-common/components'
+import type { PropType } from 'vue'
+import type { DownloadTaskInfo } from '../model'
+import DownloadListItem from './DownloadListItem.vue'
+
 const props = defineProps({
   downloadList: {
     type: Array as PropType<DownloadTaskInfo[]>,
     default: () => []
   }
 })
+
 const emits = defineEmits(['cancel'])
-
 </script>
 
-<script lang="ts">
-import { DownloadTaskInfo } from 'sfc-common/model/DownloadTask'
-import { defineComponent, defineProps, defineEmits, Ref, ref, PropType } from 'vue'
-
-
-export default defineComponent({
-  name: 'DownloadList'
-})
-</script>
-
-<style scoped lang="scss">
+<style scoped>
 .task-list {
   list-style: none;
   &>li {
