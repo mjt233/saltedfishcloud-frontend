@@ -94,6 +94,7 @@ import type { TaskType } from '../api'
 import { downloadApi } from '../api'
 import DownloadTaskManagerItem from './DownloadTaskManagerItem.vue'
 import { DownloadTaskService } from './DownloadTaskService'
+import { useAutoComputeHeight } from 'sfc-common'
 
 const SfcUtils = window.SfcUtils
 
@@ -123,7 +124,13 @@ const statusOptions: { value: TaskType, label: string }[] = [
 const taskList = ref<DownloadTaskInfo[]>([])
 const listLoading = ref(false)
 const taskListContainerRef = ref<HTMLElement>()
-const targetHeight = ref(600)
+
+const { targetHeight } =  useAutoComputeHeight({
+  autoComputeHeight: true,
+  computeTarget: () => taskListContainerRef.value as HTMLElement,
+  observeTarget: document.body,
+  offset: -16
+})
 
 let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
 

@@ -21,7 +21,7 @@ const bootContext = window.bootContext
  */
 bootContext.addProcessor({
   taskName: '注册离线下载插件',
-  execute(app) {
+  async execute(app) {
     // 注册全局组件
     app.component('DownloadTaskManager', DownloadTaskManager)
     app.component('CreateDownloadForm', CreateDownloadForm)
@@ -73,11 +73,15 @@ bootContext.addProcessor({
     if (router) {
       router.addRoute('common', {
         path: '/download-task',
-        component: DownloadTaskManager,
-        meta: {
-          allowNoLogin: false
-        }
+        component: DownloadTaskManager
       })
+      // 重新导航以确保路由注册生效
+      const currentRoute = context.routeInfo.value.curr
+      if (currentRoute && currentRoute.path === '/download-task') {
+        // 先导航到其他路径，再导航回下载任务页面，强制重新匹配路由
+        await router.replace('/')
+        router.replace('/download-task')
+      }
     }
   }
 })

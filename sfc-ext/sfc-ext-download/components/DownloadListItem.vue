@@ -54,6 +54,7 @@
 import type { PropType } from 'vue'
 import type { DownloadTaskInfo } from '../model'
 import { StringFormatter } from 'sfc-common'
+import { AsyncTaskRecordStatusDict } from 'sfc-common/model/AsyncTaskRecord'
 
 const FileIcon = window.Components?.FileIcon
 
@@ -76,17 +77,10 @@ const formatDate = (date: Date | string) => {
 }
 
 const getStateText = (e?: number) => {
-  if (e == 0) {
-    return '等待中'
-  } else if (e == 1) {
-    return '下载中'
-  } else if (e == 2) {
-    return '完成'
-  } else if (e == 3) {
-    return '失败'
-  } else {
-    return `未知-${e}`
+  if (e === undefined) {
+    return '未知'
   }
+  return AsyncTaskRecordStatusDict[e] || '未知'
 }
 
 const emits = defineEmits(['cancel'])

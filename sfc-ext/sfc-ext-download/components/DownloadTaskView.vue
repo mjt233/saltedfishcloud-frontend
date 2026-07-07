@@ -59,10 +59,13 @@ const loadList = async() => {
 }
 
 const interruptTask = async(id: string) => {
-  await SfcUtils.request(downloadApi.interruptTask(props.uid, id))
-  await SfcUtils.sleep(500)
-  await loadList()
-  SfcUtils.snackbar(`已取消文件${taskCollection.download.find(e => e.id == id)?.name}的下载`)
+  const name = taskCollection.download.find(e => e.id == id)?.name
+  await SfcUtils.loadingDialogTask({ msg: '处理中...' }, async _ => {
+    await SfcUtils.request(downloadApi.interruptTask(props.uid, id))
+    await SfcUtils.sleep(500)
+    await loadList()
+  })
+  SfcUtils.snackbar(`已取消文件${name}的下载`)
 }
 
 loadList()
