@@ -6,6 +6,7 @@ import IndexDesktopView from 'sfc-common/views/common/IndexDesktopView.vue'
 const commonRoute: VueRouter.RouteRecordRaw  =  {
   path: '/',
   component: Index,
+  name: 'common',
   children: [
     {
       path: '/',

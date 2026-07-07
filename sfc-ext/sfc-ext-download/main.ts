@@ -39,7 +39,7 @@ bootContext.addProcessor({
         route: '/download-task',
         icon: 'mdi-download',
         renderOn: (ctx?: ToRefs<AppContext>) => {
-          return ctx?.session?.value?.user != null
+          return ctx?.session?.value?.user.id != 0
         }
       })
     }
@@ -71,7 +71,7 @@ bootContext.addProcessor({
     // 注册路由 - 下载任务管理页面
     const router = context.routeInfo.value.router
     if (router) {
-      router.addRoute({
+      router.addRoute('common', {
         path: '/download-task',
         component: DownloadTaskManager,
         meta: {

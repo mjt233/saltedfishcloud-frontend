@@ -93,6 +93,7 @@ import type { DownloadTaskInfo } from '../model'
 import type { TaskType } from '../api'
 import { downloadApi } from '../api'
 import DownloadTaskManagerItem from './DownloadTaskManagerItem.vue'
+import { DownloadTaskService } from './DownloadTaskService'
 
 const SfcUtils = window.SfcUtils
 
@@ -130,12 +131,7 @@ let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
  * 获取当前登录用户信息
  */
 const getSessionUser = () => {
-  try {
-    const ctx = window.context
-    return ctx?.session?.value?.user ?? null
-  } catch {
-    return null
-  }
+  return window.getContext().session.value.user
 }
 
 /**
@@ -145,7 +141,7 @@ const getQueryUid = () => {
   if (activeTab.value === 'public') {
     return 0
   }
-  return props.uid ?? getSessionUser()?.id
+  return props.uid ?? getSessionUser().id
 }
 
 /**
@@ -238,10 +234,7 @@ const onCancelTask = async(taskId: string) => {
 const openCreate = () => {
   const uid = getQueryUid()
   // 使用 DownloadTaskService 打开创建对话框
-  const downloadSvc = (window as { DownloadTaskService?: typeof import('./DownloadTaskService').DownloadTaskService }).DownloadTaskService
-  if (downloadSvc) {
-    downloadSvc.openCreateTask(uid as number | string, '/', false, loadList)
-  }
+  DownloadTaskService.openCreateTask(uid, '/', false, loadList)
 }
 
 onMounted(() => {
