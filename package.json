@@ -7,7 +7,7 @@
     "serve": "vite preview",
     "build": "vite build && cd sfc-oauth && vite build",
     "build-oauth": "cd sfc-oauth && vite build",
-    "dev": "vite --host",
+    "dev": "vite --port=4000 --host",
     "preview": "vite preview",
     "typecheck": "node scripts/typecheck.ts",
     "deploy": "git checkout deploy && git merge develop --no-ff && git push && git push origin && git push github && git checkout develop",

@@ -3,6 +3,16 @@
 - **UI 组件库**: Vuetify 4.0.0
 - **CSS 方案**: Tailwind CSS (用于辅助布局与微调)、SCSS
 
+## 开发调试服务
+
+默认服务端口为 4000，可通过 [http://localhost:4000](http://localhost:4000) 访问
+开发环境默认员账号消息
+
+| 用户名 | 密码 |
+| ------| ----- |
+| admin | admin666 |
+
+
 ## 前端组件与样式规范
 
 - 需要创建组件或改动组件样式时，请参考规范[Vue组件规范说明](./docs/vue-component-style.md) 与 [前端样式说明](./docs/front-end-style.md)
