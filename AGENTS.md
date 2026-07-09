@@ -12,6 +12,11 @@
 | ------| ----- |
 | admin | admin666 |
 
+## Vue 路由定义
+
+主模块的顶层只配置了2个路由：用户界面`/`与管理员界面`/admin`，其他页面的路由全部必须为这两个路由的子路由以确保通用的header和侧边栏菜单能正常渲染。
+
+主模块路由配置定义见：`sfc-common/plugins/router/index.ts`
 
 ## 前端组件与样式规范
 
@@ -29,6 +34,10 @@
 - 生成的代码中，每个关键步骤需要有行内注释，新生成的函数需要有jsdoc注释
 - 涉及异步的函数优先使用async / await
 
+## 插件模块开发规范
+
+插件模块指的是位置在 `sfc-ext` 下的模块，插件模块应遵循以下规则：
+- 对主模块`sfc-common`的非type导入（如：组件、SfcUtils、API、StringFormatter）仅允许从 `build/extension/external-lib-paths.js` 中定义的 `externalSfcCommonPath` 导入。如果需要用到主模块未在可用路径中导出，则提示用户
 
 ## 工作流与验证机制
 
