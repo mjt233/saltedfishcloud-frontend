@@ -5,6 +5,7 @@ import { Ref } from 'vue'
 import { FileInfo, IdType } from 'sfc-common/model'
 import { ShareInfo } from 'sfc-common/api/share'
 import { ShareService } from './ShareService'
+import { StringUtils } from 'sfc-common/utils'
 
 export interface FileSystemHandler {
   
@@ -110,7 +111,13 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
 
   async uploadDirect(path: string, file: File): Promise<any> {
     const executor = DiskFileUploadService.uploadToDisk(this.uid.value, path, file)
-    fileUploadTaskManager.addExecutor(executor)
+    return new Promise((resolve, reject) => {
+      executor.onSuccess(() => {
+        resolve(StringUtils.appendPath(path, file.name))
+      })
+      executor.onError(reject)
+      fileUploadTaskManager.addExecutor(executor)
+    })
   }
 
   
