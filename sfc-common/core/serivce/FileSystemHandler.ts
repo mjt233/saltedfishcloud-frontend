@@ -45,9 +45,9 @@ export interface FileSystemHandler {
    * @param uid   用户ID
    * @param path  文件所在路径
    * @param file  待上传的文件
-   * @returns 1 - 新文件，0 - 旧文件覆盖
+   * @returns 文件上传后的保存路径
    */
-  uploadDirect(path: string, file: File): Promise<any>
+  uploadDirect(path: string, file: File): Promise<string>
 
   /**
    * 对文件进行重命名操作
@@ -109,7 +109,7 @@ export class DefaultFileSystemHandler implements FileSystemHandler {
   }
   
 
-  async uploadDirect(path: string, file: File): Promise<any> {
+  async uploadDirect(path: string, file: File): Promise<string> {
     const executor = DiskFileUploadService.uploadToDisk(this.uid.value, path, file)
     return new Promise((resolve, reject) => {
       executor.onSuccess(() => {
