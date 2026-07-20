@@ -7,6 +7,11 @@ export namespace EventNameConstants {
   export const SEARCH_IN_DISK = 'search-in-disk'
 
   /**
+   * 刷新当前网盘路径下的文件列表
+   */
+  export const REFRESH_FILE_LIST = 'refresh-file-list'
+
+  /**
    * 路由切换
    */
   export const ROUTE_CHANGE = 'route-change'

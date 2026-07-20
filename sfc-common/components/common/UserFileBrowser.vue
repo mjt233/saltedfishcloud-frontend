@@ -162,8 +162,24 @@ const dropFinish = async(e: DragEvent) => {
 }
 
 
+/**
+ * 规范化路径：移除末尾 /（除非路径就是 /），并折叠连续的 //
+ */
+function normalizePath(p: string): string {
+  let result = p.replace(/\/\/+/g, '/')
+  if (result.length > 1 && result.endsWith('/')) {
+    result = result.slice(0, -1)
+  }
+  return result
+}
+
 // 监听搜索事件
 useEventBus({
+  [EventNameConstants.REFRESH_FILE_LIST](data: { path?: string }) {
+    if (!data.path || normalizePath(data.path) === normalizePath(props.path)) {
+      browser.value?.getListContext()?.modelHandler.refresh()
+    }
+  },
   [EventNameConstants.SEARCH_IN_DISK](key: string) {
     // todo 文件搜索列表使用新的FileExplorer实现
     const inst = SfcUtils.openComponentDialog(FileSearchList, {
