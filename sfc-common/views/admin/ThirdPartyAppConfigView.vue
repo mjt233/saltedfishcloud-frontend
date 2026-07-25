@@ -23,6 +23,9 @@
           </template>
           开放平台文档
         </VBtn>
+        <VBtn class="ml-2" @click="openOidcGuide">
+          OIDC 接入说明
+        </VBtn>
         
         <!-- OAuth应用列表表格 -->
         <VDataTable
@@ -253,6 +256,19 @@ function createApp() {
   openAppDialog()
 }
 
+/**
+ * 打开 OIDC 接入说明弹窗
+ */
+function openOidcGuide() {
+  SfcUtils.openComponentDialog(OidcGuideDialog, {
+    extraDialogOptions: {
+      maxWidth: '900px',
+      dense: true
+    },
+    showConfirm: false
+  })
+}
+
 // 初始化数据
 onMounted(() => {
   loadApps()
@@ -262,7 +278,7 @@ onMounted(() => {
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import { AdminContext } from 'sfc-common'
-import { CommonIcon, ThirdPartyAppKeyList, ThirdPartyAppKeyRawInfo } from 'sfc-common/components'
+import { CommonIcon, ThirdPartyAppKeyList, ThirdPartyAppKeyRawInfo, OidcGuideDialog } from 'sfc-common/components'
 import ThirdPartyAppForm from 'sfc-common/components/form/ThirdPartyAppForm.vue'
 
 export default defineComponent({

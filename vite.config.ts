@@ -75,6 +75,7 @@ const commonConfig: UserConfigExport = {
     proxy: {
       '/api': createProxy(),
       '/oauth': createProxy(),
+      '/oauth2': createProxy(),
       '/.well-known/openid-configuration': createProxy()
     }
   },

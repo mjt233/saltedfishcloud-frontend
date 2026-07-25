@@ -2,3 +2,4 @@ export { default as ThirdPartyAppKeyRawInfo  } from './ThirdPartyAppKeyRawInfo.v
 export { default as ThirdPartyAppKeyList  } from './ThirdPartyAppKeyList.vue'
 export { default as ThirdPartyAppList  } from './ThirdPartyAppAuthList.vue'
 export { default as ThirdPartyAppAuthDetail  } from './ThirdPartyAppAuthDetail.vue'
+export { default as OidcGuideDialog  } from './OidcGuideDialog.vue'
