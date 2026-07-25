@@ -86,7 +86,7 @@ npm run build
         gzip_disable "MSIE [1-6]\.";
 
         # 使用反向代理后端时可选配置
-        location ~ (^/api|^/download) {
+        location ~ (^/api|^/download|^/oauth|^/oauth2|^/.well-known/openid-configuration) {
             # 后端API地址
             proxy_pass http://127.0.0.1:8087;
             proxy_buffering off;
