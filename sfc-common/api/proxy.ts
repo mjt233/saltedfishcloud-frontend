@@ -4,6 +4,14 @@ import { useJsonBody } from 'sfc-common/utils'
 const sys = {
   prefix: '/proxy',
   /**
+   * 获取可用的代理列表
+   */
+  available(): CommonRequest<ProxyInfo[]> {
+    return {
+      url: `${this.prefix}/available`
+    }
+  },
+  /**
    * 删除一个代理
    * @param proxyId 代理id
    */

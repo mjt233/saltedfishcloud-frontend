@@ -125,13 +125,12 @@ const emits = defineEmits<{
    */
   (e: 'listLoaded', v: ProxyInfo[]): void
 }>()
-const isAdmin = getContext().session.value.user.role == 'admin'
 
 const tester = createProxyTester()
 
 const actions = MethodInterceptor.createAsyncActionProxy({
   async loadList() {
-    items.value = (await SfcUtils.request(API.task.download.getProxy())).data.data
+    items.value = (await SfcUtils.request(API.proxy.available())).data.data
     if (items.value.length) {
       tester.testAllProxy(items.value, true)
     }
