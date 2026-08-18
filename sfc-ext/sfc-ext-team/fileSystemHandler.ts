@@ -1,5 +1,5 @@
 import type { FileInfo, FileSystemHandler, IdType } from 'sfc-common'
-import { StringUtils } from 'sfc-common'
+import { DiskFileUploadService, fileUploadTaskManager, StringUtils } from 'sfc-common'
 
 /**
  * 团队空间文件系统处理器。
@@ -109,12 +109,21 @@ export class TeamFileSystemHandler implements FileSystemHandler {
 
   /**
    * 直接上传完整文件到团队空间
+   * <p>
+   * 复用宿主 {@link DiskFileUploadService} 执行器式上传，与【我的网盘/公共网盘】一致：
+   * 计算 MD5 摘要（含进度）→ 尝试秒传 → 实时上报上传进度并纳入全局上传列表展示
    * @param path 目标目录路径
    * @param file 待上传文件
    */
   async uploadDirect(path: string, file: File): Promise<string> {
-    await this.utils.request(this.api.file.upload(this.uid, path, file))
-    return StringUtils.appendPath(path, file.name)
+    const executor = DiskFileUploadService.uploadToDisk(this.uid, path, file)
+    return new Promise((resolve, reject) => {
+      executor.onSuccess(() => {
+        resolve(StringUtils.appendPath(path, file.name))
+      })
+      executor.onError(reject)
+      fileUploadTaskManager.addExecutor(executor)
+    })
   }
 
   /**
