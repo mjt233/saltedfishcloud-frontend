@@ -3,8 +3,8 @@
     <!-- 顶部工具栏：左上角团队选择 -->
     <div class="d-flex align-center ga-2 pb-2">
       <v-select
-        :items="teams"
         v-model="currentTeamId"
+        :items="teams"
         item-title="name"
         item-value="id"
         label="选择团队"
@@ -81,12 +81,15 @@ async function loadTeams() {
     const res = await SfcUtils.request(TeamApi.list(false))
     teams.value = res.data.data || []
     teamStore.teams = teams.value
-    // 刷新当前团队：优先保持 store 中的选择，若已失效则清空
+    // 刷新当前团队：优先保持 store 中的选择；其次保持当前选择；
+    // 两者都无效时默认选中第一个团队（无团队则清空）
     const storeTeam = teamStore.currentTeam
-    if (storeTeam && teams.value.some(t => String(t.id) === String(storeTeam.id))) {
-      currentTeamId.value = storeTeam.id
-    } else if (currentTeamId.value != null && !teams.value.some(t => String(t.id) === String(currentTeamId.value))) {
-      currentTeamId.value = null
+    const storeValid = !!storeTeam && teams.value.some(t => String(t.id) === String(storeTeam.id))
+    const currentValid = currentTeamId.value != null && teams.value.some(t => String(t.id) === String(currentTeamId.value))
+    if (storeValid) {
+      currentTeamId.value = storeTeam!.id
+    } else if (!currentValid) {
+      currentTeamId.value = teams.value.length > 0 ? teams.value[0].id : null
     }
   } finally {
     loadingTeams.value = false
@@ -99,11 +102,11 @@ async function loadTeams() {
  */
 function roleName(role: number | undefined) {
   switch (role) {
-    case TeamRole.READ: return '只读'
-    case TeamRole.WRITE: return '读写'
-    case TeamRole.MANAGE: return '管理'
-    case TeamRole.OWNER: return '所有者'
-    default: return '成员'
+  case TeamRole.READ: return '只读'
+  case TeamRole.WRITE: return '读写'
+  case TeamRole.MANAGE: return '管理'
+  case TeamRole.OWNER: return '所有者'
+  default: return '成员'
   }
 }
 
